@@ -2,6 +2,8 @@ import { LucideIcon } from 'lucide-react';
 
 export interface Auth {
     user: User;
+    permissions: string[];
+    roles: string[];
 }
 
 export interface BreadcrumbItem {
@@ -19,22 +21,47 @@ export interface NavItem {
     url: string;
     icon?: LucideIcon | null;
     isActive?: boolean;
+    /** Hidden unless the signed-in user holds this permission. */
+    permission?: string;
 }
 
 export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
+    flash: { success: string | null; error: string | null };
     [key: string]: unknown;
 }
+
+export type UserType = 'internal' | 'client';
 
 export interface User {
     id: number;
     name: string;
     email: string;
     avatar?: string;
+    user_type: UserType;
+    is_active: boolean;
+    last_login_at: string | null;
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
+}
+
+/** Shape of Laravel's length-aware paginator as it arrives over Inertia. */
+export interface Paginated<T> {
+    data: T[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    from: number | null;
+    to: number | null;
+    total: number;
+    links: { url: string | null; label: string; active: boolean }[];
+}
+
+export interface Option {
+    value: string;
+    label: string;
 }

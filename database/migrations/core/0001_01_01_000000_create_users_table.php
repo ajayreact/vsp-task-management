@@ -17,6 +17,12 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            // Staff and client-portal users share this table; access separation
+            // comes from roles, policies and the tenant scope rather than a
+            // second auth guard, so notifications and media stay single-homed.
+            $table->string('user_type', 20)->default('internal')->index();
+            $table->boolean('is_active')->default(true)->index();
+            $table->timestamp('last_login_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

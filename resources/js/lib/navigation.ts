@@ -1,5 +1,5 @@
 import { type NavItem } from '@/types';
-import { Briefcase, LayoutGrid, Users } from 'lucide-react';
+import { Briefcase, Building2, LayoutGrid, ShieldCheck, Users, UsersRound } from 'lucide-react';
 
 /**
  * Each module owns its own navigation. Keeping the three lists apart means a
@@ -12,6 +12,24 @@ export const coreNavItems: NavItem[] = [
         title: 'Dashboard',
         url: '/dashboard',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Employees',
+        url: '/admin/employees',
+        icon: UsersRound,
+        permission: 'employees.view',
+    },
+    {
+        title: 'Departments',
+        url: '/admin/departments',
+        icon: Building2,
+        permission: 'departments.view',
+    },
+    {
+        title: 'Roles',
+        url: '/admin/roles',
+        icon: ShieldCheck,
+        permission: 'roles.view',
     },
 ];
 

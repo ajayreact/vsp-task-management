@@ -1,6 +1,12 @@
 <?php
 
+use App\Modules\Core\Enums\Ability;
+use App\Modules\Core\Enums\SystemRole;
+use App\Modules\Core\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 /*
@@ -16,6 +22,22 @@ use Tests\TestCase;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
+    ->beforeEach(function () {
+        // Spatie caches the permission table, and that cache outlives the
+        // database rollback between tests.
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        // Every real database has the full catalogue because the seeder puts
+        // it there. Roles are left to each test to create.
+        $now = now();
+
+        Permission::insertOrIgnore(array_map(fn (Ability $ability) => [
+            'name' => $ability->value,
+            'guard_name' => 'web',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ], Ability::cases()));
+    })
     ->in('Feature');
 
 /*
@@ -44,7 +66,25 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * A staff user holding exactly the abilities named, and nothing else. Passing
+ * no abilities gives an account that can sign in but reach nothing.
+ */
+function staffWith(Ability ...$abilities): User
 {
-    // ..
+    $user = User::factory()->create();
+
+    $user->syncPermissions(array_map(fn (Ability $ability) => $ability->value, $abilities));
+
+    return $user;
+}
+
+/**
+ * A user who passes every check, for tests about behaviour rather than access.
+ */
+function superAdmin(): User
+{
+    return User::factory()->create()->syncRoles(
+        Role::findOrCreate(SystemRole::SuperAdmin->value, 'web')
+    );
 }

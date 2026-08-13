@@ -41,6 +41,22 @@ App\Modules\TaskManagement ─┘
 
 Each module registers its own routes and migrations from its service provider in `app/Modules/*/Providers/`.
 
+## Access control
+
+Permissions are granted through roles, never directly to a person. The full catalogue of permission names lives in `App\Modules\Core\Enums\Ability`, so a typo in a check is a fatal error instead of a silent `false`. `Database\Seeders\Core\RolesAndPermissionsSeeder` writes the catalogue and the five built-in roles, and is safe to re-run after adding a case to the enum.
+
+| Role | Holds |
+| --- | --- |
+| `super-admin` | Everything, via a `Gate::before` hook rather than permission rows. Cannot be edited or deleted through the UI |
+| `admin` | Every ability in the catalogue |
+| `manager` | Read access to people and the audit log, plus both modules |
+| `employee` | Read access to people, plus Task Management |
+| `client` | The client portal only. Never assignable from a staff screen |
+
+Staff and client-portal users share the `users` table with a `user_type` discriminator instead of a second auth guard, which would have forked notifications, media ownership and the activity log's causer column into parallel implementations. Portal isolation is enforced in four independent layers: the route group, the `internal` middleware, a query scope, and policies. The permission list shared with the frontend only hides navigation and buttons — every action is authorized again server side.
+
+Administration of the shared kernel lives under `/admin` (employees, departments, roles) and is registered by `CoreServiceProvider`, since it belongs to no single module.
+
 ## Requirements
 
 - PHP 8.3+ with `pdo_mysql`, `mbstring`, `openssl`, `fileinfo`, `curl`, `zip`, `intl`, `gd`, `exif`, `tokenizer`, `xml`, `bcmath`, `sodium`
@@ -79,7 +95,7 @@ composer dev
 
 That runs the PHP server, the queue worker, the log tailer and Vite together on <http://localhost:8000>. To run them separately, use `php artisan serve` and `npm run dev`.
 
-The seeded local login is `admin@vsp.test` with password `password`.
+The seeded local login is `admin@vsp.test` with password `password`, which holds the `super-admin` role.
 
 ### WampServer notes
 
@@ -100,3 +116,5 @@ The seeded local login is `admin@vsp.test` with password `password`.
 | `npm run format` | Prettier |
 
 Tests run against the `vsp_crm_testing` MySQL database rather than SQLite, so MySQL-specific schema stays honest.
+
+Feature tests render real Inertia pages, which resolve through the Vite manifest. Run `npm run build` after adding a page, or the test for it fails with `Unable to locate file in Vite manifest`.

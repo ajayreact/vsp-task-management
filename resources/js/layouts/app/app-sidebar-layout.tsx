@@ -2,6 +2,7 @@ import { AppContent } from '@/components/app-content';
 import { AppShell } from '@/components/app-shell';
 import { AppSidebar, type AppSidebarProps } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
+import { FlashToaster } from '@/components/flash-toaster';
 import { type BreadcrumbItem } from '@/types';
 
 export interface AppSidebarLayoutProps extends AppSidebarProps {
@@ -17,6 +18,7 @@ export default function AppSidebarLayout({ children, breadcrumbs = [], ...sideba
                 <AppSidebarHeader breadcrumbs={breadcrumbs} />
                 {children}
             </AppContent>
+            <FlashToaster />
         </AppShell>
     );
 }

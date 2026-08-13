@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Core;
 
+use App\Modules\Core\Enums\UserType;
 use App\Modules\Core\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -32,6 +33,8 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'user_type' => UserType::Internal,
+            'is_active' => true,
             'remember_token' => Str::random(10),
         ];
     }
@@ -44,5 +47,18 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * A client-portal account rather than a staff account.
+     */
+    public function client(): static
+    {
+        return $this->state(fn () => ['user_type' => UserType::Client]);
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn () => ['is_active' => false]);
     }
 }
