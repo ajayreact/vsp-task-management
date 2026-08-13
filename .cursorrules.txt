@@ -1,0 +1,28 @@
+# .cursorrules - Business Management Application Rules
+
+## Technology Stack
+- Framework: Laravel 12 (PHP 8.3+)
+- Frontend: Inertia.js (React 18/19 + TypeScript)
+- UI/Styling: Tailwind CSS + shadcn/ui
+- Database: MySQL 8.0+
+
+## Architecture & Modular Isolation Rules
+1. Core Directory Rules:
+   - Shared models/services live strictly in `app/Modules/Core/`.
+   - CRM logic lives strictly in `app/Modules/Crm/`.
+   - Task Management logic lives strictly in `app/Modules/TaskManagement/`.
+
+2. Domain Separation (STRICT):
+   - NEVER create foreign keys between CRM tables (`crm_*`) and Task Management tables (`tm_*`).
+   - CRM leads, pipelines, and campaigns must NOT depend on or reference tasks or project workflows.
+   - Task management must NOT depend on CRM sales pipelines or campaign workflows.
+   - Shared entities (Users, Employees, Roles, Media) must remain neutral in `app/Modules/Core/`.
+
+3. Client Data Isolation:
+   - Always scope CRM client queries using the `crm_client_id` context.
+   - Client portal users must only access their own campaigns, leads, and reports.
+
+4. Frontend Rules:
+   - React components must be fully typed using TypeScript.
+   - Use shadcn/ui components for form controls, dialogs, dropdowns, and tables.
+   - Place Inertia pages in `resources/js/Pages/Core/`, `resources/js/Pages/Crm/`, and `resources/js/Pages/TaskManagement/`.
