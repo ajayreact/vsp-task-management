@@ -49,13 +49,33 @@ Permissions are granted through roles, never directly to a person. The full cata
 | --- | --- |
 | `super-admin` | Everything, via a `Gate::before` hook rather than permission rows. Cannot be edited or deleted through the UI |
 | `admin` | Every ability in the catalogue |
-| `manager` | Read access to people and the audit log, plus both modules |
-| `employee` | Read access to people, plus Task Management |
+| `manager` | Read access to people and the audit log, both modules, and full control of work companies, projects and task assignment |
+| `employee` | Read access to people, plus Task Management: they can raise tasks and claim open work, but not hand work to anyone else |
 | `client` | The client portal only. Never assignable from a staff screen |
 
 Staff and client-portal users share the `users` table with a `user_type` discriminator instead of a second auth guard, which would have forked notifications, media ownership and the activity log's causer column into parallel implementations. Portal isolation is enforced in four independent layers: the route group, the `internal` middleware, a query scope, and policies. The permission list shared with the frontend only hides navigation and buttons — every action is authorized again server side.
 
 Administration of the shared kernel lives under `/admin` (employees, departments, roles) and is registered by `CoreServiceProvider`, since it belongs to no single module.
+
+## How work reaches a person
+
+Task Management is built around one question: who is doing this, and did they agree to it? There are two answers, and the module treats them differently.
+
+**Direct assignment.** A manager hands the task to someone. It sits at `assigned` until that person accepts, and only they can answer — not their manager, not an admin. Declining sends the task back to the open board with the reason recorded, rather than leaving it parked on someone who has said no.
+
+**Open tasks.** A task published to the board has no assignee. Anyone with a staff profile can claim it, and a claim skips the acceptance step entirely: they chose it, so there is nothing left to agree to. Claims lock the row, so two people clicking at once cannot both win.
+
+Both paths write to `tm_task_assignments`, which is why "who has held this task, and what did they say" is one query even for a task that has bounced between several people. Status changes go to `tm_task_status_history` instead — who holds a task and what state it is in are different questions with different tables.
+
+```
+draft ──► open ◄────────── (decline)
+  │        │  └──► accepted (claim)
+  └──► assigned ──► accepted ──► in_progress ──┬─► completed
+                                               └─► in_review ⇄ revision
+                                                        └─► approved ──► completed
+```
+
+`App\Modules\TaskManagement\Enums\TaskStatus` owns these transitions and `TaskWorkflow` is the only thing that writes them, so no controller can move a task sideways. Review is optional: work that produces nothing to approve closes out straight from `in_progress`. Editing a task cannot change its status, its assignment mode or its assignee — those go through the workflow endpoints under `/tasks/{task}/…` and nowhere else.
 
 ## Requirements
 
@@ -95,7 +115,7 @@ composer dev
 
 That runs the PHP server, the queue worker, the log tailer and Vite together on <http://localhost:8000>. To run them separately, use `php artisan serve` and `npm run dev`.
 
-The seeded local login is `admin@vsp.test` with password `password`, which holds the `super-admin` role.
+The seeded local login is `admin@vsp.test` with password `password`, which holds the `super-admin` role. Locally the seeder also creates `manager@vsp.test` and `designer@vsp.test` (same password) along with a sample company, project and tasks at each interesting point of the lifecycle — sign in as the designer to see the acceptance prompt and the open board from the other side. That demo data is skipped outside `local`.
 
 ### WampServer notes
 

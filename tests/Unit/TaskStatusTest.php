@@ -1,0 +1,78 @@
+<?php
+
+use App\Modules\TaskManagement\Enums\TaskStatus;
+
+/*
+|--------------------------------------------------------------------------
+| The lifecycle in isolation
+|--------------------------------------------------------------------------
+|
+| The HTTP tests prove the workflow uses the state machine. These prove the
+| machine itself is right, without a database in the way.
+|
+*/
+
+test('the happy path from draft to completed is walkable', function () {
+    $path = [
+        TaskStatus::Draft,
+        TaskStatus::Assigned,
+        TaskStatus::Accepted,
+        TaskStatus::InProgress,
+        TaskStatus::InReview,
+        TaskStatus::Approved,
+        TaskStatus::Completed,
+    ];
+
+    foreach (array_slice($path, 0, -1) as $index => $status) {
+        expect($status->canTransitionTo($path[$index + 1]))->toBeTrue();
+    }
+});
+
+test('completed is terminal', function () {
+    expect(TaskStatus::Completed->allowedNext())->toBeEmpty()
+        ->and(TaskStatus::Completed->isClosed())->toBeTrue();
+});
+
+test('work cannot skip acceptance', function () {
+    expect(TaskStatus::Assigned->canTransitionTo(TaskStatus::InProgress))->toBeFalse()
+        ->and(TaskStatus::Draft->canTransitionTo(TaskStatus::Accepted))->toBeFalse();
+});
+
+test('a declined task falls back to the open board', function () {
+    expect(TaskStatus::Assigned->canTransitionTo(TaskStatus::Open))->toBeTrue();
+});
+
+test('claiming reaches accepted directly because the person chose the task', function () {
+    expect(TaskStatus::Open->canTransitionTo(TaskStatus::Accepted))->toBeTrue();
+});
+
+test('review is optional so work can close out without it', function () {
+    expect(TaskStatus::InProgress->canTransitionTo(TaskStatus::Completed))->toBeTrue()
+        ->and(TaskStatus::InProgress->canTransitionTo(TaskStatus::InReview))->toBeTrue();
+});
+
+test('revision loops back for another round of review', function () {
+    expect(TaskStatus::InReview->canTransitionTo(TaskStatus::Revision))->toBeTrue()
+        ->and(TaskStatus::Revision->canTransitionTo(TaskStatus::InReview))->toBeTrue()
+        ->and(TaskStatus::Revision->canTransitionTo(TaskStatus::Approved))->toBeFalse();
+});
+
+test('only the pre-work states count as unstarted', function () {
+    expect(TaskStatus::Draft->isUnstarted())->toBeTrue()
+        ->and(TaskStatus::Open->isUnstarted())->toBeTrue()
+        ->and(TaskStatus::Assigned->isUnstarted())->toBeTrue()
+        ->and(TaskStatus::Accepted->isUnstarted())->toBeFalse()
+        ->and(TaskStatus::InProgress->isUnstarted())->toBeFalse();
+});
+
+test('no status can transition to itself', function () {
+    foreach (TaskStatus::cases() as $status) {
+        expect($status->canTransitionTo($status))->toBeFalse();
+    }
+});
+
+test('every status has a label', function () {
+    foreach (TaskStatus::cases() as $status) {
+        expect($status->label())->not->toBeEmpty();
+    }
+});

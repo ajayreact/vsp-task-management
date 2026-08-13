@@ -1,5 +1,5 @@
 import { type NavItem } from '@/types';
-import { Briefcase, Building2, LayoutGrid, ShieldCheck, Users, UsersRound } from 'lucide-react';
+import { Briefcase, Building, Building2, FolderKanban, Inbox, LayoutGrid, ShieldCheck, Users, UsersRound } from 'lucide-react';
 
 /**
  * Each module owns its own navigation. Keeping the three lists apart means a
@@ -43,9 +43,26 @@ export const crmNavItems: NavItem[] = [
 
 export const taskNavItems: NavItem[] = [
     {
-        title: 'Overview',
+        title: 'Tasks',
         url: '/tasks',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Open board',
+        url: '/tasks/board',
+        icon: Inbox,
+    },
+    {
+        title: 'Projects',
+        url: '/tasks/projects',
+        icon: FolderKanban,
+        permission: 'projects.view',
+    },
+    {
+        title: 'Companies',
+        url: '/tasks/companies',
+        icon: Building,
+        permission: 'companies.view',
     },
 ];
 

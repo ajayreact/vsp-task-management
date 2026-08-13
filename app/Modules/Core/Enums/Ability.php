@@ -27,6 +27,16 @@ enum Ability: string
     case AccessTasks = 'tasks.access';
     case AccessPortal = 'portal.access';
 
+    case ViewCompanies = 'companies.view';
+    case ManageCompanies = 'companies.manage';
+
+    case ViewProjects = 'projects.view';
+    case ManageProjects = 'projects.manage';
+
+    case ViewAllTasks = 'tasks.view_all';
+    case ManageTasks = 'tasks.manage';
+    case AssignTasks = 'tasks.assign';
+
     public function label(): string
     {
         return match ($this) {
@@ -40,6 +50,13 @@ enum Ability: string
             self::AccessCrm => 'Open the CRM module',
             self::AccessTasks => 'Open the Task Management module',
             self::AccessPortal => 'Open the client portal',
+            self::ViewCompanies => 'View work companies',
+            self::ManageCompanies => 'Create, edit and remove work companies',
+            self::ViewProjects => 'View projects',
+            self::ManageProjects => 'Create, edit and remove projects',
+            self::ViewAllTasks => "View everyone's tasks, not just your own",
+            self::ManageTasks => 'Create, edit and remove tasks',
+            self::AssignTasks => 'Assign tasks to other people',
         };
     }
 
@@ -54,6 +71,9 @@ enum Ability: string
             self::ViewRoles, self::ManageRoles => 'Roles',
             self::ViewActivityLog => 'Audit',
             self::AccessCrm, self::AccessTasks, self::AccessPortal => 'Module access',
+            self::ViewCompanies, self::ManageCompanies => 'Work companies',
+            self::ViewProjects, self::ManageProjects => 'Projects',
+            self::ViewAllTasks, self::ManageTasks, self::AssignTasks => 'Tasks',
         };
     }
 }

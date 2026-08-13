@@ -7,6 +7,7 @@ use App\Modules\Core\Models\Department;
 use App\Modules\Core\Models\Employee;
 use App\Modules\Core\Models\User;
 use Database\Seeders\Core\RolesAndPermissionsSeeder;
+use Database\Seeders\TaskManagement\DemoWorkSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -37,5 +38,11 @@ class DatabaseSeeder extends Seeder
                 'joined_on' => now()->subYear(),
             ],
         );
+
+        // Sample work to click through. Local only: a real deployment starts
+        // with the admin account and nothing else.
+        if (app()->environment('local')) {
+            $this->call(DemoWorkSeeder::class);
+        }
     }
 }

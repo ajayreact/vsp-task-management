@@ -2,6 +2,7 @@
 
 use App\Modules\Core\Enums\Ability;
 use App\Modules\Core\Enums\SystemRole;
+use App\Modules\Core\Models\Employee;
 use App\Modules\Core\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
@@ -87,4 +88,17 @@ function superAdmin(): User
     return User::factory()->create()->syncRoles(
         Role::findOrCreate(SystemRole::SuperAdmin->value, 'web')
     );
+}
+
+/**
+ * A staff user who also has an employee profile, which is what task work
+ * requires: you cannot be assigned a task without one.
+ */
+function employeeWith(Ability ...$abilities): Employee
+{
+    $employee = Employee::factory()->create();
+
+    $employee->user->syncPermissions(array_map(fn (Ability $ability) => $ability->value, $abilities));
+
+    return $employee;
 }

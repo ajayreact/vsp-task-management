@@ -52,11 +52,23 @@ enum SystemRole: string
                 Ability::ViewActivityLog,
                 Ability::AccessCrm,
                 Ability::AccessTasks,
+                Ability::ViewCompanies,
+                Ability::ManageCompanies,
+                Ability::ViewProjects,
+                Ability::ManageProjects,
+                Ability::ViewAllTasks,
+                Ability::ManageTasks,
+                Ability::AssignTasks,
             ],
+            // Enough to work the board: see the projects they are on, raise a
+            // task, and claim open work. Not enough to hand work to others.
             self::Employee => [
                 Ability::ViewEmployees,
                 Ability::ViewDepartments,
                 Ability::AccessTasks,
+                Ability::ViewCompanies,
+                Ability::ViewProjects,
+                Ability::ManageTasks,
             ],
             self::Client => [
                 Ability::AccessPortal,

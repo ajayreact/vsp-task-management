@@ -1,17 +1,41 @@
 <?php
 
+use App\Modules\Core\Enums\Ability;
 use App\Modules\Core\Models\User;
 
 test('guests are redirected away from task management', function () {
     $this->get('/tasks')->assertRedirect('/login');
 });
 
-test('authenticated users can reach task management', function () {
-    $this->actingAs(User::factory()->create())
+test('the module is closed to users without the access ability', function () {
+    $this->actingAs(staffWith())
+        ->get('/tasks')
+        ->assertForbidden();
+});
+
+test('the module is closed to client portal users', function () {
+    $client = User::factory()->client()->create();
+    $client->syncPermissions([Ability::AccessTasks->value]);
+
+    $this->actingAs($client)
+        ->get('/tasks')
+        ->assertForbidden();
+});
+
+test('staff with the access ability reach the task list', function () {
+    $this->actingAs(staffWith(Ability::AccessTasks))
         ->get('/tasks')
         ->assertOk();
 });
 
 test('task management routes are namespaced separately from crm', function () {
-    expect(route('tasks.dashboard', absolute: false))->toBe('/tasks');
+    expect(route('tasks.index', absolute: false))->toBe('/tasks')
+        ->and(route('tasks.board', absolute: false))->toBe('/tasks/board')
+        ->and(route('tasks.projects.index', absolute: false))->toBe('/tasks/projects');
+});
+
+test('literal segments are not mistaken for task ids', function () {
+    $this->actingAs(staffWith(Ability::AccessTasks, Ability::ViewProjects))
+        ->get('/tasks/projects')
+        ->assertOk();
 });
