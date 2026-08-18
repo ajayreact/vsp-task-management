@@ -24,7 +24,17 @@ export interface TaskChecklistPayload {
     total: number;
 }
 
-export function TaskChecklist({ taskId, checklist, canManage }: { taskId: number; checklist: TaskChecklistPayload; canManage: boolean }) {
+export function TaskChecklist({
+    taskId,
+    checklist,
+    canManage,
+    canComplete = canManage,
+}: {
+    taskId: number;
+    checklist: TaskChecklistPayload;
+    canManage: boolean;
+    canComplete?: boolean;
+}) {
     const addForm = useForm<{ title: string }>({ title: '' });
     const percent = checklist.total === 0 ? 0 : Math.round((checklist.completed / checklist.total) * 100);
 
@@ -72,6 +82,7 @@ export function TaskChecklist({ taskId, checklist, canManage }: { taskId: number
                             taskId={taskId}
                             item={item}
                             canManage={canManage}
+                            canComplete={canComplete}
                             canMoveUp={canManage && index > 0}
                             canMoveDown={canManage && index < checklist.items.length - 1}
                             onMoveUp={() => {
@@ -123,6 +134,7 @@ function ChecklistRow({
     taskId,
     item,
     canManage,
+    canComplete,
     canMoveUp,
     canMoveDown,
     onMoveUp,
@@ -131,6 +143,7 @@ function ChecklistRow({
     taskId: number;
     item: TaskChecklistItemRow;
     canManage: boolean;
+    canComplete: boolean;
     canMoveUp: boolean;
     canMoveDown: boolean;
     onMoveUp: () => void;
@@ -148,9 +161,9 @@ function ChecklistRow({
         <div className="flex items-start gap-2 rounded-lg border p-3">
             <Checkbox
                 checked={item.is_completed}
-                disabled={!canManage}
+                disabled={!canComplete}
                 onCheckedChange={() => {
-                    if (canManage) {
+                    if (canComplete) {
                         toggle();
                     }
                 }}

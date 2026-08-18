@@ -9,13 +9,13 @@ use App\Modules\TaskManagement\Notifications\StaffDatabaseNotification;
 use Illuminate\Support\Facades\Notification;
 
 test('an authorized user can create a subtask', function () {
-    $employee = employeeWith(Ability::AccessTasks);
+    $manager = employeeWith(Ability::AccessTasks, Ability::ViewAllTasks);
     $task = Task::factory()->create([
         'status' => TaskStatus::InProgress,
-        'assigned_employee_id' => $employee->id,
+        'assigned_employee_id' => $manager->id,
     ]);
 
-    $this->actingAs($employee->user)
+    $this->actingAs($manager->user)
         ->post("/tasks/{$task->id}/subtasks", [
             'title' => 'Prepare copy deck',
             'description' => 'Draft headlines and CTA options.',
@@ -119,6 +119,7 @@ test('an authorized user can complete and uncomplete a subtask', function () {
         'tm_task_id' => $task->id,
         'title' => 'Export assets',
         'status' => SubtaskStatus::Pending,
+        'assigned_employee_id' => $employee->id,
         'sort_order' => 1,
     ]);
 
@@ -143,10 +144,10 @@ test('an authorized user can complete and uncomplete a subtask', function () {
 });
 
 test('an authorized user can delete a subtask', function () {
-    $employee = employeeWith(Ability::AccessTasks);
+    $manager = employeeWith(Ability::AccessTasks, Ability::ViewAllTasks);
     $task = Task::factory()->create([
         'status' => TaskStatus::InProgress,
-        'assigned_employee_id' => $employee->id,
+        'assigned_employee_id' => $manager->id,
     ]);
     $subtask = TaskSubtask::query()->create([
         'tm_task_id' => $task->id,
@@ -155,7 +156,7 @@ test('an authorized user can delete a subtask', function () {
         'sort_order' => 1,
     ]);
 
-    $this->actingAs($employee->user)
+    $this->actingAs($manager->user)
         ->delete("/tasks/{$task->id}/subtasks/{$subtask->id}")
         ->assertRedirect();
 
@@ -206,8 +207,8 @@ test('completing all subtasks does not complete the parent task', function () {
         'assigned_employee_id' => $employee->id,
     ]);
 
-    $first = TaskSubtask::query()->create(['tm_task_id' => $task->id, 'title' => 'One', 'status' => SubtaskStatus::Pending, 'sort_order' => 1]);
-    $second = TaskSubtask::query()->create(['tm_task_id' => $task->id, 'title' => 'Two', 'status' => SubtaskStatus::Pending, 'sort_order' => 2]);
+    $first = TaskSubtask::query()->create(['tm_task_id' => $task->id, 'title' => 'One', 'status' => SubtaskStatus::Pending, 'assigned_employee_id' => $employee->id, 'sort_order' => 1]);
+    $second = TaskSubtask::query()->create(['tm_task_id' => $task->id, 'title' => 'Two', 'status' => SubtaskStatus::Pending, 'assigned_employee_id' => $employee->id, 'sort_order' => 2]);
 
     $this->actingAs($employee->user)->patch("/tasks/{$task->id}/subtasks/{$first->id}/toggle")->assertRedirect();
     $this->actingAs($employee->user)->patch("/tasks/{$task->id}/subtasks/{$second->id}/toggle")->assertRedirect();
@@ -219,18 +220,18 @@ test('completing all subtasks does not complete the parent task', function () {
 test('assigning a subtask does not notify the assigner when they assign themselves', function () {
     Notification::fake();
 
-    $employee = employeeWith(Ability::AccessTasks);
+    $manager = employeeWith(Ability::AccessTasks, Ability::ViewAllTasks);
     $task = Task::factory()->create([
         'status' => TaskStatus::InProgress,
-        'assigned_employee_id' => $employee->id,
+        'assigned_employee_id' => $manager->id,
     ]);
 
-    $this->actingAs($employee->user)
+    $this->actingAs($manager->user)
         ->post("/tasks/{$task->id}/subtasks", [
             'title' => 'Self assigned',
-            'assigned_employee_id' => $employee->id,
+            'assigned_employee_id' => $manager->id,
         ])
         ->assertRedirect();
 
-    Notification::assertNotSentTo($employee->user, StaffDatabaseNotification::class);
+    Notification::assertNotSentTo($manager->user, StaffDatabaseNotification::class);
 });

@@ -133,6 +133,8 @@ test('an unrelated task is hidden from someone who cannot see all tasks', functi
 });
 
 test('an open task is visible to everyone so that it can be picked up', function () {
+    $this->withoutVite();
+
     $employee = employeeWith(Ability::AccessTasks);
     $task = Task::factory()->open()->create();
 
@@ -195,6 +197,8 @@ test('a task that is under way cannot be deleted', function () {
 });
 
 test('the detail screen offers only the transitions the task can make', function () {
+    $this->withoutVite();
+
     $employee = employeeWith(Ability::AccessTasks);
     $task = Task::factory()->acceptedBy($employee)->create();
 

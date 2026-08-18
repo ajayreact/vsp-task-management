@@ -74,8 +74,6 @@ enum SystemRole: string
             // Cannot create, assign, publish, manage org structure, or open admin screens.
             self::Employee => [
                 Ability::AccessTasks,
-                Ability::ViewCompanies,
-                Ability::ViewProjects,
             ],
         };
     }

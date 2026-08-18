@@ -10,22 +10,11 @@ class DeliverablePolicy
 {
     /**
      * Issuing or copying the public client share link. Super Admin is granted
-     * through Gate::before; this method is the rest of the staff surface.
+     * through Gate::before; staff need tasks.view_all.
      */
     public function share(User $user, Deliverable $deliverable): bool
     {
-        if ($user->can(Ability::ViewAllTasks->value)) {
-            return true;
-        }
-
-        if ($user->employee?->id === $deliverable->submitted_by_employee_id) {
-            return true;
-        }
-
-        $task = $deliverable->task;
-
-        return $task->assigned_employee_id !== null
-            && $task->assigned_employee_id === $user->employee?->id;
+        return $user->can(Ability::ViewAllTasks->value);
     }
 
     /**

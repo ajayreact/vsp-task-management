@@ -31,16 +31,21 @@ export function NavMain({ items = [], label = 'Platform', anyPermission }: { ite
                 {label}
             </SidebarGroupLabel>
             <SidebarMenu className="gap-1">
-                {visible.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild isActive={isCurrent(page.url, item.url)} tooltip={item.title}>
+                {visible.map((item) => {
+                    const label =
+                        item.contributorTitle && !can('tasks.view_all') ? item.contributorTitle : item.title;
+
+                    return (
+                    <SidebarMenuItem key={item.url}>
+                        <SidebarMenuButton asChild isActive={isCurrent(page.url, item.url)} tooltip={label}>
                             <Link href={item.url} prefetch>
                                 {item.icon && <item.icon strokeWidth={1.75} />}
-                                <span>{item.title}</span>
+                                <span>{label}</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
-                ))}
+                    );
+                })}
             </SidebarMenu>
         </SidebarGroup>
     );

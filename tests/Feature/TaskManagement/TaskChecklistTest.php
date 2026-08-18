@@ -6,13 +6,13 @@ use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Models\TaskChecklistItem;
 
 test('an authorized user can create a checklist item', function () {
-    $employee = employeeWith(Ability::AccessTasks);
+    $manager = employeeWith(Ability::AccessTasks, Ability::ViewAllTasks);
     $task = Task::factory()->create([
         'status' => TaskStatus::InProgress,
-        'assigned_employee_id' => $employee->id,
+        'assigned_employee_id' => $manager->id,
     ]);
 
-    $this->actingAs($employee->user)
+    $this->actingAs($manager->user)
         ->post("/tasks/{$task->id}/checklist-items", ['title' => 'Export final PNG'])
         ->assertRedirect();
 
@@ -25,10 +25,10 @@ test('an authorized user can create a checklist item', function () {
 });
 
 test('an authorized user can update a checklist item title', function () {
-    $employee = employeeWith(Ability::AccessTasks);
+    $manager = employeeWith(Ability::AccessTasks, Ability::ViewAllTasks);
     $task = Task::factory()->create([
         'status' => TaskStatus::InProgress,
-        'assigned_employee_id' => $employee->id,
+        'assigned_employee_id' => $manager->id,
     ]);
     $item = TaskChecklistItem::query()->create([
         'tm_task_id' => $task->id,
@@ -36,7 +36,7 @@ test('an authorized user can update a checklist item title', function () {
         'sort_order' => 1,
     ]);
 
-    $this->actingAs($employee->user)
+    $this->actingAs($manager->user)
         ->put("/tasks/{$task->id}/checklist-items/{$item->id}", ['title' => 'Draft headline copy'])
         ->assertRedirect();
 
@@ -78,10 +78,10 @@ test('an authorized user can complete and uncomplete a checklist item', function
 });
 
 test('an authorized user can delete a checklist item', function () {
-    $employee = employeeWith(Ability::AccessTasks);
+    $manager = employeeWith(Ability::AccessTasks, Ability::ViewAllTasks);
     $task = Task::factory()->create([
         'status' => TaskStatus::InProgress,
-        'assigned_employee_id' => $employee->id,
+        'assigned_employee_id' => $manager->id,
     ]);
     $item = TaskChecklistItem::query()->create([
         'tm_task_id' => $task->id,
@@ -89,7 +89,7 @@ test('an authorized user can delete a checklist item', function () {
         'sort_order' => 1,
     ]);
 
-    $this->actingAs($employee->user)
+    $this->actingAs($manager->user)
         ->delete("/tasks/{$task->id}/checklist-items/{$item->id}")
         ->assertRedirect();
 
@@ -146,16 +146,16 @@ test('a bystander cannot manage checklist items on someone elses task', function
 });
 
 test('an authorized user can reorder checklist items', function () {
-    $employee = employeeWith(Ability::AccessTasks);
+    $manager = employeeWith(Ability::AccessTasks, Ability::ViewAllTasks);
     $task = Task::factory()->create([
         'status' => TaskStatus::InProgress,
-        'assigned_employee_id' => $employee->id,
+        'assigned_employee_id' => $manager->id,
     ]);
 
     $first = TaskChecklistItem::query()->create(['tm_task_id' => $task->id, 'title' => 'First', 'sort_order' => 1]);
     $second = TaskChecklistItem::query()->create(['tm_task_id' => $task->id, 'title' => 'Second', 'sort_order' => 2]);
 
-    $this->actingAs($employee->user)
+    $this->actingAs($manager->user)
         ->post("/tasks/{$task->id}/checklist-items/reorder", ['order' => [$second->id, $first->id]])
         ->assertRedirect();
 

@@ -12,6 +12,12 @@ class TaskSubtaskPolicy
         return $user->can('manageSubtasks', $subtask->task);
     }
 
+    public function updateOwn(User $user, TaskSubtask $subtask): bool
+    {
+        return $user->employee?->id !== null
+            && $subtask->assigned_employee_id === $user->employee->id;
+    }
+
     public function delete(User $user, TaskSubtask $subtask): bool
     {
         return $user->can('manageSubtasks', $subtask->task);
@@ -19,6 +25,7 @@ class TaskSubtaskPolicy
 
     public function toggle(User $user, TaskSubtask $subtask): bool
     {
-        return $user->can('manageSubtasks', $subtask->task);
+        return $user->can('manageSubtasks', $subtask->task)
+            || $this->updateOwn($user, $subtask);
     }
 }

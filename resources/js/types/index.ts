@@ -20,6 +20,8 @@ export interface NavGroup {
 
 export interface NavItem {
     title: string;
+    /** Shown instead of title when the user lacks tasks.view_all. */
+    contributorTitle?: string;
     url: string;
     icon?: LucideIcon | null;
     isActive?: boolean;

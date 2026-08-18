@@ -48,6 +48,7 @@ export const taskNavItems: NavItem[] = [
     },
     {
         title: 'Tasks',
+        contributorTitle: 'My Tasks',
         url: '/tasks',
         icon: ListChecks,
         permission: 'tasks.access',

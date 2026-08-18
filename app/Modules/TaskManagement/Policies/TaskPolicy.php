@@ -28,8 +28,28 @@ class TaskPolicy
 
         return $user->can(Ability::ViewAllTasks->value)
             || $this->isAssignee($user, $task)
+            || $this->hasAssignedSubtask($user, $task)
             || $task->created_by_user_id === $user->id
             || $this->isClaimable($task);
+    }
+
+    /**
+     * Full admin task detail surface: reminders, recurrence, assignment
+     * history, reassign, and task structure editing.
+     */
+    public function viewAdminDetails(User $user, Task $task): bool
+    {
+        if (! $this->view($user, $task)) {
+            return false;
+        }
+
+        return $user->can(Ability::ViewAllTasks->value)
+            || $user->can(Ability::AssignTasks->value);
+    }
+
+    public function viewAssignmentHistory(User $user, Task $task): bool
+    {
+        return $this->viewAdminDetails($user, $task);
     }
 
     public function create(User $user): bool
@@ -126,37 +146,58 @@ class TaskPolicy
         }
 
         return $this->isAssignee($user, $task)
+            || $this->hasAssignedSubtask($user, $task)
             || $task->created_by_user_id === $user->id
             || $user->can(Ability::ViewAllTasks->value);
     }
 
     /**
-     * Task discussion and checklists follow the same collaboration surface as
-     * working-file uploads.
+     * Task discussion follows the same collaboration surface as working-file
+     * uploads.
      */
     public function comment(User $user, Task $task): bool
     {
         return $this->attachFiles($user, $task);
     }
 
+    /**
+     * Adding, editing, deleting, and reordering checklist items.
+     */
     public function manageChecklist(User $user, Task $task): bool
     {
-        return $this->attachFiles($user, $task);
+        return $this->viewAdminDetails($user, $task);
     }
 
+    /**
+     * Marking checklist items complete without changing the list structure.
+     */
+    public function completeChecklist(User $user, Task $task): bool
+    {
+        if (! $this->view($user, $task)) {
+            return false;
+        }
+
+        return $this->isAssignee($user, $task)
+            || $this->hasAssignedSubtask($user, $task)
+            || $this->viewAdminDetails($user, $task);
+    }
+
+    /**
+     * Creating, deleting, reassigning, and reordering subtasks.
+     */
     public function manageSubtasks(User $user, Task $task): bool
     {
-        return $this->attachFiles($user, $task);
+        return $this->viewAdminDetails($user, $task);
     }
 
     public function manageReminders(User $user, Task $task): bool
     {
-        return $this->attachFiles($user, $task);
+        return $this->viewAdminDetails($user, $task);
     }
 
     public function manageRecurrence(User $user, Task $task): bool
     {
-        if (! $this->attachFiles($user, $task)) {
+        if (! $this->viewAdminDetails($user, $task)) {
             return false;
         }
 
@@ -188,6 +229,17 @@ class TaskPolicy
     {
         return $task->assigned_employee_id !== null
             && $task->assigned_employee_id === $user->employee?->id;
+    }
+
+    protected function hasAssignedSubtask(User $user, Task $task): bool
+    {
+        $employeeId = $user->employee?->id;
+
+        if ($employeeId === null) {
+            return false;
+        }
+
+        return $task->subtasks()->where('assigned_employee_id', $employeeId)->exists();
     }
 
     protected function isClaimable(Task $task): bool

@@ -26,6 +26,7 @@ export interface TaskSubtaskRow {
     due_at: string | null;
     completed_at: string | null;
     sort_order: number;
+    can_update?: boolean;
 }
 
 export interface TaskSubtasksPayload {
@@ -70,12 +71,14 @@ export function TaskSubtasks({
     statuses,
     employees,
     canManage,
+    contributorMode = false,
 }: {
     taskId: number;
     subtasks: TaskSubtasksPayload;
     statuses: Option[];
     employees: { id: number; label: string }[];
     canManage: boolean;
+    contributorMode?: boolean;
 }) {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editing, setEditing] = useState<TaskSubtaskRow | null>(null);
@@ -132,9 +135,11 @@ export function TaskSubtasks({
                 <CardHeader>
                     <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                            <CardTitle>Subtasks</CardTitle>
+                            <CardTitle>{contributorMode ? 'My subtasks' : 'Subtasks'}</CardTitle>
                             <CardDescription>
-                                Break the parent task into assignable pieces. Completing subtasks does not close the parent task.
+                                {contributorMode
+                                    ? 'Subtasks assigned to you on this task.'
+                                    : 'Break the parent task into assignable pieces. Completing subtasks does not close the parent task.'}
                             </CardDescription>
                         </div>
                         <div className="flex items-center gap-2">
@@ -168,7 +173,10 @@ export function TaskSubtasks({
                             key={item.id}
                             taskId={taskId}
                             item={item}
+                            statuses={statuses}
                             canManage={canManage}
+                            canUpdate={item.can_update ?? canManage}
+                            contributorMode={contributorMode}
                             canMoveUp={canManage && index > 0}
                             canMoveDown={canManage && index < subtasks.items.length - 1}
                             onEdit={() => openEdit(item)}
@@ -281,7 +289,10 @@ export function TaskSubtasks({
 function SubtaskRow({
     taskId,
     item,
+    statuses,
     canManage,
+    canUpdate,
+    contributorMode,
     canMoveUp,
     canMoveDown,
     onEdit,
@@ -290,7 +301,10 @@ function SubtaskRow({
 }: {
     taskId: number;
     item: TaskSubtaskRow;
+    statuses: Option[];
     canManage: boolean;
+    canUpdate: boolean;
+    contributorMode: boolean;
     canMoveUp: boolean;
     canMoveDown: boolean;
     onEdit: () => void;
@@ -298,15 +312,16 @@ function SubtaskRow({
     onMoveUp: () => void;
 }) {
     const deleteForm = useForm({});
+    const statusForm = useForm<{ status: string }>({ status: item.status });
     const completed = item.status === 'completed';
 
     return (
         <div className="flex items-start gap-3 rounded-lg border p-3">
             <Checkbox
                 checked={completed}
-                disabled={!canManage}
+                disabled={!canUpdate}
                 onCheckedChange={() => {
-                    if (canManage) {
+                    if (canUpdate) {
                         router.patch(`/tasks/${taskId}/subtasks/${item.id}/toggle`, {}, { preserveScroll: true });
                     }
                 }}
@@ -317,16 +332,52 @@ function SubtaskRow({
             <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                     <p className={cn('text-sm font-medium', completed && 'text-muted-foreground line-through')}>{item.title}</p>
-                    <Badge variant={completed ? 'default' : 'secondary'}>{item.status_label}</Badge>
+                    {!contributorMode && <Badge variant={completed ? 'default' : 'secondary'}>{item.status_label}</Badge>}
                 </div>
                 {item.description && <p className="text-muted-foreground mt-1 text-xs whitespace-pre-wrap">{item.description}</p>}
                 <div className="text-muted-foreground mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-                    <span>Assignee: {item.assignee_name ?? 'Unassigned'}</span>
+                    {!contributorMode && <span>Assignee: {item.assignee_name ?? 'Unassigned'}</span>}
                     <span>
                         Due: <DueDate value={item.due_at} />
                     </span>
                     {item.completed_at && <span>Completed: {new Date(item.completed_at).toLocaleString()}</span>}
                 </div>
+
+                {contributorMode && canUpdate && !completed && (
+                    <form
+                        className="mt-3 flex flex-wrap items-end gap-2"
+                        onSubmit={(event) => {
+                            event.preventDefault();
+                            statusForm.put(`/tasks/${taskId}/subtasks/${item.id}`, {
+                                preserveScroll: true,
+                            });
+                        }}
+                    >
+                        <div className="grid min-w-[10rem] gap-1">
+                            <Label htmlFor={`subtask_status_${item.id}`} className="text-xs">
+                                Status
+                            </Label>
+                            <Select
+                                value={statusForm.data.status}
+                                onValueChange={(value) => statusForm.setData('status', value)}
+                            >
+                                <SelectTrigger id={`subtask_status_${item.id}`} className="h-8">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {statuses.map((status) => (
+                                        <SelectItem key={status.value} value={status.value}>
+                                            {status.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <Button type="submit" size="sm" disabled={statusForm.processing}>
+                            Update
+                        </Button>
+                    </form>
+                )}
             </div>
 
             {canManage && (

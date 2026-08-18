@@ -32,14 +32,13 @@ interface Props {
     projects: { id: number; name: string }[];
     statuses: Option[];
     priorities: Option[];
+    pageTitle: string;
     can: { create: boolean; viewAll: boolean };
 }
 
 const ALL = 'all';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Tasks', href: '/tasks' }];
-
-export default function TaskIndex({ tasks, filters, projects, statuses, priorities, can }: Props) {
+export default function TaskIndex({ tasks, filters, projects, statuses, priorities, pageTitle, can }: Props) {
     const [search, setSearch] = useState(filters.search ?? '');
 
     useEffect(() => {
@@ -68,13 +67,15 @@ export default function TaskIndex({ tasks, filters, projects, statuses, prioriti
         );
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [{ title: pageTitle, href: '/tasks' }];
+
     return (
         <TaskLayout breadcrumbs={breadcrumbs}>
-            <Head title="Tasks" />
+            <Head title={pageTitle} />
 
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
                 <DataTableCard
-                    title="Tasks"
+                    title={pageTitle}
                     description={
                         can.viewAll
                             ? 'Every task across the agency. Switch the scope to narrow it to your own work.'

@@ -19,6 +19,6 @@ class TaskChecklistItemPolicy
 
     public function toggle(User $user, TaskChecklistItem $item): bool
     {
-        return $user->can('manageChecklist', $item->task);
+        return $user->can('completeChecklist', $item->task);
     }
 }

@@ -56,6 +56,7 @@ class TaskController extends Controller
             'projects' => Project::query()->orderBy('name')->get(['id', 'name']),
             'statuses' => TaskStatus::options(),
             'priorities' => TaskPriority::options(),
+            'pageTitle' => $canSeeEverything ? 'Tasks' : 'My Tasks',
             'can' => [
                 'create' => $user->can('create', Task::class),
                 'viewAll' => $canSeeEverything,
@@ -138,6 +139,15 @@ class TaskController extends Controller
     {
         $this->authorize('view', $task);
 
+        if ($request->user()->can('viewAdminDetails', $task)) {
+            return $this->renderAdminTaskShow($request, $task);
+        }
+
+        return $this->renderEmployeeTaskShow($request, $task);
+    }
+
+    protected function renderAdminTaskShow(Request $request, Task $task): Response
+    {
         $user = $request->user();
 
         $task->load([
@@ -150,7 +160,103 @@ class TaskController extends Controller
             'ownedRecurrenceRule',
         ]);
 
-        return Inertia::render('TaskManagement/tasks/show', [
+        return Inertia::render('TaskManagement/tasks/show', $this->adminTaskShowPayload($request, $task, $user));
+    }
+
+    protected function renderEmployeeTaskShow(Request $request, Task $task): Response
+    {
+        $user = $request->user();
+        $employeeId = $user->employee?->id;
+
+        $task->load([
+            'project:id,name,code,tm_company_id',
+            'project.company:id,name',
+            'assignee:id,user_id,employee_code',
+            'assignee.user:id,name',
+        ]);
+
+        $subtasksQuery = $task->subtasks()
+            ->with('assignee.user:id,name')
+            ->when($employeeId !== null, fn (Builder $query) => $query->where('assigned_employee_id', $employeeId))
+            ->orderBy('sort_order')
+            ->orderBy('id');
+
+        $subtasks = $subtasksQuery->get();
+        $timeEntriesQuery = $task->timeEntries()
+            ->with('employee.user:id,name')
+            ->where('is_running', false)
+            ->orderByDesc('started_at')
+            ->limit(20);
+
+        if ($employeeId !== null) {
+            $timeEntriesQuery->where('employee_id', $employeeId);
+        } else {
+            $timeEntriesQuery->whereRaw('1 = 0');
+        }
+
+        return Inertia::render('TaskManagement/tasks/show-employee', [
+            'task' => [
+                ...$this->summarise($task),
+                'description' => $task->description,
+                'company_name' => $task->project->company->name,
+            ],
+            'allowedTransitions' => $user->can('progress', $task)
+                ? array_map(
+                    fn (TaskStatus $status) => ['value' => $status->value, 'label' => $status->label()],
+                    $task->status->allowedNext(),
+                )
+                : [],
+            'timer' => $this->timerPayload($task, $employeeId),
+            'timeEntries' => $timeEntriesQuery->get()->map(fn (TimeEntry $entry) => [
+                'id' => $entry->id,
+                'employee_name' => $entry->employee->user->name,
+                'started_at' => $entry->started_at->toIso8601String(),
+                'ended_at' => $entry->ended_at?->toIso8601String(),
+                'hours' => $entry->hours(),
+                'source' => $entry->source->label(),
+                'note' => $entry->note,
+                'can_delete' => $user->can('delete', $entry),
+            ]),
+            'attachments' => $this->attachmentPayload($task, $user),
+            'deliverables' => $this->deliverablePayload($task, $user),
+            'comments' => $this->commentPayload($task, $user),
+            'checklist' => $this->checklistPayload($task),
+            'subtasks' => [
+                'items' => $subtasks->map(fn (TaskSubtask $subtask) => [
+                    'id' => $subtask->id,
+                    'title' => $subtask->title,
+                    'description' => $subtask->description,
+                    'status' => $subtask->status->value,
+                    'status_label' => $subtask->status->label(),
+                    'assignee_name' => $subtask->assignee?->user->name,
+                    'assigned_employee_id' => $subtask->assigned_employee_id,
+                    'due_at' => $subtask->due_at?->toIso8601String(),
+                    'completed_at' => $subtask->completed_at?->toIso8601String(),
+                    'sort_order' => $subtask->sort_order,
+                    'can_update' => $user->can('updateOwn', $subtask) || $user->can('toggle', $subtask),
+                ]),
+                'completed' => $subtasks->where('status', SubtaskStatus::Completed)->count(),
+                'total' => $subtasks->count(),
+            ],
+            'subtaskStatuses' => SubtaskStatus::options(),
+            'can' => [
+                'claim' => $user->can('claim', $task),
+                'respond' => $user->can('respond', $task) && $task->status === TaskStatus::Assigned,
+                'logTime' => $user->can('logTime', $task),
+                'attachFiles' => $user->can('attachFiles', $task),
+                'comment' => $user->can('comment', $task),
+                'completeChecklist' => $user->can('completeChecklist', $task),
+                'submitProof' => $user->can('submitProof', $task),
+            ],
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function adminTaskShowPayload(Request $request, Task $task, User $user): array
+    {
+        return [
             'task' => [
                 ...$this->summarise($task),
                 'description' => $task->description,
@@ -213,67 +319,9 @@ class TaskController extends Controller
                     'can_delete' => $user->can('delete', $entry),
                 ]),
             'attachments' => $this->attachmentPayload($task, $user),
-            'deliverables' => $task->deliverables()
-                ->with(['submitter.user:id,name', 'reviews.reviewer:id,name', 'media', 'shareLink'])
-                ->orderByDesc('version')
-                ->get()
-                ->map(fn (Deliverable $deliverable) => [
-                    'id' => $deliverable->id,
-                    'version' => $deliverable->version,
-                    'status' => $deliverable->status->value,
-                    'status_label' => $deliverable->status->label(),
-                    'notes' => $deliverable->notes,
-                    'submitted_by' => $deliverable->submitter->user->name,
-                    'submitted_at' => $deliverable->submitted_at->toIso8601String(),
-                    'can_share' => $user->can('share', $deliverable),
-                    'share_url' => $deliverable->shareLink?->publicUrl(),
-                    'files' => $deliverable->getMedia('proofs')->map(fn (Media $media) => [
-                        'id' => $media->id,
-                        'name' => $media->file_name,
-                        'url' => $media->getUrl(),
-                        'mime' => $media->mime_type,
-                    ])->all(),
-                    'reviews' => $deliverable->reviews->map(fn (DeliverableReview $review) => [
-                        'id' => $review->id,
-                        'round' => $review->round,
-                        'decision' => $review->decision->label(),
-                        'comments' => $review->comments,
-                        'reviewer' => $review->reviewer->name,
-                        'reviewed_at' => $review->reviewed_at->toIso8601String(),
-                    ])->all(),
-                ]),
-            'comments' => $task->comments()
-                ->with('author:id,name,avatar')
-                ->orderBy('created_at')
-                ->orderBy('id')
-                ->get()
-                ->map(fn (TaskComment $comment) => [
-                    'id' => $comment->id,
-                    'body' => $comment->body,
-                    'author_name' => $comment->author->name,
-                    'author_avatar' => $comment->author->avatar,
-                    'created_at' => $comment->created_at?->toIso8601String(),
-                    'updated_at' => $comment->updated_at?->toIso8601String(),
-                    'can_edit' => $user->can('update', $comment),
-                    'can_delete' => $user->can('delete', $comment),
-                ]),
-            'checklist' => [
-                'items' => $task->checklistItems()
-                    ->with('completedBy:id,name')
-                    ->orderBy('sort_order')
-                    ->orderBy('id')
-                    ->get()
-                    ->map(fn (TaskChecklistItem $item) => [
-                        'id' => $item->id,
-                        'title' => $item->title,
-                        'is_completed' => $item->is_completed,
-                        'completed_by' => $item->completedBy?->name,
-                        'completed_at' => $item->completed_at?->toIso8601String(),
-                        'sort_order' => $item->sort_order,
-                    ]),
-                'completed' => $task->checklistItems()->where('is_completed', true)->count(),
-                'total' => $task->checklistItems()->count(),
-            ],
+            'deliverables' => $this->deliverablePayload($task, $user),
+            'comments' => $this->commentPayload($task, $user),
+            'checklist' => $this->checklistPayload($task),
             'subtasks' => [
                 'items' => $task->subtasks()
                     ->with('assignee.user:id,name')
@@ -342,7 +390,7 @@ class TaskController extends Controller
                 'submitProof' => $user->can('submitProof', $task),
                 'reviewProof' => $user->can('reviewProof', $task),
             ],
-        ]);
+        ];
     }
 
     public function edit(Task $task): Response
@@ -421,9 +469,16 @@ class TaskController extends Controller
 
                 // A user with no employee profile has no work of their own, and
                 // whereKey(null) would otherwise match everything.
-                $employeeId === null
-                    ? $query->whereRaw('1 = 0')
-                    : $query->where('assigned_employee_id', $employeeId);
+                if ($employeeId === null) {
+                    $query->whereRaw('1 = 0');
+
+                    return;
+                }
+
+                $query->where(function (Builder $mine) use ($employeeId) {
+                    $mine->where('assigned_employee_id', $employeeId)
+                        ->orWhereHas('subtasks', fn (Builder $subtasks) => $subtasks->where('assigned_employee_id', $employeeId));
+                });
             })
             ->when($scope === 'unassigned', fn (Builder $query) => $query->whereNull('assigned_employee_id'))
             ->when($filters['search'], fn (Builder $query, string $search) => $query->where('title', 'like', "%{$search}%"))
@@ -487,6 +542,90 @@ class TaskController extends Controller
                 'label' => $employee->user->name.' · '.$employee->employee_code,
             ])
             ->all();
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    protected function deliverablePayload(Task $task, User $user): array
+    {
+        return $task->deliverables()
+            ->with(['submitter.user:id,name', 'reviews.reviewer:id,name', 'media', 'shareLink'])
+            ->orderByDesc('version')
+            ->get()
+            ->map(fn (Deliverable $deliverable) => [
+                'id' => $deliverable->id,
+                'version' => $deliverable->version,
+                'status' => $deliverable->status->value,
+                'status_label' => $deliverable->status->label(),
+                'notes' => $deliverable->notes,
+                'submitted_by' => $deliverable->submitter->user->name,
+                'submitted_at' => $deliverable->submitted_at->toIso8601String(),
+                'can_share' => $user->can('share', $deliverable),
+                'share_url' => $deliverable->shareLink?->publicUrl(),
+                'files' => $deliverable->getMedia('proofs')->map(fn (Media $media) => [
+                    'id' => $media->id,
+                    'name' => $media->file_name,
+                    'url' => $media->getUrl(),
+                    'mime' => $media->mime_type,
+                ])->all(),
+                'reviews' => $deliverable->reviews->map(fn (DeliverableReview $review) => [
+                    'id' => $review->id,
+                    'round' => $review->round,
+                    'decision' => $review->decision->label(),
+                    'comments' => $review->comments,
+                    'reviewer' => $review->reviewer->name,
+                    'reviewed_at' => $review->reviewed_at->toIso8601String(),
+                ])->all(),
+            ])->all();
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    protected function commentPayload(Task $task, User $user): array
+    {
+        return $task->comments()
+            ->with('author:id,name,avatar')
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (TaskComment $comment) => [
+                'id' => $comment->id,
+                'body' => $comment->body,
+                'author_name' => $comment->author->name,
+                'author_avatar' => $comment->author->avatar,
+                'created_at' => $comment->created_at?->toIso8601String(),
+                'updated_at' => $comment->updated_at?->toIso8601String(),
+                'can_edit' => $user->can('update', $comment),
+                'can_delete' => $user->can('delete', $comment),
+            ])->all();
+    }
+
+    /**
+     * @return array{items: list<array<string, mixed>>, completed: int, total: int}
+     */
+    protected function checklistPayload(Task $task): array
+    {
+        $items = $task->checklistItems()
+            ->with('completedBy:id,name')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (TaskChecklistItem $item) => [
+                'id' => $item->id,
+                'title' => $item->title,
+                'is_completed' => $item->is_completed,
+                'completed_by' => $item->completedBy?->name,
+                'completed_at' => $item->completed_at?->toIso8601String(),
+                'sort_order' => $item->sort_order,
+            ])->all();
+
+        return [
+            'items' => $items,
+            'completed' => $task->checklistItems()->where('is_completed', true)->count(),
+            'total' => $task->checklistItems()->count(),
+        ];
     }
 
     /**

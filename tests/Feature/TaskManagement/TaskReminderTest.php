@@ -8,15 +8,15 @@ use App\Modules\TaskManagement\Notifications\StaffDatabaseNotification;
 use App\Modules\TaskManagement\Services\TaskReminderService;
 use Illuminate\Support\Facades\Notification;
 
-test('an authorized assignee can create a reminder on their task', function () {
-    $employee = employeeWith(Ability::AccessTasks);
+test('a manager can create a reminder on a task', function () {
+    $manager = employeeWith(Ability::AccessTasks, Ability::ViewAllTasks);
     $recipient = employeeWith(Ability::AccessTasks);
     $task = Task::factory()->create([
         'status' => TaskStatus::InProgress,
-        'assigned_employee_id' => $employee->id,
+        'assigned_employee_id' => $manager->id,
     ]);
 
-    $this->actingAs($employee->user)
+    $this->actingAs($manager->user)
         ->post("/tasks/{$task->id}/reminders", [
             'remind_at' => now()->addHour()->toDateTimeString(),
             'recipient_user_id' => $recipient->user_id,
@@ -51,21 +51,21 @@ test('an unauthorized user cannot create reminders on someone elses task', funct
     expect(TaskReminder::query()->count())->toBe(0);
 });
 
-test('a pending reminder can be cancelled before it is sent', function () {
-    $employee = employeeWith(Ability::AccessTasks);
+test('a manager can cancel a pending reminder before it is sent', function () {
+    $manager = employeeWith(Ability::AccessTasks, Ability::ViewAllTasks);
     $task = Task::factory()->create([
         'status' => TaskStatus::InProgress,
-        'assigned_employee_id' => $employee->id,
+        'assigned_employee_id' => $manager->id,
     ]);
 
     $reminder = TaskReminder::query()->create([
         'tm_task_id' => $task->id,
-        'recipient_user_id' => $employee->user_id,
-        'created_by_user_id' => $employee->user_id,
+        'recipient_user_id' => $manager->user_id,
+        'created_by_user_id' => $manager->user_id,
         'remind_at' => now()->addHour(),
     ]);
 
-    $this->actingAs($employee->user)
+    $this->actingAs($manager->user)
         ->delete("/tasks/{$task->id}/reminders/{$reminder->id}")
         ->assertRedirect();
 

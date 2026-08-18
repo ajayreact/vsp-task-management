@@ -45,6 +45,36 @@ class TaskSubtaskController extends Controller
     public function update(Request $request, Task $task, TaskSubtask $subtask): RedirectResponse
     {
         $this->ensureBelongsToTask($task, $subtask);
+
+        if ($request->user()->can('update', $subtask)) {
+            return $this->updateAsManager($request, $task, $subtask);
+        }
+
+        $this->authorize('updateOwn', $subtask);
+
+        $validated = $request->validate([
+            'status' => ['required', Rule::enum(SubtaskStatus::class)],
+        ]);
+
+        $previousSnapshot = $this->notificationSnapshot($subtask);
+        $status = SubtaskStatus::from($validated['status']);
+
+        $subtask->update([
+            'status' => $status,
+            'completed_at' => $status->isCompleted() ? ($subtask->completed_at ?? now()) : null,
+        ]);
+
+        $subtask->refresh();
+
+        if ($subtask->assigned_employee_id !== null && $previousSnapshot !== $this->notificationSnapshot($subtask)) {
+            $this->notifier->subtaskUpdated($task, $subtask, $request->user());
+        }
+
+        return back()->with('success', 'Subtask updated.');
+    }
+
+    protected function updateAsManager(Request $request, Task $task, TaskSubtask $subtask): RedirectResponse
+    {
         $this->authorize('update', $subtask);
 
         $validated = $this->validateSubtask($request, true);

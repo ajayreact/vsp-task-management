@@ -29,11 +29,13 @@ export function TaskReview({
     deliverables,
     canSubmit,
     canReview,
+    employeeMode = false,
 }: {
     taskId: number;
     deliverables: DeliverableRow[];
     canSubmit: boolean;
     canReview: boolean;
+    employeeMode?: boolean;
 }) {
     const submitForm = useForm<{ notes: string; files: File[] }>({ notes: '', files: [] });
     const reviewForm = useForm<{ decision: string; comments: string }>({ decision: 'approve', comments: '' });
@@ -74,8 +76,12 @@ export function TaskReview({
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Creative review</CardTitle>
-                <CardDescription>Upload a proof. Each version keeps its own review rounds.</CardDescription>
+                <CardTitle>{employeeMode ? 'Submit work for review' : 'Creative review'}</CardTitle>
+                <CardDescription>
+                    {employeeMode
+                        ? 'Upload deliverables and submit your work for manager review.'
+                        : 'Upload a proof. Each version keeps its own review rounds.'}
+                </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 {canSubmit && (
@@ -104,7 +110,7 @@ export function TaskReview({
                         }}
                     >
                         <div className="grid gap-2">
-                            <Label htmlFor="files">Proof files</Label>
+                            <Label htmlFor="files">{employeeMode ? 'Deliverable files' : 'Proof files'}</Label>
                             <Input
                                 id="files"
                                 type="file"
@@ -122,7 +128,7 @@ export function TaskReview({
                             <InputError message={clientError ?? submitForm.errors.files ?? (submitForm.errors as Record<string, string | undefined>)['files.0']} />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="proof_notes">Notes</Label>
+                            <Label htmlFor="proof_notes">{employeeMode ? 'Submission note' : 'Notes'}</Label>
                             <Textarea
                                 id="proof_notes"
                                 value={submitForm.data.notes}
@@ -135,7 +141,9 @@ export function TaskReview({
                     </form>
                 )}
 
-                {deliverables.length === 0 && <p className="text-muted-foreground text-sm">No proofs yet.</p>}
+                {deliverables.length === 0 && (
+                    <p className="text-muted-foreground text-sm">{employeeMode ? 'No submissions yet.' : 'No proofs yet.'}</p>
+                )}
 
                 {deliverables.map((deliverable) => (
                     <div key={deliverable.id} className="space-y-3 rounded-lg border p-3">

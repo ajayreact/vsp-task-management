@@ -86,7 +86,7 @@ test('an unauthorized employee cannot generate a share link', function () {
     $this->assertDatabaseCount('tm_deliverable_share_links', 0);
 });
 
-test('the deliverable submitter can generate a share link', function () {
+test('the deliverable submitter cannot generate a share link', function () {
     $assignee = employeeWith(Ability::AccessTasks);
     $submitter = employeeWith(Ability::AccessTasks);
     $task = Task::factory()->create(['assigned_employee_id' => $assignee->id]);
@@ -97,15 +97,12 @@ test('the deliverable submitter can generate a share link', function () {
 
     $this->actingAs($submitter->user)
         ->post(route('tasks.deliverables.share-link', $deliverable))
-        ->assertRedirect();
+        ->assertForbidden();
 
-    $link = DeliverableShareLink::query()->where('tm_deliverable_id', $deliverable->id)->sole();
-
-    expect($link->created_by_user_id)->toBe($submitter->user->id)
-        ->and($link->publicUrl())->toEndWith('/share/'.$link->token);
+    $this->assertDatabaseCount('tm_deliverable_share_links', 0);
 });
 
-test('the current assignee can generate a share link', function () {
+test('the current assignee cannot generate a share link', function () {
     $assignee = employeeWith(Ability::AccessTasks);
     $submitter = employeeWith(Ability::AccessTasks);
     $task = Task::factory()->create(['assigned_employee_id' => $assignee->id]);
@@ -116,9 +113,9 @@ test('the current assignee can generate a share link', function () {
 
     $this->actingAs($assignee->user)
         ->post(route('tasks.deliverables.share-link', $deliverable))
-        ->assertRedirect();
+        ->assertForbidden();
 
-    $this->assertDatabaseCount('tm_deliverable_share_links', 1);
+    $this->assertDatabaseCount('tm_deliverable_share_links', 0);
 });
 
 test('a user with tasks.view_all can generate a share link', function () {
@@ -153,20 +150,20 @@ test('a super admin can generate a share link', function () {
 });
 
 test('generating a share link twice returns the same url and does not create duplicate rows', function () {
-    $submitter = employeeWith(Ability::AccessTasks);
-    $task = Task::factory()->create(['assigned_employee_id' => $submitter->id]);
+    $lead = employeeWith(Ability::AccessTasks, Ability::ViewAllTasks);
+    $task = Task::factory()->create(['assigned_employee_id' => $lead->id]);
     $deliverable = Deliverable::factory()->create([
         'tm_task_id' => $task->id,
-        'submitted_by_employee_id' => $submitter->id,
+        'submitted_by_employee_id' => $lead->id,
     ]);
 
-    $this->actingAs($submitter->user)
+    $this->actingAs($lead->user)
         ->post(route('tasks.deliverables.share-link', $deliverable))
         ->assertRedirect();
 
     $first = DeliverableShareLink::query()->where('tm_deliverable_id', $deliverable->id)->sole();
 
-    $this->actingAs($submitter->user)
+    $this->actingAs($lead->user)
         ->post(route('tasks.deliverables.share-link', $deliverable))
         ->assertRedirect();
 
