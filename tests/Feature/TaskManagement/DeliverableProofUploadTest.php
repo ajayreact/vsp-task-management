@@ -132,6 +132,24 @@ test('a proof document below 50 mb is accepted', function () {
     expect($task->fresh()->deliverables()->sole()->getMedia('proofs'))->toHaveCount(1);
 });
 
+test('a proof spreadsheet below 50 mb is accepted', function () {
+    Storage::fake('public');
+
+    $employee = employeeWith(Ability::AccessTasks);
+    $task = Task::factory()->create([
+        'status' => TaskStatus::InProgress,
+        'assigned_employee_id' => $employee->id,
+    ]);
+
+    $this->actingAs($employee->user)
+        ->post("/tasks/{$task->id}/deliverables", [
+            'files' => [UploadedFile::fake()->create('caption.xlsx', 100, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')],
+        ])
+        ->assertRedirect();
+
+    expect($task->fresh()->deliverables()->sole()->getMedia('proofs'))->toHaveCount(1);
+});
+
 test('unsupported proof file types are rejected', function () {
     Storage::fake('public');
 

@@ -1,6 +1,5 @@
-import { showIncomingBrowserNotification } from '@/lib/browser-notifications';
+import { handleIncomingNotification } from '@/lib/incoming-notification';
 import { getEcho } from '@/lib/echo';
-import { playNotificationSound } from '@/lib/notification-sound';
 import { type AppNotification } from '@/types';
 import { router } from '@inertiajs/react';
 
@@ -21,8 +20,18 @@ type Listener = (notification: AppNotification) => void;
 
 const listeners = new Set<Listener>();
 const seenIds = new Set<string>();
+let baselineSeeded = false;
 let subscribedUserId: number | null = null;
 let subscriberCount = 0;
+
+export function seedNotificationBaseline(ids: string[]): void {
+    rememberNotificationIds(ids);
+    baselineSeeded = true;
+}
+
+export function isNotificationBaselineSeeded(): boolean {
+    return baselineSeeded;
+}
 
 function toAppNotification(payload: RealtimePayload): AppNotification | null {
     if (!payload.id) {
@@ -46,6 +55,10 @@ export function rememberNotificationIds(ids: string[]): void {
     ids.forEach((id) => seenIds.add(id));
 }
 
+export function hasSeenNotification(id: string): boolean {
+    return seenIds.has(id);
+}
+
 export function subscribeToRealtimeNotifications(listener: Listener): () => void {
     listeners.add(listener);
 
@@ -54,9 +67,23 @@ export function subscribeToRealtimeNotifications(listener: Listener): () => void
     };
 }
 
+export function dispatchIncomingNotification(notification: AppNotification): void {
+    if (seenIds.has(notification.id)) {
+        return;
+    }
+
+    seenIds.add(notification.id);
+    handleIncomingNotification(notification, {
+        onNavigate: (url) => {
+            router.visit(url);
+        },
+    });
+    listeners.forEach((listener) => listener(notification));
+}
+
 /**
  * Reference-counted private channel subscription for the signed-in user.
- * Sound plays only for new Echo payloads whose IDs were not already known.
+ * Sound and alerts fire only for new payloads whose IDs were not already known.
  */
 export function startRealtimeNotifications(userId: number): () => void {
     const echo = getEcho();
@@ -78,18 +105,11 @@ export function startRealtimeNotifications(userId: number): () => void {
         echo.private(channelName).notification((payload: RealtimePayload) => {
             const notification = toAppNotification(payload);
 
-            if (!notification || seenIds.has(notification.id)) {
+            if (!notification) {
                 return;
             }
 
-            seenIds.add(notification.id);
-            playNotificationSound();
-            showIncomingBrowserNotification(notification, {
-                onNavigate: (url) => {
-                    router.visit(url);
-                },
-            });
-            listeners.forEach((listener) => listener(notification));
+            dispatchIncomingNotification(notification);
         });
     }
 
@@ -101,4 +121,8 @@ export function startRealtimeNotifications(userId: number): () => void {
             subscribedUserId = null;
         }
     };
+}
+
+export function isRealtimeNotificationsAvailable(): boolean {
+    return getEcho() !== null;
 }

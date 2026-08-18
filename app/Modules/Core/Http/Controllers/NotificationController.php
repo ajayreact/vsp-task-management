@@ -30,6 +30,14 @@ class NotificationController extends Controller
         ]);
     }
 
+    /**
+     * Lightweight JSON feed for notification polling when websockets are unavailable.
+     */
+    public function feed(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return response()->json(NotificationPresenter::forUser($request->user()));
+    }
+
     public function markRead(Request $request, string $notification): RedirectResponse
     {
         $row = $this->owned($request, $notification);

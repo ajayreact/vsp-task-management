@@ -7,7 +7,7 @@ export const PROOF_IMAGE_MAX_BYTES = 20 * 1024 * 1024;
 export const PROOF_VIDEO_MAX_BYTES = 100 * 1024 * 1024;
 export const PROOF_DOCUMENT_MAX_BYTES = 50 * 1024 * 1024;
 export const PROOF_ACCEPT =
-    '.jpg,.jpeg,.png,.gif,.webp,.mp4,.mov,.webm,.pdf,.doc,.docx,.ai,.psd';
+    '.jpg,.jpeg,.png,.gif,.webp,.mp4,.mov,.webm,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.ai,.psd';
 
 export const NOTIFICATION_SOUND_MAX_BYTES = 5 * 1024 * 1024;
 export const NOTIFICATION_SOUND_ACCEPT = '.mp3,.wav,.ogg,audio/mpeg,audio/wav,audio/ogg';
@@ -16,7 +16,7 @@ export const DOCUMENTED_POST_MAX_BYTES = 150 * 1024 * 1024;
 
 const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 const VIDEO_EXTENSIONS = ['mp4', 'mov', 'webm'];
-const DOCUMENT_EXTENSIONS = ['pdf', 'doc', 'docx', 'ai', 'psd'];
+const DOCUMENT_EXTENSIONS = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'ai', 'psd'];
 const TASK_ATTACHMENT_EXTENSIONS = [
     ...IMAGE_EXTENSIONS,
     'pdf',

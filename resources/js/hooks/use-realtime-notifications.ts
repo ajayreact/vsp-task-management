@@ -1,8 +1,10 @@
 import {
     rememberNotificationIds,
+    seedNotificationBaseline,
     startRealtimeNotifications,
     subscribeToRealtimeNotifications,
 } from '@/lib/notification-realtime';
+import { useNotificationPolling } from '@/hooks/use-notification-polling';
 import { type AppNotification, type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
@@ -35,7 +37,7 @@ function mergeRecent(server: AppNotification[], live: AppNotification[]): AppNot
 }
 
 /**
- * Keeps bell state in sync with Inertia shared props and live Echo events.
+ * Keeps bell state in sync with Inertia shared props, live Echo events, and polling.
  */
 export function useRealtimeNotifications() {
     const { auth, notifications } = usePage<SharedData>().props;
@@ -45,8 +47,10 @@ export function useRealtimeNotifications() {
     const [live, setLive] = useState<AppNotification[]>([]);
     const [liveUnreadBump, setLiveUnreadBump] = useState(0);
 
+    useNotificationPolling(Boolean(auth.user?.id));
+
     useEffect(() => {
-        rememberNotificationIds(serverRecent.map((item) => item.id));
+        seedNotificationBaseline(serverRecent.map((item) => item.id));
         setLive((current) => current.filter((item) => !serverRecent.some((row) => row.id === item.id)));
         setLiveUnreadBump(0);
     }, [serverRecent]);
@@ -89,9 +93,11 @@ export function useRealtimeNotificationFeed(initial: AppNotification[]) {
     const { auth } = usePage<SharedData>().props;
     const [items, setItems] = useState(initial);
 
+    useNotificationPolling(Boolean(auth.user?.id));
+
     useEffect(() => {
         setItems(initial);
-        rememberNotificationIds(initial.map((item) => item.id));
+        seedNotificationBaseline(initial.map((item) => item.id));
     }, [initial]);
 
     useEffect(() => {

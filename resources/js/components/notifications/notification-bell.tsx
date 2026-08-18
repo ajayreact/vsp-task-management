@@ -7,11 +7,19 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useBrowserNotificationPermission } from '@/hooks/use-browser-notification-permission';
 import { useRealtimeNotifications } from '@/hooks/use-realtime-notifications';
+import {
+    readNotificationPreferences,
+    updateNotificationPreference,
+    type NotificationPreferences,
+} from '@/lib/notification-preferences';
 import { type AppNotification } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
+import { useState } from 'react';
 
 function relativeTime(iso: string | null): string {
     if (!iso) {
@@ -54,6 +62,11 @@ function openNotification(notification: AppNotification) {
 export function NotificationBell() {
     const { recent, unreadCount: unread } = useRealtimeNotifications();
     const { permission, requesting, requestPermission } = useBrowserNotificationPermission();
+    const [preferences, setPreferences] = useState<NotificationPreferences>(() => readNotificationPreferences());
+
+    const setPreference = <K extends keyof NotificationPreferences>(key: K, value: NotificationPreferences[K]) => {
+        setPreferences(updateNotificationPreference(key, value));
+    };
 
     return (
         <DropdownMenu>
@@ -116,12 +129,34 @@ export function NotificationBell() {
                         </DropdownMenuItem>
                     ))}
                 </div>
+                <DropdownMenuSeparator className="m-0" />
+                <div className="space-y-3 px-3 py-3">
+                    <p className="text-sm font-medium">Notification settings</p>
+                    <PreferenceRow
+                        id="pref-in-app"
+                        label="In-app toasts"
+                        checked={preferences.inApp}
+                        onCheckedChange={(checked) => setPreference('inApp', checked)}
+                    />
+                    <PreferenceRow
+                        id="pref-browser"
+                        label="Browser notifications"
+                        checked={preferences.browser}
+                        onCheckedChange={(checked) => setPreference('browser', checked)}
+                    />
+                    <PreferenceRow
+                        id="pref-sound"
+                        label="Notification sound"
+                        checked={preferences.sound}
+                        onCheckedChange={(checked) => setPreference('sound', checked)}
+                    />
+                </div>
                 {permission === 'default' && (
                     <>
                         <DropdownMenuSeparator className="m-0" />
                         <div className="px-3 py-2.5">
-                            <p className="text-sm font-medium">Enable desktop notifications</p>
-                            <p className="text-muted-foreground mt-0.5 text-xs">Get notified when important work updates happen.</p>
+                            <p className="text-sm font-medium">Enable browser notifications</p>
+                            <p className="text-muted-foreground mt-0.5 text-xs">Your browser will ask once. We never prompt automatically on page load.</p>
                             <Button
                                 type="button"
                                 size="sm"
@@ -137,7 +172,7 @@ export function NotificationBell() {
                 {permission === 'denied' && (
                     <>
                         <DropdownMenuSeparator className="m-0" />
-                        <p className="text-muted-foreground px-3 py-2 text-[11px]">Browser notifications are blocked.</p>
+                        <p className="text-muted-foreground px-3 py-2 text-[11px]">Browser notifications are blocked in your browser settings.</p>
                     </>
                 )}
                 <DropdownMenuSeparator className="m-0" />
@@ -148,5 +183,26 @@ export function NotificationBell() {
                 </div>
             </DropdownMenuContent>
         </DropdownMenu>
+    );
+}
+
+function PreferenceRow({
+    id,
+    label,
+    checked,
+    onCheckedChange,
+}: {
+    id: string;
+    label: string;
+    checked: boolean;
+    onCheckedChange: (checked: boolean) => void;
+}) {
+    return (
+        <div className="flex items-center justify-between gap-3">
+            <Label htmlFor={id} className="text-sm font-normal">
+                {label}
+            </Label>
+            <Switch id={id} checked={checked} onCheckedChange={onCheckedChange} />
+        </div>
     );
 }

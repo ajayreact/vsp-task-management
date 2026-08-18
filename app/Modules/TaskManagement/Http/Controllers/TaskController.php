@@ -239,6 +239,7 @@ class TaskController extends Controller
                 'total' => $subtasks->count(),
             ],
             'subtaskStatuses' => SubtaskStatus::options(),
+            'submitReview' => $this->submitReviewContext($task, $user),
             'can' => [
                 'claim' => $user->can('claim', $task),
                 'respond' => $user->can('respond', $task) && $task->status === TaskStatus::Assigned,
@@ -625,6 +626,34 @@ class TaskController extends Controller
             'items' => $items,
             'completed' => $task->checklistItems()->where('is_completed', true)->count(),
             'total' => $task->checklistItems()->count(),
+        ];
+    }
+
+    /**
+     * @return array{can_submit: bool, is_assignee: bool, blocked_reason: string|null, status_label: string}
+     */
+    protected function submitReviewContext(Task $task, User $user): array
+    {
+        $isAssignee = $user->can('respond', $task);
+        $canSubmit = $user->can('submitProof', $task);
+
+        $blockedReason = null;
+
+        if ($isAssignee && ! $canSubmit) {
+            $blockedReason = match ($task->status) {
+                TaskStatus::Assigned => 'Accept this task before you can submit deliverables for review.',
+                TaskStatus::Accepted => 'Move this task to In Progress before submitting deliverables for review.',
+                TaskStatus::InReview => 'Your submission is awaiting review. You can upload a revised version once changes are requested.',
+                TaskStatus::Approved, TaskStatus::Completed => 'This task has already been approved or completed.',
+                default => 'Deliverables can only be submitted while the task is in progress or after changes have been requested.',
+            };
+        }
+
+        return [
+            'can_submit' => $canSubmit,
+            'is_assignee' => $isAssignee,
+            'blocked_reason' => $blockedReason,
+            'status_label' => $task->status->label(),
         ];
     }
 

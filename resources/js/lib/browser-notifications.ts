@@ -86,17 +86,6 @@ export function subscribeToBrowserNotificationPermission(
     };
 }
 
-/**
- * Tab is in the foreground and the document has focus.
- */
-export function isApplicationInForeground(): boolean {
-    if (typeof document === 'undefined') {
-        return true;
-    }
-
-    return document.visibilityState === 'visible' && document.hasFocus();
-}
-
 export function isImportantWorkNotification(event: string | null): boolean {
     if (event === null || event === '') {
         return true;
@@ -119,9 +108,18 @@ export function isSafeAppPath(url: string): boolean {
     }
 }
 
+function notificationIcon(): string | undefined {
+    if (typeof window === 'undefined') {
+        return undefined;
+    }
+
+    const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+
+    return link?.href || `${window.location.origin}/favicon.ico`;
+}
+
 /**
  * Show a system notification for an already-authorized realtime payload.
- * No-ops when unsupported, permission is not granted, or the app is focused.
  */
 export function showIncomingBrowserNotification(notification: WorkNotification, options?: ShowOptions): boolean {
     try {
@@ -137,13 +135,10 @@ export function showIncomingBrowserNotification(notification: WorkNotification, 
             return false;
         }
 
-        if (isApplicationInForeground()) {
-            return false;
-        }
-
         const systemNotification = new Notification(notification.title, {
             body: notification.body,
             tag: `vsp-crm-${notification.id}`,
+            icon: notificationIcon(),
         });
 
         systemNotification.onclick = () => {

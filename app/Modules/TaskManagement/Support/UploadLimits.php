@@ -44,7 +44,7 @@ class UploadLimits
      */
     public static function documentExtensions(): array
     {
-        return ['pdf', 'doc', 'docx', 'ai', 'psd'];
+        return ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'ai', 'psd'];
     }
 
     /**

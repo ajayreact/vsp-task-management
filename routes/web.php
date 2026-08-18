@@ -24,6 +24,7 @@ Route::middleware(['auth', 'internal'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications/feed', [NotificationController::class, 'feed'])->name('notifications.feed');
     Route::post('notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
 });

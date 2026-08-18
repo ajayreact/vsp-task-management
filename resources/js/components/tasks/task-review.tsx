@@ -24,23 +24,36 @@ export interface DeliverableRow {
     reviews: { id: number; round: number; decision: string; comments: string | null; reviewer: string; reviewed_at: string }[];
 }
 
+export interface SubmitReviewContext {
+    can_submit: boolean;
+    is_assignee: boolean;
+    blocked_reason: string | null;
+    status_label: string;
+}
+
 export function TaskReview({
     taskId,
     deliverables,
     canSubmit,
     canReview,
     employeeMode = false,
+    submitReview,
 }: {
     taskId: number;
     deliverables: DeliverableRow[];
     canSubmit: boolean;
     canReview: boolean;
     employeeMode?: boolean;
+    submitReview?: SubmitReviewContext;
 }) {
     const submitForm = useForm<{ notes: string; files: File[] }>({ notes: '', files: [] });
     const reviewForm = useForm<{ decision: string; comments: string }>({ decision: 'approve', comments: '' });
     const [copyingId, setCopyingId] = useState<number | null>(null);
     const [clientError, setClientError] = useState<string | null>(null);
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+    const latestDeliverable = deliverables[0];
+    const latestFeedback = latestDeliverable?.reviews.at(-1);
 
     const copyClientLink = (deliverable: DeliverableRow) => {
         if (deliverable.share_url) {
@@ -73,24 +86,49 @@ export function TaskReview({
         );
     };
 
+    const removeSelectedFile = (index: number) => {
+        const next = selectedFiles.filter((_, fileIndex) => fileIndex !== index);
+        setSelectedFiles(next);
+        submitForm.setData('files', next);
+        setClientError(validateProofFiles(next));
+    };
+
     return (
         <Card>
             <CardHeader>
                 <CardTitle>{employeeMode ? 'Submit work for review' : 'Creative review'}</CardTitle>
                 <CardDescription>
                     {employeeMode
-                        ? 'Upload deliverables and submit your work for manager review.'
+                        ? 'Upload final deliverables here. Working files belong in the section above.'
                         : 'Upload a proof. Each version keeps its own review rounds.'}
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+                {employeeMode && submitReview?.is_assignee && !canSubmit && submitReview.blocked_reason && (
+                    <div className="rounded-lg border border-dashed p-3 text-sm">
+                        <p className="font-medium">Submission not available yet</p>
+                        <p className="text-muted-foreground mt-1">{submitReview.blocked_reason}</p>
+                        <p className="text-muted-foreground mt-2 text-xs">Current task status: {submitReview.status_label}</p>
+                    </div>
+                )}
+
+                {employeeMode && latestFeedback?.comments && (
+                    <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
+                        <p className="font-medium">Latest review feedback</p>
+                        <p className="text-muted-foreground mt-1">
+                            {latestFeedback.decision} · {latestFeedback.reviewer}
+                        </p>
+                        <p className="mt-2 whitespace-pre-wrap">{latestFeedback.comments}</p>
+                    </div>
+                )}
+
                 {canSubmit && (
                     <form
                         className="space-y-3 rounded-lg border p-3"
                         onSubmit={(event) => {
                             event.preventDefault();
 
-                            const validationError = validateProofFiles(submitForm.data.files);
+                            const validationError = validateProofFiles(selectedFiles);
 
                             if (validationError) {
                                 setClientError(validationError);
@@ -99,13 +137,20 @@ export function TaskReview({
                             }
 
                             setClientError(null);
+                            submitForm.transform(() => ({
+                                notes: submitForm.data.notes,
+                                files: selectedFiles,
+                            }));
                             submitForm.post(`/tasks/${taskId}/deliverables`, {
                                 forceFormData: true,
                                 preserveScroll: true,
                                 onSuccess: () => {
                                     submitForm.reset();
+                                    setSelectedFiles([]);
                                     setClientError(null);
+                                    toast.success('Work submitted for review');
                                 },
+                                onError: () => toast.error('Could not submit deliverables. Check the files and try again.'),
                             });
                         }}
                     >
@@ -118,13 +163,27 @@ export function TaskReview({
                                 accept={PROOF_ACCEPT}
                                 onChange={(event) => {
                                     const files = Array.from(event.target.files ?? []);
+                                    setSelectedFiles(files);
                                     submitForm.setData('files', files);
                                     setClientError(validateProofFiles(files));
                                 }}
                             />
                             <p className="text-muted-foreground text-xs">
-                                Images up to 20 MB, videos (MP4, MOV, WEBM) up to 100 MB, documents and design files (PDF, DOC, DOCX, AI, PSD) up to 50 MB.
+                                Images up to 20 MB, videos (MP4, MOV, WEBM) up to 100 MB, documents and archives (PDF, Word,
+                                Excel, PowerPoint, ZIP, AI, PSD) up to 50 MB.
                             </p>
+                            {selectedFiles.length > 0 && (
+                                <ul className="space-y-1 text-sm">
+                                    {selectedFiles.map((file, index) => (
+                                        <li key={`${file.name}-${index}`} className="flex items-center justify-between gap-2 rounded border px-2 py-1">
+                                            <span className="truncate">{file.name}</span>
+                                            <Button type="button" variant="ghost" size="sm" onClick={() => removeSelectedFile(index)}>
+                                                Remove
+                                            </Button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                             <InputError message={clientError ?? submitForm.errors.files ?? (submitForm.errors as Record<string, string | undefined>)['files.0']} />
                         </div>
                         <div className="grid gap-2">
@@ -133,15 +192,16 @@ export function TaskReview({
                                 id="proof_notes"
                                 value={submitForm.data.notes}
                                 onChange={(event) => submitForm.setData('notes', event.target.value)}
+                                placeholder={employeeMode ? 'Briefly describe what you are submitting…' : undefined}
                             />
                         </div>
-                        <Button type="submit" disabled={submitForm.processing || submitForm.data.files.length === 0 || clientError !== null}>
+                        <Button type="submit" disabled={submitForm.processing || selectedFiles.length === 0 || clientError !== null}>
                             Submit for review
                         </Button>
                     </form>
                 )}
 
-                {deliverables.length === 0 && (
+                {deliverables.length === 0 && !canSubmit && (
                     <p className="text-muted-foreground text-sm">{employeeMode ? 'No submissions yet.' : 'No proofs yet.'}</p>
                 )}
 
@@ -183,7 +243,7 @@ export function TaskReview({
                                     Round {review.round}: {review.decision}
                                 </span>
                                 <span className="text-muted-foreground"> · {review.reviewer}</span>
-                                {review.comments && <p className="text-muted-foreground">{review.comments}</p>}
+                                {review.comments && <p className="text-muted-foreground whitespace-pre-wrap">{review.comments}</p>}
                             </div>
                         ))}
 

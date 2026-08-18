@@ -1,22 +1,23 @@
 import { PageHeader } from '@/components/admin/page-header';
+import { ConfirmDelete } from '@/components/admin/confirm-delete';
 import { TaskAttachments, type TaskAttachmentRow } from '@/components/tasks/task-attachments';
 import { TaskChecklist, type TaskChecklistPayload } from '@/components/tasks/task-checklist';
 import { TaskSubtasks, type TaskSubtasksPayload } from '@/components/tasks/task-subtasks';
 import { TaskComments, type TaskCommentRow } from '@/components/tasks/task-comments';
 import { DueDate, PriorityBadge, StatusBadge } from '@/components/tasks/task-badges';
-import { TaskReview, type DeliverableRow } from '@/components/tasks/task-review';
+import { TaskReview, type DeliverableRow, type SubmitReviewContext } from '@/components/tasks/task-review';
 import { TaskTimer, type TimerState } from '@/components/tasks/task-timer';
-import { ConfirmDelete } from '@/components/admin/confirm-delete';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import TaskLayout from '@/layouts/task-layout';
 import { type BreadcrumbItem, type Option } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Check, Trash2, X } from 'lucide-react';
+import { Check, ClipboardList, Trash2, X, Zap } from 'lucide-react';
 import { useState } from 'react';
 
 interface TaskDetail {
@@ -53,6 +54,7 @@ interface Props {
     checklist: TaskChecklistPayload;
     subtasks: TaskSubtasksPayload;
     subtaskStatuses: Option[];
+    submitReview: SubmitReviewContext;
     can: {
         claim: boolean;
         respond: boolean;
@@ -67,6 +69,23 @@ interface Props {
 const formatted = (value: string | null) =>
     value ? new Date(value).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : '—';
 
+/** Two-column employee workspace grid; collapses to one column on small screens. */
+function TaskDetailsGrid({ children, className }: { children: React.ReactNode; className?: string }) {
+    return (
+        <div className={cn('grid grid-cols-1 items-stretch gap-6 md:grid-cols-2', className)}>
+            {children}
+        </div>
+    );
+}
+
+function FullWidth({ children, className }: { children: React.ReactNode; className?: string }) {
+    return <div className={cn('md:col-span-2', className)}>{children}</div>;
+}
+
+function StretchCell({ children, className }: { children: React.ReactNode; className?: string }) {
+    return <div className={cn('flex h-full min-w-0 flex-col', className)}>{children}</div>;
+}
+
 export default function EmployeeTaskShow({
     task,
     allowedTransitions,
@@ -78,6 +97,7 @@ export default function EmployeeTaskShow({
     checklist,
     subtasks,
     subtaskStatuses,
+    submitReview,
     can,
 }: Props) {
     const [declineOpen, setDeclineOpen] = useState(false);
@@ -91,106 +111,160 @@ export default function EmployeeTaskShow({
     const post = (url: string) => router.post(url, {}, { preserveScroll: true });
 
     const hasStatusActions = can.respond || can.claim || allowedTransitions.length > 0;
+    const checklistPercent = checklist.total === 0 ? 0 : Math.round((checklist.completed / checklist.total) * 100);
 
     return (
         <TaskLayout breadcrumbs={breadcrumbs}>
             <Head title={task.title} />
 
-            <div className="flex flex-1 flex-col gap-6 p-4">
+            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
+                {/* Full-width header */}
                 <PageHeader
                     title={task.title}
                     description={`${task.company_name} · ${task.project.name}`}
                 />
 
-                <div className="grid gap-6 lg:grid-cols-3">
-                    <div className="space-y-6 lg:col-span-2">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Task summary</CardTitle>
+                <TaskDetailsGrid>
+                    {/* Row 1 — Task summary | My task status */}
+                    <StretchCell>
+                        <Card className="h-full">
+                            <CardHeader className="pb-3">
+                                <CardTitle className="flex items-center gap-2 text-base">
+                                    <ClipboardList className="text-primary size-4" strokeWidth={1.75} />
+                                    Task summary
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <p className="text-sm whitespace-pre-wrap">
-                                    {task.description || <span className="text-muted-foreground">No description.</span>}
-                                </p>
+                                <div>
+                                    <p className="text-muted-foreground mb-1 text-xs font-medium tracking-wide uppercase">Description</p>
+                                    <p className="text-sm whitespace-pre-wrap">
+                                        {task.description || <span className="text-muted-foreground">No description.</span>}
+                                    </p>
+                                </div>
 
                                 <Separator />
 
-                                <dl className="grid gap-4 text-sm sm:grid-cols-2">
-                                    <Field label="Status">
-                                        <StatusBadge status={task.status} label={task.status_label} />
-                                    </Field>
+                                <dl className="grid gap-3 text-sm sm:grid-cols-2">
+                                    <Field label="Project">{task.project.name}</Field>
+                                    <Field label="Client">{task.company_name}</Field>
                                     <Field label="Priority">
                                         <PriorityBadge priority={task.priority} label={task.priority_label} />
                                     </Field>
-                                    <Field label="Project">{task.project.name}</Field>
-                                    <Field label="Client">{task.company_name}</Field>
                                     <Field label="Due">
                                         <DueDate value={task.due_at} />
                                     </Field>
-                                    <Field label="Assigned to">{task.assignee_name ?? 'Unassigned'}</Field>
                                 </dl>
                             </CardContent>
                         </Card>
+                    </StretchCell>
 
-                        {hasStatusActions && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>My task status</CardTitle>
-                                    <CardDescription>Accept, start, and move this task through your workflow.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
-                                    {can.respond && (
-                                        <div className="flex gap-2">
-                                            <Button className="flex-1" onClick={() => post(`/tasks/${task.id}/accept`)}>
-                                                <Check /> Accept
-                                            </Button>
-                                            <Button variant="outline" className="flex-1" onClick={() => setDeclineOpen(true)}>
-                                                <X /> Decline
-                                            </Button>
-                                        </div>
-                                    )}
-
-                                    {can.claim && (
-                                        <Button className="w-full" onClick={() => post(`/tasks/${task.id}/claim`)}>
-                                            Claim this task
-                                        </Button>
-                                    )}
-
-                                    {allowedTransitions.length > 0 && (
-                                        <div className="space-y-2">
-                                            <Label className="text-muted-foreground text-xs">Move to</Label>
-                                            <div className="flex flex-wrap gap-2">
-                                                {allowedTransitions.map((transition) => (
-                                                    <Button
-                                                        key={transition.value}
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            router.post(
-                                                                `/tasks/${task.id}/status`,
-                                                                { status: transition.value },
-                                                                { preserveScroll: true },
-                                                            )
-                                                        }
-                                                    >
-                                                        {transition.label}
-                                                    </Button>
-                                                ))}
+                    <StretchCell>
+                        <Card className="h-full">
+                            <CardHeader className="pb-3">
+                                <CardTitle className="flex items-center gap-2 text-base">
+                                    <Zap className="text-primary size-4" strokeWidth={1.75} />
+                                    My task status
+                                </CardTitle>
+                                <CardDescription>Your current assignment and next steps.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <dl className="grid gap-3 text-sm">
+                                    <Field label="Current status">
+                                        <StatusBadge status={task.status} label={task.status_label} />
+                                    </Field>
+                                    <Field label="Assigned to">{task.assignee_name ?? 'Unassigned'}</Field>
+                                    <Field label="Due">
+                                        <DueDate value={task.due_at} />
+                                    </Field>
+                                    {checklist.total > 0 && (
+                                        <Field label="Checklist progress">
+                                            <div className="space-y-1.5">
+                                                <span className="font-medium">
+                                                    {checklist.completed} / {checklist.total} completed
+                                                </span>
+                                                <div className="bg-muted h-1.5 overflow-hidden rounded-full">
+                                                    <div
+                                                        className="bg-primary h-full rounded-full transition-all"
+                                                        style={{ width: `${checklistPercent}%` }}
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
+                                        </Field>
                                     )}
-                                </CardContent>
-                            </Card>
-                        )}
+                                </dl>
 
+                                {hasStatusActions && (
+                                    <>
+                                        <Separator />
+                                        <div className="space-y-3">
+                                            {can.respond && (
+                                                <div className="flex gap-2">
+                                                    <Button className="flex-1" onClick={() => post(`/tasks/${task.id}/accept`)}>
+                                                        <Check /> Accept
+                                                    </Button>
+                                                    <Button variant="outline" className="flex-1" onClick={() => setDeclineOpen(true)}>
+                                                        <X /> Decline
+                                                    </Button>
+                                                </div>
+                                            )}
+
+                                            {can.claim && (
+                                                <Button className="w-full" onClick={() => post(`/tasks/${task.id}/claim`)}>
+                                                    Claim this task
+                                                </Button>
+                                            )}
+
+                                            {allowedTransitions.length > 0 && (
+                                                <div className="space-y-2">
+                                                    <Label className="text-muted-foreground text-xs">Move to</Label>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {allowedTransitions.map((transition) => (
+                                                            <Button
+                                                                key={transition.value}
+                                                                variant="secondary"
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    router.post(
+                                                                        `/tasks/${task.id}/status`,
+                                                                        { status: transition.value },
+                                                                        { preserveScroll: true },
+                                                                    )
+                                                                }
+                                                            >
+                                                                {transition.label}
+                                                            </Button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
+
+                                {!hasStatusActions && (
+                                    <p className="text-muted-foreground text-sm">No actions available for this task right now.</p>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </StretchCell>
+
+                    {/* Row 2 — Checklist | Discussion */}
+                    <StretchCell className="[&>div]:h-full">
                         <TaskChecklist
                             taskId={task.id}
                             checklist={checklist}
                             canManage={false}
                             canComplete={can.completeChecklist}
                         />
+                    </StretchCell>
 
-                        {subtasks.total > 0 && (
+                    <StretchCell className="[&>div]:h-full">
+                        <TaskComments taskId={task.id} comments={comments} canComment={can.comment} />
+                    </StretchCell>
+
+                    {/* Subtasks — full width when present */}
+                    {subtasks.total > 0 && (
+                        <FullWidth>
                             <TaskSubtasks
                                 taskId={task.id}
                                 subtasks={subtasks}
@@ -199,56 +273,68 @@ export default function EmployeeTaskShow({
                                 canManage={false}
                                 contributorMode
                             />
-                        )}
+                        </FullWidth>
+                    )}
 
-                        <TaskComments taskId={task.id} comments={comments} canComment={can.comment} />
-
-                        <TaskTimer taskId={task.id} timer={timer} canLog={can.logTime} />
-
-                        {timeEntries.length > 0 && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>My time logged</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-2 text-sm">
-                                    {timeEntries.map((entry) => (
-                                        <div key={entry.id} className="flex items-start justify-between gap-2 rounded-lg border p-3">
-                                            <div>
-                                                <div className="font-medium">
-                                                    {entry.hours} h · {entry.source}
-                                                </div>
-                                                <div className="text-muted-foreground text-xs">{formatted(entry.started_at)}</div>
-                                                {entry.note && <p className="mt-1">{entry.note}</p>}
-                                            </div>
-                                            {entry.can_delete && (
-                                                <ConfirmDelete
-                                                    url={`/tasks/time-entries/${entry.id}`}
-                                                    title="Remove this time entry?"
-                                                    description="It will drop off the weekly timesheet."
-                                                    trigger={
-                                                        <Button variant="ghost" size="icon" aria-label="Delete time entry">
-                                                            <Trash2 className="text-destructive size-4" />
-                                                        </Button>
-                                                    }
-                                                />
-                                            )}
-                                        </div>
-                                    ))}
-                                </CardContent>
-                            </Card>
-                        )}
-
-                        <TaskAttachments taskId={task.id} attachments={attachments} canUpload={can.attachFiles} />
-
+                    {/* Row 3 — Submit for review | Timer */}
+                    <StretchCell>
                         <TaskReview
                             taskId={task.id}
                             deliverables={deliverables}
                             canSubmit={can.submitProof}
                             canReview={false}
                             employeeMode
+                            submitReview={submitReview}
                         />
-                    </div>
-                </div>
+                    </StretchCell>
+
+                    <StretchCell>
+                        <div className="flex h-full flex-col gap-6">
+                            <TaskTimer taskId={task.id} timer={timer} canLog={can.logTime} />
+
+                            {timeEntries.length > 0 && (
+                                <Card className="flex-1">
+                                    <CardHeader className="pb-3">
+                                        <CardTitle className="text-base">My time logged</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-2 text-sm">
+                                        {timeEntries.map((entry) => (
+                                            <div
+                                                key={entry.id}
+                                                className="flex items-start justify-between gap-2 rounded-lg border p-3"
+                                            >
+                                                <div>
+                                                    <div className="font-medium">
+                                                        {entry.hours} h · {entry.source}
+                                                    </div>
+                                                    <div className="text-muted-foreground text-xs">{formatted(entry.started_at)}</div>
+                                                    {entry.note && <p className="mt-1">{entry.note}</p>}
+                                                </div>
+                                                {entry.can_delete && (
+                                                    <ConfirmDelete
+                                                        url={`/tasks/time-entries/${entry.id}`}
+                                                        title="Remove this time entry?"
+                                                        description="It will drop off the weekly timesheet."
+                                                        trigger={
+                                                            <Button variant="ghost" size="icon" aria-label="Delete time entry">
+                                                                <Trash2 className="text-destructive size-4" />
+                                                            </Button>
+                                                        }
+                                                    />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </CardContent>
+                                </Card>
+                            )}
+                        </div>
+                    </StretchCell>
+
+                    {/* Row 4 — Working files (full width) */}
+                    <FullWidth>
+                        <TaskAttachments taskId={task.id} attachments={attachments} canUpload={can.attachFiles} />
+                    </FullWidth>
+                </TaskDetailsGrid>
             </div>
 
             <Dialog open={declineOpen} onOpenChange={setDeclineOpen}>

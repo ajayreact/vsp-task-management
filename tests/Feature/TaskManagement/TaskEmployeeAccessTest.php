@@ -7,6 +7,8 @@ use App\Modules\TaskManagement\Enums\SubtaskStatus;
 use App\Modules\TaskManagement\Enums\TaskStatus;
 use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Models\TaskSubtask;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->withoutVite();
@@ -25,7 +27,36 @@ test('an assignee sees the employee task detail page', function () {
             ->missing('assignments')
             ->missing('reminders')
             ->missing('recurrence')
-            ->where('can.submitProof', false));
+            ->where('can.submitProof', false)
+            ->where('submitReview.can_submit', false)
+            ->where('submitReview.blocked_reason', 'Move this task to In Progress before submitting deliverables for review.'));
+});
+
+test('an assignee can submit deliverables when the task is in progress', function () {
+    Storage::fake('public');
+
+    $employee = employeeWith(Ability::AccessTasks);
+    $task = Task::factory()->create([
+        'status' => TaskStatus::InProgress,
+        'assigned_employee_id' => $employee->id,
+        'started_at' => now(),
+    ]);
+
+    $this->actingAs($employee->user)
+        ->get("/tasks/{$task->id}")
+        ->assertInertia(fn ($page) => $page
+            ->where('can.submitProof', true)
+            ->where('submitReview.can_submit', true));
+
+    $this->actingAs($employee->user)
+        ->post("/tasks/{$task->id}/deliverables", [
+            'files' => [UploadedFile::fake()->create('caption.docx', 100, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')],
+            'notes' => 'Instagram caption draft',
+        ])
+        ->assertRedirect();
+
+    expect($task->fresh()->status)->toBe(TaskStatus::InReview)
+        ->and($task->deliverables()->count())->toBe(1);
 });
 
 test('a manager sees the admin task detail page', function () {
