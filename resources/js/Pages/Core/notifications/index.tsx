@@ -16,26 +16,15 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 function openNotification(notification: AppNotification) {
-    const go = () => {
+    if (notification.read_at) {
         if (notification.url) {
             router.visit(notification.url);
         }
-    };
-
-    if (notification.read_at) {
-        go();
 
         return;
     }
 
-    router.post(
-        `/notifications/${notification.id}/read`,
-        { redirect: false },
-        {
-            preserveScroll: true,
-            onFinish: go,
-        },
-    );
+    router.post(`/notifications/${notification.id}/read`, { redirect: true }, { preserveScroll: true });
 }
 
 export default function NotificationsIndex({ notifications }: Props) {

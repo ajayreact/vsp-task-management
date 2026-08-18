@@ -19,6 +19,7 @@ export type TaskFormValues = {
     priority: string;
     estimated_hours: string;
     due_at: string;
+    assigned_employee_id: string;
 };
 
 export interface TaskFormOptions {
@@ -26,6 +27,8 @@ export interface TaskFormOptions {
     departments: { id: number; name: string }[];
     types: Option[];
     priorities: Option[];
+    assignableEmployees?: { id: number; label: string }[];
+    canAssign?: boolean;
 }
 
 const NONE = 'none';
@@ -37,6 +40,7 @@ export function TaskForm({
     method,
     submitLabel,
     cancelUrl,
+    showAssignee = false,
 }: {
     options: TaskFormOptions;
     initial: TaskFormValues;
@@ -44,6 +48,7 @@ export function TaskForm({
     method: 'post' | 'put';
     submitLabel: string;
     cancelUrl: string;
+    showAssignee?: boolean;
 }) {
     const { data, setData, post, put, processing, errors } = useForm<TaskFormValues>(initial);
 
@@ -58,7 +63,11 @@ export function TaskForm({
             <Card>
                 <CardHeader>
                     <CardTitle>What needs doing</CardTitle>
-                    <CardDescription>A new task starts as a draft. Assign it or put it on the open board once the details are right.</CardDescription>
+                    <CardDescription>
+                        {showAssignee
+                            ? 'Add the details and optionally assign someone now. They will receive a notification when assigned.'
+                            : 'A new task starts as a draft. Assign it or put it on the open board once the details are right.'}
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
                     <div className="grid gap-2 sm:col-span-2">
@@ -160,6 +169,29 @@ export function TaskForm({
                         <Input id="due_at" type="datetime-local" value={data.due_at} onChange={(e) => setData('due_at', e.target.value)} />
                         <InputError message={errors.due_at} />
                     </div>
+
+                    {showAssignee && (options.assignableEmployees?.length ?? 0) > 0 && (
+                        <div className="grid gap-2 sm:col-span-2">
+                            <Label htmlFor="assigned_employee_id">Assign to</Label>
+                            <Select
+                                value={data.assigned_employee_id || NONE}
+                                onValueChange={(value) => setData('assigned_employee_id', value === NONE ? '' : value)}
+                            >
+                                <SelectTrigger id="assigned_employee_id">
+                                    <SelectValue placeholder="Assign later on the task page" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={NONE}>Assign later</SelectItem>
+                                    {options.assignableEmployees?.map((employee) => (
+                                        <SelectItem key={employee.id} value={String(employee.id)}>
+                                            {employee.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <InputError message={errors.assigned_employee_id} />
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 

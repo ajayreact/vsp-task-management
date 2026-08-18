@@ -36,6 +36,7 @@ function configureReverbForChannelAuth(): void
 }
 
 test('a stored staff notification is also queued for broadcast to the recipient', function () {
+    configureReverbForChannelAuth();
     Event::fake([BroadcastNotificationCreated::class]);
 
     $manager = employeeWith(
@@ -67,6 +68,7 @@ test('a stored staff notification is also queued for broadcast to the recipient'
 });
 
 test('the actor does not receive a broadcast when they trigger a notification', function () {
+    configureReverbForChannelAuth();
     Event::fake([BroadcastNotificationCreated::class]);
 
     $manager = employeeWith(
@@ -117,6 +119,7 @@ test('a user cannot authorize another users private notification channel', funct
 });
 
 test('database and broadcast share the same notification id', function () {
+    configureReverbForChannelAuth();
     Event::fake([BroadcastNotificationCreated::class]);
 
     $manager = employeeWith(

@@ -8,9 +8,9 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * Covers the descriptive fields only. Status, assignment mode and the assignee
- * are changed through the workflow endpoints, never by editing the form, so
- * that no route can skip the state machine.
+ * Covers the descriptive fields for create/update. On create, an optional assignee
+ * may be supplied; when present it is applied through TaskWorkflow after the draft
+ * is saved, never by mass assignment on the model.
  */
 class TaskRequest extends FormRequest
 {
@@ -24,7 +24,7 @@ class TaskRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'tm_project_id' => [
                 'required', 'integer',
                 Rule::exists('tm_projects', 'id')->whereIn('status', ['planning', 'active']),
@@ -37,6 +37,12 @@ class TaskRequest extends FormRequest
             'estimated_hours' => ['nullable', 'numeric', 'min:0', 'max:999'],
             'due_at' => ['nullable', 'date'],
         ];
+
+        if ($this->isMethod('post') && $this->routeIs('tasks.store')) {
+            $rules['assigned_employee_id'] = ['nullable', 'integer', Rule::exists('employees', 'id')];
+        }
+
+        return $rules;
     }
 
     /**

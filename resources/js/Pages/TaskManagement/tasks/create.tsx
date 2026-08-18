@@ -9,20 +9,35 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'New', href: '/tasks/create' },
 ];
 
-export default function CreateTask({ defaultProjectId, ...options }: TaskFormOptions & { defaultProjectId: number | null }) {
+export default function CreateTask({
+    defaultProjectId,
+    assignableEmployees = [],
+    can,
+    ...options
+}: TaskFormOptions & { defaultProjectId: number | null; can?: { assign: boolean } }) {
+    const canAssign = can?.assign ?? false;
+
     return (
         <TaskLayout breadcrumbs={breadcrumbs}>
             <Head title="New task" />
 
             <div className="flex flex-1 flex-col gap-6 p-4">
-                <PageHeader title="New task" description="Describe the work. Who does it is decided next." />
+                <PageHeader
+                    title="New task"
+                    description={
+                        canAssign
+                            ? 'Describe the work and assign someone now, or save as a draft and assign later.'
+                            : 'Describe the work. Who does it is decided next.'
+                    }
+                />
 
                 <TaskForm
-                    options={options}
+                    options={{ ...options, assignableEmployees, canAssign }}
                     action="/tasks"
                     method="post"
-                    submitLabel="Create draft"
+                    submitLabel={canAssign ? 'Create task' : 'Create draft'}
                     cancelUrl="/tasks"
+                    showAssignee={canAssign}
                     initial={{
                         tm_project_id: defaultProjectId ? String(defaultProjectId) : '',
                         department_id: '',
@@ -32,6 +47,7 @@ export default function CreateTask({ defaultProjectId, ...options }: TaskFormOpt
                         priority: 'normal',
                         estimated_hours: '',
                         due_at: '',
+                        assigned_employee_id: '',
                     }}
                 />
             </div>

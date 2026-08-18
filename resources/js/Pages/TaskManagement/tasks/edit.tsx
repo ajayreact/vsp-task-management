@@ -48,6 +48,7 @@ export default function EditTask({ task, ...options }: TaskFormOptions & { task:
                         priority: task.priority,
                         estimated_hours: task.estimated_hours ?? '',
                         due_at: task.due_at ?? '',
+                        assigned_employee_id: '',
                     }}
                 />
             </div>

@@ -11,6 +11,7 @@ use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Models\Timesheet;
 use App\Modules\TaskManagement\Notifications\StaffDatabaseNotification;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
@@ -44,10 +45,58 @@ test('assigning a task notifies the assignee and not the assigner', function () 
 
     Notification::assertSentTo($employee->user, StaffDatabaseNotification::class, function (StaffDatabaseNotification $notification) use ($task) {
         return $notification->payload['event'] === 'task.assigned'
-            && $notification->payload['task_id'] === $task->id;
+            && $notification->payload['task_id'] === $task->id
+            && $notification->payload['title'] === 'New Task Assigned'
+            && $notification->payload['body'] === "You have been assigned to the task: {$task->title}"
+            && $notification->payload['url'] === "/tasks/{$task->id}";
     });
 
     Notification::assertNotSentTo($manager->user, StaffDatabaseNotification::class);
+});
+
+test('creating and assigning a task in one step notifies the assignee', function () {
+    Notification::fake();
+
+    $manager = notifyManager();
+    $employee = notifyWorker();
+    $project = Project::factory()->create();
+
+    $this->actingAs($manager->user)
+        ->post('/tasks', [
+            'tm_project_id' => $project->id,
+            'title' => 'Poster design',
+            'type' => 'design',
+            'priority' => 'normal',
+            'assigned_employee_id' => $employee->id,
+        ])
+        ->assertRedirect();
+
+    $task = Task::query()->sole();
+
+    Notification::assertSentTo($employee->user, StaffDatabaseNotification::class, function (StaffDatabaseNotification $notification) use ($task) {
+        return $notification->payload['event'] === 'task.assigned'
+            && $notification->payload['task_id'] === $task->id;
+    });
+});
+
+test('assignment notifications are stored in the database even when broadcast fails', function () {
+    config(['broadcasting.default' => 'reverb']);
+
+    $manager = notifyManager();
+    $employee = notifyWorker();
+    $task = Task::factory()->create(['created_by_user_id' => $manager->user_id]);
+
+    Broadcast::shouldReceive('connection')->andThrow(new RuntimeException('Reverb unavailable'));
+
+    $this->actingAs($manager->user)
+        ->post("/tasks/{$task->id}/assign", ['employee_id' => $employee->id])
+        ->assertRedirect();
+
+    $notification = $employee->user->notifications()->sole();
+
+    expect($notification->data['event'] ?? null)->toBe('task.assigned')
+        ->and($notification->data['title'] ?? null)->toBe('New Task Assigned')
+        ->and($notification->read_at)->toBeNull();
 });
 
 test('reassigning notifies the previous and new assignees', function () {

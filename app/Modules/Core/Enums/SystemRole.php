@@ -71,10 +71,8 @@ enum SystemRole: string
                 Ability::ReviewDeliverables,
             ],
             // Individual contributors: work assigned / open-board tasks only.
-            // Cannot create, assign, publish, or manage org / clients / projects.
+            // Cannot create, assign, publish, manage org structure, or open admin screens.
             self::Employee => [
-                Ability::ViewEmployees,
-                Ability::ViewDepartments,
                 Ability::AccessTasks,
                 Ability::ViewCompanies,
                 Ability::ViewProjects,

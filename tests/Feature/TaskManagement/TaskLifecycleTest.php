@@ -46,9 +46,8 @@ test('tasks cannot be raised against a closed project', function () {
         ->assertSessionHasErrors('tm_project_id');
 });
 
-test('the form cannot set status or assignee, only the workflow can', function () {
+test('the form cannot set status on create, only the workflow can', function () {
     $author = employeeWith(Ability::AccessTasks, Ability::ManageTasks);
-    $employee = employeeWith(Ability::AccessTasks);
     $project = Project::factory()->create();
 
     $this->actingAs($author->user)->post('/tasks', [
@@ -57,13 +56,32 @@ test('the form cannot set status or assignee, only the workflow can', function (
         'type' => 'design',
         'priority' => 'normal',
         'status' => TaskStatus::Completed->value,
-        'assigned_employee_id' => $employee->id,
     ]);
 
     $task = Task::query()->sole();
 
-    expect($task->status)->toBe(TaskStatus::Draft)
-        ->and($task->assigned_employee_id)->toBeNull();
+    expect($task->status)->toBe(TaskStatus::Draft);
+});
+
+test('creating a task with an assignee runs the workflow and assigns the employee', function () {
+    $manager = employeeWith(Ability::AccessTasks, Ability::ManageTasks, Ability::AssignTasks, Ability::ViewAllTasks);
+    $employee = employeeWith(Ability::AccessTasks);
+    $project = Project::factory()->create();
+
+    $this->actingAs($manager->user)
+        ->post('/tasks', [
+            'tm_project_id' => $project->id,
+            'title' => 'Launch creative',
+            'type' => 'design',
+            'priority' => 'normal',
+            'assigned_employee_id' => $employee->id,
+        ])
+        ->assertRedirect();
+
+    $task = Task::query()->sole();
+
+    expect($task->status)->toBe(TaskStatus::Assigned)
+        ->and($task->assigned_employee_id)->toBe($employee->id);
 });
 
 test('someone without view_all sees only their own tasks', function () {

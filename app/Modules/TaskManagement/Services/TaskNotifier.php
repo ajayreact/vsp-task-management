@@ -16,6 +16,7 @@ use App\Modules\TaskManagement\Models\TaskSubtask;
 use App\Modules\TaskManagement\Models\Timesheet;
 use App\Modules\TaskManagement\Notifications\StaffDatabaseNotification;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Notification;
 
 /**
  * Resolves recipients and writes database notifications for Task Management
@@ -45,13 +46,7 @@ class TaskNotifier
         }
 
         if ($assignee->user !== null) {
-            $this->send($assignee->user, $actor, [
-                'event' => 'task.assigned',
-                'title' => 'New task assigned',
-                'body' => "{$actor->name} assigned \"{$task->title}\" to you.",
-                'url' => "/tasks/{$task->id}",
-                'task_id' => $task->id,
-            ]);
+            $this->send($assignee->user, $actor, $this->taskAssignedPayload($task));
         }
     }
 
@@ -281,13 +276,27 @@ class TaskNotifier
 
         $body = $reminder->message ?: "Reminder for \"{$task->title}\".";
 
-        $recipient->notify(new StaffDatabaseNotification([
+        $this->deliver($recipient, [
             'event' => 'task.reminder',
             'title' => 'Task reminder',
             'body' => $body,
             'url' => "/tasks/{$task->id}",
             'task_id' => $task->id,
-        ]));
+        ]);
+    }
+
+    /**
+     * @return array{event: string, title: string, body: string, url: string, task_id: int}
+     */
+    public function taskAssignedPayload(Task $task): array
+    {
+        return [
+            'event' => 'task.assigned',
+            'title' => 'New Task Assigned',
+            'body' => "You have been assigned to the task: {$task->title}",
+            'url' => "/tasks/{$task->id}",
+            'task_id' => $task->id,
+        ];
     }
 
     public function subtaskAssigned(Task $task, TaskSubtask $subtask, User $actor): void
@@ -370,7 +379,44 @@ class TaskNotifier
             return;
         }
 
-        $recipient->notify(new StaffDatabaseNotification($payload));
+        $this->deliver($recipient, $payload);
+    }
+
+    /**
+     * Persist to the database first, then attempt a live broadcast when configured.
+     * Database delivery must succeed even if Reverb/WebSockets are unavailable.
+     *
+     * @param  array{event: string, title: string, body: string, url: string, task_id?: int|null, timesheet_id?: int|null}  $payload
+     */
+    protected function deliver(User $recipient, array $payload): void
+    {
+        if (! $recipient->is_active || $recipient->user_type !== UserType::Internal) {
+            return;
+        }
+
+        $notification = new StaffDatabaseNotification($payload);
+        $channels = ['database'];
+
+        if ($this->shouldBroadcastNotifications()) {
+            $channels[] = 'broadcast';
+        }
+
+        try {
+            Notification::sendNow($recipient, $notification, $channels);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            if ($recipient->notifications()->count() === 0) {
+                Notification::sendNow($recipient, $notification, ['database']);
+            }
+        }
+    }
+
+    protected function shouldBroadcastNotifications(): bool
+    {
+        $driver = config('broadcasting.default');
+
+        return filled($driver) && $driver !== 'null';
     }
 
     /**

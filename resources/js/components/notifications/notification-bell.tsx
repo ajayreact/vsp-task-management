@@ -40,26 +40,15 @@ function relativeTime(iso: string | null): string {
 }
 
 function openNotification(notification: AppNotification) {
-    const visit = () => {
+    if (notification.read_at) {
         if (notification.url) {
             router.visit(notification.url);
         }
-    };
-
-    if (notification.read_at) {
-        visit();
 
         return;
     }
 
-    router.post(
-        `/notifications/${notification.id}/read`,
-        { redirect: false },
-        {
-            preserveScroll: true,
-            onFinish: visit,
-        },
-    );
+    router.post(`/notifications/${notification.id}/read`, { redirect: true }, { preserveScroll: true });
 }
 
 export function NotificationBell() {

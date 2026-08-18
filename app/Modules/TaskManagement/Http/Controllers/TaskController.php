@@ -25,6 +25,7 @@ use App\Modules\TaskManagement\Models\TaskStatusChange;
 use App\Modules\TaskManagement\Models\TaskSubtask;
 use App\Modules\TaskManagement\Models\TimeEntry;
 use App\Modules\TaskManagement\Services\TaskListExporter;
+use App\Modules\TaskManagement\Services\TaskWorkflow;
 use App\Support\Pagination;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -91,15 +92,25 @@ class TaskController extends Controller
         return Inertia::render('TaskManagement/tasks/create', [
             ...$this->formOptions(),
             'defaultProjectId' => $request->integer('project') ?: null,
+            'assignableEmployees' => $request->user()->can(Ability::AssignTasks->value)
+                ? $this->assignableEmployees()
+                : [],
+            'can' => [
+                'assign' => $request->user()->can(Ability::AssignTasks->value),
+            ],
         ]);
     }
 
-    public function store(TaskRequest $request): RedirectResponse
+    public function store(TaskRequest $request, TaskWorkflow $workflow): RedirectResponse
     {
         $this->authorize('create', Task::class);
 
+        $validated = $request->validated();
+        $assigneeId = $validated['assigned_employee_id'] ?? null;
+        unset($validated['assigned_employee_id']);
+
         $task = Task::create([
-            ...$request->validated(),
+            ...$validated,
             'status' => TaskStatus::Draft,
             'created_by_user_id' => $request->user()->id,
         ]);
@@ -110,6 +121,15 @@ class TaskController extends Controller
             'changed_by_user_id' => $request->user()->id,
             'changed_at' => now(),
         ]);
+
+        if ($assigneeId !== null) {
+            $this->authorize('assign', $task);
+
+            $employee = Employee::query()->findOrFail($assigneeId);
+            $workflow->assign($task, $employee, $request->user());
+
+            return to_route('tasks.show', $task)->with('success', 'Task created and assigned.');
+        }
 
         return to_route('tasks.show', $task)->with('success', 'Task created as a draft.');
     }
