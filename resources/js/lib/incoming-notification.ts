@@ -1,5 +1,4 @@
 import { showIncomingBrowserNotification } from '@/lib/browser-notifications';
-import { readNotificationPreferences } from '@/lib/notification-preferences';
 import { showNotificationToast } from '@/lib/notification-toast-store';
 import { playNotificationSound } from '@/lib/notification-sound';
 import { type AppNotification } from '@/types';
@@ -11,19 +10,9 @@ type NavigateHandler = (url: string) => void;
  * Called only from dispatchIncomingNotification after duplicate filtering.
  */
 export function handleIncomingNotification(notification: AppNotification, options?: { onNavigate?: NavigateHandler }): void {
-    const preferences = readNotificationPreferences();
-
-    if (preferences.inApp) {
-        showNotificationToast(notification);
-    }
-
-    if (preferences.sound) {
-        playNotificationSound();
-    }
-
-    if (preferences.browser) {
-        showIncomingBrowserNotification(notification, {
-            onNavigate: options?.onNavigate,
-        });
-    }
+    showNotificationToast(notification);
+    playNotificationSound();
+    showIncomingBrowserNotification(notification, {
+        onNavigate: options?.onNavigate,
+    });
 }
