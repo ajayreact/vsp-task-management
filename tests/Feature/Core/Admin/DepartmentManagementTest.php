@@ -25,7 +25,7 @@ test('the list shows how many people each department holds', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Core/admin/departments/index')
-            ->where('departments.0.employees_count', 2)
+            ->where('departments.data.0.employees_count', 2)
         );
 });
 

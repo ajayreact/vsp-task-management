@@ -18,7 +18,7 @@ export type EmployeeFormValues = {
     password_confirmation: string;
     employee_code: string;
     department_id: string;
-    designation: string;
+    designation_id: string;
     reporting_to_id: string;
     phone: string;
     joined_on: string;
@@ -30,6 +30,7 @@ export type EmployeeFormValues = {
 
 export interface EmployeeFormOptions {
     departments: { id: number; name: string }[];
+    designations: { id: number; name: string }[];
     managers: { id: number; label: string }[];
     statuses: Option[];
     roles: string[];
@@ -135,9 +136,24 @@ export function EmployeeForm({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="designation">Designation</Label>
-                            <Input id="designation" value={data.designation} onChange={(e) => setData('designation', e.target.value)} />
-                            <InputError message={errors.designation} />
+                            <Label htmlFor="designation_id">Designation</Label>
+                            <Select
+                                value={data.designation_id || NONE}
+                                onValueChange={(value) => setData('designation_id', value === NONE ? '' : value)}
+                            >
+                                <SelectTrigger id="designation_id">
+                                    <SelectValue placeholder="Select designation" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={NONE}>Select designation</SelectItem>
+                                    {options.designations.map((designation) => (
+                                        <SelectItem key={designation.id} value={String(designation.id)}>
+                                            {designation.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <InputError message={errors.designation_id} />
                         </div>
 
                         <div className="grid gap-2">
@@ -147,10 +163,10 @@ export function EmployeeForm({
                                 onValueChange={(value) => setData('department_id', value === NONE ? '' : value)}
                             >
                                 <SelectTrigger id="department_id">
-                                    <SelectValue placeholder="Unassigned" />
+                                    <SelectValue placeholder="Select department" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value={NONE}>Unassigned</SelectItem>
+                                    <SelectItem value={NONE}>Select department</SelectItem>
                                     {options.departments.map((department) => (
                                         <SelectItem key={department.id} value={String(department.id)}>
                                             {department.name}

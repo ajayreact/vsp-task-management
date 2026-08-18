@@ -64,7 +64,7 @@ test('renaming a built-in role is refused', function () {
     $role = Role::findOrCreate(SystemRole::Manager->value, 'web');
 
     $this->actingAs(staffWith(Ability::ManageRoles))
-        ->put("/admin/roles/{$role->id}", ['name' => 'team-lead', 'permissions' => []])
+        ->put("/admin/roles/{$role->id}", ['name' => 'creative-director', 'permissions' => []])
         ->assertSessionHasErrors('name');
 
     expect($role->refresh()->name)->toBe(SystemRole::Manager->value);

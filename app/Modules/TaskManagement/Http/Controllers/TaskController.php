@@ -6,19 +6,33 @@ use App\Http\Controllers\Controller;
 use App\Modules\Core\Enums\Ability;
 use App\Modules\Core\Models\Department;
 use App\Modules\Core\Models\Employee;
+use App\Modules\Core\Models\User;
+use App\Modules\TaskManagement\Enums\RecurrenceFrequency;
+use App\Modules\TaskManagement\Enums\SubtaskStatus;
 use App\Modules\TaskManagement\Enums\TaskPriority;
 use App\Modules\TaskManagement\Enums\TaskStatus;
 use App\Modules\TaskManagement\Enums\TaskType;
 use App\Modules\TaskManagement\Http\Requests\TaskRequest;
+use App\Modules\TaskManagement\Models\Deliverable;
+use App\Modules\TaskManagement\Models\DeliverableReview;
 use App\Modules\TaskManagement\Models\Project;
 use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Models\TaskAssignment;
+use App\Modules\TaskManagement\Models\TaskChecklistItem;
+use App\Modules\TaskManagement\Models\TaskComment;
+use App\Modules\TaskManagement\Models\TaskReminder;
 use App\Modules\TaskManagement\Models\TaskStatusChange;
+use App\Modules\TaskManagement\Models\TaskSubtask;
+use App\Modules\TaskManagement\Models\TimeEntry;
+use App\Modules\TaskManagement\Services\TaskListExporter;
+use App\Support\Pagination;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TaskController extends Controller
 {
@@ -28,43 +42,10 @@ class TaskController extends Controller
 
         $user = $request->user();
         $canSeeEverything = $user->can(Ability::ViewAllTasks->value);
+        $filters = $this->listFilters($request, $canSeeEverything);
 
-        // Someone who can only see their own work has no use for the other
-        // scopes, so the default and the only option is "mine".
-        $scope = $canSeeEverything ? $request->string('scope')->value() ?: 'all' : 'mine';
-
-        $filters = [
-            'scope' => $scope,
-            'search' => $request->string('search')->trim()->value(),
-            'project' => $request->integer('project') ?: null,
-            'status' => $request->string('status')->value(),
-            'priority' => $request->string('priority')->value(),
-        ];
-
-        $tasks = Task::query()
-            ->with([
-                'project:id,name,code',
-                'assignee:id,user_id',
-                'assignee.user:id,name',
-                'department:id,name',
-            ])
-            ->when($scope === 'mine', function (Builder $query) use ($user) {
-                $employeeId = $user->employee?->id;
-
-                // A user with no employee profile has no work of their own, and
-                // whereKey(null) would otherwise match everything.
-                $employeeId === null
-                    ? $query->whereRaw('1 = 0')
-                    : $query->where('assigned_employee_id', $employeeId);
-            })
-            ->when($scope === 'unassigned', fn (Builder $query) => $query->whereNull('assigned_employee_id'))
-            ->when($filters['search'], fn (Builder $query, string $search) => $query->where('title', 'like', "%{$search}%"))
-            ->when($filters['project'], fn (Builder $query, int $id) => $query->where('tm_project_id', $id))
-            ->when($filters['status'], fn (Builder $query, string $status) => $query->where('status', $status))
-            ->when($filters['priority'], fn (Builder $query, string $priority) => $query->where('priority', $priority))
-            ->orderByRaw("field(priority, 'urgent', 'high', 'normal', 'low')")
-            ->orderByRaw('due_at is null, due_at')
-            ->paginate(20)
+        $tasks = $this->filteredTasksQuery($request, $filters)
+            ->paginate(Pagination::perPage($request, 20))
             ->withQueryString()
             ->through(fn (Task $task) => $this->summarise($task));
 
@@ -79,6 +60,28 @@ class TaskController extends Controller
                 'viewAll' => $canSeeEverything,
             ],
         ]);
+    }
+
+    public function exportExcel(Request $request, TaskListExporter $exporter): StreamedResponse
+    {
+        $this->authorize('viewAny', Task::class);
+
+        $canSeeEverything = $request->user()->can(Ability::ViewAllTasks->value);
+        $filters = $this->listFilters($request, $canSeeEverything);
+        $tasks = $this->filteredTasksQuery($request, $filters)->get();
+
+        return $exporter->excel($tasks);
+    }
+
+    public function exportPdf(Request $request, TaskListExporter $exporter)
+    {
+        $this->authorize('viewAny', Task::class);
+
+        $canSeeEverything = $request->user()->can(Ability::ViewAllTasks->value);
+        $filters = $this->listFilters($request, $canSeeEverything);
+        $tasks = $this->filteredTasksQuery($request, $filters)->get();
+
+        return $exporter->pdf($tasks);
     }
 
     public function create(Request $request): Response
@@ -124,6 +127,7 @@ class TaskController extends Controller
             'assignee:id,user_id,employee_code',
             'assignee.user:id,name',
             'creator:id,name',
+            'ownedRecurrenceRule',
         ]);
 
         return Inertia::render('TaskManagement/tasks/show', [
@@ -135,6 +139,7 @@ class TaskController extends Controller
                 'created_by' => $task->creator->name,
                 'started_at' => $task->started_at?->toIso8601String(),
                 'completed_at' => $task->completed_at?->toIso8601String(),
+                'assigned_user_id' => $task->assignee?->user_id,
             ],
             'history' => $task->statusHistory()
                 ->with('changedBy:id,name')
@@ -170,12 +175,152 @@ class TaskController extends Controller
                 )
                 : [],
             'assignableEmployees' => $user->can('assign', $task) ? $this->assignableEmployees() : [],
+            'timer' => $this->timerPayload($task, $user->employee?->id),
+            'timeEntries' => $task->timeEntries()
+                ->with('employee.user:id,name')
+                ->where('is_running', false)
+                ->orderByDesc('started_at')
+                ->limit(20)
+                ->get()
+                ->map(fn (TimeEntry $entry) => [
+                    'id' => $entry->id,
+                    'employee_name' => $entry->employee->user->name,
+                    'started_at' => $entry->started_at->toIso8601String(),
+                    'ended_at' => $entry->ended_at?->toIso8601String(),
+                    'hours' => $entry->hours(),
+                    'source' => $entry->source->label(),
+                    'note' => $entry->note,
+                    'can_delete' => $user->can('delete', $entry),
+                ]),
+            'attachments' => $this->attachmentPayload($task, $user),
+            'deliverables' => $task->deliverables()
+                ->with(['submitter.user:id,name', 'reviews.reviewer:id,name', 'media', 'shareLink'])
+                ->orderByDesc('version')
+                ->get()
+                ->map(fn (Deliverable $deliverable) => [
+                    'id' => $deliverable->id,
+                    'version' => $deliverable->version,
+                    'status' => $deliverable->status->value,
+                    'status_label' => $deliverable->status->label(),
+                    'notes' => $deliverable->notes,
+                    'submitted_by' => $deliverable->submitter->user->name,
+                    'submitted_at' => $deliverable->submitted_at->toIso8601String(),
+                    'can_share' => $user->can('share', $deliverable),
+                    'share_url' => $deliverable->shareLink?->publicUrl(),
+                    'files' => $deliverable->getMedia('proofs')->map(fn (Media $media) => [
+                        'id' => $media->id,
+                        'name' => $media->file_name,
+                        'url' => $media->getUrl(),
+                        'mime' => $media->mime_type,
+                    ])->all(),
+                    'reviews' => $deliverable->reviews->map(fn (DeliverableReview $review) => [
+                        'id' => $review->id,
+                        'round' => $review->round,
+                        'decision' => $review->decision->label(),
+                        'comments' => $review->comments,
+                        'reviewer' => $review->reviewer->name,
+                        'reviewed_at' => $review->reviewed_at->toIso8601String(),
+                    ])->all(),
+                ]),
+            'comments' => $task->comments()
+                ->with('author:id,name,avatar')
+                ->orderBy('created_at')
+                ->orderBy('id')
+                ->get()
+                ->map(fn (TaskComment $comment) => [
+                    'id' => $comment->id,
+                    'body' => $comment->body,
+                    'author_name' => $comment->author->name,
+                    'author_avatar' => $comment->author->avatar,
+                    'created_at' => $comment->created_at?->toIso8601String(),
+                    'updated_at' => $comment->updated_at?->toIso8601String(),
+                    'can_edit' => $user->can('update', $comment),
+                    'can_delete' => $user->can('delete', $comment),
+                ]),
+            'checklist' => [
+                'items' => $task->checklistItems()
+                    ->with('completedBy:id,name')
+                    ->orderBy('sort_order')
+                    ->orderBy('id')
+                    ->get()
+                    ->map(fn (TaskChecklistItem $item) => [
+                        'id' => $item->id,
+                        'title' => $item->title,
+                        'is_completed' => $item->is_completed,
+                        'completed_by' => $item->completedBy?->name,
+                        'completed_at' => $item->completed_at?->toIso8601String(),
+                        'sort_order' => $item->sort_order,
+                    ]),
+                'completed' => $task->checklistItems()->where('is_completed', true)->count(),
+                'total' => $task->checklistItems()->count(),
+            ],
+            'subtasks' => [
+                'items' => $task->subtasks()
+                    ->with('assignee.user:id,name')
+                    ->orderBy('sort_order')
+                    ->orderBy('id')
+                    ->get()
+                    ->map(fn (TaskSubtask $subtask) => [
+                        'id' => $subtask->id,
+                        'title' => $subtask->title,
+                        'description' => $subtask->description,
+                        'status' => $subtask->status->value,
+                        'status_label' => $subtask->status->label(),
+                        'assignee_name' => $subtask->assignee?->user->name,
+                        'assigned_employee_id' => $subtask->assigned_employee_id,
+                        'due_at' => $subtask->due_at?->toIso8601String(),
+                        'completed_at' => $subtask->completed_at?->toIso8601String(),
+                        'sort_order' => $subtask->sort_order,
+                    ]),
+                'completed' => $task->subtasks()->where('status', SubtaskStatus::Completed)->count(),
+                'total' => $task->subtasks()->count(),
+            ],
+            'subtaskStatuses' => SubtaskStatus::options(),
+            'subtaskAssignableEmployees' => $user->can('manageSubtasks', $task) ? $this->assignableEmployees() : [],
+            'reminders' => $task->reminders()
+                ->with(['recipient:id,name', 'creator:id,name'])
+                ->orderBy('remind_at')
+                ->orderBy('id')
+                ->get()
+                ->map(fn (TaskReminder $reminder) => [
+                    'id' => $reminder->id,
+                    'remind_at' => $reminder->remind_at->toIso8601String(),
+                    'message' => $reminder->message,
+                    'recipient_name' => $reminder->recipient->name,
+                    'recipient_user_id' => $reminder->recipient_user_id,
+                    'created_by' => $reminder->creator->name,
+                    'sent_at' => $reminder->sent_at?->toIso8601String(),
+                    'can_delete' => $user->can('delete', $reminder),
+                ]),
+            'reminderRecipients' => $user->can('manageReminders', $task) ? $this->reminderRecipients() : [],
+            'recurrence' => [
+                'can_manage' => $user->can('manageRecurrence', $task),
+                'frequencies' => RecurrenceFrequency::options(),
+                'rule' => $task->ownedRecurrenceRule ? [
+                    'frequency' => $task->ownedRecurrenceRule->frequency->value,
+                    'interval' => $task->ownedRecurrenceRule->interval,
+                    'start_date' => $task->ownedRecurrenceRule->start_date->format('Y-m-d'),
+                    'end_date' => $task->ownedRecurrenceRule->end_date?->format('Y-m-d'),
+                    'max_occurrences' => $task->ownedRecurrenceRule->max_occurrences,
+                    'occurrences_generated' => $task->ownedRecurrenceRule->occurrences_generated,
+                    'is_active' => $task->ownedRecurrenceRule->is_active,
+                ] : null,
+            ],
             'can' => [
                 'update' => $user->can('update', $task),
                 'delete' => $user->can('delete', $task),
                 'assign' => $user->can('assign', $task),
                 'claim' => $user->can('claim', $task),
                 'respond' => $user->can('respond', $task) && $task->status === TaskStatus::Assigned,
+                'logTime' => $user->can('logTime', $task),
+                'attachFiles' => $user->can('attachFiles', $task),
+                'comment' => $user->can('comment', $task),
+                'manageChecklist' => $user->can('manageChecklist', $task),
+                'manageSubtasks' => $user->can('manageSubtasks', $task),
+                'manageReminders' => $user->can('manageReminders', $task),
+                'manageRecurrence' => $user->can('manageRecurrence', $task),
+                'submitProof' => $user->can('submitProof', $task),
+                'reviewProof' => $user->can('reviewProof', $task),
             ],
         ]);
     }
@@ -219,6 +364,57 @@ class TaskController extends Controller
     }
 
     /**
+     * @return array{scope: string, search: string, project: int|null, status: string, priority: string}
+     */
+    protected function listFilters(Request $request, bool $canSeeEverything): array
+    {
+        // Someone who can only see their own work has no use for the other
+        // scopes, so the default and the only option is "mine".
+        $scope = $canSeeEverything ? $request->string('scope')->value() ?: 'all' : 'mine';
+
+        return [
+            'scope' => $scope,
+            'search' => $request->string('search')->trim()->value(),
+            'project' => $request->integer('project') ?: null,
+            'status' => $request->string('status')->value(),
+            'priority' => $request->string('priority')->value(),
+        ];
+    }
+
+    /**
+     * @param  array{scope: string, search: string, project: int|null, status: string, priority: string}  $filters
+     */
+    protected function filteredTasksQuery(Request $request, array $filters): Builder
+    {
+        $user = $request->user();
+        $scope = $filters['scope'];
+
+        return Task::query()
+            ->with([
+                'project:id,name,code',
+                'assignee:id,user_id',
+                'assignee.user:id,name',
+                'department:id,name',
+            ])
+            ->when($scope === 'mine', function (Builder $query) use ($user) {
+                $employeeId = $user->employee?->id;
+
+                // A user with no employee profile has no work of their own, and
+                // whereKey(null) would otherwise match everything.
+                $employeeId === null
+                    ? $query->whereRaw('1 = 0')
+                    : $query->where('assigned_employee_id', $employeeId);
+            })
+            ->when($scope === 'unassigned', fn (Builder $query) => $query->whereNull('assigned_employee_id'))
+            ->when($filters['search'], fn (Builder $query, string $search) => $query->where('title', 'like', "%{$search}%"))
+            ->when($filters['project'], fn (Builder $query, int $id) => $query->where('tm_project_id', $id))
+            ->when($filters['status'], fn (Builder $query, string $status) => $query->where('status', $status))
+            ->when($filters['priority'], fn (Builder $query, string $priority) => $query->where('priority', $priority))
+            ->orderByRaw("field(priority, 'urgent', 'high', 'normal', 'low')")
+            ->orderByRaw('due_at is null, due_at');
+    }
+
+    /**
      * @return array<string, mixed>
      */
     protected function summarise(Task $task): array
@@ -240,6 +436,23 @@ class TaskController extends Controller
     }
 
     /**
+     * @return array<int, array{user_id: int, label: string}>
+     */
+    protected function reminderRecipients(): array
+    {
+        return Employee::query()
+            ->with('user:id,name')
+            ->assignable()
+            ->orderBy('employee_code')
+            ->get(['id', 'user_id', 'employee_code'])
+            ->map(fn (Employee $employee) => [
+                'user_id' => $employee->user_id,
+                'label' => $employee->user->name.' · '.$employee->employee_code,
+            ])
+            ->all();
+    }
+
+    /**
      * @return array<int, array{id: int, label: string}>
      */
     protected function assignableEmployees(): array
@@ -254,6 +467,50 @@ class TaskController extends Controller
                 'label' => $employee->user->name.' · '.$employee->employee_code,
             ])
             ->all();
+    }
+
+    /**
+     * Working files on the task. Separate from deliverable proofs.
+     *
+     * @return list<array<string, mixed>>
+     */
+    protected function attachmentPayload(Task $task, User $user): array
+    {
+        $media = $task->getMedia('attachments');
+        $uploaderIds = $media
+            ->map(fn (Media $item) => $item->getCustomProperty('uploaded_by_user_id'))
+            ->filter()
+            ->unique()
+            ->values();
+
+        $names = $uploaderIds->isEmpty()
+            ? collect()
+            : User::query()->whereIn('id', $uploaderIds)->pluck('name', 'id');
+
+        return $media->map(fn (Media $item) => [
+            'id' => $item->id,
+            'name' => $item->file_name,
+            'url' => $item->getUrl(),
+            'mime' => $item->mime_type,
+            'size' => $item->size,
+            'uploaded_by' => $names->get($item->getCustomProperty('uploaded_by_user_id')) ?? 'Unknown',
+            'uploaded_at' => $item->created_at?->toIso8601String(),
+            'can_delete' => $user->can('deleteAttachment', [$task, $item]),
+        ])->values()->all();
+    }
+
+    /**
+     * @return array{running: bool, started_at: string|null, yours: bool}
+     */
+    protected function timerPayload(Task $task, ?int $employeeId): array
+    {
+        $running = $task->timeEntries()->where('is_running', true)->latest('id')->first();
+
+        return [
+            'running' => $running !== null,
+            'started_at' => $running?->started_at->toIso8601String(),
+            'yours' => $running !== null && $running->employee_id === $employeeId,
+        ];
     }
 
     /**

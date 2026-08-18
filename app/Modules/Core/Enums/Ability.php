@@ -6,9 +6,8 @@ namespace App\Modules\Core\Enums;
  * Every permission name in the system, so that a typo in a middleware string
  * is a fatal error rather than a silently failing check.
  *
- * Module entry abilities (`crm.access`, `tasks.access`, `portal.access`) live
- * here rather than in the modules themselves: permissions are seeded as one
- * catalogue, and Core cannot reference a module.
+ * Module entry abilities live here rather than in the modules themselves:
+ * permissions are seeded as one catalogue, and Core cannot reference a module.
  */
 enum Ability: string
 {
@@ -23,9 +22,7 @@ enum Ability: string
 
     case ViewActivityLog = 'activity.view';
 
-    case AccessCrm = 'crm.access';
     case AccessTasks = 'tasks.access';
-    case AccessPortal = 'portal.access';
 
     case ViewCompanies = 'companies.view';
     case ManageCompanies = 'companies.manage';
@@ -37,6 +34,37 @@ enum Ability: string
     case ManageTasks = 'tasks.manage';
     case AssignTasks = 'tasks.assign';
 
+    case ManageCapacity = 'capacity.manage';
+    case ViewWorkload = 'workload.view';
+    case ApproveTimesheets = 'timesheets.approve';
+    case ReviewDeliverables = 'reviews.decide';
+
+    /**
+     * Permission names retired with CRM, Portal, and Lead Management. Seeders
+     * detach these from roles before deleting the permission rows.
+     *
+     * @return list<string>
+     */
+    public static function retired(): array
+    {
+        return [
+            'crm.access',
+            'portal.access',
+            'crm.clients.view',
+            'crm.clients.manage',
+            'crm.campaigns.view',
+            'crm.campaigns.manage',
+            'crm.pipelines.manage',
+            'crm.deals.view',
+            'crm.deals.manage',
+            'crm.reports.view',
+            'crm.leads.view',
+            'crm.leads.manage',
+            'crm.leads.assign',
+            'crm.integrations.manage',
+        ];
+    }
+
     public function label(): string
     {
         return match ($this) {
@@ -47,16 +75,18 @@ enum Ability: string
             self::ViewRoles => 'View roles and permissions',
             self::ManageRoles => 'Create and edit roles',
             self::ViewActivityLog => 'View the activity log',
-            self::AccessCrm => 'Open the CRM module',
             self::AccessTasks => 'Open the Task Management module',
-            self::AccessPortal => 'Open the client portal',
-            self::ViewCompanies => 'View work companies',
-            self::ManageCompanies => 'Create, edit and remove work companies',
+            self::ViewCompanies => 'View clients',
+            self::ManageCompanies => 'Create, edit and remove clients',
             self::ViewProjects => 'View projects',
             self::ManageProjects => 'Create, edit and remove projects',
             self::ViewAllTasks => "View everyone's tasks, not just your own",
             self::ManageTasks => 'Create, edit and remove tasks',
             self::AssignTasks => 'Assign tasks to other people',
+            self::ManageCapacity => 'Set weekly capacity and log leave for other people',
+            self::ViewWorkload => 'See everyone\'s allocated hours against capacity',
+            self::ApproveTimesheets => 'Approve or reject submitted timesheets',
+            self::ReviewDeliverables => 'Approve, reject or request changes on proofs',
         };
     }
 
@@ -70,10 +100,13 @@ enum Ability: string
             self::ViewDepartments, self::ManageDepartments => 'Departments',
             self::ViewRoles, self::ManageRoles => 'Roles',
             self::ViewActivityLog => 'Audit',
-            self::AccessCrm, self::AccessTasks, self::AccessPortal => 'Module access',
-            self::ViewCompanies, self::ManageCompanies => 'Work companies',
+            self::AccessTasks => 'Module access',
+            self::ViewCompanies, self::ManageCompanies => 'Clients',
             self::ViewProjects, self::ManageProjects => 'Projects',
             self::ViewAllTasks, self::ManageTasks, self::AssignTasks => 'Tasks',
+            self::ManageCapacity, self::ViewWorkload => 'Capacity',
+            self::ApproveTimesheets => 'Timesheets',
+            self::ReviewDeliverables => 'Creative review',
         };
     }
 }

@@ -11,9 +11,7 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
- * A work client. Has no relationship to `crm_clients` by design — the same
- * business may exist in both, but they are owned by different teams and must
- * not share a lifecycle.
+ * A work client. Delivery relationships live on `tm_companies`.
  *
  * @property int $id
  * @property string $name

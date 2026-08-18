@@ -2,6 +2,8 @@
 
 namespace App\Modules\Core\Models;
 
+use App\Modules\Core\Enums\Ability;
+use App\Modules\Core\Enums\SystemRole;
 use App\Modules\Core\Enums\UserType;
 use Database\Factories\Core\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -70,14 +72,37 @@ class User extends Authenticatable
         return $this->hasOne(Employee::class);
     }
 
-    public function isInternal(): bool
+    /**
+     * Private channel for real-time notification broadcasts (Phase 2).
+     */
+    public function receivesBroadcastNotificationsOn(): string
     {
-        return $this->user_type === UserType::Internal;
+        return 'staff.user.'.$this->id;
     }
 
-    public function isClient(): bool
+    public function isInternal(): bool
     {
-        return $this->user_type === UserType::Client;
+        return true;
+    }
+
+    /**
+     * What this user can actually do, for the frontend to hide navigation and
+     * buttons with.
+     *
+     * Super admin holds no permission rows — it passes through a `Gate::before`
+     * hook instead — so reading the pivot table directly reports that the most
+     * privileged account in the system can do nothing, and hides every admin
+     * link from it. The gate is the authority here, not the rows.
+     *
+     * @return list<string>
+     */
+    public function effectivePermissions(): array
+    {
+        if ($this->hasRole(SystemRole::SuperAdmin->value)) {
+            return array_map(fn (Ability $ability) => $ability->value, Ability::cases());
+        }
+
+        return $this->getAllPermissions()->pluck('name')->all();
     }
 
     /**
@@ -86,13 +111,5 @@ class User extends Authenticatable
     public function scopeInternal(Builder $query): void
     {
         $query->where('user_type', UserType::Internal);
-    }
-
-    /**
-     * @param  Builder<$this>  $query
-     */
-    public function scopeClients(Builder $query): void
-    {
-        $query->where('user_type', UserType::Client);
     }
 }

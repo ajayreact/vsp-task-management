@@ -16,7 +16,7 @@ export default function CreateProject(options: ProjectFormOptions) {
             <Head title="New project" />
 
             <div className="flex flex-1 flex-col gap-6 p-4">
-                <PageHeader title="New project" description="Set up a body of work for a company." />
+                <PageHeader title="New project" description="Set up a body of work for a client." />
 
                 <ProjectForm
                     options={options}

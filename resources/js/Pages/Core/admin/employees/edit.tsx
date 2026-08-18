@@ -11,7 +11,7 @@ interface EmployeeProps {
     is_active: boolean;
     employee_code: string;
     department_id: number | null;
-    designation: string | null;
+    designation_id: number | null;
     reporting_to_id: number | null;
     phone: string | null;
     joined_on: string | null;
@@ -46,7 +46,7 @@ export default function EditEmployee({ employee, ...options }: EmployeeFormOptio
                         password_confirmation: '',
                         employee_code: employee.employee_code,
                         department_id: employee.department_id ? String(employee.department_id) : '',
-                        designation: employee.designation ?? '',
+                        designation_id: employee.designation_id ? String(employee.designation_id) : '',
                         reporting_to_id: employee.reporting_to_id ? String(employee.reporting_to_id) : '',
                         phone: employee.phone ?? '',
                         joined_on: employee.joined_on ?? '',

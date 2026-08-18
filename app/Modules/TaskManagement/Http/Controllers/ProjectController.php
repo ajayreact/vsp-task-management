@@ -10,11 +10,16 @@ use App\Modules\TaskManagement\Http\Requests\ProjectRequest;
 use App\Modules\TaskManagement\Models\Company;
 use App\Modules\TaskManagement\Models\Project;
 use App\Modules\TaskManagement\Models\ProjectMember;
+use App\Support\Pagination;
+use App\Support\TabularExporter;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProjectController extends Controller
 {
@@ -22,39 +27,50 @@ class ProjectController extends Controller
     {
         $this->authorize('viewAny', Project::class);
 
-        $projects = Project::query()
-            ->with(['company:id,name', 'manager:id,user_id', 'manager.user:id,name'])
-            ->withCount(['tasks', 'members'])
-            ->when($request->integer('company'), fn ($query, int $id) => $query->where('tm_company_id', $id))
-            ->when($request->string('status')->value(), fn ($query, string $status) => $query->where('status', $status))
-            ->orderBy('name')
-            ->paginate(15)
+        $filters = $this->listFilters($request);
+
+        $projects = $this->filteredProjectsQuery($filters)
+            ->paginate(Pagination::perPage($request, 15))
             ->withQueryString()
-            ->through(fn (Project $project) => [
-                'id' => $project->id,
-                'name' => $project->name,
-                'code' => $project->code,
-                'status' => $project->status->value,
-                'status_label' => $project->status->label(),
-                'company_name' => $project->company->name,
-                'manager_name' => $project->manager?->user->name,
-                'due_date' => $project->due_date?->toDateString(),
-                'tasks_count' => $project->tasks_count,
-                'members_count' => $project->members_count,
-            ]);
+            ->through(fn (Project $project) => $this->summarise($project));
 
         return Inertia::render('TaskManagement/projects/index', [
             'projects' => $projects,
-            'filters' => [
-                'company' => $request->integer('company') ?: null,
-                'status' => $request->string('status')->value(),
-            ],
+            'filters' => $filters,
             'companies' => Company::query()->orderBy('name')->get(['id', 'name']),
             'statuses' => ProjectStatus::options(),
             'can' => [
                 'manage' => $request->user()->can('create', Project::class),
             ],
         ]);
+    }
+
+    public function exportExcel(Request $request, TabularExporter $exporter): StreamedResponse
+    {
+        $this->authorize('viewAny', Project::class);
+
+        $projects = $this->filteredProjectsQuery($this->listFilters($request))->get();
+
+        return $exporter->excel(
+            'Projects',
+            $this->exportHeaders(),
+            $this->exportRows($projects),
+            'projects-'.now()->format('Y-m-d-His'),
+        );
+    }
+
+    public function exportPdf(Request $request, TabularExporter $exporter)
+    {
+        $this->authorize('viewAny', Project::class);
+
+        $projects = $this->filteredProjectsQuery($this->listFilters($request))->get();
+
+        return $exporter->pdf(
+            'Projects',
+            $this->exportHeaders(),
+            $this->exportRows($projects),
+            'projects-'.now()->format('Y-m-d-His'),
+        );
     }
 
     public function create(): Response
@@ -168,6 +184,75 @@ class ProjectController extends Controller
         $project->delete();
 
         return to_route('tasks.projects.index')->with('success', 'Project deleted.');
+    }
+
+    /**
+     * @return array{client: int|null, status: string}
+     */
+    protected function listFilters(Request $request): array
+    {
+        return [
+            'client' => $request->integer('client') ?: $request->integer('company') ?: null,
+            'status' => $request->string('status')->value(),
+        ];
+    }
+
+    /**
+     * @param  array{client: int|null, status: string}  $filters
+     */
+    protected function filteredProjectsQuery(array $filters): Builder
+    {
+        return Project::query()
+            ->with(['company:id,name', 'manager:id,user_id', 'manager.user:id,name'])
+            ->withCount(['tasks', 'members'])
+            ->when($filters['client'], fn (Builder $query, int $id) => $query->where('tm_company_id', $id))
+            ->when($filters['status'], fn (Builder $query, string $status) => $query->where('status', $status))
+            ->orderBy('name');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function summarise(Project $project): array
+    {
+        return [
+            'id' => $project->id,
+            'name' => $project->name,
+            'code' => $project->code,
+            'status' => $project->status->value,
+            'status_label' => $project->status->label(),
+            'company_name' => $project->company->name,
+            'manager_name' => $project->manager?->user->name,
+            'due_date' => $project->due_date?->toDateString(),
+            'tasks_count' => $project->tasks_count,
+            'members_count' => $project->members_count,
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function exportHeaders(): array
+    {
+        return ['Project', 'Code', 'Client', 'Manager', 'Team', 'Tasks', 'Due', 'Status'];
+    }
+
+    /**
+     * @param  Collection<int, Project>  $projects
+     * @return list<list<string|int|null>>
+     */
+    protected function exportRows($projects): array
+    {
+        return $projects->map(fn (Project $project) => [
+            $project->name,
+            $project->code,
+            $project->company->name,
+            $project->manager?->user->name ?? '',
+            $project->members_count,
+            $project->tasks_count,
+            $project->due_date?->toDateString() ?? '',
+            $project->status->label(),
+        ])->all();
     }
 
     /**

@@ -8,14 +8,20 @@ use App\Modules\Core\Enums\SystemRole;
 use App\Modules\Core\Enums\UserType;
 use App\Modules\Core\Http\Requests\Admin\EmployeeRequest;
 use App\Modules\Core\Models\Department;
+use App\Modules\Core\Models\Designation;
 use App\Modules\Core\Models\Employee;
 use App\Modules\Core\Models\User;
+use App\Support\Pagination;
+use App\Support\TabularExporter;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EmployeeController extends Controller
 {
@@ -23,27 +29,10 @@ class EmployeeController extends Controller
     {
         $this->authorize('viewAny', Employee::class);
 
-        $filters = [
-            'search' => $request->string('search')->trim()->value(),
-            'department' => $request->integer('department') ?: null,
-            'status' => $request->string('status')->value(),
-        ];
+        $filters = $this->listFilters($request);
 
-        $employees = Employee::query()
-            ->with(['user:id,name,email,is_active', 'department:id,name', 'manager:id,employee_code,user_id', 'manager.user:id,name'])
-            ->when($filters['search'], function ($query, string $search) {
-                $query->where(function ($query) use ($search) {
-                    $query->where('employee_code', 'like', "%{$search}%")
-                        ->orWhere('designation', 'like', "%{$search}%")
-                        ->orWhereHas('user', fn ($query) => $query
-                            ->where('name', 'like', "%{$search}%")
-                            ->orWhere('email', 'like', "%{$search}%"));
-                });
-            })
-            ->when($filters['department'], fn ($query, int $id) => $query->where('department_id', $id))
-            ->when($filters['status'], fn ($query, string $status) => $query->where('status', $status))
-            ->orderBy('employee_code')
-            ->paginate(15)
+        $employees = $this->filteredQuery($filters)
+            ->paginate(Pagination::perPage($request, 15))
             ->withQueryString();
 
         return Inertia::render('Core/admin/employees/index', [
@@ -55,6 +44,30 @@ class EmployeeController extends Controller
                 'manage' => $request->user()?->can('create', Employee::class) ?? false,
             ],
         ]);
+    }
+
+    public function exportExcel(Request $request, TabularExporter $exporter): StreamedResponse
+    {
+        $this->authorize('viewAny', Employee::class);
+
+        return $exporter->excel(
+            'Employees',
+            $this->exportHeaders(),
+            $this->exportRows($this->filteredQuery($this->listFilters($request))->get()),
+            'employees-'.now()->format('Y-m-d-His'),
+        );
+    }
+
+    public function exportPdf(Request $request, TabularExporter $exporter)
+    {
+        $this->authorize('viewAny', Employee::class);
+
+        return $exporter->pdf(
+            'Employees',
+            $this->exportHeaders(),
+            $this->exportRows($this->filteredQuery($this->listFilters($request))->get()),
+            'employees-'.now()->format('Y-m-d-His'),
+        );
     }
 
     public function create(): Response
@@ -100,7 +113,7 @@ class EmployeeController extends Controller
                 'is_active' => $employee->user->is_active,
                 'employee_code' => $employee->employee_code,
                 'department_id' => $employee->department_id,
-                'designation' => $employee->designation,
+                'designation_id' => $employee->designation_id,
                 'reporting_to_id' => $employee->reporting_to_id,
                 'phone' => $employee->phone,
                 'joined_on' => $employee->joined_on?->toDateString(),
@@ -149,14 +162,78 @@ class EmployeeController extends Controller
     }
 
     /**
+     * @return array{search: string, department: int|null, status: string}
+     */
+    protected function listFilters(Request $request): array
+    {
+        return [
+            'search' => $request->string('search')->trim()->value(),
+            'department' => $request->integer('department') ?: null,
+            'status' => $request->string('status')->value(),
+        ];
+    }
+
+    /**
+     * @param  array{search: string, department: int|null, status: string}  $filters
+     */
+    protected function filteredQuery(array $filters): Builder
+    {
+        return Employee::query()
+            ->with([
+                'user:id,name,email,is_active',
+                'department:id,name',
+                'designation:id,name',
+                'manager:id,employee_code,user_id',
+                'manager.user:id,name',
+            ])
+            ->when($filters['search'], function ($query, string $search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('employee_code', 'like', "%{$search}%")
+                        ->orWhereHas('designation', fn ($query) => $query->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('user', fn ($query) => $query
+                            ->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%"));
+                });
+            })
+            ->when($filters['department'], fn ($query, int $id) => $query->where('department_id', $id))
+            ->when($filters['status'], fn ($query, string $status) => $query->where('status', $status))
+            ->orderBy('employee_code');
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function exportHeaders(): array
+    {
+        return ['Employee', 'Email', 'Code', 'Designation', 'Department', 'Reports to', 'Status'];
+    }
+
+    /**
+     * @param  Collection<int, Employee>  $employees
+     * @return list<list<string|null>>
+     */
+    protected function exportRows($employees): array
+    {
+        return $employees->map(fn (Employee $employee) => [
+            $employee->user?->name ?? '',
+            $employee->user?->email ?? '',
+            $employee->employee_code,
+            $employee->designation?->name ?? '',
+            $employee->department?->name ?? '',
+            $employee->manager?->user?->name ?? '',
+            $employee->status->label(),
+        ])->all();
+    }
+
+    /**
      * @return array<string, mixed>
      */
     protected function profileAttributes(EmployeeRequest $request): array
     {
         return [
             'department_id' => $request->validated('department_id'),
+            'designation_id' => $request->validated('designation_id'),
             'employee_code' => $request->validated('employee_code'),
-            'designation' => $request->validated('designation'),
             'reporting_to_id' => $request->validated('reporting_to_id'),
             'phone' => $request->validated('phone'),
             'joined_on' => $request->validated('joined_on'),
@@ -175,6 +252,10 @@ class EmployeeController extends Controller
                 ->where('is_active', true)
                 ->orderBy('name')
                 ->get(['id', 'name']),
+            'designations' => Designation::query()
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name']),
             'managers' => Employee::query()
                 ->with('user:id,name')
                 ->when($employee, fn ($query, Employee $current) => $query->whereKeyNot($current->id))
@@ -189,7 +270,6 @@ class EmployeeController extends Controller
             'roles' => Role::query()
                 ->orderBy('name')
                 ->pluck('name')
-                ->filter(fn (string $name) => SystemRole::tryFrom($name)?->isInternal() ?? true)
                 ->reject(fn (string $name) => $name === SystemRole::SuperAdmin->value)
                 ->values(),
         ];

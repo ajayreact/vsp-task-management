@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VSP CRM — Product Handbook</title>
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --paper: #fffdf8;
+      --ink: #1c1915;
+      --muted: #5c574e;
+      --line: #e4ddd0;
+      --accent: #1f4d3a;
+      --accent-soft: #e8f2ec;
+      --crm: #1d4ed8;
+      --crm-soft: #e8eefc;
+      --tm: #b45309;
+      --tm-soft: #f8ead8;
+      --admin: #6d28d9;
+      --admin-soft: #eee8fb;
+      --warn: #9a3412;
+      --ok: #166534;
+      --shadow: 0 18px 50px rgba(28, 25, 21, 0.08);
+      --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --sans: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+      --ui: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: radial-gradient(1200px 600px at 10% -10%, #e7efe8 0%, transparent 50%),
+                  radial-gradient(900px 500px at 100% 0%, #f3e8d6 0%, transparent 45%),
+                  var(--bg);
+      color: var(--ink);
+      font-family: var(--ui);
+      line-height: 1.55;
+    }
+    a { color: var(--accent); }
+    code, kbd, .mono { font-family: var(--mono); font-size: 0.86em; }
+    .wrap {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    nav.toc {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 28px 22px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 253, 248, 0.86);
+      backdrop-filter: blur(8px);
+    }
+    nav.toc h1 {
+      font-family: var(--sans);
+      font-size: 1.15rem;
+      margin: 0 0 4px;
+      letter-spacing: -0.02em;
+    }
+    nav.toc p.tag {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    nav.toc a {
+      display: block;
+      text-decoration: none;
+      color: var(--muted);
+      padding: 5px 0;
+      font-size: 0.9rem;
+    }
+    nav.toc a:hover { color: var(--ink); }
+    nav.toc .sub { padding-left: 12px; font-size: 0.82rem; }
+    main { padding: 40px 48px 80px; max-width: 1100px; }
+    header.hero {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 36px 40px;
+      box-shadow: var(--shadow);
+      margin-bottom: 36px;
+    }
+    header.hero h1 {
+      font-family: var(--sans);
+      font-size: 2.4rem;
+      margin: 0 0 10px;
+      letter-spacing: -0.03em;
+    }
+    header.hero p.lede { font-size: 1.08rem; color: var(--muted); max-width: 70ch; }
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .pill {
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .pill.admin { background: var(--admin-soft); color: var(--admin); }
+    .pill.crm { background: var(--crm-soft); color: var(--crm); }
+    .pill.tm { background: var(--tm-soft); color: var(--tm); }
+    .pill.ok { background: var(--accent-soft); color: var(--accent); }
+    section {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 28px 32px 34px;
+      margin: 0 0 22px;
+      box-shadow: 0 1px 0 rgba(28,25,21,0.03);
+    }
+    section h2 {
+      font-family: var(--sans);
+      font-size: 1.55rem;
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+    }
+    section h3 { margin: 26px 0 8px; font-size: 1.08rem; }
+    section h4 { margin: 18px 0 6px; font-size: 0.95rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    p, li { color: #2a261f; }
+    .muted { color: var(--muted); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px 18px;
+      background: #fff;
+    }
+    .card h3 { margin: 0 0 6px; }
+    .card.crm { border-top: 4px solid var(--crm); }
+    .card.tm { border-top: 4px solid var(--tm); }
+    .card.admin { border-top: 4px solid var(--admin); }
+    .card.ok { border-top: 4px solid var(--accent); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin: 10px 0 6px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+    th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: #faf7f1; }
+    .check { color: var(--ok); font-weight: 700; }
+    .no { color: #b8b2a6; }
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 12px 0 4px;
+    }
+    .step {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .step.term { background: var(--accent-soft); border-color: #cfe0d5; }
+    .step.warn { background: var(--tm-soft); }
+    .arrow { color: var(--muted); font-weight: 700; }
+    pre.box {
+      background: #1c1915;
+      color: #f4f1ea;
+      border-radius: 12px;
+      padding: 16px 18px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+    .note {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 12px 14px;
+      border-radius: 0 10px 10px 0;
+      margin: 14px 0;
+    }
+    .warn-note {
+      border-left: 4px solid var(--warn);
+      background: #fde8dc;
+      padding: 12px 14px;
+      border-radius: 0 10px 10px 0;
+      margin: 14px 0;
+    }
+    .login {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px 16px;
+      align-items: center;
+      font-size: 0.92rem;
+    }
+    .login strong { font-family: var(--mono); }
+    footer {
+      color: var(--muted);
+      font-size: 0.82rem;
+      padding: 8px 8px 0;
+    }
+    @media (max-width: 980px) {
+      .wrap { grid-template-columns: 1fr; }
+      nav.toc { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      main { padding: 24px 18px 60px; }
+      .grid-2, .grid-3, .login { grid-template-columns: 1fr; }
+    }
+    @media print {
+      nav.toc { display: none; }
+      .wrap { display: block; }
+      section, header.hero { break-inside: avoid; box-shadow: none; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="toc">
+    <h1>VSP CRM</h1>
+    <p class="tag">Product handbook</p>
+    <a href="#overview">1. Overview</a>
+    <a href="#architecture">2. Architecture</a>
+    <a href="#stack">3. Tech stack &amp; setup</a>
+    <a href="#roles">4. Roles &amp; permissions</a>
+    <a class="sub" href="#role-matrix">Permission matrix</a>
+    <a class="sub" href="#nav">Sidebar &amp; Command Center</a>
+    <a href="#admin">5. Administration</a>
+    <a href="#tasks">6. Task Management</a>
+    <a class="sub" href="#work-clients">Work clients &amp; projects</a>
+    <a class="sub" href="#task-flow">Task lifecycle</a>
+    <a class="sub" href="#time">Time, capacity &amp; timesheets</a>
+    <a class="sub" href="#review">Creative review</a>
+    <a href="#logins">7. Demo logins</a>
+    <a href="#quality">8. Quality gates</a>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <h1>VSP CRM — complete product handbook</h1>
+      <p class="lede">
+        One Laravel application for internal studio work: <strong>Core Administration</strong>
+        (people, departments, designations, roles, notifications) and <strong>Internal Task Management</strong>
+        (who is doing the work, and did they agree to it). CRM, campaigns, and the client portal have been removed.
+      </p>
+      <div class="pills">
+        <span class="pill admin">Core kernel</span>
+        <span class="pill tm">Task management</span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <h2>1. What this product is</h2>
+      <p>
+        VSP CRM is a business operating system for a digital / creative agency. Staff sign in once and land on a role-aware
+        <strong>Command Center</strong> at <code>/dashboard</code>. From there they administer people and run Task Management.
+        <code>/crm</code> and <code>/portal</code> return 404.
+      </p>
+      <div class="grid-3">
+        <div class="card admin">
+          <h3>Shared kernel</h3>
+          <p>Users, employees, departments, designations, roles, notifications, media, activity log. Lives under <code>/admin</code>.</p>
+        </div>
+        <div class="card tm">
+          <h3>Task Management</h3>
+          <p>Work clients, projects, tasks, open board, acceptance, timer, timesheets, capacity, workload, internal creative review, public share links.</p>
+        </div>
+      </div>
+      <div class="warn-note">
+        <strong>Work clients.</strong> Task Management clients (<code>tm_companies</code>) are businesses you <em>deliver work for</em>.
+        They live at <code>/tasks/clients</code>.
+      </div>
+    </section>
+
+    <section id="architecture">
+      <h2>2. Architecture &amp; module boundary</h2>
+      <p>Dependencies point one way only. Architecture tests fail the build if this is violated.</p>
+      <pre class="box">App\Modules\TaskManagement    ──►  App\Modules\Core
+
+Rules
+• Core must never import TaskManagement
+• Work clients are tm_companies at /tasks/clients
+• Cross-module home (Command Center) lives in App\Services, not Core</pre>
+      <h3>Layout</h3>
+      <table>
+        <thead><tr><th>Path</th><th>Owns</th></tr></thead>
+        <tbody>
+          <tr><td><code>app/Modules/Core/</code></td><td>Kernel: users, auth, employees, departments, designations, roles, notifications, media, activity</td></tr>
+          <tr><td><code>app/Modules/TaskManagement/</code></td><td>Every <code>tm_*</code> table</td></tr>
+          <tr><td><code>routes/web.php</code></td><td>Home, Command Center, auth, settings</td></tr>
+          <tr><td><code>routes/admin.php</code></td><td><code>/admin</code> — employees, departments, roles</td></tr>
+          <tr><td><code>routes/tasks.php</code></td><td><code>/tasks</code> — staff TM (needs <code>internal</code> + <code>tasks.access</code>)</td></tr>
+          <tr><td><code>routes/share.php</code></td><td><code>/share/{token}</code> — public deliverable links</td></tr>
+          <tr><td><code>database/migrations/{core,tasks}/</code></td><td>One folder per module, loaded by that module’s service provider</td></tr>
+          <tr><td><code>resources/js/Pages/{Core,TaskManagement}/</code></td><td>Inertia/React pages, one folder per module</td></tr>
+        </tbody>
+      </table>
+      <h3>Auth model</h3>
+      <p>
+        Staff share one <code>users</code> table. There is no second auth guard and no client-portal user type.
+      </p>
+      <p>After login: staff go to <code>/dashboard</code>.</p>
+    </section>
+
+    <section id="stack">
+      <h2>3. Tech stack &amp; local setup</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Backend</h3>
+          <ul>
+            <li>PHP 8.3+, Laravel 12</li>
+            <li>MySQL 8 (InnoDB; not MyISAM)</li>
+            <li>Spatie Permission + Media Library</li>
+            <li>Pest + PHPStan (Larastan) + Pint</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Frontend</h3>
+          <ul>
+            <li>Inertia.js + React + TypeScript</li>
+            <li>Vite, Tailwind, Radix UI</li>
+            <li>Role-aware sidebar via shared permission list</li>
+          </ul>
+        </div>
+      </div>
+      <pre class="box">composer install &amp;&amp; npm install
+cp .env.example .env &amp;&amp; php artisan key:generate
+# CREATE DATABASE vsp_crm / vsp_crm_testing (utf8mb4)
+php artisan migrate --seed
+composer dev          # http://localhost:8000</pre>
+      <p class="muted">Use <code>artisan serve</code> rather than an Apache vhost — Vite HMR is origin-sensitive. Tests hit <code>vsp_crm_testing</code>, not SQLite.</p>
+    </section>
+
+    <section id="roles">
+      <h2>4. Roles, abilities &amp; how access actually works</h2>
+      <p>
+        Permissions are granted <strong>through roles</strong>, never directly to a person in day-to-day use. The full catalogue lives in
+        <code>App\Modules\Core\Enums\Ability</code> so a typo is a fatal error, not a silent deny.
+        <code>RolesAndPermissionsSeeder</code> writes the catalogue and built-in roles and is safe to re-run after adding an enum case.
+        Extra roles can be created in the UI; only these names are hard-coded.
+      </p>
+      <table>
+        <thead><tr><th>Role</th><th>Who it is</th><th>What they get</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>super-admin</code></td>
+            <td>Platform owner. Cannot be edited or deleted in the UI.</td>
+            <td>Everything, via <code>Gate::before</code> — not permission rows. Sidebar still receives the full ability list through <code>User::effectivePermissions()</code>.</td>
+          </tr>
+          <tr>
+            <td><code>admin</code></td>
+            <td>Agency admin.</td>
+            <td>Every ability in the catalogue.</td>
+          </tr>
+          <tr>
+            <td><code>team-lead</code></td>
+            <td>Runs the Task Management board.</td>
+            <td>Read people + audit log; create/assign/review tasks; capacity, workload, timesheet approval. Does not administer org structure, work clients, or projects.</td>
+          </tr>
+          <tr>
+            <td><code>manager</code></td>
+            <td>Creative / ops lead.</td>
+            <td>Same Task Management powers as team-lead.</td>
+          </tr>
+          <tr>
+            <td><code>employee</code></td>
+            <td>Designer / producer / AE.</td>
+            <td>See people; Task Management (own assigned work and the open board).</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="note">
+        The permission list sent to Inertia only <em>hides</em> navigation and buttons. Every mutating request is authorized again by a policy or middleware. Never treat the sidebar as the security boundary.
+      </div>
+
+      <h3 id="role-matrix">Permission matrix</h3>
+      <p class="muted">✓ = seeded on that role. Super admin passes every check via Gate. Admin holds every row.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Ability</th><th>Key</th><th>Admin</th><th>Manager</th><th>Employee</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="5"><strong>Module access</strong></td></tr>
+          <tr><td>Open Task Management</td><td><code>tasks.access</code></td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td colspan="5"><strong>Administration</strong></td></tr>
+          <tr><td>View / manage employees</td><td><code>employees.view</code> / <code>.manage</code></td><td class="check">✓</td><td>view</td><td>view</td></tr>
+          <tr><td>View / manage departments</td><td><code>departments.view</code> / <code>.manage</code></td><td class="check">✓</td><td>view</td><td>view</td></tr>
+          <tr><td>View / manage roles</td><td><code>roles.view</code> / <code>.manage</code></td><td class="check">✓</td><td class="no">—</td><td class="no">—</td></tr>
+          <tr><td>Activity log</td><td><code>activity.view</code></td><td class="check">✓</td><td class="check">✓</td><td class="no">—</td></tr>
+          <tr><td colspan="5"><strong>Task Management</strong></td></tr>
+          <tr><td>View / manage work clients</td><td><code>companies.view</code> / <code>.manage</code></td><td class="check">✓</td><td class="check">✓</td><td>view</td></tr>
+          <tr><td>View / manage projects</td><td><code>projects.view</code> / <code>.manage</code></td><td class="check">✓</td><td class="check">✓</td><td>view</td></tr>
+          <tr><td>See everyone’s tasks</td><td><code>tasks.view_all</code></td><td class="check">✓</td><td class="check">✓</td><td class="no">—</td></tr>
+          <tr><td>Create / edit tasks</td><td><code>tasks.manage</code></td><td class="check">✓</td><td class="check">✓</td><td class="no">—</td></tr>
+          <tr><td>Assign tasks to others</td><td><code>tasks.assign</code></td><td class="check">✓</td><td class="check">✓</td><td class="no">—</td></tr>
+          <tr><td>Set others’ capacity / leave</td><td><code>capacity.manage</code></td><td class="check">✓</td><td class="check">✓</td><td class="no">—</td></tr>
+          <tr><td>Workload board</td><td><code>workload.view</code></td><td class="check">✓</td><td class="check">✓</td><td class="no">—</td></tr>
+          <tr><td>Approve timesheets</td><td><code>timesheets.approve</code></td><td class="check">✓</td><td class="check">✓</td><td class="no">—</td></tr>
+          <tr><td>Decide TM proofs</td><td><code>reviews.decide</code></td><td class="check">✓</td><td class="check">✓</td><td class="no">—</td></tr>
+        </tbody>
+      </table>
+
+      <h3 id="nav">Sidebar navigation (role-aware)</h3>
+      <p>Staff sidebar is two uppercase sections. Super Admin / Admin always see both. Everyone else only sees a section if they hold at least one ability for that area; empty headings are not rendered.</p>
+      <div class="grid-3">
+        <div class="card admin">
+          <h3>Administration</h3>
+          <p>Gate: <code>employees.view</code> or <code>departments.view</code></p>
+          <ul>
+            <li>Employees → <code>/admin/employees</code></li>
+            <li>Departments → <code>/admin/departments</code></li>
+          </ul>
+        </div>
+        <div class="card tm">
+          <h3>Task Management</h3>
+          <p>Gate: <code>tasks.access</code></p>
+          <ul>
+            <li>Clients, Projects, Tasks, Open Board</li>
+            <li>Availability, Workload, Timesheets, Settings</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Command Center (<code>/dashboard</code>)</h3>
+      <p>
+        <code>App\Services\CommandCenter</code> builds a snapshot for the signed-in staff user. Managers / admins / anyone with
+        <code>tasks.view_all</code> see <em>agency</em> numbers; others see <em>personal</em> numbers.
+      </p>
+      <ul>
+        <li><strong>Tasks access:</strong> TM KPIs, timer, acceptance queue, timesheet/review approvals.</li>
+        <li><strong>No task access:</strong> empty state asking an admin for access.</li>
+      </ul>
+      <p>Typical TM cards: in progress, in review, open board, workload %.</p>
+    </section>
+
+    <section id="admin">
+      <h2>5. Administration (shared kernel)</h2>
+      <p>Registered by <code>CoreServiceProvider</code> under <code>/admin</code>. Belongs to neither module.</p>
+      <table>
+        <thead><tr><th>Screen</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td>Employees</td><td>Staff profiles: code, designation, department, status, linked user + role. An employee profile is required before someone can be assigned a task.</td></tr>
+          <tr><td>Departments</td><td>Org units (e.g. Operations, Creative). Used for grouping people.</td></tr>
+          <tr><td>Roles</td><td>Custom roles plus the system roles. Super admin is locked.</td></tr>
+        </tbody>
+      </table>
+      <p>Settings (profile, password, appearance) live under <code>/settings</code> for any authenticated staff user.</p>
+    </section>
+
+    <section id="tasks">
+      <h2>6. Internal Task Management — end-to-end workflow</h2>
+      <p>
+        Task Management lives at <code>/tasks</code> and answers one question: <strong>who is doing this, and did they agree to it?</strong>
+        <code>TaskWorkflow</code> is the only writer of status and assignment. Editing a task cannot change status, assignment mode or assignee — those go through <code>/tasks/{id}/publish|assign|claim|accept|decline|status</code>.
+      </p>
+
+      <h3 id="work-clients">6.1 Work clients &amp; projects</h3>
+      <ul>
+        <li><strong>Work clients</strong> (<code>tm_companies</code>, UI label “Clients”): active / inactive / archived. A client with projects cannot be deleted. Codes are unique and stored uppercase.</li>
+        <li><strong>Projects</strong>: planning, active, on hold, completed, cancelled. New tasks only on planning/active. Created with a team in one go; editing <em>replaces</em> the team rather than appending.</li>
+        <li><strong>Project roles</strong> (involvement, not system permissions): lead, member, reviewer, observer.</li>
+      </ul>
+
+      <h3 id="task-flow">6.2 How work reaches a person</h3>
+      <p><strong>Direct assignment.</strong> A manager hands the task to someone. It sits at <code>assigned</code> until that person accepts — only they can answer, not their manager. Declining returns it to the open board with the reason recorded.</p>
+      <p><strong>Open tasks.</strong> Published to the board with no assignee. Any staff profile can claim it. A claim <em>skips acceptance</em>: they chose it. Claims lock the row so two people cannot both win.</p>
+      <p>Both paths write <code>tm_task_assignments</code> (who has held this, and what they said). Status changes go to <code>tm_task_status_history</code>.</p>
+      <p>Assignment rows: pending → accepted / declined / reassigned.</p>
+      <h4>Task lifecycle</h4>
+      <pre class="box">draft ──► open ◄────────── (decline)
+  │        │  └──► accepted (claim)
+  └──► assigned ──► accepted ──► in_progress ──┬─► completed
+                                               └─► in_review ⇄ revision
+                                                        └─► approved ──► completed</pre>
+      <ul>
+        <li>Review is optional: work with nothing to approve closes straight from <code>in_progress</code>.</li>
+        <li>Types: design, content, development, video, admin, other.</li>
+        <li>Priority: low / normal / high / urgent (board sorts urgent first).</li>
+        <li>Unstarted = draft, open, assigned (still freely reassignable).</li>
+        <li>Workable for timer = accepted, in progress, in review, revision. Not drafts.</li>
+        <li>Counts toward workload = assigned through revision (not draft/open/approved/completed).</li>
+      </ul>
+
+      <h3 id="time">6.3 Capacity, availability, workload, timer, timesheets</h3>
+      <h4>Capacity &amp; leave</h4>
+      <p>Each person has a planned week (<code>tm_employee_capacity</code>): hours and which weekdays they work. Default if missing: 40 hours, Monday–Friday. Leave / holiday / half-day live in <code>tm_employee_availability</code> and subtract from that plan. Anyone can log their own exceptions; <code>capacity.manage</code> is required to set someone else’s.</p>
+      <h4>Workload</h4>
+      <p><code>/tasks/workload</code> (<code>workload.view</code>) compares assigned <code>estimated_hours</code> on non-terminal tasks against available hours for the week. Over 110% = over-allocated; under 50% = bench time.</p>
+      <h4>Timer</h4>
+      <p>Start / pause / stop on the task. Pause and stop close the current interval; starting again opens a new <code>tm_time_entries</code> row. One running timer per person (unique column). Starting on an <code>accepted</code> task moves it to <code>in_progress</code>. Manual entries with a note use the same path. Source: timer or manual.</p>
+      <h4>Timesheets</h4>
+      <div class="flow">
+        <span class="step">draft</span><span class="arrow">→</span>
+        <span class="step">submitted (locked)</span><span class="arrow">→</span>
+        <span class="step term">approved</span>
+        <span class="step warn">rejected → draft again</span>
+      </div>
+      <ul>
+        <li>First log of a Monday–Sunday week creates a draft sheet; later entries attach to it.</li>
+        <li>Submit locks the week. <code>timesheets.approve</code> can approve or reject.</li>
+        <li>You cannot approve your own sheet. Rejection unlocks the week so time can be added again.</li>
+      </ul>
+
+      <h3 id="review">6.4 Internal creative review (TM deliverables)</h3>
+      <p>This is studio QA on a <em>task</em>. Reviewers decide from the task screen; share links let a reviewer open a proof without signing in.</p>
+      <ol>
+        <li>Assignee uploads proof files from <code>in_progress</code> or <code>revision</code>.</li>
+        <li>A deliverable version is opened; files go to Spatie collection <code>proofs</code>; task → <code>in_review</code>.</li>
+        <li>A reviewer with <code>reviews.decide</code> can:
+          <ul>
+            <li><strong>Approve</strong> → deliverable approved, task <code>approved</code></li>
+            <li><strong>Request changes</strong> or <strong>reject</strong> → task <code>revision</code></li>
+          </ul>
+        </li>
+        <li>Each decision is a review round on that version (annotations supported).</li>
+      </ol>
+    </section>
+
+    <section id="logins">
+      <h2>7. Local demo logins</h2>
+      <p>Seeded only in the <code>local</code> environment. Password for all: <code>password</code>.</p>
+      <div class="card" style="margin-top:12px">
+        <div class="login">
+          <div>Super admin — full agency</div><strong>admin@vsp.test</strong><span>EMP-0001 · Operations</span>
+          <div>Manager — Task Management</div><strong>manager@vsp.test</strong><span>EMP-0002 · Creative Lead</span>
+          <div>Employee — claim work</div><strong>designer@vsp.test</strong><span>EMP-0003 · Senior Designer</span>
+        </div>
+      </div>
+      <p>Demo TM data: Northwind work client, a project, and tasks parked at interesting lifecycle points (acceptance prompt, open board).</p>
+    </section>
+
+    <section id="quality">
+      <h2>8. Quality gates &amp; operating notes</h2>
+      <table>
+        <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>composer test</code></td><td>Pest suite, including module-boundary architecture tests</td></tr>
+          <tr><td><code>composer analyse</code></td><td>PHPStan / Larastan</td></tr>
+          <tr><td><code>vendor/bin/pint</code></td><td>PHP formatting</td></tr>
+          <tr><td><code>npx tsc --noEmit</code></td><td>TypeScript</td></tr>
+          <tr><td><code>npm run lint</code></td><td>ESLint</td></tr>
+          <tr><td><code>npm run format</code></td><td>Prettier</td></tr>
+          <tr><td><code>npm run build</code></td><td>Vite manifest — required before Inertia feature tests</td></tr>
+        </tbody>
+      </table>
+      <div class="warn-note">
+        WampServer defaults to MyISAM; <code>DB_ENGINE=InnoDB</code> must stay set. Xdebug on the CLI makes Composer and Pest very slow — disable it unless debugging.
+      </div>
+      <h3>What the product is</h3>
+      <ul>
+        <li>Work clients are <code>tm_companies</code> at <code>/tasks/clients</code></li>
+        <li>Deliverable share links live at <code>/share/{token}</code></li>
+        <li>CRM, campaigns, and the client portal have been removed</li>
+      </ul>
+      <p class="muted">This handbook reflects Core Administration + Task Management on one Laravel app.</p>
+    </section>
+
+    <footer>
+      VSP CRM product handbook · open this file in any browser · print-friendly
+    </footer>
+  </main>
+</div>
+</body>
+</html>

@@ -5,32 +5,32 @@ import { Badge } from '@/components/ui/badge';
  * in one place rather than being repeated per list.
  */
 
-const STATUS_TONE: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-    draft: 'outline',
-    open: 'secondary',
-    assigned: 'secondary',
-    accepted: 'default',
-    in_progress: 'default',
-    in_review: 'secondary',
-    revision: 'destructive',
-    approved: 'default',
-    completed: 'outline',
+const STATUS_TONE: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'outline'> = {
+    draft: 'neutral',
+    open: 'info',
+    assigned: 'warning',
+    accepted: 'info',
+    in_progress: 'info',
+    in_review: 'warning',
+    revision: 'danger',
+    approved: 'success',
+    completed: 'success',
 };
 
 const PRIORITY_CLASS: Record<string, string> = {
-    urgent: 'border-destructive/50 text-destructive',
-    high: 'border-amber-500/50 text-amber-600 dark:text-amber-400',
+    urgent: 'border-transparent bg-red-500/10 text-red-700 dark:text-red-400',
+    high: 'border-transparent bg-amber-500/10 text-amber-700 dark:text-amber-400',
     normal: '',
     low: 'text-muted-foreground',
 };
 
 export function StatusBadge({ status, label }: { status: string; label: string }) {
-    return <Badge variant={STATUS_TONE[status] ?? 'outline'}>{label}</Badge>;
+    return <Badge variant={STATUS_TONE[status] ?? 'neutral'}>{label}</Badge>;
 }
 
 export function PriorityBadge({ priority, label }: { priority: string; label: string }) {
     return (
-        <Badge variant="outline" className={PRIORITY_CLASS[priority] ?? ''}>
+        <Badge variant={priority === 'normal' ? 'neutral' : 'outline'} className={PRIORITY_CLASS[priority] ?? ''}>
             {label}
         </Badge>
     );

@@ -19,13 +19,12 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 /**
  * The internal person behind a login. Both modules assign work to employees,
  * so this is deliberately part of the shared kernel.
- */
-/**
+ *
  * @property int $id
  * @property int $user_id
  * @property int|null $department_id
+ * @property int|null $designation_id
  * @property string $employee_code
- * @property string|null $designation
  * @property int|null $reporting_to_id
  * @property string|null $phone
  * @property Carbon|null $joined_on
@@ -33,6 +32,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property EmployeeStatus $status
  * @property-read User $user
  * @property-read Department|null $department
+ * @property-read Designation|null $designation
  * @property-read Employee|null $manager
  */
 class Employee extends Model implements HasMedia
@@ -46,8 +46,8 @@ class Employee extends Model implements HasMedia
     protected $fillable = [
         'user_id',
         'department_id',
+        'designation_id',
         'employee_code',
-        'designation',
         'reporting_to_id',
         'phone',
         'joined_on',
@@ -81,6 +81,14 @@ class Employee extends Model implements HasMedia
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    /**
+     * @return BelongsTo<Designation, $this>
+     */
+    public function designation(): BelongsTo
+    {
+        return $this->belongsTo(Designation::class);
     }
 
     /**
@@ -125,7 +133,7 @@ class Employee extends Model implements HasMedia
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['department_id', 'designation', 'reporting_to_id', 'status', 'exited_on'])
+            ->logOnly(['department_id', 'designation_id', 'reporting_to_id', 'status', 'exited_on'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

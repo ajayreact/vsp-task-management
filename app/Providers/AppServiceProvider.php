@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
      * convention cannot map to a factory. Mirror the module in the factory
      * namespace instead:
      *
-     *     App\Modules\Crm\Models\Lead  ->  Database\Factories\Crm\LeadFactory
+     *     App\Modules\TaskManagement\Models\Task  ->  Database\Factories\TaskManagement\TaskFactory
      */
     protected function resolveFactoriesPerModule(): void
     {

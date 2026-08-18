@@ -1,7 +1,6 @@
 <?php
 
 use App\Modules\Core\Enums\Ability;
-use App\Modules\Core\Models\User;
 
 test('guests are redirected away from task management', function () {
     $this->get('/tasks')->assertRedirect('/login');
@@ -13,22 +12,13 @@ test('the module is closed to users without the access ability', function () {
         ->assertForbidden();
 });
 
-test('the module is closed to client portal users', function () {
-    $client = User::factory()->client()->create();
-    $client->syncPermissions([Ability::AccessTasks->value]);
-
-    $this->actingAs($client)
-        ->get('/tasks')
-        ->assertForbidden();
-});
-
 test('staff with the access ability reach the task list', function () {
     $this->actingAs(staffWith(Ability::AccessTasks))
         ->get('/tasks')
         ->assertOk();
 });
 
-test('task management routes are namespaced separately from crm', function () {
+test('task management routes are namespaced under /tasks', function () {
     expect(route('tasks.index', absolute: false))->toBe('/tasks')
         ->and(route('tasks.board', absolute: false))->toBe('/tasks/board')
         ->and(route('tasks.projects.index', absolute: false))->toBe('/tasks/projects');

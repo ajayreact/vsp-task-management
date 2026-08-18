@@ -1,18 +1,24 @@
-import { type NavItem } from '@/types';
-import { Briefcase, Building, Building2, FolderKanban, Inbox, LayoutGrid, ShieldCheck, Users, UsersRound } from 'lucide-react';
+import { type NavGroup, type NavItem } from '@/types';
+import {
+    Briefcase,
+    Building2,
+    CalendarDays,
+    Clock,
+    FolderKanban,
+    Gauge,
+    Inbox,
+    ListChecks,
+    UsersRound,
+    SlidersHorizontal,
+} from 'lucide-react';
 
 /**
- * Each module owns its own navigation. Keeping the three lists apart means a
- * CRM screen can never accidentally surface a Task Management link, and the
- * client portal only ever sees portal routes.
+ * Staff navigation is permission-gated. Empty sections are not rendered.
+ *
+ * "Clients" under Task Management are work clients (`tm_companies`).
  */
 
-export const coreNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        url: '/dashboard',
-        icon: LayoutGrid,
-    },
+export const adminNavItems: NavItem[] = [
     {
         title: 'Employees',
         url: '/admin/employees',
@@ -25,32 +31,14 @@ export const coreNavItems: NavItem[] = [
         icon: Building2,
         permission: 'departments.view',
     },
-    {
-        title: 'Roles',
-        url: '/admin/roles',
-        icon: ShieldCheck,
-        permission: 'roles.view',
-    },
-];
-
-export const crmNavItems: NavItem[] = [
-    {
-        title: 'Overview',
-        url: '/crm',
-        icon: LayoutGrid,
-    },
 ];
 
 export const taskNavItems: NavItem[] = [
     {
-        title: 'Tasks',
-        url: '/tasks',
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Open board',
-        url: '/tasks/board',
-        icon: Inbox,
+        title: 'Clients',
+        url: '/tasks/clients',
+        icon: Briefcase,
+        permission: 'companies.view',
     },
     {
         title: 'Projects',
@@ -59,34 +47,57 @@ export const taskNavItems: NavItem[] = [
         permission: 'projects.view',
     },
     {
-        title: 'Companies',
-        url: '/tasks/companies',
-        icon: Building,
-        permission: 'companies.view',
-    },
-];
-
-export const portalNavItems: NavItem[] = [
-    {
-        title: 'Overview',
-        url: '/portal',
-        icon: LayoutGrid,
-    },
-];
-
-/**
- * Staff-only shortcuts for moving between the two modules. Never rendered in
- * the client portal.
- */
-export const moduleSwitcherItems: NavItem[] = [
-    {
-        title: 'CRM & Campaigns',
-        url: '/crm',
-        icon: Users,
-    },
-    {
-        title: 'Task Management',
+        title: 'Tasks',
         url: '/tasks',
-        icon: Briefcase,
+        icon: ListChecks,
+        permission: 'tasks.access',
+    },
+    {
+        title: 'Open Board',
+        url: '/tasks/board',
+        icon: Inbox,
+        permission: 'tasks.access',
+    },
+    {
+        title: 'Availability',
+        url: '/tasks/availability',
+        icon: CalendarDays,
+        permission: 'tasks.access',
+    },
+    {
+        title: 'Workload',
+        url: '/tasks/workload',
+        icon: Gauge,
+        permission: 'workload.view',
+    },
+    {
+        title: 'Timesheets',
+        url: '/tasks/timesheets',
+        icon: Clock,
+        permission: 'tasks.access',
+    },
+    {
+        title: 'Task Management Settings',
+        url: '/tasks/settings',
+        icon: SlidersHorizontal,
+        role: 'super-admin',
     },
 ];
+
+/** @deprecated Use adminNavItems + taskNavItems. Kept so older imports keep working. */
+export const staffMenuItems: NavItem[] = [...adminNavItems, ...taskNavItems];
+
+export function staffNavGroups(): NavGroup[] {
+    return [
+        {
+            title: 'Administration',
+            anyPermission: ['employees.view', 'departments.view'],
+            items: adminNavItems,
+        },
+        {
+            title: 'Task Management',
+            anyPermission: ['tasks.access'],
+            items: taskNavItems,
+        },
+    ];
+}

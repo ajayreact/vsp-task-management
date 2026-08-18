@@ -43,8 +43,8 @@ class EmployeeRequest extends FormRequest
                 'required', 'string', 'max:32',
                 Rule::unique('employees', 'employee_code')->ignore($employeeId),
             ],
-            'department_id' => ['nullable', 'integer', Rule::exists('departments', 'id')],
-            'designation' => ['nullable', 'string', 'max:255'],
+            'department_id' => ['required', 'integer', Rule::exists('departments', 'id')],
+            'designation_id' => ['required', 'integer', Rule::exists('designations', 'id')],
             'reporting_to_id' => [
                 'nullable', 'integer',
                 Rule::exists('employees', 'id'),
@@ -60,9 +60,8 @@ class EmployeeRequest extends FormRequest
             'roles.*' => [
                 'string',
                 Rule::exists('roles', 'name'),
-                // Staff screens must never hand out the portal role, and
-                // super-admin is granted through the seeder only.
-                Rule::notIn([SystemRole::Client->value, SystemRole::SuperAdmin->value]),
+                // Super-admin is granted through the seeder only.
+                Rule::notIn([SystemRole::SuperAdmin->value]),
             ],
         ];
     }

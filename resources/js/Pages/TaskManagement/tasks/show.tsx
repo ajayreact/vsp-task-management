@@ -1,6 +1,14 @@
 import { ConfirmDelete } from '@/components/admin/confirm-delete';
 import { PageHeader } from '@/components/admin/page-header';
+import { TaskAttachments, type TaskAttachmentRow } from '@/components/tasks/task-attachments';
+import { TaskChecklist, type TaskChecklistPayload } from '@/components/tasks/task-checklist';
+import { TaskSubtasks, type TaskSubtasksPayload } from '@/components/tasks/task-subtasks';
+import { TaskRecurrence, type TaskRecurrencePayload } from '@/components/tasks/task-recurrence';
+import { TaskReminders, type TaskReminderRow } from '@/components/tasks/task-reminders';
+import { TaskComments, type TaskCommentRow } from '@/components/tasks/task-comments';
 import { DueDate, PriorityBadge, StatusBadge } from '@/components/tasks/task-badges';
+import { TaskReview, type DeliverableRow } from '@/components/tasks/task-review';
+import { TaskTimer, type TimerState } from '@/components/tasks/task-timer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -33,6 +41,7 @@ interface TaskDetail {
     due_at: string | null;
     started_at: string | null;
     completed_at: string | null;
+    assigned_user_id: number | null;
 }
 
 interface Props {
@@ -49,12 +58,67 @@ interface Props {
     }[];
     allowedTransitions: Option[];
     assignableEmployees: { id: number; label: string }[];
-    can: { update: boolean; delete: boolean; assign: boolean; claim: boolean; respond: boolean };
+    timer: TimerState;
+    timeEntries: {
+        id: number;
+        employee_name: string;
+        started_at: string;
+        ended_at: string | null;
+        hours: number;
+        source: string;
+        note: string | null;
+        can_delete: boolean;
+    }[];
+    attachments: TaskAttachmentRow[];
+    deliverables: DeliverableRow[];
+    comments: TaskCommentRow[];
+    checklist: TaskChecklistPayload;
+    subtasks: TaskSubtasksPayload;
+    subtaskStatuses: Option[];
+    subtaskAssignableEmployees: { id: number; label: string }[];
+    reminders: TaskReminderRow[];
+    reminderRecipients: { user_id: number; label: string }[];
+    recurrence: TaskRecurrencePayload;
+    can: {
+        update: boolean;
+        delete: boolean;
+        assign: boolean;
+        claim: boolean;
+        respond: boolean;
+        logTime: boolean;
+        attachFiles: boolean;
+        comment: boolean;
+        manageChecklist: boolean;
+        manageSubtasks: boolean;
+        manageReminders: boolean;
+        manageRecurrence: boolean;
+        submitProof: boolean;
+        reviewProof: boolean;
+    };
 }
 
 const formatted = (value: string | null) => (value ? new Date(value).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : '—');
 
-export default function TaskShow({ task, history, assignments, allowedTransitions, assignableEmployees, can }: Props) {
+export default function TaskShow({
+    task,
+    history,
+    assignments,
+    allowedTransitions,
+    assignableEmployees,
+    timer,
+    timeEntries,
+    attachments,
+    deliverables,
+    comments,
+    checklist,
+    subtasks,
+    subtaskStatuses,
+    subtaskAssignableEmployees,
+    reminders,
+    reminderRecipients,
+    recurrence,
+    can,
+}: Props) {
     const [assignOpen, setAssignOpen] = useState(false);
     const [declineOpen, setDeclineOpen] = useState(false);
 
@@ -134,6 +198,18 @@ export default function TaskShow({ task, history, assignments, allowedTransition
                             </CardContent>
                         </Card>
 
+                        <TaskChecklist taskId={task.id} checklist={checklist} canManage={can.manageChecklist} />
+
+                        <TaskSubtasks
+                            taskId={task.id}
+                            subtasks={subtasks}
+                            statuses={subtaskStatuses}
+                            employees={subtaskAssignableEmployees}
+                            canManage={can.manageSubtasks}
+                        />
+
+                        <TaskComments taskId={task.id} comments={comments} canComment={can.comment} />
+
                         <Card>
                             <CardHeader>
                                 <CardTitle>Assignment history</CardTitle>
@@ -158,9 +234,61 @@ export default function TaskShow({ task, history, assignments, allowedTransition
                                 ))}
                             </CardContent>
                         </Card>
+
+                        <TaskTimer taskId={task.id} timer={timer} canLog={can.logTime} />
+
+                        {timeEntries.length > 0 && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Time logged</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2 text-sm">
+                                    {timeEntries.map((entry) => (
+                                        <div key={entry.id} className="flex items-start justify-between gap-2 rounded-lg border p-3">
+                                            <div>
+                                                <div className="font-medium">
+                                                    {entry.hours} h · {entry.source}
+                                                </div>
+                                                <div className="text-muted-foreground text-xs">
+                                                    {entry.employee_name} · {formatted(entry.started_at)}
+                                                </div>
+                                                {entry.note && <p className="mt-1">{entry.note}</p>}
+                                            </div>
+                                            {entry.can_delete && (
+                                                <ConfirmDelete
+                                                    url={`/tasks/time-entries/${entry.id}`}
+                                                    title="Remove this time entry?"
+                                                    description="It will drop off the weekly timesheet."
+                                                    trigger={
+                                                        <Button variant="ghost" size="icon" aria-label="Delete time entry">
+                                                            <Trash2 className="text-destructive size-4" />
+                                                        </Button>
+                                                    }
+                                                />
+                                            )}
+                                        </div>
+                                    ))}
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        <TaskAttachments taskId={task.id} attachments={attachments} canUpload={can.attachFiles} />
+
+                        <TaskReview taskId={task.id} deliverables={deliverables} canSubmit={can.submitProof} canReview={can.reviewProof} />
                     </div>
 
                     <div className="space-y-6">
+                        <TaskReminders
+                            taskId={task.id}
+                            dueAt={task.due_at}
+                            defaultRecipientUserId={task.assigned_user_id}
+                            reminders={reminders}
+                            recipients={reminderRecipients}
+                            canManage={can.manageReminders}
+                        />
+
+                        <TaskRecurrence taskId={task.id} recurrence={recurrence} />
+
                         <Card>
                             <CardHeader>
                                 <CardTitle>Actions</CardTitle>

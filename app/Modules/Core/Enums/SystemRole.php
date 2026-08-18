@@ -10,28 +10,19 @@ enum SystemRole: string
 {
     case SuperAdmin = 'super-admin';
     case Admin = 'admin';
+    case TeamLead = 'team-lead';
     case Manager = 'manager';
     case Employee = 'employee';
-    case Client = 'client';
 
     public function label(): string
     {
         return match ($this) {
-            self::SuperAdmin => 'Super admin',
+            self::SuperAdmin => 'Operations Head',
             self::Admin => 'Admin',
+            self::TeamLead => 'Team Lead',
             self::Manager => 'Manager',
             self::Employee => 'Employee',
-            self::Client => 'Client',
         };
-    }
-
-    /**
-     * Client accounts belong to the portal and must never be handed a staff
-     * role, so the admin role picker excludes them.
-     */
-    public function isInternal(): bool
-    {
-        return $this !== self::Client;
     }
 
     /**
@@ -46,32 +37,47 @@ enum SystemRole: string
         return match ($this) {
             self::SuperAdmin => [],
             self::Admin => Ability::cases(),
+            // Team Leads run the TM board: create/assign/publish/review, view
+            // capacity and timesheets. They do not administer org structure,
+            // work clients, or projects (Operations Head owns those).
+            self::TeamLead => [
+                Ability::ViewEmployees,
+                Ability::ViewDepartments,
+                Ability::ViewActivityLog,
+                Ability::AccessTasks,
+                Ability::ViewCompanies,
+                Ability::ViewProjects,
+                Ability::ViewAllTasks,
+                Ability::ManageTasks,
+                Ability::AssignTasks,
+                Ability::ManageCapacity,
+                Ability::ViewWorkload,
+                Ability::ApproveTimesheets,
+                Ability::ReviewDeliverables,
+            ],
             self::Manager => [
                 Ability::ViewEmployees,
                 Ability::ViewDepartments,
                 Ability::ViewActivityLog,
-                Ability::AccessCrm,
                 Ability::AccessTasks,
                 Ability::ViewCompanies,
-                Ability::ManageCompanies,
                 Ability::ViewProjects,
-                Ability::ManageProjects,
                 Ability::ViewAllTasks,
                 Ability::ManageTasks,
                 Ability::AssignTasks,
+                Ability::ManageCapacity,
+                Ability::ViewWorkload,
+                Ability::ApproveTimesheets,
+                Ability::ReviewDeliverables,
             ],
-            // Enough to work the board: see the projects they are on, raise a
-            // task, and claim open work. Not enough to hand work to others.
+            // Individual contributors: work assigned / open-board tasks only.
+            // Cannot create, assign, publish, or manage org / clients / projects.
             self::Employee => [
                 Ability::ViewEmployees,
                 Ability::ViewDepartments,
                 Ability::AccessTasks,
                 Ability::ViewCompanies,
                 Ability::ViewProjects,
-                Ability::ManageTasks,
-            ],
-            self::Client => [
-                Ability::AccessPortal,
             ],
         };
     }

@@ -1,21 +1,21 @@
-import { ConfirmDelete } from '@/components/admin/confirm-delete';
-import { PageHeader } from '@/components/admin/page-header';
-import { Pagination } from '@/components/admin/pagination';
+import { DataTableCard } from '@/components/admin/data-table-card';
+import { DataTableFooter } from '@/components/admin/data-table-footer';
+import { RowActions } from '@/components/admin/row-actions';
+import { SearchInput } from '@/components/admin/search-input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Option, type Paginated } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface EmployeeRow {
     id: number;
     employee_code: string;
-    designation: string | null;
+    designation: { id: number; name: string } | null;
     status: string;
     user: { id: number; name: string; email: string; is_active: boolean };
     department: { id: number; name: string } | null;
@@ -37,17 +37,16 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Employees', href: '/admin/employees' },
 ];
 
-const statusTone: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-    active: 'default',
-    on_leave: 'secondary',
-    suspended: 'destructive',
-    exited: 'outline',
+const statusTone: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
+    active: 'success',
+    on_leave: 'warning',
+    suspended: 'danger',
+    exited: 'neutral',
 };
 
 export default function EmployeeIndex({ employees, filters, departments, statuses, can }: Props) {
     const [search, setSearch] = useState(filters.search ?? '');
 
-    // Debounced so typing does not fire a request per keystroke.
     useEffect(() => {
         if (search === (filters.search ?? '')) {
             return;
@@ -65,6 +64,7 @@ export default function EmployeeIndex({ employees, filters, departments, statuse
                 search: search || undefined,
                 department: filters.department ?? undefined,
                 status: filters.status || undefined,
+                per_page: employees.per_page,
                 ...changes,
             },
             { preserveState: true, replace: true },
@@ -75,63 +75,78 @@ export default function EmployeeIndex({ employees, filters, departments, statuse
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Employees" />
 
-            <div className="flex flex-1 flex-col gap-6 p-4">
-                <PageHeader
+            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
+                <DataTableCard
                     title="Employees"
                     description="Everyone with an internal account. Both modules assign work to the people listed here."
                     action={
-                        can.manage && (
+                        can.manage ? (
                             <Button asChild>
                                 <Link href="/admin/employees/create">
                                     <Plus /> Add employee
                                 </Link>
                             </Button>
-                        )
+                        ) : undefined
                     }
-                />
+                    toolbar={
+                        <>
+                            <div className="flex flex-wrap items-center gap-3">
+                                <Select
+                                    value={filters.department ? String(filters.department) : ALL}
+                                    onValueChange={(value) => applyFilter({ department: value === ALL ? null : value })}
+                                >
+                                    <SelectTrigger className="w-52" aria-label="Filter by department">
+                                        <SelectValue placeholder="All departments" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={ALL}>All departments</SelectItem>
+                                        {departments.map((department) => (
+                                            <SelectItem key={department.id} value={String(department.id)}>
+                                                {department.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
 
-                <div className="flex flex-wrap gap-3">
-                    <Input
-                        value={search}
-                        onChange={(event) => setSearch(event.target.value)}
-                        placeholder="Search name, email, code or designation"
-                        className="max-w-xs"
-                        aria-label="Search employees"
-                    />
+                                <Select
+                                    value={filters.status || ALL}
+                                    onValueChange={(value) => applyFilter({ status: value === ALL ? null : value })}
+                                >
+                                    <SelectTrigger className="w-44" aria-label="Filter by status">
+                                        <SelectValue placeholder="Any status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={ALL}>Any status</SelectItem>
+                                        {statuses.map((status) => (
+                                            <SelectItem key={status.value} value={status.value}>
+                                                {status.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
-                    <Select
-                        value={filters.department ? String(filters.department) : ALL}
-                        onValueChange={(value) => applyFilter({ department: value === ALL ? null : value })}
-                    >
-                        <SelectTrigger className="w-52" aria-label="Filter by department">
-                            <SelectValue placeholder="All departments" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value={ALL}>All departments</SelectItem>
-                            {departments.map((department) => (
-                                <SelectItem key={department.id} value={String(department.id)}>
-                                    {department.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    <Select value={filters.status || ALL} onValueChange={(value) => applyFilter({ status: value === ALL ? null : value })}>
-                        <SelectTrigger className="w-44" aria-label="Filter by status">
-                            <SelectValue placeholder="Any status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value={ALL}>Any status</SelectItem>
-                            {statuses.map((status) => (
-                                <SelectItem key={status.value} value={status.value}>
-                                    {status.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                <div className="rounded-xl border">
+                            <SearchInput
+                                value={search}
+                                onChange={(event) => setSearch(event.target.value)}
+                                placeholder="Search name, email, code or designation"
+                                aria-label="Search employees"
+                            />
+                        </>
+                    }
+                    footer={
+                        <DataTableFooter
+                            page={employees}
+                            onPerPageChange={(perPage) => applyFilter({ per_page: perPage })}
+                            exportBasePath="/admin/employees/export"
+                            exportParams={{
+                                search,
+                                department: filters.department,
+                                status: filters.status,
+                            }}
+                        />
+                    }
+                >
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -140,7 +155,7 @@ export default function EmployeeIndex({ employees, filters, departments, statuse
                                 <TableHead>Department</TableHead>
                                 <TableHead>Reports to</TableHead>
                                 <TableHead>Status</TableHead>
-                                {can.manage && <TableHead className="w-24 text-right">Actions</TableHead>}
+                                {can.manage && <TableHead className="w-16 text-right">Actions</TableHead>}
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -158,7 +173,7 @@ export default function EmployeeIndex({ employees, filters, departments, statuse
                                         <div className="font-medium">{employee.user.name}</div>
                                         <div className="text-muted-foreground text-xs">
                                             {employee.user.email}
-                                            {employee.designation && ` · ${employee.designation}`}
+                                            {employee.designation?.name && ` · ${employee.designation.name}`}
                                         </div>
                                     </TableCell>
                                     <TableCell className="font-mono text-xs">{employee.employee_code}</TableCell>
@@ -166,45 +181,41 @@ export default function EmployeeIndex({ employees, filters, departments, statuse
                                     <TableCell>{employee.manager?.user?.name ?? '—'}</TableCell>
                                     <TableCell>
                                         <div className="flex flex-wrap items-center gap-1">
-                                            <Badge variant={statusTone[employee.status] ?? 'outline'}>
+                                            <Badge variant={statusTone[employee.status] ?? 'neutral'}>
                                                 {statuses.find((status) => status.value === employee.status)?.label ?? employee.status}
                                             </Badge>
-                                            {!employee.user.is_active && <Badge variant="outline">Login disabled</Badge>}
+                                            {!employee.user.is_active && <Badge variant="neutral">Login disabled</Badge>}
                                         </div>
                                     </TableCell>
                                     {can.manage && (
                                         <TableCell className="text-right">
-                                            <div className="flex justify-end gap-1">
-                                                <Button variant="ghost" size="icon" asChild>
-                                                    <Link href={`/admin/employees/${employee.id}/edit`} aria-label={`Edit ${employee.employee_code}`}>
-                                                        <Pencil />
-                                                    </Link>
-                                                </Button>
-                                                <ConfirmDelete
-                                                    url={`/admin/employees/${employee.id}`}
-                                                    title={`Remove ${employee.user.name}?`}
-                                                    description="This deletes the employee profile and its login. Mark them as exited instead if you need to keep their history."
-                                                    trigger={
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            aria-label={`Remove ${employee.employee_code}`}
-                                                            className="text-destructive hover:text-destructive"
-                                                        >
-                                                            <Trash2 />
-                                                        </Button>
-                                                    }
-                                                />
-                                            </div>
+                                            <RowActions
+                                                label={`Actions for ${employee.employee_code}`}
+                                                items={[
+                                                    {
+                                                        key: 'edit',
+                                                        label: 'Edit',
+                                                        href: `/admin/employees/${employee.id}/edit`,
+                                                    },
+                                                    {
+                                                        key: 'delete',
+                                                        label: 'Delete',
+                                                        confirm: {
+                                                            url: `/admin/employees/${employee.id}`,
+                                                            title: `Remove ${employee.user.name}?`,
+                                                            description:
+                                                                'This deletes the employee profile and its login. Mark them as exited instead if you need to keep their history.',
+                                                        },
+                                                    },
+                                                ]}
+                                            />
                                         </TableCell>
                                     )}
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
-                </div>
-
-                <Pagination page={employees} />
+                </DataTableCard>
             </div>
         </AppLayout>
     );

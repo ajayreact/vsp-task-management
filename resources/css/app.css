@@ -8,7 +8,7 @@
 
 @theme {
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -56,6 +56,13 @@
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
+
+    --shadow-elevated: var(--bs-box-shadow);
+    --shadow-elevated-xs: var(--bs-box-shadow-xs);
+    --shadow-elevated-sm: var(--bs-box-shadow-sm);
+    --shadow-elevated-lg: var(--bs-box-shadow-lg);
+    --shadow-elevated-xl: var(--bs-box-shadow-xl);
+    --shadow-floating: var(--bs-floating-component-shadow);
 }
 
 /*
@@ -77,74 +84,104 @@
 }
 
 :root {
-    --background: hsl(0, 0%, 100%);
-    --foreground: hsl(0, 0%, 3.9%);
+    --app-background: #eef2f5;
+    --background: var(--app-background);
+    --foreground: hsl(222, 47%, 11%);
     --card: hsl(0, 0%, 100%);
-    --card-foreground: hsl(0, 0%, 3.9%);
+    --card-foreground: hsl(222, 47%, 11%);
     --popover: hsl(0, 0%, 100%);
-    --popover-foreground: hsl(0, 0%, 3.9%);
-    --primary: hsl(0, 0%, 9%);
-    --primary-foreground: hsl(0, 0%, 98%);
-    --secondary: hsl(0, 0%, 96.1%);
-    --secondary-foreground: hsl(0, 0%, 9%);
-    --muted: hsl(0, 0%, 96.1%);
-    --muted-foreground: hsl(0, 0%, 45.1%);
-    --accent: hsl(0, 0%, 96.1%);
-    --accent-foreground: hsl(0, 0%, 9%);
+    --popover-foreground: hsl(222, 47%, 11%);
+    --primary: hsl(243, 75%, 59%);
+    --primary-foreground: hsl(0, 0%, 100%);
+    --secondary: hsl(220, 14%, 96%);
+    --secondary-foreground: hsl(222, 47%, 11%);
+    --muted: hsl(226, 25%, 94%);
+    --muted-foreground: hsl(215, 16%, 47%);
+    --accent: hsl(226, 100%, 97%);
+    --accent-foreground: hsl(243, 55%, 40%);
     --destructive: hsl(0, 84.2%, 60.2%);
     --destructive-foreground: hsl(0, 0%, 98%);
-    --border: hsl(0, 0%, 92.8%);
-    --input: hsl(0, 0%, 89.8%);
-    --ring: hsl(0, 0%, 3.9%);
-    --chart-1: hsl(12, 76%, 61%);
+    --border: hsl(226, 20%, 90%);
+    --input: hsl(226, 20%, 90%);
+    --ring: hsl(243, 75%, 59%);
+    --chart-1: hsl(243, 75%, 59%);
     --chart-2: hsl(173, 58%, 39%);
     --chart-3: hsl(197, 37%, 24%);
     --chart-4: hsl(43, 74%, 66%);
     --chart-5: hsl(27, 87%, 67%);
-    --radius: 0.5rem;
-    --sidebar-background: hsl(0, 0%, 98%);
-    --sidebar-foreground: hsl(240, 5.3%, 30%);
-    --sidebar-primary: hsl(0, 0%, 10%);
-    --sidebar-primary-foreground: hsl(0, 0%, 98%);
-    --sidebar-accent: hsl(0, 0%, 94%);
-    --sidebar-accent-foreground: hsl(0, 0%, 30%);
-    --sidebar-border: hsl(0, 0%, 91%);
-    --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
+    --radius: 0.75rem;
+    --sidebar-background: hsl(0, 0%, 100%);
+    --sidebar-foreground: hsl(215, 16%, 35%);
+    --sidebar-primary: hsl(243, 75%, 59%);
+    --sidebar-primary-foreground: hsl(0, 0%, 100%);
+    --sidebar-accent: hsl(226, 100%, 97%);
+    --sidebar-accent-foreground: hsl(243, 55%, 40%);
+    --sidebar-border: hsl(226, 20%, 90%);
+    --sidebar-ring: hsl(243, 75%, 59%);
+
+    --dark: 38, 43, 67;
+
+    --bs-box-shadow: 0 0.25rem 0.875rem 0 rgba(38, 43, 67, 0.16);
+    --bs-box-shadow-xs: 0 0.125rem 0.375rem 0 rgba(38, 43, 67, 0.14);
+    --bs-box-shadow-sm: 0 0.125rem 0.625rem 0 rgba(38, 43, 67, 0.16);
+    --bs-box-shadow-lg: 0 0.375rem 1.25rem 0 rgba(38, 43, 67, 0.18);
+    --bs-box-shadow-xl: 0 0.5rem 1.625rem 0 rgba(38, 43, 67, 0.18);
+    --bs-floating-component-shadow: 0 1px 16px 1px rgba(38, 43, 67, 0.09);
+    --bs-custom-link-color: var(--primary);
+    --table-header-bg-color: #f5f5f7;
+
+    --vsp-card-border: 1px solid rgba(120, 115, 110, 0.2);
+    --vsp-card-radius: 1.25rem;
+    --vsp-card-shadow: 0 0.15625rem 0.625rem 0 rgba(var(--dark), 0.1);
+    --vsp-card-shadow-hover: 0 0.3125rem 1rem 0 rgba(var(--dark), 0.14);
+    --vsp-card-transition: all 0.3s ease;
+    --vsp-card-margin-bottom: 1rem;
 }
 
 .dark {
-    --background: hsl(0, 0%, 3.9%);
-    --foreground: hsl(0, 0%, 98%);
-    --card: hsl(0, 0%, 3.9%);
-    --card-foreground: hsl(0, 0%, 98%);
-    --popover: hsl(0, 0%, 3.9%);
-    --popover-foreground: hsl(0, 0%, 98%);
-    --primary: hsl(0, 0%, 98%);
-    --primary-foreground: hsl(0, 0%, 9%);
-    --secondary: hsl(0, 0%, 14.9%);
-    --secondary-foreground: hsl(0, 0%, 98%);
-    --muted: hsl(0, 0%, 6.9%);
-    --muted-foreground: hsl(0, 0%, 63.9%);
-    --accent: hsl(0, 0%, 14.9%);
-    --accent-foreground: hsl(0, 0%, 98%);
+    --app-background: hsl(222, 32%, 10%);
+    --background: var(--app-background);
+    --foreground: hsl(210, 40%, 98%);
+    --card: hsl(222, 36%, 13%);
+    --card-foreground: hsl(210, 40%, 98%);
+    --popover: hsl(222, 36%, 13%);
+    --popover-foreground: hsl(210, 40%, 98%);
+    --primary: hsl(239, 84%, 67%);
+    --primary-foreground: hsl(0, 0%, 100%);
+    --secondary: hsl(217, 33%, 17%);
+    --secondary-foreground: hsl(210, 40%, 98%);
+    --muted: hsl(217, 33%, 17%);
+    --muted-foreground: hsl(215, 20%, 65%);
+    --accent: hsl(243, 40%, 18%);
+    --accent-foreground: hsl(226, 100%, 90%);
     --destructive: hsl(0, 84%, 60%);
     --destructive-foreground: hsl(0, 0%, 98%);
-    --border: hsl(0, 0%, 14.9%);
-    --input: hsl(0, 0%, 14.9%);
-    --ring: hsl(0, 0%, 83.1%);
-    --chart-1: hsl(220, 70%, 50%);
+    --border: hsl(217, 28%, 20%);
+    --input: hsl(217, 28%, 20%);
+    --ring: hsl(239, 84%, 67%);
+    --chart-1: hsl(239, 84%, 67%);
     --chart-2: hsl(160, 60%, 45%);
     --chart-3: hsl(30, 80%, 55%);
     --chart-4: hsl(280, 65%, 60%);
     --chart-5: hsl(340, 75%, 55%);
-    --sidebar-background: hsl(0, 0%, 7%);
-    --sidebar-foreground: hsl(0, 0%, 80%);
-    --sidebar-primary: hsl(360, 100%, 100%);
+    --sidebar-background: hsl(222, 36%, 13%);
+    --sidebar-foreground: hsl(215, 20%, 80%);
+    --sidebar-primary: hsl(243, 75%, 59%);
     --sidebar-primary-foreground: hsl(0, 0%, 100%);
-    --sidebar-accent: hsl(0, 0%, 15.9%);
-    --sidebar-accent-foreground: hsl(240, 4.8%, 95.9%);
-    --sidebar-border: hsl(0, 0%, 15.9%);
-    --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
+    --sidebar-accent: hsl(243, 40%, 18%);
+    --sidebar-accent-foreground: hsl(226, 100%, 90%);
+    --sidebar-border: hsl(217, 28%, 20%);
+    --sidebar-ring: hsl(239, 84%, 67%);
+
+    --dark: 0, 0, 0;
+
+    --bs-box-shadow: 0 0.25rem 0.875rem 0 rgba(0, 0, 0, 0.45);
+    --bs-box-shadow-xs: 0 0.125rem 0.375rem 0 rgba(0, 0, 0, 0.4);
+    --bs-box-shadow-sm: 0 0.125rem 0.625rem 0 rgba(0, 0, 0, 0.45);
+    --bs-box-shadow-lg: 0 0.375rem 1.25rem 0 rgba(0, 0, 0, 0.5);
+    --bs-box-shadow-xl: 0 0.5rem 1.625rem 0 rgba(0, 0, 0, 0.55);
+    --bs-floating-component-shadow: 0 1px 16px 1px rgba(0, 0, 0, 0.35);
+    --bs-custom-link-color: var(--primary);
 }
 
 @layer base {
@@ -154,5 +191,60 @@
 
     body {
         @apply bg-background text-foreground;
+    }
+}
+
+@layer components {
+    .vsp-card {
+        border: var(--vsp-card-border);
+        border-radius: var(--vsp-card-radius);
+        box-shadow: var(--vsp-card-shadow);
+        transition: var(--vsp-card-transition);
+        margin-bottom: var(--vsp-card-margin-bottom);
+    }
+
+    .vsp-card:hover,
+    .group:hover .vsp-card {
+        box-shadow: var(--vsp-card-shadow-hover);
+    }
+
+    .surface-card {
+        background-color: var(--card);
+        border-radius: var(--radius);
+        box-shadow: var(--bs-box-shadow);
+    }
+
+    .surface-card-sm {
+        background-color: var(--card);
+        border-radius: var(--radius);
+        box-shadow: var(--bs-box-shadow-sm);
+    }
+
+    .surface-card-lg {
+        background-color: var(--card);
+        border-radius: var(--radius);
+        box-shadow: var(--bs-box-shadow-lg);
+    }
+
+    .surface-floating {
+        background-color: var(--popover);
+        box-shadow: var(--bs-floating-component-shadow);
+    }
+
+    /* Frozen DataTable shell — keep in sync with DataTableCard / --vsp-card-* */
+    .data-table-card {
+        background-color: #ffffff;
+        border: var(--vsp-card-border);
+        border-radius: var(--vsp-card-radius);
+        box-shadow: var(--vsp-card-shadow);
+        transition: var(--vsp-card-transition);
+    }
+
+    .data-table-header {
+        background-color: var(--table-header-bg-color, #f5f5f7);
+    }
+
+    .data-table-header th {
+        background-color: var(--table-header-bg-color, #f5f5f7);
     }
 }

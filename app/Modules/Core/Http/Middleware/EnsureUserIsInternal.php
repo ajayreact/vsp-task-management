@@ -7,9 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Staff screens are closed to client-portal accounts. This is the routing layer
- * of the portal isolation; the tenant scope and policies enforce it again
- * independently, so a missing middleware alone cannot leak data.
+ * Staff screens require an internal account.
  */
 class EnsureUserIsInternal
 {

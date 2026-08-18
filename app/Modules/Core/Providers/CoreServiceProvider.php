@@ -18,8 +18,8 @@ use Spatie\Permission\Models\Role;
  * Shared kernel: authentication, employees, departments, roles and
  * permissions, notifications, file storage and the activity log.
  *
- * Nothing registered here may reference the CRM or Task Management modules.
- * Both modules depend on Core; Core depends on neither.
+ * Nothing registered here may reference Task Management. Task Management
+ * depends on Core; Core depends on neither other business module.
  */
 class CoreServiceProvider extends ServiceProvider
 {

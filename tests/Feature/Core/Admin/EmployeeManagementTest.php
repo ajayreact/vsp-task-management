@@ -5,8 +5,10 @@ use App\Modules\Core\Enums\EmployeeStatus;
 use App\Modules\Core\Enums\SystemRole;
 use App\Modules\Core\Enums\UserType;
 use App\Modules\Core\Models\Department;
+use App\Modules\Core\Models\Designation;
 use App\Modules\Core\Models\Employee;
 use App\Modules\Core\Models\User;
+use Database\Seeders\Core\DepartmentsAndDesignationsSeeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
@@ -16,14 +18,17 @@ beforeEach(function () {
 
 function employeePayload(array $overrides = []): array
 {
+    $department = Department::factory()->create();
+    $designation = Designation::factory()->create();
+
     return array_merge([
         'name' => 'Priya Nair',
         'email' => 'priya@vsp.test',
         'password' => 'correct-horse-battery',
         'password_confirmation' => 'correct-horse-battery',
         'employee_code' => 'EMP-2001',
-        'department_id' => null,
-        'designation' => 'Copywriter',
+        'department_id' => $department->id,
+        'designation_id' => $designation->id,
         'reporting_to_id' => null,
         'phone' => '9876543210',
         'joined_on' => '2026-01-15',
@@ -81,7 +86,18 @@ test('an employee is created together with its login and roles', function () {
     expect($user->user_type)->toBe(UserType::Internal)
         ->and($user->hasRole(SystemRole::Employee->value))->toBeTrue()
         ->and($user->employee)->not->toBeNull()
-        ->and($user->employee->employee_code)->toBe('EMP-2001');
+        ->and($user->employee->employee_code)->toBe('EMP-2001')
+        ->and($user->employee->department_id)->not->toBeNull()
+        ->and($user->employee->designation_id)->not->toBeNull();
+});
+
+test('department and designation are required', function () {
+    $this->actingAs(staffWith(Ability::ManageEmployees))
+        ->post('/admin/employees', employeePayload([
+            'department_id' => null,
+            'designation_id' => null,
+        ]))
+        ->assertSessionHasErrors(['department_id', 'designation_id']);
 });
 
 test('the employee code has to be unique', function () {
@@ -92,11 +108,11 @@ test('the employee code has to be unique', function () {
         ->assertSessionHasErrors('employee_code');
 });
 
-test('the portal role cannot be handed out from the staff screen', function () {
-    Role::findOrCreate(SystemRole::Client->value, 'web');
+test('the super-admin role cannot be handed out from the staff screen', function () {
+    Role::findOrCreate(SystemRole::SuperAdmin->value, 'web');
 
     $this->actingAs(staffWith(Ability::ManageEmployees))
-        ->post('/admin/employees', employeePayload(['roles' => [SystemRole::Client->value]]))
+        ->post('/admin/employees', employeePayload(['roles' => [SystemRole::SuperAdmin->value]]))
         ->assertSessionHasErrors('roles.0');
 
     expect(User::where('email', 'priya@vsp.test')->exists())->toBeFalse();
@@ -109,6 +125,8 @@ test('a blank password on update leaves the existing one alone', function () {
     $this->actingAs(staffWith(Ability::ManageEmployees))
         ->put("/admin/employees/{$employee->id}", employeePayload([
             'employee_code' => $employee->employee_code,
+            'department_id' => $employee->department_id,
+            'designation_id' => $employee->designation_id,
             'password' => '',
             'password_confirmation' => '',
         ]))
@@ -124,6 +142,8 @@ test('a supplied password on update replaces the old one', function () {
     $this->actingAs(staffWith(Ability::ManageEmployees))
         ->put("/admin/employees/{$employee->id}", employeePayload([
             'employee_code' => $employee->employee_code,
+            'department_id' => $employee->department_id,
+            'designation_id' => $employee->designation_id,
             'password' => 'a-brand-new-secret',
             'password_confirmation' => 'a-brand-new-secret',
         ]))
@@ -138,6 +158,8 @@ test('an employee cannot be made to report to themselves', function () {
     $this->actingAs(staffWith(Ability::ManageEmployees))
         ->put("/admin/employees/{$employee->id}", employeePayload([
             'employee_code' => $employee->employee_code,
+            'department_id' => $employee->department_id,
+            'designation_id' => $employee->designation_id,
             'reporting_to_id' => $employee->id,
         ]))
         ->assertSessionHasErrors('reporting_to_id');
@@ -164,4 +186,14 @@ test('an admin cannot delete their own employee record', function () {
         ->assertForbidden();
 
     $this->assertDatabaseHas('employees', ['id' => $employee->id]);
+});
+
+test('departments and designations seeder is idempotent', function () {
+    $this->seed(DepartmentsAndDesignationsSeeder::class);
+    $this->seed(DepartmentsAndDesignationsSeeder::class);
+
+    expect(Department::query()->whereIn('code', ['OPS', 'CRT', 'CONTENT', 'SEO'])->count())->toBe(4)
+        ->and(Designation::query()->whereIn('code', [
+            'OPS-HEAD', 'TEAM-LEAD', 'GRAPHIC-DESIGNER', 'CONTENT-WRITER', 'SEO-SPECIALIST',
+        ])->count())->toBe(5);
 });

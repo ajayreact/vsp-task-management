@@ -11,6 +11,7 @@ use App\Modules\TaskManagement\Enums\TaskStatus;
 use App\Modules\TaskManagement\Exceptions\TaskWorkflowException;
 use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Models\TaskAssignment;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -19,13 +20,20 @@ use Illuminate\Support\Facades\DB;
  */
 class TaskWorkflow
 {
+    public function __construct(
+        protected TaskNotifier $notifier,
+        protected RecurringTaskService $recurring,
+    ) {}
+
     /**
      * Put a task on the open board for anyone eligible to claim.
      */
     public function publishToBoard(Task $task, User $actor): Task
     {
-        return DB::transaction(function () use ($task, $actor) {
-            $this->withdrawPendingOffers($task);
+        $withdrawn = collect();
+
+        $task = DB::transaction(function () use ($task, $actor, &$withdrawn) {
+            $withdrawn = $this->withdrawPendingOffers($task);
 
             $task->forceFill([
                 'assignment_mode' => AssignmentMode::Open,
@@ -34,6 +42,10 @@ class TaskWorkflow
 
             return $this->settle($task, TaskStatus::Open, $actor);
         });
+
+        $this->notifier->taskPublished($task, $actor, $withdrawn);
+
+        return $task;
     }
 
     /**
@@ -41,7 +53,9 @@ class TaskWorkflow
      */
     public function assign(Task $task, Employee $employee, User $actor): Task
     {
-        return DB::transaction(function () use ($task, $employee, $actor) {
+        $withdrawn = collect();
+
+        $task = DB::transaction(function () use ($task, $employee, $actor, &$withdrawn) {
             if (! $task->status->isUnstarted()) {
                 throw TaskWorkflowException::alreadyStarted();
             }
@@ -50,7 +64,7 @@ class TaskWorkflow
                 throw TaskWorkflowException::employeeUnavailable();
             }
 
-            $this->withdrawPendingOffers($task);
+            $withdrawn = $this->withdrawPendingOffers($task);
 
             TaskAssignment::create([
                 'tm_task_id' => $task->id,
@@ -67,6 +81,10 @@ class TaskWorkflow
 
             return $this->settle($task, TaskStatus::Assigned, $actor);
         });
+
+        $this->notifier->taskAssigned($task, $employee, $actor, $withdrawn);
+
+        return $task;
     }
 
     /**
@@ -75,7 +93,7 @@ class TaskWorkflow
      */
     public function claim(Task $task, Employee $employee, User $actor): Task
     {
-        return DB::transaction(function () use ($task, $employee, $actor) {
+        $task = DB::transaction(function () use ($task, $employee, $actor) {
             $fresh = Task::query()->whereKey($task->id)->lockForUpdate()->firstOrFail();
 
             if ($fresh->assigned_employee_id !== null || $fresh->status !== TaskStatus::Open) {
@@ -99,12 +117,19 @@ class TaskWorkflow
 
             return $this->moveTo($fresh, TaskStatus::Accepted, $actor);
         });
+
+        $this->notifier->taskClaimed($task, $actor);
+
+        return $task;
     }
 
     public function accept(Task $task, Employee $employee, User $actor): Task
     {
-        return DB::transaction(function () use ($task, $employee, $actor) {
+        $assigner = null;
+
+        $task = DB::transaction(function () use ($task, $employee, $actor, &$assigner) {
             $offer = $this->offerFor($task, $employee);
+            $assigner = $offer->assignedBy;
 
             $offer->update([
                 'status' => AssignmentStatus::Accepted,
@@ -113,6 +138,10 @@ class TaskWorkflow
 
             return $this->moveTo($task, TaskStatus::Accepted, $actor);
         });
+
+        $this->notifier->taskAccepted($task, $actor, $assigner);
+
+        return $task;
     }
 
     /**
@@ -121,8 +150,11 @@ class TaskWorkflow
      */
     public function decline(Task $task, Employee $employee, User $actor, ?string $reason = null): Task
     {
-        return DB::transaction(function () use ($task, $employee, $actor, $reason) {
+        $assigner = null;
+
+        $task = DB::transaction(function () use ($task, $employee, $actor, $reason, &$assigner) {
             $offer = $this->offerFor($task, $employee);
+            $assigner = $offer->assignedBy;
 
             $offer->update([
                 'status' => AssignmentStatus::Declined,
@@ -137,6 +169,10 @@ class TaskWorkflow
 
             return $this->moveTo($task, TaskStatus::Open, $actor);
         });
+
+        $this->notifier->taskDeclined($task, $actor, $assigner, $reason);
+
+        return $task;
     }
 
     /**
@@ -144,11 +180,26 @@ class TaskWorkflow
      */
     public function transition(Task $task, TaskStatus $target, User $actor): Task
     {
-        return DB::transaction(function () use ($task, $target, $actor) {
+        $from = $task->status;
+
+        $task = DB::transaction(function () use ($task, $target, $actor) {
             $this->guardTransition($task, $target);
 
             return $this->moveTo($task, $target, $actor);
         });
+
+        if ($from !== $target) {
+            if ($target === TaskStatus::InProgress) {
+                $this->notifier->taskInProgress($task, $actor);
+            }
+
+            if ($target === TaskStatus::Completed) {
+                $this->notifier->taskCompleted($task, $actor);
+                $this->recurring->generateNextOccurrence($task->refresh());
+            }
+        }
+
+        return $task;
     }
 
     protected function guardTransition(Task $task, TaskStatus $target): void
@@ -210,20 +261,32 @@ class TaskWorkflow
 
     /**
      * Anyone previously offered this task is no longer on the hook for it.
+     *
+     * @return Collection<int, TaskAssignment>
      */
-    protected function withdrawPendingOffers(Task $task): void
+    protected function withdrawPendingOffers(Task $task): Collection
     {
-        $task->assignments()
+        $pending = $task->assignments()
+            ->with('employee.user')
             ->where('status', AssignmentStatus::Pending)
-            ->update([
-                'status' => AssignmentStatus::Reassigned,
-                'responded_at' => now(),
-            ]);
+            ->get();
+
+        if ($pending->isNotEmpty()) {
+            $task->assignments()
+                ->where('status', AssignmentStatus::Pending)
+                ->update([
+                    'status' => AssignmentStatus::Reassigned,
+                    'responded_at' => now(),
+                ]);
+        }
+
+        return $pending;
     }
 
     protected function offerFor(Task $task, Employee $employee): TaskAssignment
     {
         $offer = $task->assignments()
+            ->with('assignedBy')
             ->where('employee_id', $employee->id)
             ->where('status', AssignmentStatus::Pending)
             ->latest('id')

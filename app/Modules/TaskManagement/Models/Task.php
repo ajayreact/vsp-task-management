@@ -22,9 +22,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
- * A unit of internal work. Has no relationship to CRM leads or follow-ups: a
- * sales follow-up and a work task are separate concepts, and nothing here may
- * reference a `crm_*` table.
+ * A unit of internal work. Status and assignment are owned by TaskWorkflow.
  *
  * @property int $id
  * @property int $tm_project_id
@@ -41,6 +39,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property Carbon|null $due_at
  * @property Carbon|null $started_at
  * @property Carbon|null $completed_at
+ * @property int|null $tm_recurrence_rule_id
+ * @property int|null $recurrence_occurrence_number
  * @property-read Project $project
  * @property-read Department|null $department
  * @property-read Employee|null $assignee
@@ -71,6 +71,8 @@ class Task extends Model implements HasMedia
         'due_at',
         'started_at',
         'completed_at',
+        'tm_recurrence_rule_id',
+        'recurrence_occurrence_number',
     ];
 
     /**
@@ -150,6 +152,75 @@ class Task extends Model implements HasMedia
     }
 
     /**
+     * @return HasMany<TimeEntry, $this>
+     */
+    public function timeEntries(): HasMany
+    {
+        return $this->hasMany(TimeEntry::class, 'tm_task_id');
+    }
+
+    /**
+     * @return HasMany<Deliverable, $this>
+     */
+    public function deliverables(): HasMany
+    {
+        return $this->hasMany(Deliverable::class, 'tm_task_id');
+    }
+
+    /**
+     * @return HasMany<TaskComment, $this>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(TaskComment::class, 'tm_task_id');
+    }
+
+    /**
+     * @return HasMany<TaskChecklistItem, $this>
+     */
+    public function checklistItems(): HasMany
+    {
+        return $this->hasMany(TaskChecklistItem::class, 'tm_task_id');
+    }
+
+    /**
+     * @return HasMany<TaskSubtask, $this>
+     */
+    public function subtasks(): HasMany
+    {
+        return $this->hasMany(TaskSubtask::class, 'tm_task_id');
+    }
+
+    /**
+     * @return HasMany<TaskReminder, $this>
+     */
+    public function reminders(): HasMany
+    {
+        return $this->hasMany(TaskReminder::class, 'tm_task_id');
+    }
+
+    /**
+     * @return BelongsTo<TaskRecurrenceRule, $this>
+     */
+    public function recurrenceRule(): BelongsTo
+    {
+        return $this->belongsTo(TaskRecurrenceRule::class, 'tm_recurrence_rule_id');
+    }
+
+    /**
+     * @return HasOne<TaskRecurrenceRule, $this>
+     */
+    public function ownedRecurrenceRule(): HasOne
+    {
+        return $this->hasOne(TaskRecurrenceRule::class, 'source_tm_task_id');
+    }
+
+    public function isRecurrenceSource(): bool
+    {
+        return $this->recurrence_occurrence_number === 0 || $this->ownedRecurrenceRule()->exists();
+    }
+
+    /**
      * Unclaimed work on the open board.
      *
      * @param  Builder<$this>  $query
@@ -175,6 +246,25 @@ class Task extends Model implements HasMedia
     public function scopeStillOpen(Builder $query): void
     {
         $query->whereNot('status', TaskStatus::Completed);
+    }
+
+    /**
+     * Working files on the task itself. Creative proofs live on Deliverable
+     * (`proofs`) and must never be mixed into this collection.
+     *
+     * @return list<string>
+     */
+    public static function attachmentExtensions(): array
+    {
+        return [
+            'jpg', 'jpeg', 'png', 'gif', 'webp',
+            'pdf',
+            'doc', 'docx',
+            'xls', 'xlsx', 'csv',
+            'ppt', 'pptx',
+            'zip',
+            'txt', 'rtf',
+        ];
     }
 
     public function registerMediaCollections(): void

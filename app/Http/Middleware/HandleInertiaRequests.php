@@ -2,6 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Modules\Core\Enums\Ability;
+use App\Modules\Core\Models\User;
+use App\Modules\TaskManagement\Services\TaskManagementNotificationSoundService;
+use App\Support\NotificationPresenter;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -49,13 +53,27 @@ class HandleInertiaRequests extends Middleware
                 // Navigation and buttons hide on these, but every one of them is
                 // enforced again server side. This list is a convenience for the
                 // UI, never the authorization boundary.
-                'permissions' => $user?->getAllPermissions()->pluck('name')->values() ?? [],
+                'permissions' => $user?->effectivePermissions() ?? [],
                 'roles' => $user?->getRoleNames()->values() ?? [],
             ],
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
             ],
+            'notifications' => NotificationPresenter::forUser($user),
+            'notificationSound' => self::notificationSoundConfig($user),
         ]);
+    }
+
+    /**
+     * @return array{enabled: bool, source: string|null, system_sound: string|null, url: string|null}|null
+     */
+    protected static function notificationSoundConfig(?User $user): ?array
+    {
+        if ($user === null || ! $user->isInternal() || ! $user->can(Ability::AccessTasks->value)) {
+            return null;
+        }
+
+        return app(TaskManagementNotificationSoundService::class)->playbackConfig();
     }
 }

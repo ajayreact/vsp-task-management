@@ -1,26 +1,23 @@
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
-import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { coreNavItems, moduleSwitcherItems } from '@/lib/navigation';
-import { type NavItem } from '@/types';
+import { staffNavGroups } from '@/lib/navigation';
+import { type NavGroup, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import AppLogo from './app-logo';
 
 export interface AppSidebarProps {
-    /** Primary navigation for the module currently being viewed. */
-    items?: NavItem[];
-    /** Group heading above the primary navigation. */
-    label?: string;
+    /** Navigation sections, rendered top to bottom. */
+    groups?: NavGroup[];
     /** Where the logo links to within the current module. */
     homeUrl?: string;
     /** Cross-module shortcuts. Pass an empty array to hide them entirely. */
     footerItems?: NavItem[];
 }
 
-export function AppSidebar({ items = coreNavItems, label = 'Platform', homeUrl = '/dashboard', footerItems = moduleSwitcherItems }: AppSidebarProps) {
+export function AppSidebar({ groups = staffNavGroups(), homeUrl = '/dashboard', footerItems = [] }: AppSidebarProps) {
     return (
-        <Sidebar collapsible="icon" variant="inset">
+        <Sidebar collapsible="icon" variant="sidebar">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -33,14 +30,17 @@ export function AppSidebar({ items = coreNavItems, label = 'Platform', homeUrl =
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
-                <NavMain items={items} label={label} />
+            <SidebarContent className="gap-6 px-2 py-4">
+                {groups.map((group) => (
+                    <NavMain key={group.title} items={group.items} label={group.title} anyPermission={group.anyPermission} />
+                ))}
             </SidebarContent>
 
-            <SidebarFooter>
-                {footerItems.length > 0 && <NavFooter items={footerItems} className="mt-auto" />}
-                <NavUser />
-            </SidebarFooter>
+            {footerItems.length > 0 && (
+                <SidebarFooter>
+                    <NavFooter items={footerItems} className="mt-auto" />
+                </SidebarFooter>
+            )}
         </Sidebar>
     );
 }

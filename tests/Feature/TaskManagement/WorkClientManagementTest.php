@@ -8,33 +8,33 @@ use App\Modules\TaskManagement\Models\Task;
 
 /*
 |--------------------------------------------------------------------------
-| Work companies and projects
+| Clients (work clients) and projects
 |--------------------------------------------------------------------------
 */
 
-test('companies are listed with their project counts', function () {
+test('clients are listed with their project counts', function () {
     $company = Company::factory()->create(['name' => 'Northwind']);
     Project::factory()->count(2)->create(['tm_company_id' => $company->id]);
 
     $this->actingAs(staffWith(Ability::AccessTasks, Ability::ViewCompanies))
-        ->get('/tasks/companies')
+        ->get('/tasks/clients')
         ->assertInertia(fn ($page) => $page
-            ->component('TaskManagement/companies/index')
-            ->where('companies.0.name', 'Northwind')
-            ->where('companies.0.projects_count', 2)
+            ->component('TaskManagement/clients/index')
+            ->where('clients.data.0.name', 'Northwind')
+            ->where('clients.data.0.projects_count', 2)
             ->where('can.manage', false));
 });
 
 test('viewing does not imply managing', function () {
     $this->actingAs(staffWith(Ability::AccessTasks, Ability::ViewCompanies))
-        ->post('/tasks/companies', ['name' => 'Northwind', 'code' => 'NW', 'status' => 'active'])
+        ->post('/tasks/clients', ['name' => 'Northwind', 'code' => 'NW', 'status' => 'active'])
         ->assertForbidden();
 });
 
-test('a company code is stored uppercase and must be unique', function () {
+test('a client code is stored uppercase and must be unique', function () {
     $user = staffWith(Ability::AccessTasks, Ability::ViewCompanies, Ability::ManageCompanies);
 
-    $this->actingAs($user)->post('/tasks/companies', [
+    $this->actingAs($user)->post('/tasks/clients', [
         'name' => 'Northwind',
         'code' => 'nw-01',
         'status' => 'active',
@@ -43,17 +43,17 @@ test('a company code is stored uppercase and must be unique', function () {
     expect(Company::query()->sole()->code)->toBe('NW-01');
 
     $this->actingAs($user)
-        ->post('/tasks/companies', ['name' => 'Other', 'code' => 'NW-01', 'status' => 'active'])
+        ->post('/tasks/clients', ['name' => 'Other', 'code' => 'NW-01', 'status' => 'active'])
         ->assertSessionHasErrors('code');
 });
 
-test('a company with projects cannot be deleted', function () {
+test('a client with projects cannot be deleted', function () {
     $user = staffWith(Ability::AccessTasks, Ability::ViewCompanies, Ability::ManageCompanies);
     $company = Company::factory()->create();
     Project::factory()->create(['tm_company_id' => $company->id]);
 
     $this->actingAs($user)
-        ->delete("/tasks/companies/{$company->id}")
+        ->delete("/tasks/clients/{$company->id}")
         ->assertForbidden();
 
     expect(Company::query()->count())->toBe(1);

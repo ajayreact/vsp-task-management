@@ -4,6 +4,7 @@ namespace Database\Factories\Core;
 
 use App\Modules\Core\Enums\EmployeeStatus;
 use App\Modules\Core\Models\Department;
+use App\Modules\Core\Models\Designation;
 use App\Modules\Core\Models\Employee;
 use App\Modules\Core\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -24,8 +25,8 @@ class EmployeeFactory extends Factory
         return [
             'user_id' => User::factory(),
             'department_id' => Department::factory(),
+            'designation_id' => Designation::factory(),
             'employee_code' => 'EMP-'.fake()->unique()->numberBetween(1000, 999999),
-            'designation' => fake()->jobTitle(),
             'reporting_to_id' => null,
             'phone' => fake()->numerify('##########'),
             'joined_on' => fake()->dateTimeBetween('-4 years', '-1 month'),

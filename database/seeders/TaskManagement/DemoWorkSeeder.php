@@ -4,6 +4,7 @@ namespace Database\Seeders\TaskManagement;
 
 use App\Modules\Core\Enums\SystemRole;
 use App\Modules\Core\Models\Department;
+use App\Modules\Core\Models\Designation;
 use App\Modules\Core\Models\Employee;
 use App\Modules\Core\Models\User;
 use App\Modules\TaskManagement\Enums\AssignmentAction;
@@ -32,8 +33,8 @@ class DemoWorkSeeder extends Seeder
             ['name' => 'Creative', 'is_active' => true],
         );
 
-        $manager = $this->person('Priya Manager', 'manager@vsp.test', 'EMP-0002', $creative, SystemRole::Manager, 'Creative Lead');
-        $designer = $this->person('Dev Designer', 'designer@vsp.test', 'EMP-0003', $creative, SystemRole::Employee, 'Senior Designer');
+        $manager = $this->person('Priya Lead', 'lead@vsp.test', 'EMP-0002', $creative, SystemRole::TeamLead, 'TEAM-LEAD');
+        $designer = $this->person('Dev Designer', 'designer@vsp.test', 'EMP-0003', $creative, SystemRole::Employee, 'GRAPHIC-DESIGNER');
 
         $company = Company::firstOrCreate(
             ['code' => 'NORTHWIND'],
@@ -130,7 +131,7 @@ class DemoWorkSeeder extends Seeder
         string $code,
         Department $department,
         SystemRole $role,
-        string $designation,
+        string $designationCode,
     ): Employee {
         $user = User::firstOrCreate(
             ['email' => $email],
@@ -139,12 +140,14 @@ class DemoWorkSeeder extends Seeder
 
         $user->syncRoles($role->value);
 
+        $designation = Designation::query()->where('code', $designationCode)->firstOrFail();
+
         return Employee::firstOrCreate(
             ['user_id' => $user->id],
             [
                 'department_id' => $department->id,
+                'designation_id' => $designation->id,
                 'employee_code' => $code,
-                'designation' => $designation,
                 'status' => 'active',
                 'joined_on' => now()->subMonths(8),
             ],

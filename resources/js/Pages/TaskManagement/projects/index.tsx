@@ -1,5 +1,5 @@
-import { PageHeader } from '@/components/admin/page-header';
-import { Pagination } from '@/components/admin/pagination';
+import { DataTableCard } from '@/components/admin/data-table-card';
+import { DataTableFooter } from '@/components/admin/data-table-footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -24,13 +24,21 @@ interface ProjectRow {
 
 interface Props {
     projects: Paginated<ProjectRow>;
-    filters: { company: number | null; status: string | null };
+    filters: { client: number | null; status: string | null };
     companies: { id: number; name: string }[];
     statuses: Option[];
     can: { manage: boolean };
 }
 
 const ALL = 'all';
+
+const statusTone: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
+    planning: 'info',
+    active: 'success',
+    on_hold: 'warning',
+    completed: 'success',
+    cancelled: 'neutral',
+};
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Tasks', href: '/tasks' },
@@ -42,8 +50,9 @@ export default function ProjectIndex({ projects, filters, companies, statuses, c
         router.get(
             '/tasks/projects',
             {
-                company: filters.company ?? undefined,
+                client: filters.client ?? undefined,
                 status: filters.status || undefined,
+                per_page: projects.per_page,
                 ...changes,
             },
             { preserveState: true, replace: true },
@@ -54,60 +63,70 @@ export default function ProjectIndex({ projects, filters, companies, statuses, c
         <TaskLayout breadcrumbs={breadcrumbs}>
             <Head title="Projects" />
 
-            <div className="flex flex-1 flex-col gap-6 p-4">
-                <PageHeader
+            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
+                <DataTableCard
                     title="Projects"
-                    description="A body of work for a company. Tasks are raised against a project."
+                    description="A body of work for a client. Tasks are raised against a project."
                     action={
-                        can.manage && (
+                        can.manage ? (
                             <Button asChild>
                                 <Link href="/tasks/projects/create">
                                     <Plus /> New project
                                 </Link>
                             </Button>
-                        )
+                        ) : undefined
                     }
-                />
+                    toolbar={
+                        <div className="flex flex-wrap items-center gap-3">
+                            <Select
+                                value={filters.client ? String(filters.client) : ALL}
+                                onValueChange={(value) => apply({ client: value === ALL ? null : value })}
+                            >
+                                <SelectTrigger className="w-56" aria-label="Filter by client">
+                                    <SelectValue placeholder="All clients" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={ALL}>All clients</SelectItem>
+                                    {companies.map((company) => (
+                                        <SelectItem key={company.id} value={String(company.id)}>
+                                            {company.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
 
-                <div className="flex flex-wrap gap-3">
-                    <Select
-                        value={filters.company ? String(filters.company) : ALL}
-                        onValueChange={(value) => apply({ company: value === ALL ? null : value })}
-                    >
-                        <SelectTrigger className="w-56" aria-label="Filter by company">
-                            <SelectValue placeholder="All companies" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value={ALL}>All companies</SelectItem>
-                            {companies.map((company) => (
-                                <SelectItem key={company.id} value={String(company.id)}>
-                                    {company.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    <Select value={filters.status || ALL} onValueChange={(value) => apply({ status: value === ALL ? null : value })}>
-                        <SelectTrigger className="w-48" aria-label="Filter by status">
-                            <SelectValue placeholder="Any status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value={ALL}>Any status</SelectItem>
-                            {statuses.map((status) => (
-                                <SelectItem key={status.value} value={status.value}>
-                                    {status.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                <div className="rounded-xl border">
+                            <Select value={filters.status || ALL} onValueChange={(value) => apply({ status: value === ALL ? null : value })}>
+                                <SelectTrigger className="w-48" aria-label="Filter by status">
+                                    <SelectValue placeholder="Any status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={ALL}>Any status</SelectItem>
+                                    {statuses.map((status) => (
+                                        <SelectItem key={status.value} value={status.value}>
+                                            {status.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    }
+                    footer={
+                        <DataTableFooter
+                            page={projects}
+                            onPerPageChange={(perPage) => apply({ per_page: perPage })}
+                            exportBasePath="/tasks/projects/export"
+                            exportParams={{
+                                client: filters.client,
+                                status: filters.status,
+                            }}
+                        />
+                    }
+                >
                     <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Project</TableHead>
-                                <TableHead>Company</TableHead>
+                                <TableHead>Client</TableHead>
                                 <TableHead>Manager</TableHead>
                                 <TableHead>Team</TableHead>
                                 <TableHead>Tasks</TableHead>
@@ -142,15 +161,13 @@ export default function ProjectIndex({ projects, filters, companies, statuses, c
                                         {project.due_date ? new Date(project.due_date).toLocaleDateString() : '—'}
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant={project.status === 'active' ? 'default' : 'outline'}>{project.status_label}</Badge>
+                                        <Badge variant={statusTone[project.status] ?? 'neutral'}>{project.status_label}</Badge>
                                     </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
-                </div>
-
-                <Pagination page={projects} />
+                </DataTableCard>
             </div>
         </TaskLayout>
     );

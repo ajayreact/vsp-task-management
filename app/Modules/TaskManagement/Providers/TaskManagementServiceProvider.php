@@ -3,12 +3,30 @@
 namespace App\Modules\TaskManagement\Providers;
 
 use App\Modules\Core\Enums\Ability;
+use App\Modules\Core\Enums\SystemRole;
+use App\Modules\Core\Models\User;
 use App\Modules\TaskManagement\Models\Company;
+use App\Modules\TaskManagement\Models\Deliverable;
+use App\Modules\TaskManagement\Models\EmployeeAvailability;
 use App\Modules\TaskManagement\Models\Project;
 use App\Modules\TaskManagement\Models\Task;
+use App\Modules\TaskManagement\Models\TaskChecklistItem;
+use App\Modules\TaskManagement\Models\TaskComment;
+use App\Modules\TaskManagement\Models\TaskReminder;
+use App\Modules\TaskManagement\Models\TaskSubtask;
+use App\Modules\TaskManagement\Models\TimeEntry;
+use App\Modules\TaskManagement\Models\Timesheet;
 use App\Modules\TaskManagement\Policies\CompanyPolicy;
+use App\Modules\TaskManagement\Policies\DeliverablePolicy;
+use App\Modules\TaskManagement\Policies\EmployeeAvailabilityPolicy;
 use App\Modules\TaskManagement\Policies\ProjectPolicy;
+use App\Modules\TaskManagement\Policies\TaskChecklistItemPolicy;
+use App\Modules\TaskManagement\Policies\TaskCommentPolicy;
 use App\Modules\TaskManagement\Policies\TaskPolicy;
+use App\Modules\TaskManagement\Policies\TaskReminderPolicy;
+use App\Modules\TaskManagement\Policies\TaskSubtaskPolicy;
+use App\Modules\TaskManagement\Policies\TimeEntryPolicy;
+use App\Modules\TaskManagement\Policies\TimesheetPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -34,10 +52,25 @@ class TaskManagementServiceProvider extends ServiceProvider
         Gate::policy(Company::class, CompanyPolicy::class);
         Gate::policy(Project::class, ProjectPolicy::class);
         Gate::policy(Task::class, TaskPolicy::class);
+        Gate::policy(TaskComment::class, TaskCommentPolicy::class);
+        Gate::policy(TaskChecklistItem::class, TaskChecklistItemPolicy::class);
+        Gate::policy(TaskSubtask::class, TaskSubtaskPolicy::class);
+        Gate::policy(TaskReminder::class, TaskReminderPolicy::class);
+        Gate::policy(Deliverable::class, DeliverablePolicy::class);
+        Gate::policy(Timesheet::class, TimesheetPolicy::class);
+        Gate::policy(TimeEntry::class, TimeEntryPolicy::class);
+        Gate::policy(EmployeeAvailability::class, EmployeeAvailabilityPolicy::class);
+
+        Gate::define('manageTaskManagementSettings', function (User $user): bool {
+            return $user->hasRole(SystemRole::SuperAdmin->value);
+        });
 
         Route::middleware(['web', 'auth', 'internal', 'permission:'.Ability::AccessTasks->value])
             ->prefix('tasks')
             ->name('tasks.')
             ->group(base_path('routes/tasks.php'));
+
+        Route::middleware('web')
+            ->group(base_path('routes/share.php'));
     }
 }

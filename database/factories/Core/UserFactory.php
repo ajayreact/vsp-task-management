@@ -49,14 +49,6 @@ class UserFactory extends Factory
         ]);
     }
 
-    /**
-     * A client-portal account rather than a staff account.
-     */
-    public function client(): static
-    {
-        return $this->state(fn () => ['user_type' => UserType::Client]);
-    }
-
     public function inactive(): static
     {
         return $this->state(fn () => ['is_active' => false]);

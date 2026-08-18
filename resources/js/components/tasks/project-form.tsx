@@ -86,10 +86,10 @@ export function ProjectForm({
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
                     <div className="grid gap-2">
-                        <Label htmlFor="tm_company_id">Company</Label>
+                        <Label htmlFor="tm_company_id">Client</Label>
                         <Select value={data.tm_company_id} onValueChange={(value) => setData('tm_company_id', value)}>
                             <SelectTrigger id="tm_company_id">
-                                <SelectValue placeholder="Pick a company" />
+                                <SelectValue placeholder="Pick a client" />
                             </SelectTrigger>
                             <SelectContent>
                                 {options.companies.map((company) => (

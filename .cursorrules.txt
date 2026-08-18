@@ -9,20 +9,15 @@
 ## Architecture & Modular Isolation Rules
 1. Core Directory Rules:
    - Shared models/services live strictly in `app/Modules/Core/`.
-   - CRM logic lives strictly in `app/Modules/Crm/`.
    - Task Management logic lives strictly in `app/Modules/TaskManagement/`.
+   - Do not recreate `app/Modules/Crm/` or a client portal.
 
 2. Domain Separation (STRICT):
-   - NEVER create foreign keys between CRM tables (`crm_*`) and Task Management tables (`tm_*`).
-   - CRM leads, pipelines, and campaigns must NOT depend on or reference tasks or project workflows.
-   - Task management must NOT depend on CRM sales pipelines or campaign workflows.
-   - Shared entities (Users, Employees, Roles, Media) must remain neutral in `app/Modules/Core/`.
+   - Work clients are `tm_companies`, shown at `/tasks/clients`.
+   - Shared entities (Users, Employees, Roles, Media) must remain in `app/Modules/Core/`.
+   - Core must never import Task Management.
 
-3. Client Data Isolation:
-   - Always scope CRM client queries using the `crm_client_id` context.
-   - Client portal users must only access their own campaigns, leads, and reports.
-
-4. Frontend Rules:
+3. Frontend Rules:
    - React components must be fully typed using TypeScript.
    - Use shadcn/ui components for form controls, dialogs, dropdowns, and tables.
-   - Place Inertia pages in `resources/js/Pages/Core/`, `resources/js/Pages/Crm/`, and `resources/js/Pages/TaskManagement/`.
+   - Place Inertia pages in `resources/js/Pages/Core/` and `resources/js/Pages/TaskManagement/`.

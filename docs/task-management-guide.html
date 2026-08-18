@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VSP CRM — Task Management User Guide</title>
+  <style>
+    :root {
+      --bg: #eef2f5;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --primary: #4f46e5;
+      --primary-soft: #eef2ff;
+      --primary-dark: #3730a3;
+      --ok: #166534;
+      --ok-soft: #dcfce7;
+      --warn: #9a3412;
+      --warn-soft: #ffedd5;
+      --danger: #b91c1c;
+      --danger-soft: #fee2e2;
+      --partial: #a16207;
+      --partial-soft: #fef9c3;
+      --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
+      --radius: 1.25rem;
+      --sans: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+      --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, .mono { font-family: var(--mono); font-size: 0.88em; background: var(--primary-soft); color: var(--primary-dark); padding: 0.1em 0.35em; border-radius: 0.35rem; }
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    .toc {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 1.5rem 1.1rem 2rem;
+      background: var(--card);
+      border-right: 1px solid var(--line);
+    }
+    .toc .brand {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--ink);
+      margin: 0 0 0.25rem;
+    }
+    .toc .tag {
+      margin: 0 0 1.25rem;
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .toc a {
+      display: block;
+      color: var(--muted);
+      padding: 0.35rem 0.55rem;
+      border-radius: 0.5rem;
+      font-size: 0.86rem;
+      text-decoration: none;
+    }
+    .toc a:hover { background: var(--primary-soft); color: var(--primary-dark); text-decoration: none; }
+    .toc a.sub { padding-left: 1.1rem; font-size: 0.8rem; }
+    main { padding: 2rem 2.25rem 4rem; max-width: 980px; }
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem 2.1rem;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.85rem;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+    }
+    .hero .lede { margin: 0; color: var(--muted); max-width: 65ch; }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.1rem;
+      align-items: center;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border-radius: 999px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .badge.live { background: var(--ok-soft); color: var(--ok); }
+    .badge.date { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    .badge.impl { background: var(--ok-soft); color: var(--ok); }
+    .badge.partial { background: var(--partial-soft); color: var(--partial); }
+    .badge.missing { background: var(--danger-soft); color: var(--danger); }
+    .badge.tip { background: var(--primary-soft); color: var(--primary-dark); }
+    section.card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.6rem 1.85rem 1.9rem;
+      margin: 0 0 1.15rem;
+    }
+    section.card > h2 {
+      margin: 0 0 0.35rem;
+      font-size: 1.35rem;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+    }
+    section.card > h2 .num {
+      color: var(--primary);
+      font-weight: 800;
+      margin-right: 0.35rem;
+    }
+    .section-lead { color: var(--muted); margin: 0 0 1.1rem; }
+    h3 {
+      margin: 1.4rem 0 0.5rem;
+      font-size: 1.05rem;
+      color: var(--ink);
+    }
+    h4 { margin: 1rem 0 0.4rem; font-size: 0.95rem; }
+    p { margin: 0.55rem 0; }
+    ul, ol { margin: 0.4rem 0 0.8rem; padding-left: 1.25rem; }
+    li { margin: 0.25rem 0; }
+    .callout {
+      border-radius: 0.9rem;
+      padding: 0.85rem 1rem;
+      margin: 1rem 0;
+      border: 1px solid var(--line);
+    }
+    .callout.warn { background: var(--warn-soft); border-color: #fed7aa; color: #7c2d12; }
+    .callout.tip { background: var(--primary-soft); border-color: #c7d2fe; color: var(--primary-dark); }
+    .callout.ok { background: var(--ok-soft); border-color: #bbf7d0; color: var(--ok); }
+    .callout.danger { background: var(--danger-soft); border-color: #fecaca; color: var(--danger); }
+    .callout strong { display: block; margin-bottom: 0.2rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0 1rem;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.55rem 0.7rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f8fafc; font-weight: 650; color: #334155; }
+    tr:nth-child(even) td { background: #fafbfc; }
+    .yes { color: var(--ok); font-weight: 700; }
+    .no { color: var(--danger); font-weight: 700; }
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      padding: 0;
+      margin: 0.75rem 0;
+    }
+    .steps li {
+      counter-increment: step;
+      position: relative;
+      padding: 0.75rem 0.9rem 0.75rem 3rem;
+      border: 1px solid var(--line);
+      border-radius: 0.85rem;
+      margin: 0.45rem 0;
+      background: #fafbfc;
+    }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0.75rem;
+      top: 0.75rem;
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+    }
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      align-items: center;
+      margin: 1rem 0;
+    }
+    .flow .node {
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      border: 1px solid #c7d2fe;
+      border-radius: 0.65rem;
+      padding: 0.4rem 0.7rem;
+      font-size: 0.82rem;
+      font-weight: 650;
+    }
+    .flow .arrow { color: var(--muted); font-weight: 700; }
+    .status-flow {
+      display: grid;
+      gap: 0.45rem;
+      max-width: 320px;
+      margin: 1rem 0;
+    }
+    .status-flow .s {
+      background: var(--card);
+      border: 2px solid var(--primary);
+      border-radius: 0.7rem;
+      padding: 0.55rem 0.8rem;
+      font-weight: 650;
+      text-align: center;
+      color: var(--primary-dark);
+    }
+    .status-flow .down {
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .status-flow .branch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.75rem;
+      margin: 0.75rem 0 1rem;
+    }
+    .kpi {
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      padding: 0.9rem 1rem;
+      background: #fafbfc;
+    }
+    .kpi .label { font-size: 0.78rem; color: var(--muted); font-weight: 650; text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi .who { font-size: 0.8rem; color: var(--muted); margin-top: 0.35rem; }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      main { padding: 1.25rem 1rem 3rem; }
+      .two-col { grid-template-columns: 1fr; }
+    }
+    @media print {
+      .toc { display: none; }
+      .layout { grid-template-columns: 1fr; }
+      section.card, .hero { box-shadow: none; break-inside: avoid; }
+      body { background: #fff; }
+      a { color: inherit; text-decoration: none; }
+    }
+    footer.note {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 1.5rem;
+      padding: 1rem 0.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav class="toc" aria-label="Table of contents">
+      <p class="brand">VSP CRM · Task Management</p>
+      <p class="tag">Product User Guide</p>
+      <a href="#intro">1. Introduction</a>
+      <a href="#roles">2. Roles &amp; Access</a>
+      <a href="#roles" class="sub">Super Admin / Admin</a>
+      <a href="#roles-manager" class="sub">Manager</a>
+      <a href="#roles-employee" class="sub">Employee</a>
+      <a href="#dashboard">3. Dashboard</a>
+      <a href="#employees">4. Employees</a>
+      <a href="#departments">5. Departments</a>
+      <a href="#clients">6. Work Clients</a>
+      <a href="#projects">7. Projects</a>
+      <a href="#create-task">8. Creating a Task</a>
+      <a href="#lifecycle">9. Task Lifecycle</a>
+      <a href="#assign">10. Assigning Tasks</a>
+      <a href="#notifications">11. Notifications</a>
+      <a href="#employee-use">12. Employee Task Use</a>
+      <a href="#timer">13. Work Timer</a>
+      <a href="#timesheets">14. Timesheets</a>
+      <a href="#availability">15. Availability</a>
+      <a href="#workload">16. Workload</a>
+      <a href="#files">17. Working Files</a>
+      <a href="#review">18. Creative Review</a>
+      <a href="#board">19. Open Board</a>
+      <a href="#task-list">20. Task List</a>
+      <a href="#permissions">21. Permission System</a>
+      <a href="#example">22. End-to-End Example</a>
+      <a href="#missing">23. Not Implemented</a>
+      <a href="#daily">24. Daily Workflows</a>
+      <a href="#quickstart">25. Quick Start</a>
+    </nav>
+
+    <main>
+      <header class="hero">
+        <h1>Task Management — Product User Guide</h1>
+        <p class="lede">
+          A practical guide to the Task Management module as it works in VSP CRM today.
+          This document describes only features that exist in the current application code.
+        </p>
+        <div class="meta-row">
+          <span class="badge live">Current Implementation Status · Live Module</span>
+          <span class="badge date">Generated · 2026-08-14 11:08</span>
+          <span class="badge tip">Standalone HTML · No app changes</span>
+        </div>
+      </header>
+
+      <!-- 1 -->
+      <section class="card" id="intro">
+        <h2><span class="num">1.</span> Introduction</h2>
+        <p class="section-lead">What Task Management is for, and the real work path from client to timesheet.</p>
+
+        <p>
+          Task Management helps your agency plan and deliver client work: set up work clients and projects,
+          create tasks, assign or publish them, track time, attach working files, run creative review,
+          complete work, and approve weekly timesheets.
+        </p>
+
+        <p>
+          It is built for internal staff (Super Admin, Admin, Team Lead, Manager, Employee).
+        </p>
+
+        <h3>Complete workflow (implemented)</h3>
+        <div class="flow">
+          <span class="node">Employees</span><span class="arrow">→</span>
+          <span class="node">Work Clients</span><span class="arrow">→</span>
+          <span class="node">Projects</span><span class="arrow">→</span>
+          <span class="node">Tasks</span><span class="arrow">→</span>
+          <span class="node">Assign / Open Board</span><span class="arrow">→</span>
+          <span class="node">Accept / Claim</span><span class="arrow">→</span>
+          <span class="node">In Progress</span><span class="arrow">→</span>
+          <span class="node">Time Tracking</span><span class="arrow">→</span>
+          <span class="node">Working Files</span><span class="arrow">→</span>
+          <span class="node">Creative Review</span><span class="arrow">→</span>
+          <span class="node">Approve / Revision</span><span class="arrow">→</span>
+          <span class="node">Completion</span><span class="arrow">→</span>
+          <span class="node">Timesheets</span><span class="arrow">→</span>
+          <span class="node">Workload</span>
+        </div>
+
+        <div class="callout tip">
+          <strong>Tip</strong>
+          Task Management “Clients” are work clients stored as <code>tm_companies</code>. They live at <code>/tasks/clients</code>.
+        </div>
+      </section>
+
+      <!-- 2 -->
+      <section class="card" id="roles">
+        <h2><span class="num">2.</span> User Roles and Access</h2>
+        <p class="section-lead">Based on seeded system roles and abilities in the current codebase.</p>
+
+        <p>
+          Seeded roles: <strong>super-admin</strong>, <strong>admin</strong>, <strong>team-lead</strong>,
+          <strong>manager</strong>, and <strong>employee</strong>.
+        </p>
+
+        <h3>A. Super Admin / Administrator</h3>
+        <ul>
+          <li><strong>Super Admin</strong> — passes a global gate check and can do everything.</li>
+          <li><strong>Admin</strong> — is granted every ability in the system catalogue.</li>
+        </ul>
+        <p>They can manage employees and departments, create work clients and projects, view all tasks,
+          assign and publish work, manage capacity, view workload, approve timesheets, and decide creative reviews.
+          They also see the Command Center in <em>agency</em> scope.</p>
+
+        <h3 id="roles-manager">B. Manager / Team Lead</h3>
+        <p>The seeded <strong>manager</strong> role includes Task Management abilities such as:</p>
+        <ul>
+          <li>Open Task Management; view and manage work clients and projects</li>
+          <li>View all tasks; create/edit/delete tasks (delete only while unstarted)</li>
+          <li>Assign tasks and publish to Open Board</li>
+          <li>Manage capacity; view workload; approve timesheets; review deliverables</li>
+          <li>View employees and departments (but not create/edit them by default)</li>
+        </ul>
+        <p>Managers do <strong>not</strong> get <code>employees.manage</code> or <code>departments.manage</code> in the default seed.</p>
+
+        <h3 id="roles-employee">C. Employee / Team Member</h3>
+        <p>The seeded <strong>employee</strong> role can:</p>
+        <ul>
+          <li>Open Task Management; view work clients and projects</li>
+          <li>Create tasks (<code>tasks.manage</code>)</li>
+          <li>See own assigned work and the Open Board; claim open tasks</li>
+          <li>Accept or decline direct assignments</li>
+          <li>Use the timer, log manual time, upload working files, submit proofs</li>
+          <li>View and submit own timesheets; manage own availability exceptions</li>
+        </ul>
+        <p>Employees cannot assign work to others, manage clients/projects, view the team workload page,
+          approve timesheets, or decide creative reviews (with the default role).</p>
+
+        <h3>Feature comparison</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Super Admin / Admin</th>
+              <th>Manager</th>
+              <th>Employee</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Create departments / employees</td><td class="yes">Yes</td><td class="no">No*</td><td class="no">No*</td></tr>
+            <tr><td>Create Work Clients / Projects</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">View only</td></tr>
+            <tr><td>Create tasks</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>Assign / publish to Open Board</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">No</td></tr>
+            <tr><td>View all tasks</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">Own + claimable</td></tr>
+            <tr><td>Claim Open Board tasks</td><td class="yes">Yes†</td><td class="yes">Yes†</td><td class="yes">Yes†</td></tr>
+            <tr><td>Accept / decline assignment</td><td class="yes">Yes†</td><td class="yes">Yes†</td><td class="yes">Yes†</td></tr>
+            <tr><td>Timer &amp; manual time</td><td class="yes">Yes†</td><td class="yes">Yes†</td><td class="yes">Yes†</td></tr>
+            <tr><td>Upload working files</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">If assignee/creator</td></tr>
+            <tr><td>Submit creative proof</td><td class="yes">Yes†</td><td class="yes">Yes†</td><td class="yes">Yes†</td></tr>
+            <tr><td>Review creative proofs</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">No</td></tr>
+            <tr><td>Team workload page</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">No</td></tr>
+            <tr><td>Set capacity for others</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">No</td></tr>
+            <tr><td>Approve timesheets</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">No</td></tr>
+            <tr><td>Delete unstarted tasks</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">If manage + unstarted</td></tr>
+          </tbody>
+        </table>
+        <p><small>* Default seeded permissions. † Requires a linked employee profile (and Active status where assignment rules apply).</small></p>
+      </section>
+
+      <!-- 3 -->
+      <section class="card" id="dashboard">
+        <h2><span class="num">3.</span> Dashboard / Command Center</h2>
+        <p class="section-lead">Staff home at <code>/dashboard</code>. Built by the Command Center service.</p>
+
+        <p>
+          Scope is <strong>agency</strong> for Super Admin, Admin, Manager (or anyone with <code>tasks.view_all</code>),
+          and <strong>personal</strong> for a typical Employee.
+        </p>
+
+        <h3>Task Management KPIs</h3>
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="label">In progress</div>
+            <p>Count of tasks in <em>In progress</em>. Agency = all; personal = assigned to you.</p>
+            <p class="who">Click → <code>/tasks?status=in_progress</code></p>
+          </div>
+          <div class="kpi">
+            <div class="label">In review</div>
+            <p>Count of tasks in <em>In review</em> (same scope rules).</p>
+            <p class="who">Click → <code>/tasks?status=in_review</code></p>
+          </div>
+          <div class="kpi">
+            <div class="label">Open board</div>
+            <p>Count of tasks with status <em>Open</em> (unclaimed board work).</p>
+            <p class="who">Click → <code>/tasks/board</code></p>
+          </div>
+          <div class="kpi">
+            <div class="label">Workload</div>
+            <p>Agency: average utilisation % across assignable employees + over-allocated count. Personal: your utilisation %.</p>
+            <p class="who">Click → <code>/tasks/workload</code> (page requires <code>workload.view</code>)</p>
+          </div>
+        </div>
+
+        <h3>Other panels</h3>
+        <table>
+          <thead><tr><th>Panel</th><th>Meaning</th><th>Who sees it</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Action items (awaiting acceptance)</td>
+              <td>Tasks in <em>Assigned</em> status</td>
+              <td>Anyone with Task access; agency sees team, employee sees own</td>
+            </tr>
+            <tr>
+              <td>Live timer</td>
+              <td>Your currently running time entry (if any)</td>
+              <td>Users with an employee profile and a running timer</td>
+            </tr>
+            <tr>
+              <td>Pending approvals</td>
+              <td>Submitted timesheets + creative proofs awaiting decision</td>
+              <td>Timesheet list if <code>timesheets.approve</code>; proofs if reviewer or own submissions</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 4 -->
+      <section class="card" id="employees">
+        <h2><span class="num">4.</span> Employees</h2>
+        <p class="section-lead">Administration → Employees. Requires <code>employees.manage</code> to create/edit.</p>
+
+        <h3>How to create an employee</h3>
+        <ol class="steps">
+          <li>Open <strong>Administration → Employees</strong>.</li>
+          <li>Click add / create employee.</li>
+          <li>Enter login details and profile fields (below).</li>
+          <li>Assign one or more roles (for example <code>manager</code> or <code>employee</code>).</li>
+          <li>Save — the system creates a User account and an Employee profile together.</li>
+        </ol>
+
+        <h3>Required / available information</h3>
+        <table>
+          <thead><tr><th>Field</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Name, Email, Password</td><td>Creates the login user (internal staff)</td></tr>
+            <tr><td>Employee code</td><td>Required, unique</td></tr>
+            <tr><td>Department</td><td>Optional link to a department</td></tr>
+            <tr><td>Designation</td><td>Optional job title</td></tr>
+            <tr><td>Reporting manager</td><td>Optional <code>reporting_to_id</code> (another employee; cannot be self)</td></tr>
+            <tr><td>Phone, joined / exited dates</td><td>Optional</td></tr>
+            <tr><td>Employee status</td><td>Active, On leave, Suspended, Exited</td></tr>
+            <tr><td>User active flag</td><td><code>is_active</code> on the user account</td></tr>
+            <tr><td>Roles</td><td>Cannot assign <code>client</code> or <code>super-admin</code> from this screen</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout ok">
+          <strong>Availability for task assignment</strong>
+          Only employees with status <strong>Active</strong> appear in the assignable pool and can be assigned or claim work.
+          On leave / Suspended / Exited cannot receive new assignments.
+        </div>
+
+        <p>
+          The employee model also defines an avatar media collection. A full avatar upload experience in the staff UI
+          was not confirmed as a complete product flow for Task Management; the header shows avatar/initials when available.
+        </p>
+      </section>
+
+      <!-- 5 -->
+      <section class="card" id="departments">
+        <h2><span class="num">5.</span> Departments</h2>
+        <p class="section-lead">Administration → Departments. Create/edit needs <code>departments.manage</code>.</p>
+
+        <h3>Creating a department</h3>
+        <table>
+          <thead><tr><th>Field</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Name</td><td>Required</td></tr>
+            <tr><td>Code</td><td>Required, unique, alpha-dash (stored uppercase)</td></tr>
+            <tr><td>Description</td><td>Optional</td></tr>
+            <tr><td>Parent department</td><td>Optional hierarchy (cannot be itself)</td></tr>
+            <tr><td>Department head</td><td>Optional employee</td></tr>
+            <tr><td>Active / inactive</td><td><code>is_active</code> flag</td></tr>
+          </tbody>
+        </table>
+
+        <h3>How departments are used in Task Management</h3>
+        <ul>
+          <li>Employees can belong to a department.</li>
+          <li>Tasks can optionally set a <strong>department</strong> field.</li>
+          <li>Open Board can filter by department, or “my department only”.</li>
+          <li>Claiming is <strong>not</strong> automatically restricted by department — filters are optional visibility helpers.</li>
+        </ul>
+      </section>
+
+      <!-- 6 -->
+      <section class="card" id="clients">
+        <h2><span class="num">6.</span> Work Clients</h2>
+        <p class="section-lead">Task Management → Clients (<code>/tasks/clients</code>). These are <code>tm_companies</code>.</p>
+
+        <div class="callout tip">
+          <strong>Work Clients</strong>
+          These records are <code>tm_companies</code>. They store delivery relationships for projects and tasks at <code>/tasks/clients</code>.
+        </div>
+
+        <h3>Creating a Work Client</h3>
+        <table>
+          <thead><tr><th>Field</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Name</td><td>Required</td></tr>
+            <tr><td>Code</td><td>Required, unique, alpha-dash</td></tr>
+            <tr><td>Status</td><td>Active, Inactive, or Archived</td></tr>
+            <tr><td>Primary contact name / email / phone</td><td>Optional</td></tr>
+            <tr><td>Notes</td><td>Optional</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          Projects belong to a Work Client. You typically create the client first, then create projects under it.
+          Deleting a Work Client is only allowed when it has <strong>no projects</strong>.
+        </p>
+        <p>Permission: view with <code>companies.view</code>; create/edit/delete with <code>companies.manage</code>.</p>
+      </section>
+
+      <!-- 7 -->
+      <section class="card" id="projects">
+        <h2><span class="num">7.</span> Projects</h2>
+        <p class="section-lead">Task Management → Projects. Manage with <code>projects.manage</code>.</p>
+
+        <ol class="steps">
+          <li>Open <strong>Projects</strong> and create a new project.</li>
+          <li>Select the <strong>Work Client</strong>.</li>
+          <li>Enter name and unique project code.</li>
+          <li>Set status, optional dates, optional project manager, optional budget hours.</li>
+          <li>Optionally add team members with project roles.</li>
+          <li>Save — then create tasks against Planning or Active projects.</li>
+        </ol>
+
+        <h3>Project fields</h3>
+        <table>
+          <thead><tr><th>Field</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Work Client</td><td>Required</td></tr>
+            <tr><td>Name / Code</td><td>Required; code unique</td></tr>
+            <tr><td>Description</td><td>Optional</td></tr>
+            <tr><td>Status</td><td>Planning, Active, On hold, Completed, Cancelled</td></tr>
+            <tr><td>Start / due dates</td><td>Optional; due must be on/after start</td></tr>
+            <tr><td>Project manager</td><td>Optional employee</td></tr>
+            <tr><td>Budget hours</td><td>Optional</td></tr>
+            <tr><td>Team members</td><td>Optional list with roles</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Project team roles (implemented as labels)</h3>
+        <ul>
+          <li><strong>Lead</strong></li>
+          <li><strong>Member</strong></li>
+          <li><strong>Reviewer</strong></li>
+          <li><strong>Observer</strong></li>
+        </ul>
+        <div class="callout warn">
+          <strong>Important</strong>
+          These project roles describe involvement on the project. They do <em>not</em> grant system permissions
+          such as <code>reviews.decide</code> or <code>tasks.assign</code>. Creative review still requires the ability.
+        </div>
+
+        <h3>Which projects accept new tasks?</h3>
+        <p>Only projects in <strong>Planning</strong> or <strong>Active</strong> status can receive new tasks
+          (validated when creating/editing a task).</p>
+      </section>
+
+      <!-- 8 -->
+      <section class="card" id="create-task">
+        <h2><span class="num">8.</span> Creating a Task</h2>
+        <p class="section-lead">Tasks → New. Requires <code>tasks.manage</code>.</p>
+
+        <ol class="steps">
+          <li>Open <strong>Tasks</strong> and click create (or start from a project).</li>
+          <li>Fill the descriptive fields below.</li>
+          <li>Click create — the task is saved as a <strong>Draft</strong>.</li>
+          <li>On the task page, assign someone or publish to the Open Board.</li>
+        </ol>
+
+        <h3>Fields</h3>
+        <table>
+          <thead><tr><th>Field</th><th>Required?</th><th>What it means</th></tr></thead>
+          <tbody>
+            <tr><td>Project</td><td>Yes</td><td>Must be Planning or Active</td></tr>
+            <tr><td>Department</td><td>No</td><td>Optional tagging for filtering / board</td></tr>
+            <tr><td>Title</td><td>Yes</td><td>Short name of the work</td></tr>
+            <tr><td>Description</td><td>No</td><td>Brief / details (up to 5000 chars)</td></tr>
+            <tr><td>Task type</td><td>Yes</td><td>See list below</td></tr>
+            <tr><td>Priority</td><td>Yes</td><td>Low / Normal / High / Urgent</td></tr>
+            <tr><td>Estimated hours</td><td>No</td><td>Used for workload calculations</td></tr>
+            <tr><td>Due date</td><td>No</td><td>Shown on lists and Open Board sorting</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Task types</h3>
+        <p>Design · Content · Development · Video · Admin · Other</p>
+
+        <h3>Priority levels</h3>
+        <p>Urgent · High · Normal · Low (lists and Open Board sort urgent first).</p>
+
+        <h3>After Create</h3>
+        <ul>
+          <li>Status is <strong>Draft</strong>.</li>
+          <li>No assignee yet.</li>
+          <li>Status history records the creation.</li>
+          <li>You are taken to the task detail page.</li>
+        </ul>
+
+        <h3>What can be edited later?</h3>
+        <div class="two-col">
+          <div class="callout ok">
+            <strong>Editable on the task form</strong>
+            Project, department, title, description, type, priority, estimated hours, due date
+            (subject to update policy: managers with view-all, or the assignee).
+          </div>
+          <div class="callout warn">
+            <strong>Not editable via the form</strong>
+            Status, assignment mode, and assignee. Those change only through workflow actions
+            (assign, publish, claim, accept, decline, status, review, timer start).
+          </div>
+        </div>
+      </section>
+
+      <!-- 9 -->
+      <section class="card" id="lifecycle">
+        <h2><span class="num">9.</span> Task Lifecycle</h2>
+        <p class="section-lead">Statuses and allowed transitions come from the TaskStatus state machine.</p>
+
+        <div class="status-flow" aria-label="Task status flow">
+          <div class="s">Draft</div>
+          <div class="down">↓</div>
+          <div class="branch">
+            <div class="s">Open</div>
+            <div class="s">Assigned</div>
+          </div>
+          <div class="down">↓</div>
+          <div class="s">Accepted</div>
+          <div class="down">↓</div>
+          <div class="s">In Progress</div>
+          <div class="down">↓</div>
+          <div class="branch">
+            <div class="s">In Review</div>
+            <div class="s">Completed</div>
+          </div>
+          <div class="down">↕ revision loop</div>
+          <div class="s">Revision ↔ In Review</div>
+          <div class="down">↓</div>
+          <div class="s">Approved</div>
+          <div class="down">↓</div>
+          <div class="s">Completed</div>
+        </div>
+
+        <h3>Status meanings</h3>
+        <table>
+          <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Draft</td><td>Created but not yet published or assigned</td></tr>
+            <tr><td>Open</td><td>On the Open Board, waiting to be claimed</td></tr>
+            <tr><td>Assigned</td><td>Offered to someone; awaiting acceptance (label: “Awaiting acceptance”)</td></tr>
+            <tr><td>Accepted</td><td>Someone owns it; work not started yet</td></tr>
+            <tr><td>In Progress</td><td>Work has started</td></tr>
+            <tr><td>In Review</td><td>Creative proof submitted; waiting for decision</td></tr>
+            <tr><td>Revision</td><td>Changes requested (or reject); needs another submission</td></tr>
+            <tr><td>Approved</td><td>Proof approved; still needs completion</td></tr>
+            <tr><td>Completed</td><td>Finished (closed)</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Who can move status?</h3>
+        <ul>
+          <li><strong>Assign / Publish</strong> — users with <code>tasks.assign</code>, while task is unstarted.</li>
+          <li><strong>Claim</strong> — staff with Task access and an employee profile, when task is Open.</li>
+          <li><strong>Accept / Decline</strong> — only the assigned employee.</li>
+          <li><strong>Manual status transitions</strong> — assignee, or someone with <code>tasks.assign</code> (progress policy), and only to allowed next statuses.</li>
+          <li><strong>Submit proof</strong> — assignee (In Progress or Revision) → In Review.</li>
+          <li><strong>Review decision</strong> — users with <code>reviews.decide</code> while In Review.</li>
+          <li><strong>Start timer from Accepted</strong> — automatically moves to In Progress.</li>
+        </ul>
+      </section>
+
+      <!-- 10 -->
+      <section class="card" id="assign">
+        <h2><span class="num">10.</span> How to Assign a Task</h2>
+        <p class="section-lead">Two supported methods: Direct Assignment and Open Board.</p>
+
+        <h3>A. Direct Assignment</h3>
+        <ol class="steps">
+          <li>Create the task (Draft).</li>
+          <li>On the task page, choose an Active employee.</li>
+          <li>Click <strong>Assign</strong> (needs <code>tasks.assign</code>).</li>
+          <li>Task becomes <strong>Assigned</strong>; an assignment offer is Pending.</li>
+          <li>The employee opens the task and <strong>Accepts</strong> or <strong>Declines</strong>.</li>
+        </ol>
+
+        <p><strong>On accept:</strong> status → Accepted; offer → Accepted.</p>
+        <p><strong>On decline:</strong> optional reason; offer → Declined; assignee cleared; mode → Open; status → Open (returns to board).</p>
+
+        <h3>Reassignment rules</h3>
+        <ul>
+          <li>Allowed only while the task is unstarted (Draft, Open, or Assigned).</li>
+          <li>Previous pending offers are marked Reassigned.</li>
+          <li>Once work has started (Accepted or later), reassignment is blocked.</li>
+        </ul>
+
+        <h3>B. Open Board</h3>
+        <ol class="steps">
+          <li>Create the task.</li>
+          <li>Click <strong>Publish</strong> (needs <code>tasks.assign</code>).</li>
+          <li>Task becomes <strong>Open</strong>, assignee cleared, mode Open.</li>
+          <li>Employees browse Open Board and click <strong>Claim</strong>.</li>
+          <li>Claim skips acceptance — status goes straight to <strong>Accepted</strong>.</li>
+        </ol>
+
+        <h3>Direct vs Open Board</h3>
+        <table>
+          <thead><tr><th></th><th>Direct Assignment</th><th>Open Board</th></tr></thead>
+          <tbody>
+            <tr><td>Who chooses the person?</td><td>Manager / assigner</td><td>Employee claims</td></tr>
+            <tr><td>First status after routing</td><td>Assigned</td><td>Open</td></tr>
+            <tr><td>Acceptance step?</td><td>Yes</td><td>No (claim = accepted)</td></tr>
+            <tr><td>Decline behaviour</td><td>Returns to Open</td><td>N/A until claimed</td></tr>
+            <tr><td>Permission to route</td><td><code>tasks.assign</code></td><td><code>tasks.assign</code> to publish</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 11 -->
+      <section class="card" id="notifications">
+        <h2><span class="num">11.</span> Notifications and Notification Sound</h2>
+        <p class="section-lead">Verified against controllers, services, frontend, package dependencies, and migrations.</p>
+
+        <div class="callout danger">
+          <strong>Current product reality</strong>
+          Currently, assigning a task does <strong>NOT</strong> automatically play a notification sound.
+          Employees are not pushed a real-time alert, email, or bell entry when work is assigned.
+          They discover assignments by opening Tasks, the Dashboard, or the task URL.
+        </div>
+
+        <h3>When a new task is assigned — checklist</h3>
+        <table>
+          <thead><tr><th>Channel</th><th>Status</th><th>Evidence</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>In-app notification record</td>
+              <td><span class="badge missing">NOT IMPLEMENTED</span></td>
+              <td>No TM <code>notify()</code> / Notification classes for assignment</td>
+            </tr>
+            <tr>
+              <td>Notification bell update</td>
+              <td><span class="badge partial">PARTIALLY IMPLEMENTED</span></td>
+              <td>Bell UI exists; always shows “No notifications yet.”</td>
+            </tr>
+            <tr>
+              <td>Browser notification</td>
+              <td><span class="badge missing">NOT IMPLEMENTED</span></td>
+              <td>No Notification API usage found</td>
+            </tr>
+            <tr>
+              <td>Notification sound / tone</td>
+              <td><span class="badge missing">NOT IMPLEMENTED</span></td>
+              <td>No audio playback / sound assets wired to assignment</td>
+            </tr>
+            <tr>
+              <td>Email on assignment</td>
+              <td><span class="badge missing">NOT IMPLEMENTED</span></td>
+              <td>No task assignment Mailable / notification mail</td>
+            </tr>
+            <tr>
+              <td>Real-time (Echo / WebSockets / Pusher / Reverb / SSE)</td>
+              <td><span class="badge missing">NOT IMPLEMENTED</span></td>
+              <td>Not present in frontend dependencies or TM broadcasts</td>
+            </tr>
+            <tr>
+              <td><code>notifications</code> database table</td>
+              <td><span class="badge partial">PARTIALLY IMPLEMENTED</span></td>
+              <td>Laravel table exists; unused by Task Management flows today</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Recommended Future Notification System</h3>
+        <div class="callout warn">
+          <strong>FUTURE / NOT CURRENTLY IMPLEMENTED</strong>
+          Ideas for a later release (not available today): in-app assignment alerts, unread badge on the bell,
+          optional browser notifications, optional short tone, and email for high-priority assignments.
+          None of these are part of the live product behaviour described in this guide.
+        </div>
+      </section>
+
+      <!-- 12 -->
+      <section class="card" id="employee-use">
+        <h2><span class="num">12.</span> How an Employee Uses a Task</h2>
+        <p class="section-lead">Simple day-to-day path using only implemented steps.</p>
+
+        <ol class="steps">
+          <li>Log in with your staff account.</li>
+          <li>Open <strong>Tasks</strong> (defaults to your work) or the Dashboard action items.</li>
+          <li>Open a task.</li>
+          <li>If status is Assigned to you — <strong>Accept</strong> or <strong>Decline</strong>. Or claim from Open Board.</li>
+          <li>Start work (status moves to In Progress when you start the timer from Accepted, or via status actions).</li>
+          <li>Start the timer while you work.</li>
+          <li>Pause or stop the timer when you break or finish a session.</li>
+          <li>Add manual time if you forgot to run the timer.</li>
+          <li>Upload working files (briefs, references, drafts).</li>
+          <li>When ready, submit a creative deliverable for review (optional path).</li>
+          <li>If revision is requested, update the work and submit again.</li>
+          <li>After approval (or if review is not needed), move the task to <strong>Completed</strong>.</li>
+        </ol>
+      </section>
+
+      <!-- 13 -->
+      <section class="card" id="timer">
+        <h2><span class="num">13.</span> Work Timer</h2>
+        <p class="section-lead">Available on the task detail page when time logging is allowed.</p>
+
+        <table>
+          <thead><tr><th>Action</th><th>What happens</th></tr></thead>
+          <tbody>
+            <tr><td>Start</td><td>Creates a running time entry. If task was Accepted → becomes In Progress.</td></tr>
+            <tr><td>Pause</td><td>Ends the running entry and stores duration.</td></tr>
+            <tr><td>Stop</td><td>Same server behaviour as Pause (ends the running entry).</td></tr>
+            <tr><td>One active timer</td><td>An employee may have only one running timer. Starting another is blocked until the first is paused/stopped.</td></tr>
+            <tr><td>Manual entry</td><td>Enter start/end, optional note, billable flag (default on).</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Who can log time?</h3>
+        <ul>
+          <li>The assignee, or someone with <code>tasks.view_all</code> (covering).</li>
+          <li>User must have an employee profile.</li>
+          <li>Task must be workable: Accepted, In Progress, In Review, or Revision.</li>
+          <li>Cannot log if that week’s timesheet is Submitted or Approved.</li>
+        </ul>
+      </section>
+
+      <!-- 14 -->
+      <section class="card" id="timesheets">
+        <h2><span class="num">14.</span> Timesheets</h2>
+        <p class="section-lead">Weeks run Monday–Sunday.</p>
+
+        <div class="flow">
+          <span class="node">Time Entry</span><span class="arrow">→</span>
+          <span class="node">Weekly Timesheet</span><span class="arrow">→</span>
+          <span class="node">Draft</span><span class="arrow">→</span>
+          <span class="node">Submitted</span><span class="arrow">→</span>
+          <span class="node">Approved</span>
+        </div>
+        <p>Rejection is also implemented: Submitted → Rejected → employee can fix and submit again.</p>
+
+        <table>
+          <thead><tr><th>Topic</th><th>Behaviour</th></tr></thead>
+          <tbody>
+            <tr><td>When created</td><td>Automatically when the first time entry for that week is logged</td></tr>
+            <tr><td>Who submits</td><td>The employee who owns the timesheet (Draft or Rejected)</td></tr>
+            <tr><td>Who approves / rejects</td><td>Users with <code>timesheets.approve</code></td></tr>
+            <tr><td>Approve own?</td><td><strong>No</strong> — blocked in service and policy</td></tr>
+            <tr><td>After submission</td><td>Sheet is locked; new/edited time for that week is blocked</td></tr>
+            <tr><td>Delete time entries</td><td>Owner can delete while sheet is not locked (not Submitted/Approved)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 15 -->
+      <section class="card" id="availability">
+        <h2><span class="num">15.</span> Availability</h2>
+        <p class="section-lead">Task Management → Availability.</p>
+
+        <h3>Weekly capacity</h3>
+        <ul>
+          <li>Weekly hours (default <strong>40</strong> if none saved)</li>
+          <li>Working days (default Mon–Fri = days 1–5)</li>
+          <li>Effective from date</li>
+          <li>Only users with <code>capacity.manage</code> can save capacity for employees</li>
+        </ul>
+
+        <h3>Day exceptions</h3>
+        <ul>
+          <li><strong>Available</strong> — optional custom hours for that day</li>
+          <li><strong>Leave</strong> — 0 hours</li>
+          <li><strong>Half day</strong> — half of baseline, or custom hours</li>
+          <li><strong>Holiday</strong> — 0 hours</li>
+        </ul>
+
+        <p>
+          Employees can edit <strong>their own</strong> exceptions.
+          Users with <code>capacity.manage</code> can edit exceptions for others and switch between employees.
+        </p>
+      </section>
+
+      <!-- 16 -->
+      <section class="card" id="workload">
+        <h2><span class="num">16.</span> Workload</h2>
+        <p class="section-lead">Task Management → Workload. Requires <code>workload.view</code>.</p>
+
+        <p>For each Active employee in a Monday–Sunday week:</p>
+        <ul>
+          <li><strong>Assigned hours</strong> = sum of task <em>estimated hours</em> for tasks assigned to them in:
+            Assigned, Accepted, In Progress, In Review, Revision</li>
+          <li><strong>Available hours</strong> = capacity for the week after leave/holiday/half-day exceptions</li>
+          <li><strong>Utilisation %</strong> = assigned ÷ available (or 100% if assigned with zero available)</li>
+        </ul>
+
+        <h3>Bands (thresholds)</h3>
+        <table>
+          <thead><tr><th>Band</th><th>Rule</th></tr></thead>
+          <tbody>
+            <tr><td>Overallocated</td><td>Utilisation &gt; 110%</td></tr>
+            <tr><td>Bench</td><td>Utilisation &lt; 50%</td></tr>
+            <tr><td>On track</td><td>Everything else with capacity</td></tr>
+            <tr><td>Unavailable</td><td>Available = 0 and Assigned = 0</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout tip">
+          <strong>What is not used</strong>
+          Workload does not use timer hours, actual logged time, or Open Board tasks without an assignee.
+        </div>
+      </section>
+
+      <!-- 17 -->
+      <section class="card" id="files">
+        <h2><span class="num">17.</span> Working Files</h2>
+        <p class="section-lead">Two separate file systems on a task.</p>
+
+        <div class="two-col">
+          <div class="callout tip">
+            <strong>WORKING FILES</strong>
+            Briefs, references, ZIP packages, spreadsheets, and other task files.
+            Stored on the task as media collection <code>attachments</code>.
+          </div>
+          <div class="callout ok">
+            <strong>CREATIVE REVIEW PROOFS</strong>
+            Files submitted for approval.
+            Stored on a deliverable as collection <code>proofs</code>.
+          </div>
+        </div>
+
+        <h3>Working files rules</h3>
+        <table>
+          <thead><tr><th>Rule</th><th>Actual behaviour</th></tr></thead>
+          <tbody>
+            <tr><td>Who can upload</td><td>Assignee, task creator, or anyone with <code>tasks.view_all</code></td></tr>
+            <tr><td>Who can delete</td><td>Uploader, or anyone with <code>tasks.view_all</code></td></tr>
+            <tr><td>Max files per upload</td><td>10</td></tr>
+            <tr><td>Max size</td><td>50 MB per file</td></tr>
+            <tr><td>Allowed types</td><td>jpg, jpeg, png, gif, webp, pdf, doc, docx, xls, xlsx, csv, ppt, pptx, zip, txt, rtf</td></tr>
+            <tr><td>After completion</td><td>Policy does not block uploads by status; permitted users may still attach if they can view the task</td></tr>
+            <tr><td>View / download</td><td>Shown on task detail with media URLs for people who can view the task</td></tr>
+          </tbody>
+        </table>
+
+        <p>Open Board viewers who have not claimed the task can see the card but cannot attach files until they claim it.</p>
+      </section>
+
+      <!-- 18 -->
+      <section class="card" id="review">
+        <h2><span class="num">18.</span> Creative Review and Approval</h2>
+        <p class="section-lead">Optional path for creative work that needs sign-off.</p>
+
+        <div class="flow">
+          <span class="node">Assignee</span><span class="arrow">→</span>
+          <span class="node">Upload Deliverable</span><span class="arrow">→</span>
+          <span class="node">In Review</span><span class="arrow">→</span>
+          <span class="node">Reviewer</span>
+        </div>
+
+        <h3>Reviewer options</h3>
+        <table>
+          <thead><tr><th>Decision</th><th>Deliverable status</th><th>Task status</th></tr></thead>
+          <tbody>
+            <tr><td>Approve</td><td>Approved</td><td>Approved</td></tr>
+            <tr><td>Request changes</td><td>Changes requested</td><td>Revision</td></tr>
+            <tr><td>Reject</td><td>Rejected</td><td>Revision</td></tr>
+          </tbody>
+        </table>
+
+        <ul>
+          <li>Each submission creates a new <strong>version</strong> number.</li>
+          <li>Each decision creates a <strong>review round</strong> with optional comments.</li>
+          <li>From Revision, the assignee submits again → In Review.</li>
+          <li>After Approve, someone still moves the task from Approved → <strong>Completed</strong>.</li>
+          <li>Review permission: <code>reviews.decide</code> while task is In Review.</li>
+        </ul>
+
+        <div class="callout warn">
+          <strong>Image annotations / markup</strong>
+          A <code>tm_review_annotations</code> table and model exist, but there is no usable UI/API flow to create annotations today.
+          Reviewers use decision + comments only.
+          Status: <span class="badge partial">PARTIALLY IMPLEMENTED</span> (schema only).
+        </div>
+      </section>
+
+      <!-- 19 -->
+      <section class="card" id="board">
+        <h2><span class="num">19.</span> Open Board</h2>
+        <p class="section-lead">Path: <code>/tasks/board</code>.</p>
+
+        <ul>
+          <li>Shows tasks that are claimable: status Open and no assignee.</li>
+          <li>Any staff user with Task access and an employee profile can claim (employee must be Active).</li>
+          <li>Optional filters: department, “my department only”.</li>
+          <li>Sorted by priority (urgent → low), then due date.</li>
+          <li>If two people claim at once, database locking allows only one winner; the other sees an already-claimed error.</li>
+          <li>Claim sets ownership and moves status to Accepted immediately.</li>
+        </ul>
+      </section>
+
+      <!-- 20 -->
+      <section class="card" id="task-list">
+        <h2><span class="num">20.</span> Task List</h2>
+        <p class="section-lead">Path: <code>/tasks</code>.</p>
+
+        <h3>Filters implemented</h3>
+        <ul>
+          <li><strong>Scope</strong>
+            <ul>
+              <li><strong>Mine</strong> — tasks assigned to you (default for users without view-all)</li>
+              <li><strong>All</strong> — everyone (requires <code>tasks.view_all</code>)</li>
+              <li><strong>Unassigned</strong> — no assignee (view-all users)</li>
+            </ul>
+          </li>
+          <li><strong>Search</strong> — title contains text</li>
+          <li><strong>Project</strong></li>
+          <li><strong>Status</strong></li>
+          <li><strong>Priority</strong></li>
+        </ul>
+
+        <p>
+          Without <code>tasks.view_all</code>, the list stays on Mine.
+          Users can still open claimable Open Board tasks via the board or direct link when policy allows.
+        </p>
+      </section>
+
+      <!-- 21 -->
+      <section class="card" id="permissions">
+        <h2><span class="num">21.</span> Permission System</h2>
+        <p class="section-lead">Task-related abilities extracted from <code>Ability</code> and used by policies/controllers.</p>
+
+        <table>
+          <thead><tr><th>Permission</th><th>What it allows</th><th>Typical user</th></tr></thead>
+          <tbody>
+            <tr><td><code>tasks.access</code></td><td>Open Task Management module and pages gated by access</td><td>Manager, Employee</td></tr>
+            <tr><td><code>companies.view</code></td><td>View Work Clients</td><td>Manager, Employee</td></tr>
+            <tr><td><code>companies.manage</code></td><td>Create/edit/delete Work Clients</td><td>Manager, Admin</td></tr>
+            <tr><td><code>projects.view</code></td><td>View projects</td><td>Manager, Employee</td></tr>
+            <tr><td><code>projects.manage</code></td><td>Create/edit/delete projects and members</td><td>Manager, Admin</td></tr>
+            <tr><td><code>tasks.view_all</code></td><td>See everyone’s tasks; broader attach/log coverage</td><td>Manager, Admin</td></tr>
+            <tr><td><code>tasks.manage</code></td><td>Create/edit/delete tasks (policy still applies)</td><td>Manager, Employee</td></tr>
+            <tr><td><code>tasks.assign</code></td><td>Assign, publish, and progress as manager</td><td>Manager, Admin</td></tr>
+            <tr><td><code>capacity.manage</code></td><td>Set weekly capacity; manage others’ availability</td><td>Manager, Admin</td></tr>
+            <tr><td><code>workload.view</code></td><td>Open team workload board</td><td>Manager, Admin</td></tr>
+            <tr><td><code>timesheets.approve</code></td><td>Approve or reject submitted timesheets</td><td>Manager, Admin</td></tr>
+            <tr><td><code>reviews.decide</code></td><td>Approve / request changes / reject proofs</td><td>Manager, Admin</td></tr>
+            <tr><td><code>employees.view</code> / <code>employees.manage</code></td><td>View or manage employee records (Admin area)</td><td>View: Manager; Manage: Admin</td></tr>
+            <tr><td><code>departments.view</code> / <code>departments.manage</code></td><td>View or manage departments</td><td>View: Manager; Manage: Admin</td></tr>
+          </tbody>
+        </table>
+
+        <p>Custom roles can be created in Administration → Roles (pages exist; abilities are selected from the catalogue).</p>
+      </section>
+
+      <!-- 22 -->
+      <section class="card" id="example">
+        <h2><span class="num">22.</span> Complete Example: New Task from Start to Finish</h2>
+        <p class="section-lead">Real-world path matching the current implementation.</p>
+
+        <p><strong>Request:</strong> Client needs a social media video for Independence Day.</p>
+
+        <ol class="steps">
+          <li>Manager selects or creates Work Client (for example ABC Company).</li>
+          <li>Manager creates Project “Monthly Digital Marketing” (Active or Planning).</li>
+          <li>Manager creates Task “Create Independence Day social video” with type Video, priority High, estimated hours 6.</li>
+          <li>Task saves as Draft.</li>
+          <li>Manager either assigns a designer directly, or publishes to Open Board.</li>
+          <li>Employee accepts (direct) or claims (board) → Accepted.</li>
+          <li>Employee starts the timer → In Progress; logs time while editing.</li>
+          <li>Employee uploads working files (brief PDF, brand assets ZIP).</li>
+          <li>Employee submits creative proof (video file) → In Review.</li>
+          <li>Reviewer requests changes with comments → Revision.</li>
+          <li>Employee revises and submits a new version → In Review again.</li>
+          <li>Reviewer approves → Approved.</li>
+          <li>Task is moved to Completed.</li>
+          <li>Hours already appear on the employee’s weekly timesheet (Draft) for submit/approval later.</li>
+        </ol>
+      </section>
+
+      <!-- 23 -->
+      <section class="card" id="missing">
+        <h2><span class="num">23.</span> What Is Not Implemented</h2>
+        <p class="section-lead">Honest inventory after inspecting routes, models, UI, and tests.</p>
+
+        <table>
+          <thead><tr><th>Feature</th><th>Current Status</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Subtasks</td><td><span class="badge missing">NOT IMPLEMENTED</span></td><td>No model/UI</td></tr>
+            <tr><td>Checklists</td><td><span class="badge missing">NOT IMPLEMENTED</span></td><td>No model/UI</td></tr>
+            <tr><td>Recurring tasks</td><td><span class="badge missing">NOT IMPLEMENTED</span></td><td>No scheduler/recurrence</td></tr>
+            <tr><td>Task dependencies</td><td><span class="badge missing">NOT IMPLEMENTED</span></td><td>No dependency links</td></tr>
+            <tr><td>Notification sounds</td><td><span class="badge missing">NOT IMPLEMENTED</span></td><td>No tone on assign</td></tr>
+            <tr><td>Real-time notifications</td><td><span class="badge missing">NOT IMPLEMENTED</span></td><td>No Echo/WebSockets</td></tr>
+            <tr><td>In-app assignment alerts</td><td><span class="badge missing">NOT IMPLEMENTED</span></td><td>Bell is empty shell</td></tr>
+            <tr><td>Email on task events</td><td><span class="badge missing">NOT IMPLEMENTED</span></td><td>No TM mailables</td></tr>
+            <tr><td>General task comments / chat</td><td><span class="badge missing">NOT IMPLEMENTED</span></td><td>Review comments only</td></tr>
+            <tr><td>Task reminders</td><td><span class="badge missing">NOT IMPLEMENTED</span></td><td>No reminder jobs found</td></tr>
+            <tr><td>Calendar view</td><td><span class="badge missing">NOT IMPLEMENTED</span></td><td>List/board only</td></tr>
+            <tr><td>Gantt chart</td><td><span class="badge missing">NOT IMPLEMENTED</span></td><td>Not present</td></tr>
+            <tr><td>Review image annotations</td><td><span class="badge partial">PARTIALLY IMPLEMENTED</span></td><td>DB/model only</td></tr>
+            <tr><td>Pause vs Stop distinction</td><td><span class="badge partial">PARTIALLY IMPLEMENTED</span></td><td>UI labels differ; same backend stop</td></tr>
+            <tr><td>Project role permissions</td><td><span class="badge partial">PARTIALLY IMPLEMENTED</span></td><td>Labels only; no ability grants</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 24 -->
+      <section class="card" id="daily">
+        <h2><span class="num">24.</span> Recommended Daily Workflow</h2>
+        <p class="section-lead">Practical routines based on actual permissions.</p>
+
+        <h3>Super Admin</h3>
+        <div class="flow">
+          <span class="node">Morning</span><span class="arrow">→</span>
+          <span class="node">Dashboard</span><span class="arrow">→</span>
+          <span class="node">Workload / Availability</span><span class="arrow">→</span>
+          <span class="node">Staff &amp; capacity setup</span><span class="arrow">→</span>
+          <span class="node">Monitor agency KPIs</span><span class="arrow">→</span>
+          <span class="node">Approve timesheets / reviews as needed</span>
+        </div>
+
+        <h3>Manager / Team Lead</h3>
+        <div class="flow">
+          <span class="node">Check Dashboard</span><span class="arrow">→</span>
+          <span class="node">Review workload</span><span class="arrow">→</span>
+          <span class="node">Create / assign / publish tasks</span><span class="arrow">→</span>
+          <span class="node">Monitor progress</span><span class="arrow">→</span>
+          <span class="node">Review deliverables</span><span class="arrow">→</span>
+          <span class="node">Approve timesheets</span>
+        </div>
+
+        <h3>Employee</h3>
+        <div class="flow">
+          <span class="node">Login</span><span class="arrow">→</span>
+          <span class="node">My tasks + Open Board</span><span class="arrow">→</span>
+          <span class="node">Accept / claim</span><span class="arrow">→</span>
+          <span class="node">Run timer</span><span class="arrow">→</span>
+          <span class="node">Upload files / submit proofs</span><span class="arrow">→</span>
+          <span class="node">Complete work</span><span class="arrow">→</span>
+          <span class="node">Submit timesheet (weekly)</span>
+        </div>
+      </section>
+
+      <!-- 25 -->
+      <section class="card" id="quickstart">
+        <h2><span class="num">25.</span> Quick Start Guide</h2>
+        <p class="section-lead">How do I start using VSP CRM Task Management?</p>
+
+        <ol class="steps">
+          <li>Create departments (Admin).</li>
+          <li>Create employees and user logins; set roles (Admin).</li>
+          <li>Set reporting managers and Active status where needed.</li>
+          <li>Set weekly capacity and working days (Manager/Admin).</li>
+          <li>Create Work Clients.</li>
+          <li>Create Projects under each Work Client.</li>
+          <li>Add project team members (optional labels).</li>
+          <li>Create tasks with type, priority, estimates, and due dates.</li>
+          <li>Assign tasks directly or publish them to the Open Board.</li>
+          <li>Employees accept assignments or claim board tasks.</li>
+          <li>Track work with the timer and/or manual time.</li>
+          <li>Upload working files as needed.</li>
+          <li>Submit creative proofs when review is required.</li>
+          <li>Approve or request changes; then complete the task.</li>
+          <li>Employees submit weekly timesheets; managers approve; check workload.</li>
+        </ol>
+
+        <div class="callout tip">
+          <strong>Remember</strong>
+          There is no assignment sound or push notification yet. Tell your team to check Dashboard and Tasks regularly.
+        </div>
+      </section>
+
+      <footer class="note">
+        Documentation only · Reflects the Task Management module as implemented in this repository ·
+        Does not modify application code · For the broader product overview see
+        <a href="./vsp-crm-handbook.html">vsp-crm-handbook.html</a>.
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

@@ -14,6 +14,8 @@ export interface BreadcrumbItem {
 export interface NavGroup {
     title: string;
     items: NavItem[];
+    /** Hide the whole section unless the user holds at least one of these. */
+    anyPermission?: string[];
 }
 
 export interface NavItem {
@@ -23,6 +25,8 @@ export interface NavItem {
     isActive?: boolean;
     /** Hidden unless the signed-in user holds this permission. */
     permission?: string;
+    /** Hidden unless the signed-in user holds this role. Super Admin only items use this. */
+    role?: string;
 }
 
 export interface SharedData {
@@ -30,23 +34,45 @@ export interface SharedData {
     quote: { message: string; author: string };
     auth: Auth;
     flash: { success: string | null; error: string | null };
+    notifications: {
+        unread_count: number;
+        recent: AppNotification[];
+    };
+    notificationSound?: NotificationSoundPlaybackConfig | null;
     [key: string]: unknown;
 }
 
-export type UserType = 'internal' | 'client';
+export type NotificationSoundPlaybackConfig = {
+    enabled: boolean;
+    source?: 'system' | 'custom' | null;
+    system_sound?: string | null;
+    url?: string | null;
+};
+
+export interface AppNotification {
+    id: string;
+    event: string | null;
+    title: string;
+    body: string;
+    url: string | null;
+    task_id: number | null;
+    timesheet_id: number | null;
+    read_at: string | null;
+    created_at: string | null;
+}
 
 export interface User {
     id: number;
     name: string;
     email: string;
     avatar?: string;
-    user_type: UserType;
+    user_type: string;
     is_active: boolean;
     last_login_at: string | null;
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
-    [key: string]: unknown; // This allows for additional properties...
+    [key: string]: unknown;
 }
 
 /** Shape of Laravel's length-aware paginator as it arrives over Inertia. */

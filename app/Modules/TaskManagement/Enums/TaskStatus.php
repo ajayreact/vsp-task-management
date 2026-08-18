@@ -77,6 +77,35 @@ enum TaskStatus: string
     }
 
     /**
+     * The timer and manual entries are allowed once someone has accepted the
+     * work. Review rounds still count: people often keep the clock running
+     * while they wait for a note.
+     */
+    public function isWorkable(): bool
+    {
+        return in_array($this, [
+            self::Accepted,
+            self::InProgress,
+            self::InReview,
+            self::Revision,
+        ], true);
+    }
+
+    /**
+     * Hours still sitting on this person for the workload board.
+     */
+    public function countsTowardWorkload(): bool
+    {
+        return in_array($this, [
+            self::Assigned,
+            self::Accepted,
+            self::InProgress,
+            self::InReview,
+            self::Revision,
+        ], true);
+    }
+
+    /**
      * @return array<int, array{value: string, label: string}>
      */
     public static function options(): array

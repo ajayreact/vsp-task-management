@@ -1,12 +1,19 @@
 import AppLayoutTemplate, { type AppSidebarLayoutProps } from '@/layouts/app/app-sidebar-layout';
+import { staffNavGroups } from '@/lib/navigation';
 
 /**
  * Shared kernel layout — dashboard, settings and anything that belongs to no
- * single module. CRM and Task Management have their own layouts.
+ * single module. Task Management uses the same sidebar groups.
  */
-export default function AppLayout({ children, breadcrumbs, ...props }: AppSidebarLayoutProps) {
+export default function AppLayout({ children, breadcrumbs, groups, homeUrl, footerItems, ...props }: AppSidebarLayoutProps) {
     return (
-        <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
+        <AppLayoutTemplate
+            breadcrumbs={breadcrumbs}
+            groups={groups ?? staffNavGroups()}
+            homeUrl={homeUrl}
+            footerItems={footerItems ?? []}
+            {...props}
+        >
             {children}
         </AppLayoutTemplate>
     );

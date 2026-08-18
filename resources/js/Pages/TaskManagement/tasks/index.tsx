@@ -1,8 +1,8 @@
-import { PageHeader } from '@/components/admin/page-header';
-import { Pagination } from '@/components/admin/pagination';
+import { DataTableCard } from '@/components/admin/data-table-card';
+import { DataTableFooter } from '@/components/admin/data-table-footer';
+import { SearchInput } from '@/components/admin/search-input';
 import { DueDate, PriorityBadge, StatusBadge } from '@/components/tasks/task-badges';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import TaskLayout from '@/layouts/task-layout';
@@ -61,6 +61,7 @@ export default function TaskIndex({ tasks, filters, projects, statuses, prioriti
                 project: filters.project ?? undefined,
                 status: filters.status || undefined,
                 priority: filters.priority || undefined,
+                per_page: tasks.per_page,
                 ...changes,
             },
             { preserveState: true, replace: true },
@@ -71,8 +72,8 @@ export default function TaskIndex({ tasks, filters, projects, statuses, prioriti
         <TaskLayout breadcrumbs={breadcrumbs}>
             <Head title="Tasks" />
 
-            <div className="flex flex-1 flex-col gap-6 p-4">
-                <PageHeader
+            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
+                <DataTableCard
                     title="Tasks"
                     description={
                         can.viewAll
@@ -80,85 +81,98 @@ export default function TaskIndex({ tasks, filters, projects, statuses, prioriti
                             : 'The work assigned to you. Pick up more from the open board.'
                     }
                     action={
-                        can.create && (
+                        can.create ? (
                             <Button asChild>
                                 <Link href="/tasks/create">
                                     <Plus /> New task
                                 </Link>
                             </Button>
-                        )
+                        ) : undefined
                     }
-                />
+                    toolbar={
+                        <div className="flex w-full min-w-max items-center gap-3">
+                            {can.viewAll && (
+                                <Select value={filters.scope} onValueChange={(value) => apply({ scope: value })}>
+                                    <SelectTrigger className="w-44 shrink-0" aria-label="Scope">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All tasks</SelectItem>
+                                        <SelectItem value="mine">Assigned to me</SelectItem>
+                                        <SelectItem value="unassigned">Unassigned</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            )}
 
-                <div className="flex flex-wrap gap-3">
-                    {can.viewAll && (
-                        <Select value={filters.scope} onValueChange={(value) => apply({ scope: value })}>
-                            <SelectTrigger className="w-44" aria-label="Scope">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All tasks</SelectItem>
-                                <SelectItem value="mine">Assigned to me</SelectItem>
-                                <SelectItem value="unassigned">Unassigned</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    )}
+                            <Select
+                                value={filters.project ? String(filters.project) : ALL}
+                                onValueChange={(value) => apply({ project: value === ALL ? null : value })}
+                            >
+                                <SelectTrigger className="w-52 shrink-0" aria-label="Filter by project">
+                                    <SelectValue placeholder="All projects" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={ALL}>All projects</SelectItem>
+                                    {projects.map((project) => (
+                                        <SelectItem key={project.id} value={String(project.id)}>
+                                            {project.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
 
-                    <Input
-                        value={search}
-                        onChange={(event) => setSearch(event.target.value)}
-                        placeholder="Search by title"
-                        className="max-w-xs"
-                        aria-label="Search tasks"
-                    />
+                            <Select value={filters.status || ALL} onValueChange={(value) => apply({ status: value === ALL ? null : value })}>
+                                <SelectTrigger className="w-48 shrink-0" aria-label="Filter by status">
+                                    <SelectValue placeholder="Any status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={ALL}>Any status</SelectItem>
+                                    {statuses.map((status) => (
+                                        <SelectItem key={status.value} value={status.value}>
+                                            {status.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
 
-                    <Select
-                        value={filters.project ? String(filters.project) : ALL}
-                        onValueChange={(value) => apply({ project: value === ALL ? null : value })}
-                    >
-                        <SelectTrigger className="w-52" aria-label="Filter by project">
-                            <SelectValue placeholder="All projects" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value={ALL}>All projects</SelectItem>
-                            {projects.map((project) => (
-                                <SelectItem key={project.id} value={String(project.id)}>
-                                    {project.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                            <Select value={filters.priority || ALL} onValueChange={(value) => apply({ priority: value === ALL ? null : value })}>
+                                <SelectTrigger className="w-40 shrink-0" aria-label="Filter by priority">
+                                    <SelectValue placeholder="Any priority" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={ALL}>Any priority</SelectItem>
+                                    {priorities.map((priority) => (
+                                        <SelectItem key={priority.value} value={priority.value}>
+                                            {priority.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
 
-                    <Select value={filters.status || ALL} onValueChange={(value) => apply({ status: value === ALL ? null : value })}>
-                        <SelectTrigger className="w-48" aria-label="Filter by status">
-                            <SelectValue placeholder="Any status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value={ALL}>Any status</SelectItem>
-                            {statuses.map((status) => (
-                                <SelectItem key={status.value} value={status.value}>
-                                    {status.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    <Select value={filters.priority || ALL} onValueChange={(value) => apply({ priority: value === ALL ? null : value })}>
-                        <SelectTrigger className="w-40" aria-label="Filter by priority">
-                            <SelectValue placeholder="Any priority" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value={ALL}>Any priority</SelectItem>
-                            {priorities.map((priority) => (
-                                <SelectItem key={priority.value} value={priority.value}>
-                                    {priority.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                <div className="rounded-xl border">
+                            <SearchInput
+                                value={search}
+                                onChange={(event) => setSearch(event.target.value)}
+                                placeholder="Search by title"
+                                aria-label="Search tasks"
+                                containerClassName="ml-auto w-56 max-w-none shrink-0"
+                            />
+                        </div>
+                    }
+                    footer={
+                        <DataTableFooter
+                            page={tasks}
+                            onPerPageChange={(perPage) => apply({ per_page: perPage })}
+                            exportBasePath="/tasks/export"
+                            exportParams={{
+                                scope: filters.scope,
+                                search,
+                                project: filters.project,
+                                status: filters.status,
+                                priority: filters.priority,
+                            }}
+                        />
+                    }
+                >
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -207,9 +221,7 @@ export default function TaskIndex({ tasks, filters, projects, statuses, prioriti
                             ))}
                         </TableBody>
                     </Table>
-                </div>
-
-                <Pagination page={tasks} />
+                </DataTableCard>
             </div>
         </TaskLayout>
     );

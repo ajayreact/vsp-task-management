@@ -9,23 +9,17 @@
 |
 | Dependencies point one way only:
 |
-|     Crm  -> Core
-|     Work -> Core
+|     TaskManagement -> Core
 |
-| Never Crm -> TaskManagement, never TaskManagement -> Crm, and never
-| Core -> either module.
+| Core must never import Task Management. The CRM module is gone.
 |
 */
 
-arch('crm does not depend on task management')
-    ->expect('App\Modules\Crm')
-    ->not->toUse('App\Modules\TaskManagement');
-
-arch('task management does not depend on crm')
+arch('task management does not depend on a removed crm module')
     ->expect('App\Modules\TaskManagement')
     ->not->toUse('App\Modules\Crm');
 
-arch('the shared kernel does not depend on either module')
+arch('the shared kernel does not depend on task management')
     ->expect('App\Modules\Core')
     ->not->toUse(['App\Modules\Crm', 'App\Modules\TaskManagement']);
 
