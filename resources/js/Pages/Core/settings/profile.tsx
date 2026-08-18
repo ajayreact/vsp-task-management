@@ -1,16 +1,16 @@
-import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Transition } from '@headlessui/react';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
-
 import DeleteUser from '@/components/delete-user';
-import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
+import { SettingsCard, SettingsFormFooter } from '@/components/settings/settings-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Transition } from '@headlessui/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { User } from 'lucide-react';
+import { FormEventHandler } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -38,68 +38,16 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
             <Head title="Profile settings" />
 
             <SettingsLayout>
-                <div className="space-y-6">
-                    <HeadingSmall title="Profile information" description="Update your name and email address" />
-
-                    <form onSubmit={submit} className="space-y-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="name">Name</Label>
-
-                            <Input
-                                id="name"
-                                className="mt-1 block w-full"
-                                value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
-                                required
-                                autoComplete="name"
-                                placeholder="Full name"
-                            />
-
-                            <InputError className="mt-2" message={errors.name} />
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email address</Label>
-
-                            <Input
-                                id="email"
-                                type="email"
-                                className="mt-1 block w-full"
-                                value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
-                                required
-                                autoComplete="username"
-                                placeholder="Email address"
-                            />
-
-                            <InputError className="mt-2" message={errors.email} />
-                        </div>
-
-                        {mustVerifyEmail && auth.user.email_verified_at === null && (
-                            <div>
-                                <p className="mt-2 text-sm text-neutral-800">
-                                    Your email address is unverified.
-                                    <Link
-                                        href={route('verification.send')}
-                                        method="post"
-                                        as="button"
-                                        className="rounded-md text-sm text-neutral-600 underline hover:text-neutral-900 focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
-                                    >
-                                        Click here to re-send the verification email.
-                                    </Link>
-                                </p>
-
-                                {status === 'verification-link-sent' && (
-                                    <div className="mt-2 text-sm font-medium text-green-600">
-                                        A new verification link has been sent to your email address.
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        <div className="flex items-center gap-4">
-                            <Button disabled={processing}>Save</Button>
-
+                <SettingsCard
+                    title="Profile information"
+                    description="Update your name and the email address you use to sign in."
+                    icon={User}
+                    tone="indigo"
+                    footer={
+                        <SettingsFormFooter>
+                            <Button type="submit" form="profile-form" disabled={processing}>
+                                Save changes
+                            </Button>
                             <Transition
                                 show={recentlySuccessful}
                                 enter="transition ease-in-out"
@@ -107,11 +55,63 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 leave="transition ease-in-out"
                                 leaveTo="opacity-0"
                             >
-                                <p className="text-sm text-neutral-600">Saved</p>
+                                <p className="text-muted-foreground text-sm font-medium">Saved</p>
                             </Transition>
+                        </SettingsFormFooter>
+                    }
+                >
+                    <form id="profile-form" onSubmit={submit} className="space-y-5">
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="grid gap-2 sm:col-span-2">
+                                <Label htmlFor="name">Full name</Label>
+                                <Input
+                                    id="name"
+                                    value={data.name}
+                                    onChange={(e) => setData('name', e.target.value)}
+                                    required
+                                    autoComplete="name"
+                                    placeholder="Your name"
+                                />
+                                <InputError message={errors.name} />
+                            </div>
+
+                            <div className="grid gap-2 sm:col-span-2">
+                                <Label htmlFor="email">Email address</Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={data.email}
+                                    onChange={(e) => setData('email', e.target.value)}
+                                    required
+                                    autoComplete="username"
+                                    placeholder="you@studio.com"
+                                />
+                                <InputError message={errors.email} />
+                            </div>
                         </div>
+
+                        {mustVerifyEmail && auth.user.email_verified_at === null && (
+                            <div className="rounded-xl border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-sm text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-100">
+                                <p>
+                                    Your email address is unverified.{' '}
+                                    <Link
+                                        href={route('verification.send')}
+                                        method="post"
+                                        as="button"
+                                        className="text-primary font-medium underline underline-offset-2"
+                                    >
+                                        Resend verification email
+                                    </Link>
+                                </p>
+                                {status === 'verification-link-sent' && (
+                                    <p className="mt-2 font-medium text-emerald-700 dark:text-emerald-400">
+                                        A new verification link has been sent.
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </form>
-                </div>
+                </SettingsCard>
 
                 <DeleteUser />
             </SettingsLayout>

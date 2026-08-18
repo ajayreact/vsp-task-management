@@ -1,15 +1,15 @@
 import InputError from '@/components/input-error';
+import { SettingsCard, SettingsFormFooter } from '@/components/settings/settings-card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { type BreadcrumbItem } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Head, useForm } from '@inertiajs/react';
+import { Lock } from 'lucide-react';
 import { FormEventHandler, useRef } from 'react';
-
-import HeadingSmall from '@/components/heading-small';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -50,66 +50,19 @@ export default function Password() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Profile settings" />
+            <Head title="Password settings" />
 
             <SettingsLayout>
-                <div className="space-y-6">
-                    <HeadingSmall title="Update password" description="Ensure your account is using a long, random password to stay secure" />
-
-                    <form onSubmit={updatePassword} className="space-y-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="current_password">Current password</Label>
-
-                            <Input
-                                id="current_password"
-                                ref={currentPasswordInput}
-                                value={data.current_password}
-                                onChange={(e) => setData('current_password', e.target.value)}
-                                type="password"
-                                className="mt-1 block w-full"
-                                autoComplete="current-password"
-                                placeholder="Current password"
-                            />
-
-                            <InputError message={errors.current_password} />
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">New password</Label>
-
-                            <Input
-                                id="password"
-                                ref={passwordInput}
-                                value={data.password}
-                                onChange={(e) => setData('password', e.target.value)}
-                                type="password"
-                                className="mt-1 block w-full"
-                                autoComplete="new-password"
-                                placeholder="New password"
-                            />
-
-                            <InputError message={errors.password} />
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="password_confirmation">Confirm password</Label>
-
-                            <Input
-                                id="password_confirmation"
-                                value={data.password_confirmation}
-                                onChange={(e) => setData('password_confirmation', e.target.value)}
-                                type="password"
-                                className="mt-1 block w-full"
-                                autoComplete="new-password"
-                                placeholder="Confirm password"
-                            />
-
-                            <InputError message={errors.password_confirmation} />
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            <Button disabled={processing}>Save password</Button>
-
+                <SettingsCard
+                    title="Update password"
+                    description="Choose a strong password you do not use anywhere else."
+                    icon={Lock}
+                    tone="sky"
+                    footer={
+                        <SettingsFormFooter>
+                            <Button type="submit" form="password-form" disabled={processing}>
+                                Save password
+                            </Button>
                             <Transition
                                 show={recentlySuccessful}
                                 enter="transition ease-in-out"
@@ -117,11 +70,62 @@ export default function Password() {
                                 leave="transition ease-in-out"
                                 leaveTo="opacity-0"
                             >
-                                <p className="text-sm text-neutral-600">Saved</p>
+                                <p className="text-muted-foreground text-sm font-medium">Password updated</p>
                             </Transition>
+                        </SettingsFormFooter>
+                    }
+                >
+                    <form id="password-form" onSubmit={updatePassword} className="space-y-5">
+                        <div className="grid gap-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor="current_password">Current password</Label>
+                                <Input
+                                    id="current_password"
+                                    ref={currentPasswordInput}
+                                    value={data.current_password}
+                                    onChange={(e) => setData('current_password', e.target.value)}
+                                    type="password"
+                                    autoComplete="current-password"
+                                    placeholder="Enter current password"
+                                />
+                                <InputError message={errors.current_password} />
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="password">New password</Label>
+                                    <Input
+                                        id="password"
+                                        ref={passwordInput}
+                                        value={data.password}
+                                        onChange={(e) => setData('password', e.target.value)}
+                                        type="password"
+                                        autoComplete="new-password"
+                                        placeholder="Enter new password"
+                                    />
+                                    <InputError message={errors.password} />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="password_confirmation">Confirm password</Label>
+                                    <Input
+                                        id="password_confirmation"
+                                        value={data.password_confirmation}
+                                        onChange={(e) => setData('password_confirmation', e.target.value)}
+                                        type="password"
+                                        autoComplete="new-password"
+                                        placeholder="Confirm new password"
+                                    />
+                                    <InputError message={errors.password_confirmation} />
+                                </div>
+                            </div>
                         </div>
+
+                        <p className="text-muted-foreground text-xs leading-relaxed">
+                            Use at least 12 characters with a mix of letters, numbers, and symbols.
+                        </p>
                     </form>
-                </div>
+                </SettingsCard>
             </SettingsLayout>
         </AppLayout>
     );

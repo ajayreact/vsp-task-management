@@ -1,15 +1,20 @@
-import { useForm } from '@inertiajs/react';
-import { FormEventHandler, useRef } from 'react';
-
-// Components...
 import InputError from '@/components/input-error';
+import { SettingsCard } from '@/components/settings/settings-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
-import HeadingSmall from '@/components/heading-small';
-
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import { useForm } from '@inertiajs/react';
+import { AlertTriangle } from 'lucide-react';
+import { FormEventHandler, useRef } from 'react';
 
 export default function DeleteUser() {
     const passwordInput = useRef<HTMLInputElement>(null);
@@ -32,13 +37,16 @@ export default function DeleteUser() {
     };
 
     return (
-        <div className="space-y-6">
-            <HeadingSmall title="Delete account" description="Delete your account and all of its resources" />
-            <div className="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
-                <div className="relative space-y-0.5 text-red-600 dark:text-red-100">
-                    <p className="font-medium">Warning</p>
-                    <p className="text-sm">Please proceed with caution, this cannot be undone.</p>
-                </div>
+        <SettingsCard
+            title="Delete account"
+            description="Permanently remove your account and all associated data."
+            icon={AlertTriangle}
+            tone="amber"
+        >
+            <div className="space-y-4 rounded-xl border border-red-200/80 bg-red-50/70 px-4 py-4 dark:border-red-900/40 dark:bg-red-950/20">
+                <p className="text-sm leading-relaxed text-red-800 dark:text-red-100">
+                    This action cannot be undone. Your profile, assignments, and personal data will be removed from the studio.
+                </p>
 
                 <Dialog>
                     <DialogTrigger asChild>
@@ -85,6 +93,6 @@ export default function DeleteUser() {
                     </DialogContent>
                 </Dialog>
             </div>
-        </div>
+        </SettingsCard>
     );
 }
