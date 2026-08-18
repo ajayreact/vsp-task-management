@@ -248,3 +248,24 @@
         background-color: var(--table-header-bg-color, #f5f5f7);
     }
 }
+
+@keyframes login-float {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+
+    50% {
+        transform: translate3d(0, -10px, 0);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .login-float-slow {
+        animation: login-float 12s ease-in-out infinite;
+    }
+
+    .login-float-slower {
+        animation: login-float 16s ease-in-out infinite reverse;
+    }
+}

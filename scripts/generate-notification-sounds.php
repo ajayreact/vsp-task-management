@@ -10,8 +10,9 @@ function write_tone(string $path, array $segments, int $sampleRate = 44100): voi
         for ($i = 0; $i < $n; $i++) {
             $t = $i / $sampleRate;
             $env = min(1.0, $t * 12) * min(1.0, ($duration - $t) * 12);
-            $val = (int) (32767 * 0.35 * $env * sin(2 * M_PI * $freq * $t));
-            $frames .= pack('v', $val);
+            $val = (int) round(32767 * 0.35 * $env * sin(2 * M_PI * $freq * $t));
+            $val = max(-32768, min(32767, $val));
+            $frames .= pack('s', $val);
         }
     }
 
@@ -23,7 +24,7 @@ function write_tone(string $path, array $segments, int $sampleRate = 44100): voi
 
     $dataSize = strlen($frames);
     $header = pack(
-        'a4Va4a4VVVvvVVV',
+        'a4Va4a4VvvVVvva4V',
         'RIFF',
         36 + $dataSize,
         'WAVE',

@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { previewNotificationSound } from '@/lib/notification-sound';
+import { preloadNotificationSound, previewNotificationSound } from '@/lib/notification-sound';
 import { NOTIFICATION_SOUND_ACCEPT, validateNotificationSound } from '@/lib/upload-limits';
 import { router, useForm } from '@inertiajs/react';
 import { Play, Upload, Volume2 } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 export interface NotificationSoundSettingsPayload {
@@ -34,6 +34,25 @@ export function NotificationSoundSettings({ settings }: { settings: Notification
     });
 
     const customPreviewUrl = '/tasks/notification-sound/custom';
+    const usingCustomSound = form.data.source === 'custom';
+
+    useEffect(() => {
+        form.setData({
+            enabled: settings.enabled,
+            source: settings.source,
+            system_sound: settings.system_sound,
+        });
+    }, [settings.enabled, settings.source, settings.system_sound]);
+
+    useEffect(() => {
+        settings.system_sounds.forEach((sound) => {
+            preloadNotificationSound(sound.url);
+        });
+
+        if (settings.custom.has_file) {
+            preloadNotificationSound(customPreviewUrl);
+        }
+    }, [settings.custom.has_file, settings.system_sounds, customPreviewUrl]);
 
     return (
         <Card>
@@ -83,6 +102,12 @@ export function NotificationSoundSettings({ settings }: { settings: Notification
                     {!settings.custom.has_file && (
                         <p className="text-muted-foreground text-xs">Upload a custom sound below before selecting custom upload.</p>
                     )}
+                    {settings.custom.has_file && !usingCustomSound && (
+                        <p className="text-muted-foreground text-xs">
+                            Your custom file is uploaded. Choose <span className="font-medium">Custom upload</span> above, then click{' '}
+                            <span className="font-medium">Save notification sound</span>.
+                        </p>
+                    )}
                 </div>
 
                 {form.data.source === 'system' && (
@@ -125,14 +150,26 @@ export function NotificationSoundSettings({ settings }: { settings: Notification
                     </div>
 
                     {settings.custom.has_file && (
-                        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-muted/40 p-3 text-sm">
+                        <div
+                            className={`flex flex-wrap items-center justify-between gap-3 rounded-md p-3 text-sm ${
+                                usingCustomSound ? 'border-primary/30 bg-primary/5 border' : 'bg-muted/40'
+                            }`}
+                        >
                             <div>
-                                <p className="font-medium">Current</p>
+                                <p className="font-medium">{usingCustomSound ? 'Active custom sound' : 'Current upload'}</p>
                                 <p className="text-muted-foreground">{settings.custom.file_name}</p>
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 <Button type="button" variant="outline" size="sm" onClick={() => previewNotificationSound(customPreviewUrl)}>
                                     <Play className="size-3.5" /> Preview
+                                </Button>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant={usingCustomSound ? 'default' : 'outline'}
+                                    onClick={() => form.setData('source', 'custom')}
+                                >
+                                    {usingCustomSound ? 'Selected' : 'Use this sound'}
                                 </Button>
                                 <Button type="button" variant="outline" size="sm" onClick={() => uploadInputRef.current?.click()}>
                                     Replace
@@ -184,6 +221,10 @@ export function NotificationSoundSettings({ settings }: { settings: Notification
                                     {
                                         forceFormData: true,
                                         preserveScroll: true,
+                                        onSuccess: () => {
+                                            form.setData('source', 'custom');
+                                            toast.success('Custom sound uploaded. Click Save notification sound to apply.');
+                                        },
                                         onFinish: () => {
                                             if (uploadInputRef.current) {
                                                 uploadInputRef.current.value = '';

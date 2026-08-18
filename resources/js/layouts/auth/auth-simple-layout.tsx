@@ -1,4 +1,4 @@
-import AppLogoIcon from '@/components/app-logo-icon';
+import BrandLogo from '@/components/brand-logo';
 import { Link } from '@inertiajs/react';
 
 interface AuthLayoutProps {
@@ -14,11 +14,8 @@ export default function AuthSimpleLayout({ children, title, description }: AuthL
             <div className="surface-card border-border/70 w-full max-w-sm rounded-2xl border p-8">
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col items-center gap-4">
-                        <Link href={route('home')} className="flex items-center gap-3 font-medium">
-                            <div className="bg-primary text-primary-foreground flex size-10 items-center justify-center rounded-xl">
-                                <AppLogoIcon className="size-5 fill-current" />
-                            </div>
-                            <span className="text-sm font-semibold tracking-tight">VSP CRM</span>
+                        <Link href={route('home')} className="flex flex-col items-center gap-2 font-medium">
+                            <BrandLogo variant="auth" />
                             <span className="sr-only">{title}</span>
                         </Link>
 

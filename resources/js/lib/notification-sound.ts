@@ -21,6 +21,9 @@ let unlocked = false;
 let lastPlayedAt = 0;
 const DEBOUNCE_MS = 1500;
 
+const audioCache = new Map<string, HTMLAudioElement>();
+let activePreviewAudio: HTMLAudioElement | null = null;
+
 function ensureGestureUnlock(): void {
     if (unlocked || typeof window === 'undefined') {
         return;
@@ -38,6 +41,29 @@ function ensureGestureUnlock(): void {
 
 ensureGestureUnlock();
 
+function getOrCreateAudio(url: string): HTMLAudioElement {
+    const cached = audioCache.get(url);
+
+    if (cached) {
+        return cached;
+    }
+
+    const audio = new Audio(url);
+    audio.preload = 'auto';
+    audio.load();
+    audioCache.set(url, audio);
+
+    return audio;
+}
+
+export function preloadNotificationSound(url: string): void {
+    if (typeof window === 'undefined' || url === '') {
+        return;
+    }
+
+    getOrCreateAudio(url);
+}
+
 export function configureNotificationSound(config: NotificationSoundPlaybackConfig | null | undefined): void {
     if (!config) {
         playbackConfig = { enabled: false, url: null };
@@ -46,6 +72,39 @@ export function configureNotificationSound(config: NotificationSoundPlaybackConf
     }
 
     playbackConfig = config;
+
+    if (config.url) {
+        preloadNotificationSound(config.url);
+    }
+}
+
+function playCachedAudio(audio: HTMLAudioElement, respectDebounce: boolean): void {
+    audio.volume = 0.75;
+    audio.currentTime = 0;
+
+    void audio
+        .play()
+        .then(() => {
+            if (respectDebounce) {
+                lastPlayedAt = Date.now();
+            }
+        })
+        .catch(() => {
+            const retry = () => {
+                void audio.play().catch(() => {
+                    // Autoplay blocked or media unavailable.
+                });
+            };
+
+            if (audio.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
+                retry();
+
+                return;
+            }
+
+            audio.addEventListener('canplaythrough', retry, { once: true });
+            audio.load();
+        });
 }
 
 function playAudio(url: string, respectDebounce: boolean): void {
@@ -59,23 +118,7 @@ function playAudio(url: string, respectDebounce: boolean): void {
         return;
     }
 
-    try {
-        const audio = new Audio(url);
-        audio.volume = 0.75;
-
-        void audio
-            .play()
-            .then(() => {
-                if (respectDebounce) {
-                    lastPlayedAt = Date.now();
-                }
-            })
-            .catch(() => {
-                // Autoplay blocked until the user interacts.
-            });
-    } catch {
-        // Never throw from audio into the UI.
-    }
+    playCachedAudio(getOrCreateAudio(url), respectDebounce);
 }
 
 /**
@@ -98,6 +141,12 @@ export function previewNotificationSound(url: string): void {
         return;
     }
 
-    ensureGestureUnlock();
-    playAudio(url, false);
+    if (activePreviewAudio && activePreviewAudio !== audioCache.get(url)) {
+        activePreviewAudio.pause();
+        activePreviewAudio.currentTime = 0;
+    }
+
+    const audio = getOrCreateAudio(url);
+    activePreviewAudio = audio;
+    playCachedAudio(audio, false);
 }
