@@ -1,4 +1,6 @@
+import { handleCommandCenterBroadcast } from '@/lib/command-center-realtime';
 import { handleIncomingNotification } from '@/lib/incoming-notification';
+import { handleOpenBoardBroadcast } from '@/lib/open-board-realtime';
 import { getEcho } from '@/lib/echo';
 import { type AppNotification } from '@/types';
 import { router } from '@inertiajs/react';
@@ -73,11 +75,15 @@ export function dispatchIncomingNotification(notification: AppNotification): voi
     }
 
     seenIds.add(notification.id);
-    handleIncomingNotification(notification, {
-        onNavigate: (url) => {
-            router.visit(url);
-        },
-    });
+
+    if (baselineSeeded) {
+        handleIncomingNotification(notification, {
+            onNavigate: (url) => {
+                router.visit(url);
+            },
+        });
+    }
+
     listeners.forEach((listener) => listener(notification));
 }
 
@@ -102,15 +108,25 @@ export function startRealtimeNotifications(userId: number): () => void {
         subscribedUserId = userId;
         const channelName = `staff.user.${userId}`;
 
-        echo.private(channelName).notification((payload: RealtimePayload) => {
-            const notification = toAppNotification(payload);
+        echo.private(channelName)
+            .notification((payload: RealtimePayload) => {
+                const notification = toAppNotification(payload);
 
-            if (!notification) {
-                return;
-            }
+                if (!notification) {
+                    return;
+                }
 
-            dispatchIncomingNotification(notification);
-        });
+                dispatchIncomingNotification(notification);
+            })
+            .listen('.open-board.task-claimed', (payload: { task_id: number }) => {
+                handleOpenBoardBroadcast('open-board.task-claimed', payload);
+            })
+            .listen('.open-board.task-published', (payload: { task: Record<string, unknown> }) => {
+                handleOpenBoardBroadcast('open-board.task-published', payload);
+            })
+            .listen('.command-center.updated', () => {
+                handleCommandCenterBroadcast('command-center.updated');
+            });
     }
 
     return () => {

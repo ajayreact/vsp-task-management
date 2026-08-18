@@ -121,7 +121,7 @@ test('reassigning notifies the previous and new assignees', function () {
     });
 });
 
-test('accepting notifies the creator and assigner', function () {
+test('accepting notifies oversight users that work is in progress', function () {
     Notification::fake();
 
     $manager = notifyManager();
@@ -141,7 +141,7 @@ test('accepting notifies the creator and assigner', function () {
     $this->actingAs($employee->user)->post("/tasks/{$task->id}/accept")->assertRedirect();
 
     Notification::assertSentTo($manager->user, StaffDatabaseNotification::class, function (StaffDatabaseNotification $notification) {
-        return $notification->payload['event'] === 'task.accepted';
+        return $notification->payload['event'] === 'task.in_progress';
     });
 
     Notification::assertNotSentTo($employee->user, StaffDatabaseNotification::class);
@@ -218,11 +218,12 @@ test('declining notifies the creator and assigner', function () {
     Notification::assertNotSentTo($employee->user, StaffDatabaseNotification::class);
 });
 
-test('publishing to the open board notifies withdrawn assignees and the creator', function () {
+test('publishing to the open board notifies withdrawn assignees, the creator, and eligible employees', function () {
     Notification::fake();
 
     $manager = notifyManager();
     $employee = notifyWorker();
+    $otherWorker = notifyWorker();
     $creator = notifyManager();
     $task = Task::factory()->create([
         'status' => TaskStatus::Assigned,
@@ -240,6 +241,8 @@ test('publishing to the open board notifies withdrawn assignees and the creator'
 
     Notification::assertSentTo($employee->user, StaffDatabaseNotification::class, fn (StaffDatabaseNotification $n) => $n->payload['event'] === 'task.reassigned_away');
     Notification::assertSentTo($creator->user, StaffDatabaseNotification::class, fn (StaffDatabaseNotification $n) => $n->payload['event'] === 'task.published');
+    Notification::assertSentTo($otherWorker->user, StaffDatabaseNotification::class, fn (StaffDatabaseNotification $n) => $n->payload['event'] === 'task.open_available'
+        && $n->payload['title'] === 'New Open Task Available');
 });
 
 test('starting a task notifies oversight users but not the actor', function () {
@@ -253,13 +256,21 @@ test('starting a task notifies oversight users but not the actor', function () {
         'manager_employee_id' => $projectManager->id,
     ]);
 
-    $task = Task::factory()->acceptedBy($employee)->create([
+    $task = Task::factory()->create([
+        'status' => TaskStatus::Assigned,
+        'assigned_employee_id' => $employee->id,
         'tm_project_id' => $project->id,
         'created_by_user_id' => $creator->user_id,
     ]);
+    $task->assignments()->create([
+        'employee_id' => $employee->id,
+        'assigned_by_user_id' => $creator->user_id,
+        'mode' => AssignmentAction::Direct,
+        'status' => AssignmentStatus::Pending,
+    ]);
 
     $this->actingAs($employee->user)
-        ->post("/tasks/{$task->id}/status", ['status' => TaskStatus::InProgress->value])
+        ->post("/tasks/{$task->id}/accept")
         ->assertRedirect();
 
     Notification::assertSentTo($creator->user, StaffDatabaseNotification::class, fn (StaffDatabaseNotification $n) => $n->payload['event'] === 'task.in_progress');
@@ -267,31 +278,36 @@ test('starting a task notifies oversight users but not the actor', function () {
     Notification::assertNotSentTo($employee->user, StaffDatabaseNotification::class);
 });
 
-test('completing a task notifies oversight users but not the actor', function () {
+test('client approval notifies oversight users and the assignee', function () {
     Notification::fake();
 
     $creator = notifyManager();
     $projectManager = notifyManager();
     $employee = notifyWorker();
+    $reviewer = notifyManager();
 
     $project = Project::factory()->create([
         'manager_employee_id' => $projectManager->id,
     ]);
 
     $task = Task::factory()->create([
-        'status' => TaskStatus::InProgress,
+        'status' => TaskStatus::InReview,
         'assigned_employee_id' => $employee->id,
         'tm_project_id' => $project->id,
         'created_by_user_id' => $creator->user_id,
     ]);
+    $deliverable = Deliverable::factory()->create([
+        'tm_task_id' => $task->id,
+        'submitted_by_employee_id' => $employee->id,
+        'status' => \App\Modules\TaskManagement\Enums\DeliverableStatus::Approved,
+    ]);
+    $link = app(\App\Modules\TaskManagement\Services\DeliverableShareLinkService::class)->getOrCreate($deliverable, $reviewer->user);
 
-    $this->actingAs($employee->user)
-        ->post("/tasks/{$task->id}/status", ['status' => TaskStatus::Completed->value])
-        ->assertRedirect();
+    $this->post(route('share.approve', ['token' => $link->token]))->assertRedirect();
 
-    Notification::assertSentTo($creator->user, StaffDatabaseNotification::class, fn (StaffDatabaseNotification $n) => $n->payload['event'] === 'task.completed');
-    Notification::assertSentTo($projectManager->user, StaffDatabaseNotification::class, fn (StaffDatabaseNotification $n) => $n->payload['event'] === 'task.completed');
-    Notification::assertNotSentTo($employee->user, StaffDatabaseNotification::class);
+    Notification::assertSentTo($creator->user, StaffDatabaseNotification::class, fn (StaffDatabaseNotification $n) => $n->payload['event'] === 'task.client_approved');
+    Notification::assertSentTo($projectManager->user, StaffDatabaseNotification::class, fn (StaffDatabaseNotification $n) => $n->payload['event'] === 'task.client_approved');
+    Notification::assertSentTo($employee->user, StaffDatabaseNotification::class, fn (StaffDatabaseNotification $n) => $n->payload['event'] === 'task.client_approved');
 });
 
 test('requesting proof changes notifies the assignee', function () {

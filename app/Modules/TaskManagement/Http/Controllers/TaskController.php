@@ -447,6 +447,8 @@ class TaskController extends Controller
             'project' => $request->integer('project') ?: null,
             'status' => $request->string('status')->value(),
             'priority' => $request->string('priority')->value(),
+            'overdue' => $request->boolean('overdue'),
+            'completed' => $request->string('completed')->value(),
         ];
     }
 
@@ -486,6 +488,10 @@ class TaskController extends Controller
             ->when($filters['project'], fn (Builder $query, int $id) => $query->where('tm_project_id', $id))
             ->when($filters['status'], fn (Builder $query, string $status) => $query->where('status', $status))
             ->when($filters['priority'], fn (Builder $query, string $priority) => $query->where('priority', $priority))
+            ->when($filters['overdue'], fn (Builder $query) => $query->overdue())
+            ->when($filters['completed'] === 'today', fn (Builder $query) => $query
+                ->where('status', TaskStatus::Completed)
+                ->whereDate('completed_at', today()))
             ->orderByRaw("field(priority, 'urgent', 'high', 'normal', 'low')")
             ->orderByRaw('due_at is null, due_at');
     }
@@ -560,6 +566,7 @@ class TaskController extends Controller
                 'status' => $deliverable->status->value,
                 'status_label' => $deliverable->status->label(),
                 'notes' => $deliverable->notes,
+                'client_feedback' => $deliverable->client_feedback,
                 'submitted_by' => $deliverable->submitter->user->name,
                 'submitted_at' => $deliverable->submitted_at->toIso8601String(),
                 'can_share' => $user->can('share', $deliverable),
@@ -642,9 +649,8 @@ class TaskController extends Controller
         if ($isAssignee && ! $canSubmit) {
             $blockedReason = match ($task->status) {
                 TaskStatus::Assigned => 'Accept this task before you can submit deliverables for review.',
-                TaskStatus::Accepted => 'Move this task to In Progress before submitting deliverables for review.',
                 TaskStatus::InReview => 'Your submission is awaiting review. You can upload a revised version once changes are requested.',
-                TaskStatus::Approved, TaskStatus::Completed => 'This task has already been approved or completed.',
+                TaskStatus::Completed => 'This task has already been completed.',
                 default => 'Deliverables can only be submitted while the task is in progress or after changes have been requested.',
             };
         }

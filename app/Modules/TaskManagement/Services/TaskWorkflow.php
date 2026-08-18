@@ -23,6 +23,8 @@ class TaskWorkflow
     public function __construct(
         protected TaskNotifier $notifier,
         protected RecurringTaskService $recurring,
+        protected OpenBoardBroadcastService $openBoardBroadcast,
+        protected DashboardBroadcastService $dashboardBroadcast,
     ) {}
 
     /**
@@ -44,6 +46,7 @@ class TaskWorkflow
         });
 
         $this->notifier->taskPublished($task, $actor, $withdrawn);
+        $this->openBoardBroadcast->taskPublished($task->refresh(), $actor);
 
         return $task;
     }
@@ -113,33 +116,34 @@ class TaskWorkflow
                 'responded_at' => now(),
             ]);
 
-            $fresh->forceFill(['assigned_employee_id' => $employee->id]);
+            $fresh->forceFill([
+                'assigned_employee_id' => $employee->id,
+                'assignment_mode' => AssignmentMode::Direct,
+            ]);
 
-            return $this->moveTo($fresh, TaskStatus::Accepted, $actor);
+            return $this->moveTo($fresh, TaskStatus::InProgress, $actor);
         });
 
         $this->notifier->taskClaimed($task, $actor);
+        $this->openBoardBroadcast->taskClaimed($task, $actor);
 
         return $task;
     }
 
     public function accept(Task $task, Employee $employee, User $actor): Task
     {
-        $assigner = null;
-
-        $task = DB::transaction(function () use ($task, $employee, $actor, &$assigner) {
+        $task = DB::transaction(function () use ($task, $employee, $actor) {
             $offer = $this->offerFor($task, $employee);
-            $assigner = $offer->assignedBy;
 
             $offer->update([
                 'status' => AssignmentStatus::Accepted,
                 'responded_at' => now(),
             ]);
 
-            return $this->moveTo($task, TaskStatus::Accepted, $actor);
+            return $this->moveTo($task, TaskStatus::InProgress, $actor);
         });
 
-        $this->notifier->taskAccepted($task, $actor, $assigner);
+        $this->notifier->taskInProgress($task, $actor);
 
         return $task;
     }
@@ -171,6 +175,7 @@ class TaskWorkflow
         });
 
         $this->notifier->taskDeclined($task, $actor, $assigner, $reason);
+        $this->openBoardBroadcast->taskPublished($task->refresh(), $actor);
 
         return $task;
     }
@@ -178,7 +183,7 @@ class TaskWorkflow
     /**
      * A plain status move, for the transitions that are not about assignment.
      */
-    public function transition(Task $task, TaskStatus $target, User $actor): Task
+    public function transition(Task $task, TaskStatus $target, User $actor, bool $notify = true): Task
     {
         $from = $task->status;
 
@@ -188,8 +193,8 @@ class TaskWorkflow
             return $this->moveTo($task, $target, $actor);
         });
 
-        if ($from !== $target) {
-            if ($target === TaskStatus::InProgress) {
+        if ($notify && $from !== $target) {
+            if ($target === TaskStatus::InProgress && $from !== TaskStatus::InProgress) {
                 $this->notifier->taskInProgress($task, $actor);
             }
 
@@ -200,6 +205,23 @@ class TaskWorkflow
         }
 
         return $task;
+    }
+
+    /**
+     * Client approval completes work that is still under internal review.
+     */
+    public function completeAfterClientApproval(Task $task, User $actor): Task
+    {
+        return DB::transaction(function () use ($task, $actor) {
+            if ($task->status !== TaskStatus::InReview) {
+                throw TaskWorkflowException::cannotTransition($task->status, TaskStatus::Completed);
+            }
+
+            $task = $this->moveTo($task, TaskStatus::Completed, $actor);
+            $this->recurring->generateNextOccurrence($task->refresh());
+
+            return $task;
+        });
     }
 
     protected function guardTransition(Task $task, TaskStatus $target): void
@@ -256,7 +278,9 @@ class TaskWorkflow
             ]);
         }
 
-        return $task->refresh();
+        $this->dashboardBroadcast->refresh($actor, $task->refresh());
+
+        return $task;
     }
 
     /**

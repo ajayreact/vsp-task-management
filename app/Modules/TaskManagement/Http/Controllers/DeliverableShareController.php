@@ -3,8 +3,11 @@
 namespace App\Modules\TaskManagement\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\TaskManagement\Models\Deliverable;
+use App\Modules\TaskManagement\Exceptions\ProductivityException;
 use App\Modules\TaskManagement\Models\DeliverableShareLink;
+use App\Modules\TaskManagement\Services\ClientDeliverableReview;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -12,6 +15,8 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class DeliverableShareController extends Controller
 {
+    public function __construct(protected ClientDeliverableReview $clientReview) {}
+
     public function show(string $token): Response
     {
         $link = $this->linkForToken($token);
@@ -30,7 +35,28 @@ class DeliverableShareController extends Controller
                 'submitted_at' => $deliverable->submitted_at->toDateString(),
             ],
             'files' => $this->publicProofFiles($link),
+            'can_respond' => $deliverable->status->value === 'approved' && $task->status->value === 'in_review',
+            'token' => $token,
         ]);
+    }
+
+    public function approve(string $token): RedirectResponse
+    {
+        return $this->runClientAction($token, fn (DeliverableShareLink $link) => $this->clientReview->approve($link),
+            'Thank you. Your approval has been recorded.');
+    }
+
+    public function requestChanges(Request $request, string $token): RedirectResponse
+    {
+        $validated = $request->validate([
+            'feedback' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        return $this->runClientAction(
+            $token,
+            fn (DeliverableShareLink $link) => $this->clientReview->requestChanges($link, $validated['feedback'] ?? null),
+            'Your feedback has been sent to the team.',
+        );
     }
 
     public function file(string $token, string $mediaUuid): SymfonyResponse
@@ -43,11 +69,24 @@ class DeliverableShareController extends Controller
         return $media->toInlineResponse(request());
     }
 
+    protected function runClientAction(string $token, callable $action, string $success): RedirectResponse
+    {
+        $link = $this->linkForToken($token);
+
+        try {
+            $action($link);
+        } catch (ProductivityException $exception) {
+            return back()->with('error', $exception->getMessage());
+        }
+
+        return back()->with('success', $success);
+    }
+
     protected function linkForToken(string $token): DeliverableShareLink
     {
         return DeliverableShareLink::query()
             ->where('token', $token)
-            ->with(['deliverable.task.project.company'])
+            ->with(['deliverable.task.project.company', 'createdBy'])
             ->firstOrFail();
     }
 
@@ -71,7 +110,7 @@ class DeliverableShareController extends Controller
     protected function proofMediaForLink(DeliverableShareLink $link, string $mediaUuid): Media
     {
         $media = Media::query()->where('uuid', $mediaUuid)->firstOrFail();
-        $deliverableClass = (new Deliverable)->getMorphClass();
+        $deliverableClass = (new \App\Modules\TaskManagement\Models\Deliverable)->getMorphClass();
 
         abort_unless(
             $media->collection_name === 'proofs'

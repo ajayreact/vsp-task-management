@@ -249,6 +249,29 @@ class Task extends Model implements HasMedia
     }
 
     /**
+     * Active work past its due date.
+     *
+     * @param  Builder<$this>  $query
+     */
+    public function scopeOverdue(Builder $query): void
+    {
+        $query->whereNotNull('due_at')
+            ->where('due_at', '<', now())
+            ->whereNotIn('status', [TaskStatus::Completed, TaskStatus::Draft]);
+    }
+
+    /**
+     * Draft work that still needs an owner.
+     *
+     * @param  Builder<$this>  $query
+     */
+    public function scopeNeedsAssignment(Builder $query): void
+    {
+        $query->whereNull('assigned_employee_id')
+            ->where('status', TaskStatus::Draft);
+    }
+
+    /**
      * Working files on the task itself. Creative proofs live on Deliverable
      * (`proofs`) and must never be mixed into this collection.
      *

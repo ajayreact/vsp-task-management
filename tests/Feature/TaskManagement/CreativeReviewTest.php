@@ -32,7 +32,7 @@ test('the assignee submits a proof and the task moves to in review', function ()
         ->and($deliverable->getMedia('proofs'))->toHaveCount(1);
 });
 
-test('a reviewer can approve a proof and the task becomes approved', function () {
+test('a reviewer can approve a proof and keep the task under review for the client', function () {
     Storage::fake('public');
 
     $employee = employeeWith(Ability::AccessTasks);
@@ -55,8 +55,12 @@ test('a reviewer can approve a proof and the task becomes approved', function ()
         ])
         ->assertRedirect();
 
-    expect($deliverable->refresh()->status)->toBe(DeliverableStatus::Approved)
-        ->and($task->refresh()->status)->toBe(TaskStatus::Approved)
+    $deliverable->refresh();
+    $task->refresh();
+
+    expect($deliverable->status)->toBe(DeliverableStatus::Approved)
+        ->and($task->status)->toBe(TaskStatus::InReview)
+        ->and($deliverable->shareLink)->not->toBeNull()
         ->and($deliverable->reviews()->sole()->comments)->toBe('Ship it');
 });
 

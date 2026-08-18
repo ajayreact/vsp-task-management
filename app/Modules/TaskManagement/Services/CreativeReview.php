@@ -18,6 +18,7 @@ class CreativeReview
     public function __construct(
         protected TaskWorkflow $workflow,
         protected TaskNotifier $notifier,
+        protected DeliverableShareLinkService $shareLinks,
     ) {}
 
     /**
@@ -38,6 +39,7 @@ class CreativeReview
                 'submitted_by_employee_id' => $employee->id,
                 'status' => DeliverableStatus::InReview,
                 'notes' => $notes,
+                'client_feedback' => null,
                 'submitted_at' => now(),
             ]);
 
@@ -76,7 +78,11 @@ class CreativeReview
                 'status' => $decision->resultingDeliverableStatus(),
             ]);
 
-            $this->workflow->transition($deliverable->task, $decision->resultingTaskStatus(), $reviewer);
+            if ($decision === ReviewDecision::Approve) {
+                $this->shareLinks->getOrCreate($deliverable->refresh(), $reviewer);
+            } else {
+                $this->workflow->transition($deliverable->task, $decision->resultingTaskStatus(), $reviewer);
+            }
 
             return $deliverable->refresh();
         });

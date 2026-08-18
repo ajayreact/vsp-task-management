@@ -22,7 +22,7 @@ class ProductivityException extends RuntimeException
 
     public static function taskNotWorkable(): self
     {
-        return new self('Time can only be logged once the task has been accepted.');
+        return new self('Time can only be logged once the task is in progress.');
     }
 
     public static function timesheetLocked(): self
@@ -53,5 +53,10 @@ class ProductivityException extends RuntimeException
     public static function cannotSubmitProof(): self
     {
         return new self('A proof can only be submitted while the task is in progress or in revision.');
+    }
+
+    public static function clientReviewUnavailable(): self
+    {
+        return new self('This deliverable is not ready for client review.');
     }
 }

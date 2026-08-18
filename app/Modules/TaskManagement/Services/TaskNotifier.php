@@ -20,8 +20,7 @@ use Illuminate\Support\Facades\Notification;
 
 /**
  * Resolves recipients and writes database notifications for Task Management
- * workflow events. Never notifies the actor. Never fans out to every employee
- * on Open Board publish.
+ * workflow events. Never notifies the actor.
  *
  * Callers invoke these methods after their own DB transaction succeeds.
  */
@@ -72,6 +71,26 @@ class TaskNotifier
                 'event' => 'task.published',
                 'title' => 'Task published to Open Board',
                 'body' => "{$actor->name} published \"{$task->title}\" to the Open Board.",
+                'url' => "/tasks/{$task->id}",
+                'task_id' => $task->id,
+            ]);
+        }
+
+        $this->notifyOpenBoardAvailable($task, $actor);
+    }
+
+    public function notifyOpenBoardAvailable(Task $task, User $actor): void
+    {
+        foreach ($this->eligibleOpenBoardEmployeesFor($task) as $recipient) {
+            /** @var User $recipient */
+            if ($recipient->id === $actor->id) {
+                continue;
+            }
+
+            $this->send($recipient, $actor, [
+                'event' => 'task.open_available',
+                'title' => 'New Open Task Available',
+                'body' => "A new task has been posted on the Open Board: \"{$task->title}\".",
                 'url' => "/tasks/{$task->id}",
                 'task_id' => $task->id,
             ]);
@@ -185,8 +204,8 @@ class TaskNotifier
 
         [$title, $body] = match ($decision) {
             ReviewDecision::Approve => [
-                'Proof approved',
-                "{$actor->name} approved your proof for \"{$task->title}\".",
+                'Work approved — share with client',
+                "{$actor->name} approved your proof for \"{$task->title}\". A client share link is ready.",
             ],
             ReviewDecision::RequestChanges => [
                 'Changes requested',
@@ -297,6 +316,47 @@ class TaskNotifier
             'url' => "/tasks/{$task->id}",
             'task_id' => $task->id,
         ];
+    }
+
+    public function clientApproved(Task $task): void
+    {
+        $task->loadMissing('assignee.user');
+
+        $recipients = $this->taskOversightUsers($task)
+            ->push($task->assignee?->user)
+            ->filter()
+            ->unique('id');
+
+        foreach ($recipients as $recipient) {
+            /** @var User $recipient */
+            $this->deliver($recipient, [
+                'event' => 'task.client_approved',
+                'title' => 'Client approved work',
+                'body' => "The client approved \"{$task->title}\". The task is now completed.",
+                'url' => "/tasks/{$task->id}",
+                'task_id' => $task->id,
+            ]);
+        }
+    }
+
+    public function clientRequestedChanges(Task $task, ?string $feedback): void
+    {
+        $task->loadMissing('assignee.user');
+        $assigneeUser = $task->assignee?->user;
+
+        if ($assigneeUser === null) {
+            return;
+        }
+
+        $suffix = $feedback ? " Feedback: {$feedback}" : '';
+
+        $this->deliver($assigneeUser, [
+            'event' => 'task.client_request_changes',
+            'title' => 'Client requested changes',
+            'body' => "The client requested changes on \"{$task->title}\".{$suffix}",
+            'url' => "/tasks/{$task->id}",
+            'task_id' => $task->id,
+        ]);
     }
 
     public function subtaskAssigned(Task $task, TaskSubtask $subtask, User $actor): void
@@ -417,6 +477,28 @@ class TaskNotifier
         $driver = config('broadcasting.default');
 
         return filled($driver) && $driver !== 'null';
+    }
+
+    /**
+     * Employees who may claim open-board work (matches TaskPolicy::claim).
+     *
+     * @return Collection<int, User>
+     */
+    public function eligibleOpenBoardEmployeesFor(Task $task): Collection
+    {
+        return User::query()
+            ->internal()
+            ->where('is_active', true)
+            ->permission(Ability::AccessTasks->value)
+            ->whereHas('employee', fn ($query) => $query->assignable())
+            ->get()
+            ->unique('id')
+            ->values();
+    }
+
+    protected function eligibleOpenBoardEmployees(Task $task): Collection
+    {
+        return $this->eligibleOpenBoardEmployeesFor($task);
     }
 
     /**

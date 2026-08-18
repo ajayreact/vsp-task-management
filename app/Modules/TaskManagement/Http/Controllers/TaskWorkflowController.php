@@ -44,16 +44,27 @@ class TaskWorkflowController extends Controller
 
     public function claim(Request $request, Task $task): RedirectResponse
     {
-        $this->authorize('claim', $task);
-
         $employee = $request->user()->employee;
 
-        // The policy has already established this exists; findOrFail keeps the
-        // type honest for anyone reading the method in isolation.
         abort_if($employee === null, 403);
 
-        return $this->run(fn () => $this->workflow->claim($task, $employee, $request->user()),
-            'Task claimed. It is yours now.');
+        $task->refresh();
+
+        if (! $request->user()->can('claim', $task)) {
+            if ($task->status === TaskStatus::InProgress) {
+                return back()->with('error', TaskWorkflowException::alreadyClaimed()->getMessage());
+            }
+
+            abort(403);
+        }
+
+        try {
+            $this->workflow->claim($task, $employee, $request->user());
+        } catch (TaskWorkflowException $exception) {
+            return back()->with('error', $exception->getMessage());
+        }
+
+        return to_route('tasks.show', $task)->with('success', 'Task claimed. You are now working on it.');
     }
 
     public function accept(Request $request, Task $task): RedirectResponse
@@ -65,7 +76,7 @@ class TaskWorkflowController extends Controller
         abort_if($employee === null, 403);
 
         return $this->run(fn () => $this->workflow->accept($task, $employee, $request->user()),
-            'Task accepted.');
+            'Task accepted. Work is now in progress.');
     }
 
     public function decline(Request $request, Task $task): RedirectResponse

@@ -5,6 +5,7 @@ namespace App\Modules\TaskManagement\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Core\Models\Department;
 use App\Modules\TaskManagement\Models\Task;
+use App\Modules\TaskManagement\Services\OpenBoardBroadcastService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,6 +17,8 @@ use Inertia\Response;
  */
 class OpenBoardController extends Controller
 {
+    public function __construct(protected OpenBoardBroadcastService $openBoardBroadcast) {}
+
     public function __invoke(Request $request): Response
     {
         $this->authorize('viewAny', Task::class);
@@ -38,17 +41,7 @@ class OpenBoardController extends Controller
             ->orderByRaw('due_at is null, due_at')
             ->paginate(20)
             ->withQueryString()
-            ->through(fn (Task $task) => [
-                'id' => $task->id,
-                'title' => $task->title,
-                'type' => $task->type->label(),
-                'priority' => $task->priority->value,
-                'priority_label' => $task->priority->label(),
-                'project_name' => $task->project->name,
-                'department_name' => $task->department?->name,
-                'estimated_hours' => $task->estimated_hours,
-                'due_at' => $task->due_at?->toIso8601String(),
-            ]);
+            ->through(fn (Task $task) => $this->openBoardBroadcast->serializeBoardTask($task));
 
         return Inertia::render('TaskManagement/board', [
             'tasks' => $tasks,

@@ -144,21 +144,15 @@ test('an open task is visible to everyone so that it can be picked up', function
         ->assertInertia(fn ($page) => $page->where('can.claim', true));
 });
 
-test('the assignee drives the task through to completion', function () {
+test('the assignee can move an in-progress task into review', function () {
     $employee = employeeWith(Ability::AccessTasks);
     $task = Task::factory()->acceptedBy($employee)->create();
 
     $this->actingAs($employee->user)
-        ->post("/tasks/{$task->id}/status", ['status' => TaskStatus::InProgress->value])
+        ->post("/tasks/{$task->id}/status", ['status' => TaskStatus::InReview->value])
         ->assertRedirect();
 
-    expect($task->refresh()->status)->toBe(TaskStatus::InProgress)
-        ->and($task->started_at)->not->toBeNull();
-
-    $this->actingAs($employee->user)->post("/tasks/{$task->id}/status", ['status' => TaskStatus::Completed->value]);
-
-    expect($task->refresh()->status)->toBe(TaskStatus::Completed)
-        ->and($task->completed_at)->not->toBeNull();
+    expect($task->refresh()->status)->toBe(TaskStatus::InReview);
 });
 
 test('an illegal jump through the lifecycle is refused', function () {
@@ -169,7 +163,7 @@ test('an illegal jump through the lifecycle is refused', function () {
         ->post("/tasks/{$task->id}/status", ['status' => TaskStatus::Completed->value])
         ->assertSessionHas('error');
 
-    expect($task->refresh()->status)->toBe(TaskStatus::Accepted);
+    expect($task->refresh()->status)->toBe(TaskStatus::InProgress);
 });
 
 test('a bystander cannot push someone elses task along', function () {
@@ -206,5 +200,5 @@ test('the detail screen offers only the transitions the task can make', function
         ->get("/tasks/{$task->id}")
         ->assertInertia(fn ($page) => $page
             ->has('allowedTransitions', 1)
-            ->where('allowedTransitions.0.value', TaskStatus::InProgress->value));
+            ->where('allowedTransitions.0.value', TaskStatus::InReview->value));
 });

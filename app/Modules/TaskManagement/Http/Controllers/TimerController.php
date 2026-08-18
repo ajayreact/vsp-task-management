@@ -32,7 +32,7 @@ class TimerController extends Controller
         abort_if($employee === null, 403);
 
         return $this->run(
-            fn () => $this->tracker->pause($task, $employee),
+            fn () => $this->tracker->pause($task, $employee, $request->user()),
             'Timer paused.',
         );
     }
@@ -44,7 +44,7 @@ class TimerController extends Controller
         abort_if($employee === null, 403);
 
         return $this->run(
-            fn () => $this->tracker->stop($task, $employee),
+            fn () => $this->tracker->stop($task, $employee, $request->user()),
             'Timer stopped.',
         );
     }

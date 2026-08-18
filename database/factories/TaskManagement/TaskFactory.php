@@ -68,8 +68,9 @@ class TaskFactory extends Factory
     public function acceptedBy(Employee $employee): static
     {
         return $this->state(fn () => [
-            'status' => TaskStatus::Accepted,
+            'status' => TaskStatus::InProgress,
             'assigned_employee_id' => $employee->id,
+            'started_at' => now(),
         ]);
     }
 }

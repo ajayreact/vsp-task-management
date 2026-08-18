@@ -28,7 +28,15 @@ export interface TaskRow {
 
 interface Props {
     tasks: Paginated<TaskRow>;
-    filters: { scope: string; search: string | null; project: number | null; status: string | null; priority: string | null };
+    filters: {
+        scope: string;
+        search: string | null;
+        project: number | null;
+        status: string | null;
+        priority: string | null;
+        overdue?: boolean;
+        completed?: string | null;
+    };
     projects: { id: number; name: string }[];
     statuses: Option[];
     priorities: Option[];
@@ -60,6 +68,8 @@ export default function TaskIndex({ tasks, filters, projects, statuses, prioriti
                 project: filters.project ?? undefined,
                 status: filters.status || undefined,
                 priority: filters.priority || undefined,
+                overdue: filters.overdue ? 1 : undefined,
+                completed: filters.completed || undefined,
                 per_page: tasks.per_page,
                 ...changes,
             },

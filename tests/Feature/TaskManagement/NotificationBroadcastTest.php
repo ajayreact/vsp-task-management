@@ -3,37 +3,8 @@
 use App\Modules\Core\Enums\Ability;
 use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Notifications\StaffDatabaseNotification;
-use Illuminate\Broadcasting\BroadcastManager;
-use Illuminate\Contracts\Broadcasting\Factory;
 use Illuminate\Notifications\Events\BroadcastNotificationCreated;
-use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Event;
-
-/**
- * Channel callbacks register on the boot-time driver (null in phpunit).
- * Auth tests need Reverb with those callbacks on the active connection.
- */
-function configureReverbForChannelAuth(): void
-{
-    config([
-        'broadcasting.default' => 'reverb',
-        'broadcasting.connections.reverb.key' => 'test-key',
-        'broadcasting.connections.reverb.secret' => 'test-secret',
-        'broadcasting.connections.reverb.app_id' => 'test-app',
-        'broadcasting.connections.reverb.options' => [
-            'host' => '127.0.0.1',
-            'port' => 8080,
-            'scheme' => 'http',
-            'useTLS' => false,
-        ],
-    ]);
-
-    app()->forgetInstance(BroadcastManager::class);
-    app()->forgetInstance(Factory::class);
-    Broadcast::swap(new BroadcastManager(app()));
-
-    require base_path('routes/channels.php');
-}
 
 test('a stored staff notification is also queued for broadcast to the recipient', function () {
     configureReverbForChannelAuth();

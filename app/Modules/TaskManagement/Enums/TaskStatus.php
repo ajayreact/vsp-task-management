@@ -12,10 +12,12 @@ enum TaskStatus: string
     case Draft = 'draft';
     case Open = 'open';
     case Assigned = 'assigned';
+    /** @deprecated Legacy rows only — accept and claim now land on InProgress. */
     case Accepted = 'accepted';
     case InProgress = 'in_progress';
     case InReview = 'in_review';
     case Revision = 'revision';
+    /** @deprecated Legacy rows only — internal approval keeps the task in review. */
     case Approved = 'approved';
     case Completed = 'completed';
 
@@ -24,10 +26,10 @@ enum TaskStatus: string
         return match ($this) {
             self::Draft => 'Draft',
             self::Open => 'Open',
-            self::Assigned => 'Awaiting acceptance',
+            self::Assigned => 'Assigned',
             self::Accepted => 'Accepted',
             self::InProgress => 'In progress',
-            self::InReview => 'In review',
+            self::InReview => 'Under review',
             self::Revision => 'Changes requested',
             self::Approved => 'Approved',
             self::Completed => 'Completed',
@@ -41,17 +43,11 @@ enum TaskStatus: string
     {
         return match ($this) {
             self::Draft => [self::Open, self::Assigned],
-            // Accepted is reachable directly because claiming is self-service:
-            // the person chose the task, so there is nothing left to accept.
-            self::Open => [self::Assigned, self::Accepted, self::Draft],
-            // A decline returns the task to the board rather than stranding it
-            // on someone who said no.
-            self::Assigned => [self::Accepted, self::Open],
+            self::Open => [self::Assigned, self::InProgress, self::Draft],
+            self::Assigned => [self::InProgress, self::Open],
             self::Accepted => [self::InProgress],
-            // Review is optional: not every task produces a creative that needs
-            // approving, so work can close out directly.
-            self::InProgress => [self::InReview, self::Completed],
-            self::InReview => [self::Revision, self::Approved],
+            self::InProgress => [self::InReview],
+            self::InReview => [self::Revision],
             self::Revision => [self::InReview],
             self::Approved => [self::Completed],
             self::Completed => [],
@@ -77,14 +73,11 @@ enum TaskStatus: string
     }
 
     /**
-     * The timer and manual entries are allowed once someone has accepted the
-     * work. Review rounds still count: people often keep the clock running
-     * while they wait for a note.
+     * The timer and manual entries are allowed once work has started.
      */
     public function isWorkable(): bool
     {
         return in_array($this, [
-            self::Accepted,
             self::InProgress,
             self::InReview,
             self::Revision,
@@ -98,7 +91,6 @@ enum TaskStatus: string
     {
         return in_array($this, [
             self::Assigned,
-            self::Accepted,
             self::InProgress,
             self::InReview,
             self::Revision,

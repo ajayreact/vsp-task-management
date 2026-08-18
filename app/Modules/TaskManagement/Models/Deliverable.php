@@ -21,6 +21,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property int $submitted_by_employee_id
  * @property DeliverableStatus $status
  * @property string|null $notes
+ * @property string|null $client_feedback
  * @property Carbon $submitted_at
  * @property-read Task $task
  * @property-read Employee $submitter
@@ -42,6 +43,7 @@ class Deliverable extends Model implements HasMedia
         'submitted_by_employee_id',
         'status',
         'notes',
+        'client_feedback',
         'submitted_at',
     ];
 

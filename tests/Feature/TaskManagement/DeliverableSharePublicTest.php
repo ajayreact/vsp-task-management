@@ -1,6 +1,8 @@
 <?php
 
 use App\Modules\Core\Models\User;
+use App\Modules\TaskManagement\Enums\DeliverableStatus;
+use App\Modules\TaskManagement\Enums\TaskStatus;
 use App\Modules\TaskManagement\Models\Deliverable;
 use App\Modules\TaskManagement\Services\DeliverableShareLinkService;
 use Illuminate\Http\UploadedFile;
@@ -154,4 +156,54 @@ test('the public share page does not include staff navigation', function () {
         ->assertDontSee('Open Board')
         ->assertDontSee('>Employees<', false)
         ->assertDontSee('>Workload<', false);
+});
+
+test('a client can approve an internally approved deliverable and complete the task', function () {
+    $employee = employeeWith(\App\Modules\Core\Enums\Ability::AccessTasks);
+    $reviewer = employeeWith(\App\Modules\Core\Enums\Ability::AccessTasks, \App\Modules\Core\Enums\Ability::ReviewDeliverables);
+    $task = \App\Modules\TaskManagement\Models\Task::factory()->create([
+        'status' => TaskStatus::InReview,
+        'assigned_employee_id' => $employee->id,
+    ]);
+    $deliverable = Deliverable::factory()->create([
+        'tm_task_id' => $task->id,
+        'submitted_by_employee_id' => $employee->id,
+        'status' => DeliverableStatus::Approved,
+    ]);
+    $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, $reviewer->user);
+
+    $this->post(route('share.approve', ['token' => $link->token]))
+        ->assertRedirect()
+        ->assertSessionHas('success');
+
+    expect($task->refresh()->status)->toBe(TaskStatus::Completed)
+        ->and($task->completed_at)->not->toBeNull();
+});
+
+test('a client can request changes and send the task back to revision', function () {
+    $employee = employeeWith(\App\Modules\Core\Enums\Ability::AccessTasks);
+    $reviewer = employeeWith(\App\Modules\Core\Enums\Ability::AccessTasks, \App\Modules\Core\Enums\Ability::ReviewDeliverables);
+    $task = \App\Modules\TaskManagement\Models\Task::factory()->create([
+        'status' => TaskStatus::InReview,
+        'assigned_employee_id' => $employee->id,
+    ]);
+    $deliverable = Deliverable::factory()->create([
+        'tm_task_id' => $task->id,
+        'submitted_by_employee_id' => $employee->id,
+        'status' => DeliverableStatus::Approved,
+    ]);
+    $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, $reviewer->user);
+
+    $this->post(route('share.request-changes', ['token' => $link->token]), [
+        'feedback' => 'Please adjust the headline.',
+    ])
+        ->assertRedirect()
+        ->assertSessionHas('success');
+
+    $deliverable->refresh();
+    $task->refresh();
+
+    expect($task->status)->toBe(TaskStatus::Revision)
+        ->and($deliverable->status)->toBe(DeliverableStatus::ChangesRequested)
+        ->and($deliverable->client_feedback)->toBe('Please adjust the headline.');
 });

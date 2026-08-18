@@ -17,6 +17,14 @@ Route::get('share/{token}', [DeliverableShareController::class, 'show'])
     ->where('token', '[0-9a-f]{64}')
     ->name('share.show');
 
+Route::post('share/{token}/approve', [DeliverableShareController::class, 'approve'])
+    ->where('token', '[0-9a-f]{64}')
+    ->name('share.approve');
+
+Route::post('share/{token}/request-changes', [DeliverableShareController::class, 'requestChanges'])
+    ->where('token', '[0-9a-f]{64}')
+    ->name('share.request-changes');
+
 Route::get('share/{token}/files/{mediaUuid}', [DeliverableShareController::class, 'file'])
     ->where('token', '[0-9a-f]{64}')
     ->where('mediaUuid', '[0-9a-fA-F-]{36}')

@@ -1,16 +1,21 @@
 import { showIncomingBrowserNotification } from '@/lib/browser-notifications';
 import { readNotificationPreferences } from '@/lib/notification-preferences';
+import { showNotificationToast } from '@/lib/notification-toast-store';
 import { playNotificationSound } from '@/lib/notification-sound';
 import { type AppNotification } from '@/types';
-import { toast } from 'sonner';
 
 type NavigateHandler = (url: string) => void;
 
 /**
- * Handle a genuinely new notification: sound, browser alert, and in-app toast.
+ * Handle a genuinely new notification: in-app toast, sound, and browser alert.
+ * Called only from dispatchIncomingNotification after duplicate filtering.
  */
 export function handleIncomingNotification(notification: AppNotification, options?: { onNavigate?: NavigateHandler }): void {
     const preferences = readNotificationPreferences();
+
+    if (preferences.inApp) {
+        showNotificationToast(notification);
+    }
 
     if (preferences.sound) {
         playNotificationSound();
@@ -19,22 +24,6 @@ export function handleIncomingNotification(notification: AppNotification, option
     if (preferences.browser) {
         showIncomingBrowserNotification(notification, {
             onNavigate: options?.onNavigate,
-        });
-    }
-
-    if (preferences.inApp) {
-        toast(notification.title, {
-            description: notification.body,
-            action: notification.url
-                ? {
-                      label: 'Open',
-                      onClick: () => {
-                          if (notification.url) {
-                              options?.onNavigate?.(notification.url);
-                          }
-                      },
-                  }
-                : undefined,
         });
     }
 }

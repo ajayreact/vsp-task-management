@@ -4,6 +4,7 @@ import { AppSidebar, type AppSidebarProps } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import { FlashToaster } from '@/components/flash-toaster';
 import { DesktopNotificationPrompt } from '@/components/notifications/desktop-notification-prompt';
+import { NotificationToastHost } from '@/components/notifications/notification-toast-host';
 import { useNotificationSoundConfig } from '@/hooks/use-notification-sound-config';
 import { type BreadcrumbItem } from '@/types';
 
@@ -24,6 +25,7 @@ export default function AppSidebarLayout({ children, breadcrumbs = [], ...sideba
                 {children}
             </AppContent>
             <FlashToaster />
+            <NotificationToastHost />
         </AppShell>
     );
 }

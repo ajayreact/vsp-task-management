@@ -4,7 +4,6 @@ namespace App\Modules\TaskManagement\Services;
 
 use App\Modules\Core\Models\Employee;
 use App\Modules\Core\Models\User;
-use App\Modules\TaskManagement\Enums\TaskStatus;
 use App\Modules\TaskManagement\Enums\TimesheetStatus;
 use App\Modules\TaskManagement\Enums\TimeSource;
 use App\Modules\TaskManagement\Exceptions\ProductivityException;
@@ -21,11 +20,14 @@ use Illuminate\Support\Facades\DB;
  */
 class TimeTracker
 {
-    public function __construct(protected TaskWorkflow $workflow) {}
+    public function __construct(
+        protected TaskWorkflow $workflow,
+        protected DashboardBroadcastService $dashboardBroadcast,
+    ) {}
 
     public function start(Task $task, Employee $employee, User $actor): TimeEntry
     {
-        return DB::transaction(function () use ($task, $employee, $actor) {
+        $entry = DB::transaction(function () use ($task, $employee) {
             $this->guardWorkable($task);
             $this->guardUnlocked($employee, now());
 
@@ -37,10 +39,6 @@ class TimeTracker
 
             if ($running !== null) {
                 throw ProductivityException::timerAlreadyRunning();
-            }
-
-            if ($task->status === TaskStatus::Accepted) {
-                $this->workflow->transition($task, TaskStatus::InProgress, $actor);
             }
 
             $entry = TimeEntry::create([
@@ -57,16 +55,28 @@ class TimeTracker
 
             return $entry;
         });
+
+        $this->dashboardBroadcast->refresh($actor, $task);
+
+        return $entry;
     }
 
-    public function pause(Task $task, Employee $employee): TimeEntry
+    public function pause(Task $task, Employee $employee, User $actor): TimeEntry
     {
-        return $this->stopRunning($task, $employee);
+        $entry = $this->stopRunning($task, $employee);
+
+        $this->dashboardBroadcast->refresh($actor, $task);
+
+        return $entry;
     }
 
-    public function stop(Task $task, Employee $employee): TimeEntry
+    public function stop(Task $task, Employee $employee, User $actor): TimeEntry
     {
-        return $this->stopRunning($task, $employee);
+        $entry = $this->stopRunning($task, $employee);
+
+        $this->dashboardBroadcast->refresh($actor, $task);
+
+        return $entry;
     }
 
     /**

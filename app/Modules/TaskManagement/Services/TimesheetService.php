@@ -10,7 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 class TimesheetService
 {
-    public function __construct(protected TaskNotifier $notifier) {}
+    public function __construct(
+        protected TaskNotifier $notifier,
+        protected DashboardBroadcastService $dashboardBroadcast,
+    ) {}
 
     public function submit(Timesheet $timesheet): Timesheet
     {
@@ -36,6 +39,7 @@ class TimesheetService
 
         if ($actor !== null) {
             $this->notifier->timesheetSubmitted($timesheet, $actor);
+            $this->dashboardBroadcast->refresh($actor);
         }
 
         return $timesheet;
@@ -75,6 +79,7 @@ class TimesheetService
         });
 
         $this->notifier->timesheetReviewed($timesheet, $reviewer, $target);
+        $this->dashboardBroadcast->refresh($reviewer);
 
         return $timesheet;
     }

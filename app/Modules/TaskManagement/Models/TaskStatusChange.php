@@ -53,4 +53,12 @@ class TaskStatusChange extends Model
     {
         return $this->belongsTo(User::class, 'changed_by_user_id');
     }
+
+    /**
+     * @return BelongsTo<Task, $this>
+     */
+    public function task(): BelongsTo
+    {
+        return $this->belongsTo(Task::class, 'tm_task_id');
+    }
 }

@@ -12,15 +12,14 @@ use App\Modules\TaskManagement\Enums\TaskStatus;
 |
 */
 
-test('the happy path from draft to completed is walkable', function () {
+test('the simplified happy path from assignment to resubmission is walkable', function () {
     $path = [
         TaskStatus::Draft,
         TaskStatus::Assigned,
-        TaskStatus::Accepted,
         TaskStatus::InProgress,
         TaskStatus::InReview,
-        TaskStatus::Approved,
-        TaskStatus::Completed,
+        TaskStatus::Revision,
+        TaskStatus::InReview,
     ];
 
     foreach (array_slice($path, 0, -1) as $index => $status) {
@@ -33,21 +32,18 @@ test('completed is terminal', function () {
         ->and(TaskStatus::Completed->isClosed())->toBeTrue();
 });
 
-test('work cannot skip acceptance', function () {
-    expect(TaskStatus::Assigned->canTransitionTo(TaskStatus::InProgress))->toBeFalse()
-        ->and(TaskStatus::Draft->canTransitionTo(TaskStatus::Accepted))->toBeFalse();
+test('acceptance moves directly to in progress', function () {
+    expect(TaskStatus::Assigned->canTransitionTo(TaskStatus::InProgress))->toBeTrue()
+        ->and(TaskStatus::Assigned->canTransitionTo(TaskStatus::Accepted))->toBeFalse()
+        ->and(TaskStatus::Open->canTransitionTo(TaskStatus::InProgress))->toBeTrue();
 });
 
 test('a declined task falls back to the open board', function () {
     expect(TaskStatus::Assigned->canTransitionTo(TaskStatus::Open))->toBeTrue();
 });
 
-test('claiming reaches accepted directly because the person chose the task', function () {
-    expect(TaskStatus::Open->canTransitionTo(TaskStatus::Accepted))->toBeTrue();
-});
-
-test('review is optional so work can close out without it', function () {
-    expect(TaskStatus::InProgress->canTransitionTo(TaskStatus::Completed))->toBeTrue()
+test('work must go through review before completion', function () {
+    expect(TaskStatus::InProgress->canTransitionTo(TaskStatus::Completed))->toBeFalse()
         ->and(TaskStatus::InProgress->canTransitionTo(TaskStatus::InReview))->toBeTrue();
 });
 
@@ -61,7 +57,6 @@ test('only the pre-work states count as unstarted', function () {
     expect(TaskStatus::Draft->isUnstarted())->toBeTrue()
         ->and(TaskStatus::Open->isUnstarted())->toBeTrue()
         ->and(TaskStatus::Assigned->isUnstarted())->toBeTrue()
-        ->and(TaskStatus::Accepted->isUnstarted())->toBeFalse()
         ->and(TaskStatus::InProgress->isUnstarted())->toBeFalse();
 });
 

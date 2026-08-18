@@ -135,7 +135,8 @@ test('the assignee accepts and the task becomes theirs', function () {
         ->post("/tasks/{$task->id}/accept")
         ->assertRedirect();
 
-    expect($task->refresh()->status)->toBe(TaskStatus::Accepted)
+    expect($task->refresh()->status)->toBe(TaskStatus::InProgress)
+        ->and($task->started_at)->not->toBeNull()
         ->and($task->assignments()->sole()->status)->toBe(AssignmentStatus::Accepted);
 });
 
@@ -180,13 +181,15 @@ test('an employee claims an open task and holds it immediately', function () {
 
     $this->actingAs($employee->user)
         ->post("/tasks/{$task->id}/claim")
-        ->assertRedirect();
+        ->assertRedirect(route('tasks.show', $task));
 
     $task->refresh();
 
-    // No acceptance step: they chose it, so there is nothing to accept.
-    expect($task->status)->toBe(TaskStatus::Accepted)
-        ->and($task->assigned_employee_id)->toBe($employee->id);
+    // Accept moves straight into active work — no separate accepted status.
+    expect($task->status)->toBe(TaskStatus::InProgress)
+        ->and($task->assigned_employee_id)->toBe($employee->id)
+        ->and($task->assignment_mode)->toBe(AssignmentMode::Direct)
+        ->and($task->started_at)->not->toBeNull();
 
     $claim = $task->assignments()->sole();
 
@@ -205,7 +208,8 @@ test('a task already claimed cannot be claimed again', function () {
 
     $this->actingAs($second->user)
         ->post("/tasks/{$task->id}/claim")
-        ->assertForbidden();
+        ->assertRedirect()
+        ->assertSessionHas('error', 'This task has already been claimed.');
 
     expect($task->refresh()->assigned_employee_id)->toBe($first->id);
 });

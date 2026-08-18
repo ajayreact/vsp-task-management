@@ -1,7 +1,10 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Head } from '@inertiajs/react';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Head, useForm, usePage } from '@inertiajs/react';
+import { Check, MessageSquareWarning } from 'lucide-react';
 
 interface SharedFile {
     name: string;
@@ -21,7 +24,13 @@ interface Props {
         submitted_at: string;
     };
     files: SharedFile[];
+    can_respond: boolean;
+    token: string;
 }
+
+type SharePageProps = Props & {
+    flash?: { success?: string; error?: string };
+};
 
 function formatBytes(bytes: number): string {
     if (bytes < 1024) {
@@ -83,7 +92,19 @@ function ProofFile({ file }: { file: SharedFile }) {
     );
 }
 
-export default function PublicDeliverableShare({ brand, client_name, project_name, task_title, deliverable, files }: Props) {
+export default function PublicDeliverableShare({
+    brand,
+    client_name,
+    project_name,
+    task_title,
+    deliverable,
+    files,
+    can_respond,
+    token,
+}: Props) {
+    const { flash } = usePage<SharePageProps>().props;
+    const feedbackForm = useForm({ feedback: '' });
+
     return (
         <>
             <Head title="Deliverable" />
@@ -94,6 +115,18 @@ export default function PublicDeliverableShare({ brand, client_name, project_nam
                         <p className="text-muted-foreground text-sm font-medium tracking-wide uppercase">{brand}</p>
                         <p className="text-lg font-semibold">{client_name}</p>
                     </div>
+
+                    {(flash?.success || flash?.error) && (
+                        <div
+                            className={
+                                flash.error
+                                    ? 'border-destructive/40 bg-destructive/5 rounded-lg border p-3 text-sm'
+                                    : 'border-primary/40 bg-primary/5 rounded-lg border p-3 text-sm'
+                            }
+                        >
+                            {flash.error ?? flash.success}
+                        </div>
+                    )}
 
                     <Card>
                         <CardHeader>
@@ -132,6 +165,56 @@ export default function PublicDeliverableShare({ brand, client_name, project_nam
                             ))}
                         </CardContent>
                     </Card>
+
+                    {can_respond && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Your decision</CardTitle>
+                                <CardDescription>Review the files above, then approve or request changes.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <form
+                                    onSubmit={(event) => {
+                                        event.preventDefault();
+                                        feedbackForm.post(`/share/${token}/request-changes`, { preserveScroll: true });
+                                    }}
+                                    className="space-y-3"
+                                >
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="feedback">Feedback (optional for approval, recommended for changes)</Label>
+                                        <Textarea
+                                            id="feedback"
+                                            value={feedbackForm.data.feedback}
+                                            onChange={(event) => feedbackForm.setData('feedback', event.target.value)}
+                                            rows={4}
+                                            placeholder="Tell the team what to adjust..."
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-2">
+                                        <Button
+                                            type="button"
+                                            className="gap-2"
+                                            disabled={feedbackForm.processing}
+                                            onClick={() => feedbackForm.post(`/share/${token}/approve`, { preserveScroll: true })}
+                                        >
+                                            <Check className="size-4" />
+                                            Approve work
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            variant="outline"
+                                            className="gap-2"
+                                            disabled={feedbackForm.processing}
+                                        >
+                                            <MessageSquareWarning className="size-4" />
+                                            Request changes
+                                        </Button>
+                                    </div>
+                                </form>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
             </div>
         </>

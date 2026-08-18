@@ -19,7 +19,7 @@ class TaskWorkflowException extends RuntimeException
 
     public static function alreadyClaimed(): self
     {
-        return new self('Someone else claimed this task first.');
+        return new self('This task has already been claimed.');
     }
 
     public static function notOnOffer(): self

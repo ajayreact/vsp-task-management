@@ -6,9 +6,10 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { useOpenBoardRealtime } from '@/hooks/use-open-board-realtime';
 import TaskLayout from '@/layouts/task-layout';
-import { type BreadcrumbItem, type Paginated } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { type BreadcrumbItem, type Paginated, type SharedData } from '@/types';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 
 interface BoardTask {
     id: number;
@@ -17,6 +18,7 @@ interface BoardTask {
     priority: string;
     priority_label: string;
     project_name: string;
+    department_id: number | null;
     department_name: string | null;
     estimated_hours: string | null;
     due_at: string | null;
@@ -37,6 +39,15 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function OpenBoard({ tasks, filters, departments, can }: Props) {
+    const { auth } = usePage<SharedData>().props;
+    const employeeDepartmentId = auth.user?.employee?.department_id ?? null;
+
+    const liveTasks = useOpenBoardRealtime({
+        initialTasks: tasks.data,
+        employeeDepartmentId,
+        filters,
+    });
+
     const apply = (changes: Record<string, string | number | boolean | null>) => {
         router.get(
             '/tasks/board',
@@ -87,13 +98,13 @@ export default function OpenBoard({ tasks, filters, departments, can }: Props) {
                     </div>
                 </div>
 
-                {tasks.data.length === 0 ? (
+                {liveTasks.length === 0 ? (
                     <div className="text-muted-foreground rounded-xl border border-dashed p-10 text-center text-sm">
                         The board is empty. Everything has been picked up.
                     </div>
                 ) : (
                     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                        {tasks.data.map((task) => (
+                        {liveTasks.map((task) => (
                             <Card key={task.id} className="flex flex-col">
                                 <CardHeader>
                                     <div className="flex items-start justify-between gap-2">
@@ -120,7 +131,9 @@ export default function OpenBoard({ tasks, filters, departments, can }: Props) {
                                     <Button
                                         className="w-full"
                                         disabled={!can.claim}
-                                        onClick={() => router.post(`/tasks/${task.id}/claim`, {}, { preserveScroll: true })}
+                                        onClick={() =>
+                                            router.post(`/tasks/${task.id}/claim`, {}, { preserveScroll: true })
+                                        }
                                     >
                                         {can.claim ? 'Claim' : 'Employees only'}
                                     </Button>

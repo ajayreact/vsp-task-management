@@ -11,6 +11,7 @@ use App\Modules\TaskManagement\Enums\TaskStatus;
 use App\Modules\TaskManagement\Enums\TimesheetStatus;
 use App\Modules\TaskManagement\Models\Deliverable;
 use App\Modules\TaskManagement\Models\Task;
+use App\Modules\TaskManagement\Models\TaskStatusChange;
 use App\Modules\TaskManagement\Models\TimeEntry;
 use App\Modules\TaskManagement\Models\Timesheet;
 use App\Modules\TaskManagement\Services\WorkloadCalculator;
@@ -39,7 +40,10 @@ class CommandCenter
             'modules' => [
                 'tasks' => $canTasks,
             ],
-            'kpis' => $this->kpis($user, $employee, $agency, $canTasks),
+            'overview' => $canTasks ? $this->overview($user, $employee, $agency) : [],
+            'team' => $canTasks && $agency ? $this->team($user) : null,
+            'attention' => $canTasks && $agency ? $this->attention() : null,
+            'activity' => $canTasks ? $this->activity($employee, $agency) : [],
             'actions' => $canTasks ? $this->actions($employee, $agency) : [],
             'approvals' => $canTasks ? $this->approvals($user, $employee, $agency) : [],
             'timer' => $canTasks ? $this->timer($employee) : null,
@@ -66,44 +70,240 @@ class CommandCenter
     /**
      * @return list<array<string, mixed>>
      */
-    protected function kpis(User $user, ?Employee $employee, bool $agency, bool $canTasks): array
+    protected function overview(User $user, ?Employee $employee, bool $agency): array
     {
+        $tasks = $this->taskQuery($employee, $agency);
+        $listBase = $agency ? '/tasks?scope=all' : '/tasks?scope=mine';
         $cards = [];
 
-        if ($canTasks) {
-            $tasks = $this->taskQuery($employee, $agency);
-            $inProgress = (clone $tasks)->where('status', TaskStatus::InProgress)->count();
-            $inReview = (clone $tasks)->where('status', TaskStatus::InReview)->count();
-            $openBoard = Task::query()->where('status', TaskStatus::Open)->count();
-            $capacity = $this->capacity($user, $employee, $agency);
-
-            $cards[] = $this->kpi(
-                'in_progress',
-                $agency ? 'In progress' : 'My in-progress',
-                $inProgress,
-                (string) $inProgress,
-                '/tasks?status=in_progress',
-            );
-            $cards[] = $this->kpi(
-                'in_review',
-                $agency ? 'In review' : 'My in-review',
-                $inReview,
-                (string) $inReview,
-                '/tasks?status=in_review',
-            );
-            $cards[] = $this->kpi('open_board', 'Open board', $openBoard, (string) $openBoard, '/tasks/board');
-            $cards[] = $this->kpi(
-                'workload',
-                $agency ? 'Team workload' : 'My workload',
-                $capacity['average'],
-                $capacity['average'].'%',
-                '/tasks/workload',
-                $capacity['trend'],
-                $capacity['overallocated'].' over-allocated',
+        if ($agency) {
+            $cards[] = $this->stat(
+                'total',
+                'Total tasks',
+                (clone $tasks)->count(),
+                $listBase,
             );
         }
 
+        $cards[] = $this->stat(
+            'in_progress',
+            $agency ? 'In progress' : 'My in progress',
+            (clone $tasks)->where('status', TaskStatus::InProgress)->count(),
+            $listBase.'&status=in_progress',
+        );
+
+        if ($agency) {
+            $cards[] = $this->stat(
+                'pending_acceptance',
+                'Pending acceptance',
+                (clone $tasks)->where('status', TaskStatus::Assigned)->count(),
+                $listBase.'&status=assigned',
+            );
+        }
+
+        $cards[] = $this->stat(
+            'in_review',
+            $agency ? 'Under review' : 'My under review',
+            (clone $tasks)->where('status', TaskStatus::InReview)->count(),
+            $listBase.'&status=in_review',
+        );
+
+        $cards[] = $this->stat(
+            'changes_requested',
+            $agency ? 'Changes requested' : 'My changes requested',
+            (clone $tasks)->where('status', TaskStatus::Revision)->count(),
+            $listBase.'&status=revision',
+        );
+
+        $cards[] = $this->stat(
+            'open_board',
+            'Open board',
+            Task::query()->claimable()->count(),
+            '/tasks/board',
+        );
+
+        $cards[] = $this->stat(
+            'completed_today',
+            $agency ? 'Completed today' : 'Completed today',
+            (clone $tasks)
+                ->where('status', TaskStatus::Completed)
+                ->whereDate('completed_at', today())
+                ->count(),
+            $listBase.'&status=completed&completed=today',
+        );
+
+        $cards[] = $this->stat(
+            'overdue',
+            $agency ? 'Overdue' : 'My overdue',
+            (clone $tasks)->overdue()->count(),
+            $listBase.'&overdue=1',
+        );
+
+        if ($agency && $user->can(Ability::ViewWorkload->value)) {
+            $capacity = $this->capacity($user, $employee, true);
+
+            $cards[] = [
+                'key' => 'team_workload',
+                'label' => 'Team workload',
+                'count' => $capacity['average'],
+                'display' => $capacity['average'].'%',
+                'href' => '/tasks/workload',
+                'hint' => $capacity['overallocated'].' over-allocated',
+            ];
+        }
+
         return $cards;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function team(User $user): array
+    {
+        $listBase = '/tasks?scope=all';
+        $tasks = Task::query();
+        $availability = $this->teamAvailability($user);
+
+        return [
+            'availability' => $availability,
+            'timers' => [
+                'count' => TimeEntry::query()->where('is_running', true)->count(),
+                'href' => $listBase.'&status=in_progress',
+                'entries' => TimeEntry::query()
+                    ->with(['employee.user:id,name', 'task:id,title'])
+                    ->where('is_running', true)
+                    ->latest('started_at')
+                    ->limit(5)
+                    ->get()
+                    ->map(fn (TimeEntry $entry) => [
+                        'id' => $entry->id,
+                        'employee' => $entry->employee->user->name,
+                        'task' => $entry->task->title,
+                        'href' => '/tasks/'.$entry->tm_task_id,
+                        'started_at' => $entry->started_at->toIso8601String(),
+                    ])
+                    ->all(),
+            ],
+            'pending' => [
+                'need_review' => $this->pendingStat(
+                    (clone $tasks)->where('status', TaskStatus::InReview)->count(),
+                    $listBase.'&status=in_review',
+                ),
+                'overdue' => $this->pendingStat(
+                    (clone $tasks)->overdue()->count(),
+                    $listBase.'&overdue=1',
+                ),
+                'unassigned' => $this->pendingStat(
+                    (clone $tasks)->needsAssignment()->count(),
+                    $listBase.'&scope=unassigned&status=draft',
+                ),
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    protected function teamAvailability(User $user): ?array
+    {
+        if (! $user->can(Ability::ViewWorkload->value)) {
+            return null;
+        }
+
+        $week = WorkWeek::containing();
+        $rows = Employee::query()
+            ->assignable()
+            ->get()
+            ->map(fn (Employee $member) => $this->workload->forEmployee($member, $week));
+
+        return [
+            'available' => $rows->where('band', 'bench')->count(),
+            'working' => $rows->where('band', 'on_track')->count(),
+            'overloaded' => $rows->where('band', 'overallocated')->count(),
+            'href' => '/tasks/workload',
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function attention(): array
+    {
+        return [
+            'overdue' => Task::query()
+                ->overdue()
+                ->with(['assignee.user:id,name'])
+                ->orderBy('due_at')
+                ->limit(6)
+                ->get()
+                ->map(fn (Task $task) => [
+                    'id' => $task->id,
+                    'title' => $task->title,
+                    'assignee' => $task->assignee?->user->name ?? 'Unassigned',
+                    'due_at' => $task->due_at?->toIso8601String(),
+                    'href' => '/tasks/'.$task->id,
+                ])
+                ->all(),
+            'unassigned' => Task::query()
+                ->needsAssignment()
+                ->with('project:id,name')
+                ->orderByDesc('id')
+                ->limit(6)
+                ->get()
+                ->map(fn (Task $task) => [
+                    'id' => $task->id,
+                    'title' => $task->title,
+                    'project' => $task->project->name,
+                    'href' => '/tasks/'.$task->id,
+                ])
+                ->all(),
+            'overdue_href' => '/tasks?scope=all&overdue=1',
+            'unassigned_href' => '/tasks?scope=unassigned&status=draft',
+        ];
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    protected function activity(?Employee $employee, bool $agency): array
+    {
+        return TaskStatusChange::query()
+            ->with(['changedBy:id,name', 'task:id,title'])
+            ->when(
+                ! $agency && $employee !== null,
+                fn (Builder $query) => $query->whereHas(
+                    'task',
+                    fn (Builder $tasks) => $tasks->where('assigned_employee_id', $employee->id),
+                ),
+            )
+            ->orderByDesc('changed_at')
+            ->limit(12)
+            ->get()
+            ->map(fn (TaskStatusChange $change) => [
+                'id' => $change->id,
+                'message' => $this->activityMessage($change),
+                'at' => $change->changed_at->toIso8601String(),
+                'href' => '/tasks/'.$change->tm_task_id,
+            ])
+            ->all();
+    }
+
+    protected function activityMessage(TaskStatusChange $change): string
+    {
+        $name = $change->changedBy?->name ?? 'Someone';
+        $title = $change->task->title;
+
+        return match ($change->to_status) {
+            TaskStatus::InReview => "{$name} submitted \"{$title}\" for review",
+            TaskStatus::Revision => "Changes requested on \"{$title}\"",
+            TaskStatus::InProgress => $change->from_status === TaskStatus::Open
+                ? "{$name} claimed \"{$title}\" from the open board"
+                : "{$name} started work on \"{$title}\"",
+            TaskStatus::Completed => "\"{$title}\" was completed",
+            TaskStatus::Open => "\"{$title}\" was published to the open board",
+            TaskStatus::Assigned => "{$name} assigned \"{$title}\"",
+            default => "{$name} moved \"{$title}\" to {$change->to_status->label()}",
+        };
     }
 
     /**
@@ -222,7 +422,7 @@ class CommandCenter
     }
 
     /**
-     * @return array{average: float, overallocated: int, trend: array{direction: string, label: string}|null}
+     * @return array{average: float, overallocated: int}
      */
     protected function capacity(User $user, ?Employee $employee, bool $agency): array
     {
@@ -239,7 +439,6 @@ class CommandCenter
             return [
                 'average' => $average,
                 'overallocated' => $over,
-                'trend' => $this->workloadTrend($average),
             ];
         }
 
@@ -249,11 +448,10 @@ class CommandCenter
             return [
                 'average' => $load['utilisation_pct'],
                 'overallocated' => $load['band'] === 'overallocated' ? 1 : 0,
-                'trend' => $this->workloadTrend($load['utilisation_pct']),
             ];
         }
 
-        return ['average' => 0.0, 'overallocated' => 0, 'trend' => null];
+        return ['average' => 0.0, 'overallocated' => 0];
     }
 
     /**
@@ -271,42 +469,28 @@ class CommandCenter
     }
 
     /**
-     * @param  array{direction: string, label: string}|null  $trend
      * @return array<string, mixed>
      */
-    protected function kpi(
-        string $key,
-        string $label,
-        int|float $value,
-        string $display,
-        string $href,
-        ?array $trend = null,
-        ?string $hint = null,
-    ): array {
+    protected function stat(string $key, string $label, int|float $count, string $href, ?string $hint = null): array
+    {
         return [
             'key' => $key,
             'label' => $label,
-            'value' => $value,
-            'display' => $display,
+            'count' => $count,
+            'display' => (string) $count,
             'href' => $href,
-            'trend' => $trend,
             'hint' => $hint,
         ];
     }
 
     /**
-     * @return array{direction: string, label: string}
+     * @return array{count: int, href: string}
      */
-    protected function workloadTrend(float $utilisation): array
+    protected function pendingStat(int $count, string $href): array
     {
-        if ($utilisation > 110) {
-            return ['direction' => 'up', 'label' => 'Over capacity'];
-        }
-
-        if ($utilisation < 50) {
-            return ['direction' => 'down', 'label' => 'Bench time'];
-        }
-
-        return ['direction' => 'flat', 'label' => 'On track'];
+        return [
+            'count' => $count,
+            'href' => $href,
+        ];
     }
 }
