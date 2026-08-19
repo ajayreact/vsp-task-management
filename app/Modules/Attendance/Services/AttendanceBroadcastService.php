@@ -5,6 +5,8 @@ namespace App\Modules\Attendance\Services;
 use App\Modules\Attendance\Events\AttendanceDashboardUpdated;
 use App\Modules\Core\Enums\SystemRole;
 use App\Modules\Core\Models\User;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Live attendance dashboard refresh over existing Reverb private user channels.
@@ -28,7 +30,16 @@ class AttendanceBroadcastService
             return;
         }
 
-        broadcast(new AttendanceDashboardUpdated($recipients));
+        try {
+            broadcast(new AttendanceDashboardUpdated($recipients));
+        } catch (Throwable $exception) {
+            // Attendance is already persisted; a live dashboard refresh must not
+            // turn a successful check-in/out into a 500 for the employee.
+            Log::warning('Attendance dashboard broadcast failed.', [
+                'exception' => $exception->getMessage(),
+                'recipient_count' => count($recipients),
+            ]);
+        }
     }
 
     protected function shouldBroadcast(): bool

@@ -8,6 +8,7 @@ use App\Modules\Attendance\Services\AttendanceLocationVerificationService;
 use App\Modules\Attendance\Support\OfficeNetworkVerifier;
 use App\Modules\Core\Enums\Ability;
 use App\Modules\Core\Models\Employee;
+use App\Modules\Attendance\Services\AttendanceBroadcastService;
 use Illuminate\Support\Facades\Event;
 
 test('office network verifier matches exact ip and cidr ranges', function () {
@@ -161,6 +162,41 @@ test('check in broadcasts attendance dashboard refresh to super admins', functio
     Event::assertDispatched(AttendanceDashboardUpdated::class, function (AttendanceDashboardUpdated $event) use ($superAdmin) {
         return in_array($superAdmin->id, $event->recipientUserIds, true);
     });
+});
+
+test('attendance broadcast refresh does not throw when reverb is unavailable', function () {
+    configureReverbForChannelAuth();
+    superAdmin();
+
+    $service = app(AttendanceBroadcastService::class);
+
+    expect(fn () => $service->refresh())->not->toThrow(Throwable::class);
+});
+
+test('check in still succeeds when attendance dashboard broadcast is unavailable', function () {
+    configureReverbForChannelAuth();
+    superAdmin();
+
+    $employee = employeeWith(Ability::AccessTasks);
+    $office = OfficeLocation::factory()->create([
+        'latitude' => 28.613939,
+        'longitude' => 77.209023,
+        'allowed_gps_radius_meters' => 150,
+        'is_active' => true,
+    ]);
+
+    EmployeeOfficeAssignment::query()->create([
+        'employee_id' => $employee->id,
+        'office_location_id' => $office->id,
+    ]);
+
+    $this->actingAs($employee->user)
+        ->post('/attendance/check-in', [
+            'latitude' => 28.614339,
+            'longitude' => 77.209423,
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('success');
 });
 
 test('break actions broadcast attendance dashboard refresh', function () {
