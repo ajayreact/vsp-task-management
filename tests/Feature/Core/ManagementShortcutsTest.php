@@ -17,6 +17,8 @@ test('every sidebar management screen exists', function (string $url) {
 })->with([
     '/admin/employees',
     '/admin/departments',
+    '/admin/attendance',
+    '/admin/attendance/offices',
     '/tasks',
     '/tasks/board',
     '/tasks/projects',

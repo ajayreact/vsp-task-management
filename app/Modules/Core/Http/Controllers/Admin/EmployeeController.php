@@ -13,6 +13,7 @@ use App\Modules\Core\Models\Employee;
 use App\Modules\Core\Models\User;
 use App\Support\Pagination;
 use App\Support\TabularExporter;
+use App\Services\EmployeeOfficeAssignmentService;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,6 +26,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EmployeeController extends Controller
 {
+    public function __construct(protected EmployeeOfficeAssignmentService $officeAssignments) {}
+
     public function index(Request $request): Response
     {
         $this->authorize('viewAny', Employee::class);
@@ -34,6 +37,16 @@ class EmployeeController extends Controller
         $employees = $this->filteredQuery($filters)
             ->paginate(Pagination::perPage($request, 15))
             ->withQueryString();
+
+        $officeByEmployee = $this->officeAssignments->summariesFor(
+            $employees->getCollection()->pluck('id')->all(),
+        );
+
+        $employees->getCollection()->transform(function (Employee $employee) use ($officeByEmployee) {
+            $employee->setAttribute('office_location', $officeByEmployee[$employee->id] ?? null);
+
+            return $employee;
+        });
 
         return Inertia::render('Core/admin/employees/index', [
             'employees' => $employees,
@@ -70,11 +83,11 @@ class EmployeeController extends Controller
         );
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
         $this->authorize('create', Employee::class);
 
-        return Inertia::render('Core/admin/employees/create', $this->formOptions());
+        return Inertia::render('Core/admin/employees/create', $this->formOptions(request: $request));
     }
 
     public function store(EmployeeRequest $request): RedirectResponse
@@ -92,20 +105,22 @@ class EmployeeController extends Controller
 
             $user->syncRoles($request->validated('roles', []));
 
-            $user->employee()->create($this->profileAttributes($request));
+            $employee = $user->employee()->create($this->profileAttributes($request));
+
+            $this->syncOfficeAssignment($request, $employee);
         });
 
         return to_route('admin.employees.index')->with('success', 'Employee created.');
     }
 
-    public function edit(Employee $employee): Response
+    public function edit(Request $request, Employee $employee): Response
     {
         $this->authorize('update', $employee);
 
         $employee->load('user');
 
         return Inertia::render('Core/admin/employees/edit', [
-            ...$this->formOptions($employee),
+            ...$this->formOptions($employee, $request),
             'employee' => [
                 'id' => $employee->id,
                 'name' => $employee->user->name,
@@ -120,6 +135,7 @@ class EmployeeController extends Controller
                 'exited_on' => $employee->exited_on?->toDateString(),
                 'status' => $employee->status->value,
                 'roles' => $employee->user->getRoleNames()->all(),
+                'office_location_id' => $this->officeAssignments->officeIdFor($employee->id),
             ],
         ]);
     }
@@ -146,6 +162,8 @@ class EmployeeController extends Controller
             $user->syncRoles($request->validated('roles', []));
 
             $employee->update($this->profileAttributes($request));
+
+            $this->syncOfficeAssignment($request, $employee);
         });
 
         return to_route('admin.employees.index')->with('success', 'Employee updated.');
@@ -205,7 +223,7 @@ class EmployeeController extends Controller
      */
     protected function exportHeaders(): array
     {
-        return ['Employee', 'Email', 'Code', 'Designation', 'Department', 'Reports to', 'Status'];
+        return ['Employee', 'Email', 'Code', 'Designation', 'Department', 'Office', 'Reports to', 'Status'];
     }
 
     /**
@@ -214,12 +232,17 @@ class EmployeeController extends Controller
      */
     protected function exportRows($employees): array
     {
+        $officeByEmployee = $this->officeAssignments->summariesFor(
+            $employees->pluck('id')->all(),
+        );
+
         return $employees->map(fn (Employee $employee) => [
             $employee->user?->name ?? '',
             $employee->user?->email ?? '',
             $employee->employee_code,
             $employee->designation?->name ?? '',
             $employee->department?->name ?? '',
+            $officeByEmployee[$employee->id]['name'] ?? '',
             $employee->manager?->user?->name ?? '',
             $employee->status->label(),
         ])->all();
@@ -245,9 +268,9 @@ class EmployeeController extends Controller
     /**
      * @return array<string, mixed>
      */
-    protected function formOptions(?Employee $employee = null): array
+    protected function formOptions(?Employee $employee = null, ?Request $request = null): array
     {
-        return [
+        $options = [
             'departments' => Department::query()
                 ->where('is_active', true)
                 ->orderBy('name')
@@ -273,5 +296,36 @@ class EmployeeController extends Controller
                 ->reject(fn (string $name) => $name === SystemRole::SuperAdmin->value)
                 ->values(),
         ];
+
+        if ($request?->user()?->can('viewAttendance')) {
+            $currentOfficeId = $employee
+                ? $this->officeAssignments->officeIdFor($employee->id)
+                : null;
+
+            $options['officeLocations'] = $this->officeAssignments
+                ->selectableOffices($currentOfficeId)
+                ->map(fn ($office) => [
+                    'id' => $office->id,
+                    'name' => $office->name,
+                ])
+                ->values()
+                ->all();
+        }
+
+        return $options;
+    }
+
+    protected function syncOfficeAssignment(EmployeeRequest $request, Employee $employee): void
+    {
+        if (! $request->user()?->can('viewAttendance')) {
+            return;
+        }
+
+        $officeLocationId = $request->validated('office_location_id');
+
+        $this->officeAssignments->assign(
+            $employee,
+            is_numeric($officeLocationId) ? (int) $officeLocationId : null,
+        );
     }
 }

@@ -20,6 +20,7 @@ export type EmployeeFormValues = {
     department_id: string;
     designation_id: string;
     reporting_to_id: string;
+    office_location_id: string;
     phone: string;
     joined_on: string;
     exited_on: string;
@@ -32,6 +33,7 @@ export interface EmployeeFormOptions {
     departments: { id: number; name: string }[];
     designations: { id: number; name: string }[];
     managers: { id: number; label: string }[];
+    officeLocations?: { id: number; name: string }[];
     statuses: Option[];
     roles: string[];
 }
@@ -197,6 +199,29 @@ export function EmployeeForm({
                             </Select>
                             <InputError message={errors.reporting_to_id} />
                         </div>
+
+                        {options.officeLocations && (
+                            <div className="grid gap-2 sm:col-span-2">
+                                <Label htmlFor="office_location_id">Office location</Label>
+                                <Select
+                                    value={data.office_location_id || NONE}
+                                    onValueChange={(value) => setData('office_location_id', value === NONE ? '' : value)}
+                                >
+                                    <SelectTrigger id="office_location_id">
+                                        <SelectValue placeholder="No office assigned" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={NONE}>No office assigned</SelectItem>
+                                        {options.officeLocations.map((office) => (
+                                            <SelectItem key={office.id} value={String(office.id)}>
+                                                {office.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={errors.office_location_id} />
+                            </div>
+                        )}
 
                         <div className="grid gap-2">
                             <Label htmlFor="phone">Phone</Label>

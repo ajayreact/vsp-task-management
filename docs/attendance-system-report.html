@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VSP-CRM Attendance System — Technical Report</title>
+    <style>
+        :root {
+            --bg: #f8f7f5;
+            --surface: #ffffff;
+            --text: #1c1917;
+            --muted: #57534e;
+            --border: rgba(120, 115, 110, 0.18);
+            --accent: #4338ca;
+            --accent-soft: #eef2ff;
+            --success: #047857;
+            --warning: #b45309;
+            --code-bg: #f5f5f4;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem 1rem;
+        }
+
+        nav h2 {
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin: 0 0 1rem;
+        }
+
+        nav a {
+            display: block;
+            padding: 0.4rem 0.6rem;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-radius: 6px;
+        }
+
+        nav a:hover { background: var(--accent-soft); color: var(--accent); }
+
+        main {
+            max-width: 980px;
+            padding: 2.5rem 3rem 4rem;
+        }
+
+        header.report-header {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        header.report-header h1 {
+            margin: 0 0 0.5rem;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        header.report-header .meta {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            scroll-margin-top: 1.5rem;
+        }
+
+        section h2 {
+            font-size: 1.45rem;
+            margin: 0 0 1rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 3px solid var(--accent);
+            display: inline-block;
+        }
+
+        section h3 {
+            font-size: 1.1rem;
+            margin: 1.5rem 0 0.75rem;
+            color: var(--text);
+        }
+
+        section h4 {
+            font-size: 0.95rem;
+            margin: 1rem 0 0.5rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        p, li { color: var(--text); }
+
+        .muted { color: var(--muted); }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .card.highlight {
+            border-left: 4px solid var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .card.warning {
+            border-left: 4px solid var(--warning);
+            background: #fffbeb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 0.65rem 0.85rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        th {
+            background: #fafaf9;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--muted);
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        code, pre {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.85rem;
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        pre {
+            background: #1c1917;
+            color: #fafaf9;
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background: #d1fae5; color: var(--success); }
+        .badge-info { background: #dbeafe; color: #1d4ed8; }
+        .badge-neutral { background: #f5f5f4; color: var(--muted); }
+        .badge-warning { background: #fef3c7; color: var(--warning); }
+
+        .flow {
+            font-family: Consolas, monospace;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            border-radius: 8px;
+            white-space: pre;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        ul.checklist { padding-left: 1.25rem; }
+        ul.checklist li { margin-bottom: 0.35rem; }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
+            nav { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+            main { padding: 1.5rem; }
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <nav>
+        <h2>Contents</h2>
+        <a href="#overview">1. Overview</a>
+        <a href="#roles">2. Roles &amp; Permissions</a>
+        <a href="#architecture">3. Architecture</a>
+        <a href="#database">4. Database Schema</a>
+        <a href="#models">5. Models</a>
+        <a href="#services">6. Services</a>
+        <a href="#routes">7. HTTP Routes</a>
+        <a href="#enums">8. Enums &amp; Errors</a>
+        <a href="#gps">9. GPS Geofencing</a>
+        <a href="#network">10. Network Verification</a>
+        <a href="#workflow">11. Attendance Workflow</a>
+        <a href="#time">12. Time Calculations</a>
+        <a href="#dashboard">13. Super Admin Dashboard</a>
+        <a href="#employee-ui">14. Employee Mark Page</a>
+        <a href="#offices">15. Office Locations</a>
+        <a href="#assignment">16. Office Assignment</a>
+        <a href="#realtime">17. Real-time Updates</a>
+        <a href="#frontend">18. Frontend</a>
+        <a href="#tests">19. Tests</a>
+        <a href="#config">20. Configuration</a>
+        <a href="#setup">21. Setup Checklist</a>
+    </nav>
+
+    <main>
+        <header class="report-header">
+            <h1>VSP-CRM Attendance System</h1>
+            <p class="meta">Complete technical report · Generated August 19, 2026 · Laravel 12 + Inertia/React</p>
+        </header>
+
+        <!-- 1. OVERVIEW -->
+        <section id="overview">
+            <h2>1. Overview</h2>
+            <p>
+                The Attendance module tracks daily employee presence for internal staff. It combines
+                <strong>GPS geofencing</strong> with optional <strong>office public IP verification</strong>
+                to ensure employees check in and out from authorized office premises.
+            </p>
+
+            <div class="card highlight">
+                <strong>Implemented capabilities (Steps 1–7)</strong>
+                <ul class="checklist">
+                    <li>Super Admin attendance dashboard with live KPI cards and today’s records</li>
+                    <li>Office location CRUD (GPS coordinates, radius, network IPs)</li>
+                    <li>Employee-to-office assignment (one office per employee)</li>
+                    <li>Employee check-in / check-out with GPS + optional network verification</li>
+                    <li>Break start / resume with multiple breaks per day</li>
+                    <li>Net working hours calculation (gross time minus breaks)</li>
+                    <li>Real-time dashboard refresh via Laravel Reverb / Echo</li>
+                </ul>
+            </div>
+
+            <div class="card warning">
+                <strong>Not yet implemented</strong>
+                <ul class="checklist">
+                    <li>Attendance correction requests</li>
+                    <li>Advanced attendance reports</li>
+                    <li>Automatic <code>late</code> status assignment on check-in</li>
+                    <li>KPI filter query params on dashboard (links exist but filtering is not wired)</li>
+                </ul>
+            </div>
+
+            <h3>Route summary</h3>
+            <table>
+                <thead><tr><th>Audience</th><th>Base path</th><th>Purpose</th></tr></thead>
+                <tbody>
+                    <tr><td>Super Admin</td><td><code>/admin/attendance</code></td><td>Dashboard &amp; office management</td></tr>
+                    <tr><td>Employee</td><td><code>/attendance/mark</code></td><td>Mark daily attendance</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 2. ROLES -->
+        <section id="roles">
+            <h2>2. Roles &amp; Permissions</h2>
+            <p>Authorization gates are defined in <code>AttendanceServiceProvider</code>. All attendance routes use middleware: <code>web</code>, <code>auth</code>, <code>internal</code>.</p>
+
+            <table>
+                <thead>
+                    <tr><th>Gate</th><th>Who</th><th>Capabilities</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>viewAttendance</code></td>
+                        <td>Super Admin (<code>super-admin</code> role)</td>
+                        <td>Dashboard, office CRUD, assign offices on employees</td>
+                    </tr>
+                    <tr>
+                        <td><code>markOwnAttendance</code></td>
+                        <td>Any user with an employee profile</td>
+                        <td>Mark page, check-in/out, breaks, location verify API</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Navigation visibility</h3>
+            <table>
+                <thead><tr><th>Nav item</th><th>Path</th><th>Requirement</th></tr></thead>
+                <tbody>
+                    <tr><td>Attendance → Dashboard</td><td><code>/admin/attendance</code></td><td>Super Admin</td></tr>
+                    <tr><td>Attendance → Office Locations</td><td><code>/admin/attendance/offices</code></td><td>Super Admin</td></tr>
+                    <tr><td>Attendance (employee)</td><td><code>/attendance/mark</code></td><td><code>tasks.access</code> permission</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 3. ARCHITECTURE -->
+        <section id="architecture">
+            <h2>3. Architecture</h2>
+            <p>The module lives under <code>app/Modules/Attendance/</code> and is registered via <code>AttendanceServiceProvider</code>.</p>
+
+            <div class="flow">employees ──1:1── att_employee_office_assignments ──N:1── att_office_locations
+    │
+    └──1:N── att_attendance_entries ──N:1── att_office_locations
+                    │
+                    └──1:N── att_attendance_breaks</div>
+
+            <h3>Module boundary</h3>
+            <p>
+                The Core <code>Employee</code> model has <strong>no attendance foreign keys</strong>.
+                Assignment is bridged through <code>att_employee_office_assignments</code> and
+                <code>EmployeeOfficeAssignmentService</code> in <code>app/Services/</code>.
+            </p>
+            <p>
+                <code>AttendanceDashboard</code> also lives in <code>app/Services/</code> (outside the module folder)
+                so it can read Core employees without circular provider wiring.
+            </p>
+
+            <h3>Backend file index</h3>
+            <pre>app/Modules/Attendance/
+├── Data/LocationVerificationResult.php
+├── Enums/AttendanceAction.php, AttendanceStatus.php
+├── Events/AttendanceDashboardUpdated.php
+├── Exceptions/AttendanceWorkflowException.php
+├── Http/Controllers/   (8 controllers)
+├── Http/Requests/      (3 form requests)
+├── Models/             (4 models)
+├── Providers/AttendanceServiceProvider.php
+├── Services/           (5 services)
+└── Support/GpsGeofence.php, OfficeNetworkVerifier.php</pre>
+        </section>
+
+        <!-- 4. DATABASE -->
+        <section id="database">
+            <h2>4. Database Schema</h2>
+            <p>All tables use the <code>att_</code> prefix. Migrations are in <code>database/migrations/attendance/</code>.</p>
+
+            <h3>att_attendance_entries</h3>
+            <table>
+                <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+                <tbody>
+                    <tr><td><code>id</code></td><td>bigint PK</td><td></td></tr>
+                    <tr><td><code>employee_id</code></td><td>FK → employees</td><td>cascade delete</td></tr>
+                    <tr><td><code>office_location_id</code></td><td>FK → att_office_locations</td><td>nullable</td></tr>
+                    <tr><td><code>attendance_date</code></td><td>date</td><td></td></tr>
+                    <tr><td><code>status</code></td><td>string(20)</td><td><code>present</code>, <code>late</code>, <code>on_break</code>, <code>checked_out</code></td></tr>
+                    <tr><td><code>check_in_at</code></td><td>timestamp</td><td>nullable</td></tr>
+                    <tr><td><code>check_in_latitude</code></td><td>decimal(10,7)</td><td>nullable</td></tr>
+                    <tr><td><code>check_in_longitude</code></td><td>decimal(10,7)</td><td>nullable</td></tr>
+                    <tr><td><code>check_out_at</code></td><td>timestamp</td><td>nullable</td></tr>
+                    <tr><td><code>check_out_latitude</code></td><td>decimal(10,7)</td><td>nullable</td></tr>
+                    <tr><td><code>check_out_longitude</code></td><td>decimal(10,7)</td><td>nullable</td></tr>
+                    <tr><td><code>total_working_seconds</code></td><td>unsigned int</td><td>set on checkout (= net)</td></tr>
+                    <tr><td><code>total_break_seconds</code></td><td>unsigned int</td><td>default 0</td></tr>
+                    <tr><td><code>net_working_seconds</code></td><td>unsigned int</td><td>nullable; set on checkout</td></tr>
+                </tbody>
+            </table>
+            <p class="muted">Unique constraint: <code>(employee_id, attendance_date)</code></p>
+
+            <h3>att_office_locations</h3>
+            <table>
+                <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+                <tbody>
+                    <tr><td><code>name</code></td><td>string</td><td>unique</td></tr>
+                    <tr><td><code>address</code></td><td>text</td><td></td></tr>
+                    <tr><td><code>latitude</code>, <code>longitude</code></td><td>decimal(10,7)</td><td>GPS center</td></tr>
+                    <tr><td><code>allowed_gps_radius_meters</code></td><td>unsigned int</td><td>1–10,000 m</td></tr>
+                    <tr><td><code>network_verification_enabled</code></td><td>boolean</td><td>default false</td></tr>
+                    <tr><td><code>authorized_public_ips</code></td><td>json</td><td>nullable; IPv4/IPv6/CIDR array</td></tr>
+                    <tr><td><code>is_active</code></td><td>boolean</td><td>default true</td></tr>
+                </tbody>
+            </table>
+
+            <h3>att_employee_office_assignments</h3>
+            <table>
+                <thead><tr><th>Column</th><th>Notes</th></tr></thead>
+                <tbody>
+                    <tr><td><code>employee_id</code></td><td>unique — one office per employee</td></tr>
+                    <tr><td><code>office_location_id</code></td><td>FK to office</td></tr>
+                </tbody>
+            </table>
+
+            <h3>att_attendance_breaks</h3>
+            <table>
+                <thead><tr><th>Column</th><th>Notes</th></tr></thead>
+                <tbody>
+                    <tr><td><code>attendance_entry_id</code></td><td>FK, cascade delete</td></tr>
+                    <tr><td><code>started_at</code></td><td>break start</td></tr>
+                    <tr><td><code>ended_at</code></td><td>nullable — active break when null</td></tr>
+                    <tr><td><code>duration_seconds</code></td><td>set on resume</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 5. MODELS -->
+        <section id="models">
+            <h2>5. Models</h2>
+            <table>
+                <thead><tr><th>Model</th><th>Table</th><th>Relations</th></tr></thead>
+                <tbody>
+                    <tr><td><code>AttendanceEntry</code></td><td><code>att_attendance_entries</code></td><td>employee, officeLocation, breaks</td></tr>
+                    <tr><td><code>AttendanceBreak</code></td><td><code>att_attendance_breaks</code></td><td>attendanceEntry</td></tr>
+                    <tr><td><code>OfficeLocation</code></td><td><code>att_office_locations</code></td><td>employeeAssignments</td></tr>
+                    <tr><td><code>EmployeeOfficeAssignment</code></td><td><code>att_employee_office_assignments</code></td><td>employee, officeLocation</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 6. SERVICES -->
+        <section id="services">
+            <h2>6. Services</h2>
+            <table>
+                <thead><tr><th>Service</th><th>Responsibility</th></tr></thead>
+                <tbody>
+                    <tr><td><code>AttendanceCheckInOutService</code></td><td>Check-in/out, location assertion, today snapshot, broadcast trigger</td></tr>
+                    <tr><td><code>AttendanceBreakService</code></td><td>Start break, resume work, open-session validation</td></tr>
+                    <tr><td><code>AttendanceLocationVerificationService</code></td><td>GPS + network verification → <code>LocationVerificationResult</code></td></tr>
+                    <tr><td><code>AttendanceTimeCalculator</code></td><td>Gross/net working seconds, active break detection</td></tr>
+                    <tr><td><code>AttendanceBroadcastService</code></td><td>Broadcast dashboard refresh to Super Admins</td></tr>
+                    <tr><td><code>AttendanceDashboard</code></td><td>KPI snapshot + today’s records for Super Admin</td></tr>
+                    <tr><td><code>EmployeeOfficeAssignmentService</code></td><td>Assign/clear office, selectable offices, list summaries</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 7. ROUTES -->
+        <section id="routes">
+            <h2>7. HTTP Routes</h2>
+
+            <h3>Super Admin routes</h3>
+            <table>
+                <thead><tr><th>Method</th><th>Path</th><th>Action</th></tr></thead>
+                <tbody>
+                    <tr><td>GET</td><td><code>/admin/attendance</code></td><td>Attendance dashboard</td></tr>
+                    <tr><td>GET</td><td><code>/admin/attendance/offices</code></td><td>List offices</td></tr>
+                    <tr><td>GET</td><td><code>/admin/attendance/offices/create</code></td><td>Create form</td></tr>
+                    <tr><td>POST</td><td><code>/admin/attendance/offices</code></td><td>Store office</td></tr>
+                    <tr><td>GET</td><td><code>/admin/attendance/offices/{id}/edit</code></td><td>Edit form</td></tr>
+                    <tr><td>PUT</td><td><code>/admin/attendance/offices/{id}</code></td><td>Update office</td></tr>
+                    <tr><td>POST</td><td><code>/admin/attendance/offices/{id}/deactivate</code></td><td>Deactivate</td></tr>
+                    <tr><td>DELETE</td><td><code>/admin/attendance/offices/{id}</code></td><td>Delete office</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Employee routes</h3>
+            <table>
+                <thead><tr><th>Method</th><th>Path</th><th>Body / notes</th></tr></thead>
+                <tbody>
+                    <tr><td>GET</td><td><code>/attendance/mark</code></td><td>Mark attendance page</td></tr>
+                    <tr><td>POST</td><td><code>/attendance/check-in</code></td><td><code>latitude</code>, <code>longitude</code></td></tr>
+                    <tr><td>POST</td><td><code>/attendance/check-out</code></td><td><code>latitude</code>, <code>longitude</code></td></tr>
+                    <tr><td>POST</td><td><code>/attendance/break/start</code></td><td>No body (no GPS)</td></tr>
+                    <tr><td>POST</td><td><code>/attendance/break/resume</code></td><td>No body</td></tr>
+                    <tr><td>POST</td><td><code>/attendance/verify-location</code></td><td><code>action</code>, <code>latitude</code>, <code>longitude</code> → JSON</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Flash messages</h3>
+            <table>
+                <thead><tr><th>Action</th><th>Success message</th></tr></thead>
+                <tbody>
+                    <tr><td>Check-in</td><td>Checked in successfully.</td></tr>
+                    <tr><td>Check-out</td><td>Checked out successfully.</td></tr>
+                    <tr><td>Start break</td><td>Break started.</td></tr>
+                    <tr><td>Resume work</td><td>Break ended. You are working again.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 8. ENUMS -->
+        <section id="enums">
+            <h2>8. Enums, DTOs &amp; Error Messages</h2>
+
+            <h3>AttendanceStatus</h3>
+            <table>
+                <thead><tr><th>Value</th><th>UI label</th><th>Notes</th></tr></thead>
+                <tbody>
+                    <tr><td><code>present</code></td><td>Working</td><td>Set on check-in</td></tr>
+                    <tr><td><code>late</code></td><td>Late</td><td>Defined but not auto-assigned yet</td></tr>
+                    <tr><td><code>on_break</code></td><td>On break</td><td>During active break</td></tr>
+                    <tr><td><code>checked_out</code></td><td>Checked out</td><td>End of day</td></tr>
+                </tbody>
+            </table>
+            <p class="muted"><strong>Absent</strong> is derived (no stored row = absent). Not checked in UI uses synthetic status <code>not_checked_in</code>.</p>
+
+            <h3>AttendanceWorkflowException messages</h3>
+            <table>
+                <thead><tr><th>Condition</th><th>Message</th></tr></thead>
+                <tbody>
+                    <tr><td>Already checked in</td><td>You have already checked in today.</td></tr>
+                    <tr><td>Check out before check in</td><td>You must check in before checking out.</td></tr>
+                    <tr><td>Already checked out</td><td>You have already checked out today.</td></tr>
+                    <tr><td>Already on break</td><td>You are already on a break.</td></tr>
+                    <tr><td>Resume without break</td><td>You must be on a break to resume work.</td></tr>
+                    <tr><td>Check out while on break</td><td>End your break before checking out.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 9. GPS -->
+        <section id="gps">
+            <h2>9. GPS Geofencing</h2>
+            <p>
+                Uses the Haversine formula (<code>GpsGeofence</code>) with Earth radius 6,371,000 m.
+                Employee coordinates are compared to the assigned office center; check-in/out is allowed when
+                distance ≤ <code>allowed_gps_radius_meters</code>.
+            </p>
+
+            <div class="card">
+                <strong>Failure message</strong><br />
+                <em>You must be within the office premises to mark attendance.</em>
+            </div>
+
+            <h3>Verification order</h3>
+            <ol>
+                <li>Employee has assigned office</li>
+                <li>Office is active</li>
+                <li>GPS within radius</li>
+                <li>Network IP matches (if enabled)</li>
+            </ol>
+
+            <h3>Frontend GPS</h3>
+            <p>
+                <code>navigator.geolocation.getCurrentPosition</code> with high accuracy, 15s timeout.
+                Requires HTTPS or localhost. Errors shown for permission denied, unavailable, or timeout.
+            </p>
+        </section>
+
+        <!-- 10. NETWORK -->
+        <section id="network">
+            <h2>10. Office Network Verification</h2>
+
+            <div class="card warning">
+                <strong>Browser limitation</strong><br />
+                Web browsers cannot read Wi-Fi SSID or BSSID. The system verifies the employee’s
+                <strong>public IP address</strong> as seen by the server (<code>$request->ip()</code>).
+                When connected to office Wi-Fi, traffic typically exits through the office’s public IP.
+            </div>
+
+            <p>
+                Super Admin configures authorized IPs per office (IPv4, IPv6, or CIDR ranges).
+                When <code>network_verification_enabled</code> is true, both GPS <em>and</em> IP must pass for check-in/out.
+            </p>
+
+            <div class="card">
+                <strong>Failure message</strong><br />
+                <em>You must be connected to the authorized office network to mark attendance.</em>
+            </div>
+
+            <p>Matching uses Symfony <code>IpUtils::checkIp</code>. Break actions do not require network verification.</p>
+        </section>
+
+        <!-- 11. WORKFLOW -->
+        <section id="workflow">
+            <h2>11. Attendance Workflow</h2>
+
+            <div class="flow">[No entry today]
+    │ check-in (GPS + network OK)
+    ▼
+PRESENT (Working) ──start break──► ON_BREAK ──resume──► PRESENT
+    │                                    │
+    │ check-out (not on break)           │ check-out blocked
+    ▼                                    ▼
+CHECKED_OUT                    "End your break before checking out."</div>
+
+            <h3>UI capability flags</h3>
+            <table>
+                <thead><tr><th>State</th><th>Check In</th><th>Check Out</th><th>Start Break</th><th>Resume</th></tr></thead>
+                <tbody>
+                    <tr><td>Not checked in</td><td>✓</td><td>—</td><td>—</td><td>—</td></tr>
+                    <tr><td>Working</td><td>—</td><td>✓</td><td>✓</td><td>—</td></tr>
+                    <tr><td>On break</td><td>—</td><td>—</td><td>—</td><td>✓</td></tr>
+                    <tr><td>Checked out</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Multiple breaks</h3>
+            <p>Employees may take unlimited breaks per day. Each break is a row in <code>att_attendance_breaks</code>. Completed break durations accumulate in <code>total_break_seconds</code>.</p>
+        </section>
+
+        <!-- 12. TIME -->
+        <section id="time">
+            <h2>12. Time Calculations</h2>
+
+            <div class="card highlight">
+                <strong>Net Working Hours</strong> = Check-out time − Check-in time − Total break duration
+            </div>
+
+            <h3>Server (<code>AttendanceTimeCalculator</code>)</h3>
+            <pre>gross_seconds       = check_in_at → min(now, check_out_at)
+active_break_seconds = now − active_break.started_at  (if on break)
+net_seconds          = gross − total_break_seconds − active_break_seconds</pre>
+
+            <p>On checkout, <code>net_working_seconds</code> and <code>total_working_seconds</code> are persisted (equal at checkout).</p>
+
+            <h3>Live timers (employee UI)</h3>
+            <ul>
+                <li><code>useNetWorkingDuration</code> — ticks every second; pauses during breaks</li>
+                <li><code>useBreakDuration</code> — current break elapsed time</li>
+            </ul>
+
+            <h3>Display format</h3>
+            <p><code>formatDuration</code>: e.g. <code>2h 15m 30s</code>, <code>45m 12s</code>, <code>8s</code></p>
+        </section>
+
+        <!-- 13. DASHBOARD -->
+        <section id="dashboard">
+            <h2>13. Super Admin Dashboard</h2>
+            <p>Route: <code>/admin/attendance</code> · Page: <code>Attendance/dashboard.tsx</code></p>
+
+            <h3>KPI cards (6)</h3>
+            <table>
+                <thead><tr><th>Key</th><th>Label</th><th>Source</th></tr></thead>
+                <tbody>
+                    <tr><td>total_employees</td><td>Total Employees</td><td>Assignable employees count</td></tr>
+                    <tr><td>present_today</td><td>Present Today</td><td>Status = present</td></tr>
+                    <tr><td>absent_today</td><td>Absent Today</td><td>Total − marked today (derived)</td></tr>
+                    <tr><td>late_today</td><td>Late Today</td><td>Status = late</td></tr>
+                    <tr><td>on_break</td><td>On Break</td><td>Status = on_break</td></tr>
+                    <tr><td>checked_out</td><td>Checked Out</td><td>Status = checked_out</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Today’s check-ins table</h3>
+            <p>Columns: Employee, Office, Check in, Check out, Break time, Net working, Status</p>
+            <p>Includes live net working for open sessions and break totals including active break time.</p>
+        </section>
+
+        <!-- 14. EMPLOYEE UI -->
+        <section id="employee-ui">
+            <h2>14. Employee Mark Page</h2>
+            <p>Route: <code>/attendance/mark</code> · Page: <code>Attendance/mark.tsx</code></p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>Left card — Assigned office</h4>
+                    <ul>
+                        <li>Office name, active badge, address</li>
+                        <li>GPS allowed radius</li>
+                        <li>Network verification notice (when enabled)</li>
+                        <li>Today’s status badge</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Right card — Today’s attendance</h4>
+                    <ul>
+                        <li>Check-in / check-out times</li>
+                        <li>Live net working &amp; break duration</li>
+                        <li>Post-checkout summary (breaks + net hours)</li>
+                        <li>Action buttons with loading states</li>
+                        <li>Error / success flash messages</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p>Check-in/out: GPS → POST with coordinates. Breaks: POST without GPS.</p>
+        </section>
+
+        <!-- 15. OFFICES -->
+        <section id="offices">
+            <h2>15. Office Location Admin</h2>
+            <p>CRUD at <code>/admin/attendance/offices</code>. Shared form: <code>office-location-form.tsx</code></p>
+
+            <table>
+                <thead><tr><th>Section</th><th>Fields</th></tr></thead>
+                <tbody>
+                    <tr><td>Office details</td><td>name, address</td></tr>
+                    <tr><td>GPS boundary</td><td>latitude, longitude, allowed_gps_radius_meters (1–10,000)</td></tr>
+                    <tr><td>Network verification</td><td>toggle + authorized public IPs (one per line)</td></tr>
+                    <tr><td>Status</td><td>is_active toggle</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 16. ASSIGNMENT -->
+        <section id="assignment">
+            <h2>16. Employee Office Assignment</h2>
+            <p>Super Admin assigns one office per employee on create/edit employee screens.</p>
+            <ul>
+                <li>Field: <code>office_location_id</code> (nullable)</li>
+                <li>Stored in <code>att_employee_office_assignments</code></li>
+                <li>Employee list shows assigned office name</li>
+                <li>Only active offices selectable (current inactive office retained on edit)</li>
+            </ul>
+        </section>
+
+        <!-- 17. REALTIME -->
+        <section id="realtime">
+            <h2>17. Real-time Dashboard Updates</h2>
+            <p>Uses existing Laravel Reverb / Echo infrastructure (same pattern as Command Center).</p>
+
+            <table>
+                <thead><tr><th>Property</th><th>Value</th></tr></thead>
+                <tbody>
+                    <tr><td>Event class</td><td><code>AttendanceDashboardUpdated</code></td></tr>
+                    <tr><td>Broadcast name</td><td><code>attendance-dashboard.updated</code></td></tr>
+                    <tr><td>Channel</td><td>Private <code>staff.user.{superAdminId}</code></td></tr>
+                    <tr><td>Payload</td><td><code>{ "at": "&lt;ISO8601&gt;" }</code></td></tr>
+                    <tr><td>Delivery</td><td><code>ShouldBroadcastNow</code> (immediate)</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Triggered after</h3>
+            <ul>
+                <li>Check-in</li>
+                <li>Check-out</li>
+                <li>Start break</li>
+                <li>Resume work</li>
+            </ul>
+
+            <p>Dashboard hook <code>useAttendanceDashboardRealtime</code> reloads Inertia prop <code>snapshot</code> without full page refresh.</p>
+        </section>
+
+        <!-- 18. FRONTEND -->
+        <section id="frontend">
+            <h2>18. Frontend Files</h2>
+
+            <h3>Pages</h3>
+            <table>
+                <thead><tr><th>File</th><th>Route</th></tr></thead>
+                <tbody>
+                    <tr><td><code>Pages/Attendance/dashboard.tsx</code></td><td>/admin/attendance</td></tr>
+                    <tr><td><code>Pages/Attendance/mark.tsx</code></td><td>/attendance/mark</td></tr>
+                    <tr><td><code>Pages/Attendance/offices/index.tsx</code></td><td>/admin/attendance/offices</td></tr>
+                    <tr><td><code>Pages/Attendance/offices/create.tsx</code></td><td>…/offices/create</td></tr>
+                    <tr><td><code>Pages/Attendance/offices/edit.tsx</code></td><td>…/offices/{id}/edit</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Hooks</h3>
+            <table>
+                <thead><tr><th>Hook</th><th>Purpose</th></tr></thead>
+                <tbody>
+                    <tr><td><code>useAttendanceActions</code></td><td>GPS + check-in/out POST</td></tr>
+                    <tr><td><code>useAttendanceBreakActions</code></td><td>Break start/resume POST</td></tr>
+                    <tr><td><code>useNetWorkingDuration</code></td><td>Live net working timer</td></tr>
+                    <tr><td><code>useBreakDuration</code></td><td>Live break timer</td></tr>
+                    <tr><td><code>useAttendanceDashboardRealtime</code></td><td>Auto-reload dashboard snapshot</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 19. TESTS -->
+        <section id="tests">
+            <h2>19. Test Coverage</h2>
+            <p>Location: <code>tests/Feature/Attendance/</code></p>
+
+            <table>
+                <thead><tr><th>File</th><th>Covers</th></tr></thead>
+                <tbody>
+                    <tr><td>AttendanceDashboardTest.php</td><td>Super Admin access, KPI counts</td></tr>
+                    <tr><td>OfficeLocationTest.php</td><td>Office CRUD, validation, authorization</td></tr>
+                    <tr><td>EmployeeOfficeAssignmentTest.php</td><td>Assign/clear office on employees</td></tr>
+                    <tr><td>AttendanceGeofenceTest.php</td><td>Haversine, verify API, mark page</td></tr>
+                    <tr><td>AttendanceCheckInOutTest.php</td><td>Check-in/out flows, GPS blocking</td></tr>
+                    <tr><td>AttendanceBreakTest.php</td><td>Breaks, net time, checkout while on break</td></tr>
+                    <tr><td>AttendanceNetworkAndBroadcastTest.php</td><td>IP/CIDR verification, Reverb broadcast</td></tr>
+                </tbody>
+            </table>
+
+            <pre>php artisan test tests/Feature/Attendance</pre>
+            <p class="muted">Requires MySQL test database <code>vsp_crm_testing</code> and WAMP/MySQL running.</p>
+        </section>
+
+        <!-- 20. CONFIG -->
+        <section id="config">
+            <h2>20. Configuration &amp; Environment</h2>
+
+            <h3>Database</h3>
+            <pre>php artisan migrate</pre>
+
+            <h3>Broadcasting (live dashboard)</h3>
+            <pre>BROADCAST_CONNECTION=reverb
+
+REVERB_APP_ID=vsp-crm
+REVERB_APP_KEY=vsp-crm-reverb-key
+REVERB_APP_SECRET=vsp-crm-reverb-secret
+REVERB_HOST=localhost
+REVERB_PORT=8080
+REVERB_SCHEME=http
+
+VITE_REVERB_APP_KEY="${REVERB_APP_KEY}"
+VITE_REVERB_HOST="${REVERB_HOST}"
+VITE_REVERB_PORT="${REVERB_PORT}"
+VITE_REVERB_SCHEME="${REVERB_SCHEME}"</pre>
+
+            <p>Set <code>BROADCAST_CONNECTION=null</code> to disable realtime (attendance still works; dashboard requires manual refresh).</p>
+
+            <h3>Runtime requirements</h3>
+            <ul>
+                <li>HTTPS or localhost for browser geolocation</li>
+                <li>User linked to employee profile for marking attendance</li>
+                <li>Assigned active office for check-in/out</li>
+                <li>Internal user type for all attendance routes</li>
+            </ul>
+        </section>
+
+        <!-- 21. SETUP -->
+        <section id="setup">
+            <h2>21. Operational Setup Checklist</h2>
+            <ol class="checklist">
+                <li>Run migrations: <code>php artisan migrate</code></li>
+                <li>Create office locations with GPS coordinates and radius</li>
+                <li>Optionally enable network verification and add office public IP(s)</li>
+                <li>Assign each employee to an office (Super Admin → Employees)</li>
+                <li>Start Reverb for live dashboard: configure <code>.env</code> and run Reverb server</li>
+                <li>Build frontend: <code>npm run build</code></li>
+                <li>Employees use <code>/attendance/mark</code> on premises (and office network if enabled)</li>
+                <li>Super Admin monitors <code>/admin/attendance</code></li>
+            </ol>
+        </section>
+
+        <footer>
+            VSP-CRM Attendance System Report · Module path: <code>app/Modules/Attendance/</code> ·
+            This document reflects the codebase as implemented on August 19, 2026.
+        </footer>
+    </main>
+</div>
+</body>
+</html>

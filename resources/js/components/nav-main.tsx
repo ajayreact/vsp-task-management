@@ -69,5 +69,15 @@ function isCurrent(currentUrl: string, itemUrl: string): boolean {
         return /^\/tasks\/\d+(\/|$)/.test(path);
     }
 
+    // Attendance dashboard is an exact match only — office screens live under /admin/attendance/offices.
+    if (itemUrl === '/admin/attendance') {
+        return path === '/admin/attendance';
+    }
+
+    // Mark attendance is an exact match only — admin attendance screens must not highlight it.
+    if (itemUrl === '/attendance/mark') {
+        return path === '/attendance/mark';
+    }
+
     return path.startsWith(`${itemUrl}/`);
 }

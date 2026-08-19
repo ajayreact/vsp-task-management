@@ -6,7 +6,7 @@ import { staffNavGroups } from '@/lib/navigation';
  */
 export default function TaskLayout({ children, breadcrumbs, ...props }: AppSidebarLayoutProps) {
     return (
-        <AppLayoutTemplate breadcrumbs={breadcrumbs} groups={staffNavGroups()} homeUrl="/tasks" footerItems={[]} {...props}>
+        <AppLayoutTemplate breadcrumbs={breadcrumbs} groups={staffNavGroups()} footerItems={[]} {...props}>
             {children}
         </AppLayoutTemplate>
     );

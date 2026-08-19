@@ -5,6 +5,8 @@ namespace App\Modules\Core\Http\Requests\Admin;
 use App\Modules\Core\Enums\EmployeeStatus;
 use App\Modules\Core\Enums\SystemRole;
 use App\Modules\Core\Models\Employee;
+use App\Services\EmployeeOfficeAssignmentService;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -28,7 +30,7 @@ class EmployeeRequest extends FormRequest
         $employeeId = $employee instanceof Employee ? $employee->id : null;
         $userId = $employee instanceof Employee ? $employee->user_id : null;
 
-        return [
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required', 'string', 'lowercase', 'email', 'max:255',
@@ -64,6 +66,28 @@ class EmployeeRequest extends FormRequest
                 Rule::notIn([SystemRole::SuperAdmin->value]),
             ],
         ];
+
+        if ($this->user()?->can('viewAttendance')) {
+            $currentOfficeId = $employee instanceof Employee
+                ? app(EmployeeOfficeAssignmentService::class)->officeIdFor($employee->id)
+                : null;
+
+            $rules['office_location_id'] = [
+                'nullable',
+                'integer',
+                Rule::exists('att_office_locations', 'id')->where(function (Builder $query) use ($currentOfficeId) {
+                    $query->where(function (Builder $query) use ($currentOfficeId) {
+                        $query->where('is_active', true);
+
+                        if ($currentOfficeId !== null) {
+                            $query->orWhere('id', $currentOfficeId);
+                        }
+                    });
+                }),
+            ];
+        }
+
+        return $rules;
     }
 
     /**

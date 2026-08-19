@@ -7,7 +7,10 @@ import {
     FolderKanban,
     Gauge,
     Inbox,
+    LayoutDashboard,
     ListChecks,
+    MapPin,
+    UserCheck,
     UsersRound,
     SlidersHorizontal,
 } from 'lucide-react';
@@ -30,6 +33,27 @@ export const adminNavItems: NavItem[] = [
         url: '/admin/departments',
         icon: Building2,
         permission: 'departments.view',
+    },
+];
+
+export const attendanceNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        url: '/admin/attendance',
+        icon: LayoutDashboard,
+        role: 'super-admin',
+    },
+    {
+        title: 'Office Locations',
+        url: '/admin/attendance/offices',
+        icon: MapPin,
+        role: 'super-admin',
+    },
+    {
+        title: 'Attendance',
+        url: '/attendance/mark',
+        icon: UserCheck,
+        permission: 'tasks.access',
     },
 ];
 
@@ -94,6 +118,11 @@ export function staffNavGroups(): NavGroup[] {
             title: 'Administration',
             anyPermission: ['employees.view', 'departments.view'],
             items: adminNavItems,
+        },
+        {
+            title: 'Attendance',
+            anyPermission: ['tasks.access'],
+            items: attendanceNavItems,
         },
         {
             title: 'Task Management',

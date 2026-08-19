@@ -1,3 +1,4 @@
+import { handleAttendanceDashboardBroadcast } from '@/lib/attendance-dashboard-realtime';
 import { handleCommandCenterBroadcast } from '@/lib/command-center-realtime';
 import { handleIncomingNotification } from '@/lib/incoming-notification';
 import { handleOpenBoardBroadcast } from '@/lib/open-board-realtime';
@@ -126,6 +127,9 @@ export function startRealtimeNotifications(userId: number): () => void {
             })
             .listen('.command-center.updated', () => {
                 handleCommandCenterBroadcast('command-center.updated');
+            })
+            .listen('.attendance-dashboard.updated', () => {
+                handleAttendanceDashboardBroadcast('attendance-dashboard.updated');
             });
     }
 

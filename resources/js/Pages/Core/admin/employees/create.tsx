@@ -32,6 +32,7 @@ export default function CreateEmployee(options: EmployeeFormOptions) {
                         department_id: '',
                         designation_id: '',
                         reporting_to_id: '',
+                        office_location_id: '',
                         phone: '',
                         joined_on: '',
                         exited_on: '',

@@ -9,7 +9,7 @@ import AppLogo from './app-logo';
 export interface AppSidebarProps {
     /** Navigation sections, rendered top to bottom. */
     groups?: NavGroup[];
-    /** Where the logo links to within the current module. */
+    /** Logo link destination. Defaults to the Command Center. */
     homeUrl?: string;
     /** Cross-module shortcuts. Pass an empty array to hide them entirely. */
     footerItems?: NavItem[];

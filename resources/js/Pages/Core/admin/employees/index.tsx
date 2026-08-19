@@ -19,6 +19,7 @@ interface EmployeeRow {
     status: string;
     user: { id: number; name: string; email: string; is_active: boolean };
     department: { id: number; name: string } | null;
+    office_location: { id: number; name: string } | null;
     manager: { id: number; employee_code: string; user: { id: number; name: string } } | null;
 }
 
@@ -153,6 +154,7 @@ export default function EmployeeIndex({ employees, filters, departments, statuse
                                 <TableHead>Employee</TableHead>
                                 <TableHead>Code</TableHead>
                                 <TableHead>Department</TableHead>
+                                <TableHead>Office</TableHead>
                                 <TableHead>Reports to</TableHead>
                                 <TableHead>Status</TableHead>
                                 {can.manage && <TableHead className="w-16 text-right">Actions</TableHead>}
@@ -161,7 +163,7 @@ export default function EmployeeIndex({ employees, filters, departments, statuse
                         <TableBody>
                             {employees.data.length === 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={can.manage ? 6 : 5} className="text-muted-foreground py-10 text-center">
+                                    <TableCell colSpan={can.manage ? 7 : 6} className="text-muted-foreground py-10 text-center">
                                         No employees match these filters.
                                     </TableCell>
                                 </TableRow>
@@ -178,6 +180,7 @@ export default function EmployeeIndex({ employees, filters, departments, statuse
                                     </TableCell>
                                     <TableCell className="font-mono text-xs">{employee.employee_code}</TableCell>
                                     <TableCell>{employee.department?.name ?? '—'}</TableCell>
+                                    <TableCell>{employee.office_location?.name ?? '—'}</TableCell>
                                     <TableCell>{employee.manager?.user?.name ?? '—'}</TableCell>
                                     <TableCell>
                                         <div className="flex flex-wrap items-center gap-1">

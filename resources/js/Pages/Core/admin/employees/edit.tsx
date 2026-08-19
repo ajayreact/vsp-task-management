@@ -18,6 +18,7 @@ interface EmployeeProps {
     exited_on: string | null;
     status: string;
     roles: string[];
+    office_location_id: number | null;
 }
 
 export default function EditEmployee({ employee, ...options }: EmployeeFormOptions & { employee: EmployeeProps }) {
@@ -48,6 +49,7 @@ export default function EditEmployee({ employee, ...options }: EmployeeFormOptio
                         department_id: employee.department_id ? String(employee.department_id) : '',
                         designation_id: employee.designation_id ? String(employee.designation_id) : '',
                         reporting_to_id: employee.reporting_to_id ? String(employee.reporting_to_id) : '',
+                        office_location_id: employee.office_location_id ? String(employee.office_location_id) : '',
                         phone: employee.phone ?? '',
                         joined_on: employee.joined_on ?? '',
                         exited_on: employee.exited_on ?? '',
