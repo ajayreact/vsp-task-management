@@ -28,6 +28,15 @@ class AttendanceLocationVerificationService
     ): LocationVerificationResult {
         $office = $this->officeAssignments->assignedOfficeFor($employee);
 
+        if ($this->shouldBypassLocationRestrictions($employee)) {
+            return $this->superAdminBypassResult(
+                $action,
+                $latitude,
+                $longitude,
+                $office,
+            );
+        }
+
         if ($office === null) {
             return $this->failure(
                 $action,
@@ -81,6 +90,50 @@ class AttendanceLocationVerificationService
             networkVerificationRequired: $office->network_verification_enabled,
             networkVerified: true,
         );
+    }
+
+    protected function shouldBypassLocationRestrictions(Employee $employee): bool
+    {
+        return $employee->user?->isSuperAdmin() ?? false;
+    }
+
+    protected function superAdminBypassResult(
+        AttendanceAction $action,
+        float $latitude,
+        float $longitude,
+        ?OfficeLocation $assignedOffice,
+    ): LocationVerificationResult {
+        $office = $assignedOffice ?? $this->resolveFallbackOffice();
+
+        $distance = $office !== null
+            ? GpsGeofence::distanceInMeters(
+                $latitude,
+                $longitude,
+                (float) $office->latitude,
+                (float) $office->longitude,
+            )
+            : 0;
+
+        return new LocationVerificationResult(
+            passed: true,
+            message: 'Location verified.',
+            action: $action,
+            distanceMeters: $distance,
+            allowedRadiusMeters: $office?->allowed_gps_radius_meters ?? 0,
+            officeId: $office?->id,
+            officeName: $office?->name,
+            networkVerificationRequired: $office?->network_verification_enabled ?? false,
+            networkVerified: null,
+        );
+    }
+
+    protected function resolveFallbackOffice(): ?OfficeLocation
+    {
+        return OfficeLocation::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->first()
+            ?? OfficeLocation::query()->orderBy('name')->first();
     }
 
     protected function failure(

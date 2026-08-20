@@ -41,8 +41,12 @@ class AttendanceCheckInOutService
         }
 
         $now = now();
-        $office = OfficeLocation::query()->findOrFail($verification->officeId);
-        $status = $office->resolveCheckInStatus($now);
+        $status = AttendanceStatus::Present;
+
+        if ($verification->officeId !== null) {
+            $office = OfficeLocation::query()->findOrFail($verification->officeId);
+            $status = $office->resolveCheckInStatus($now);
+        }
 
         if ($existing !== null) {
             $existing->update([

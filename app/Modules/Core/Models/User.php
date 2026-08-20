@@ -85,6 +85,11 @@ class User extends Authenticatable
         return true;
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole(SystemRole::SuperAdmin->value);
+    }
+
     /**
      * What this user can actually do, for the frontend to hide navigation and
      * buttons with.
