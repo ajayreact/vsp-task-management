@@ -594,7 +594,7 @@ class TaskController extends Controller
     protected function commentPayload(Task $task, User $user): array
     {
         return $task->comments()
-            ->with('author:id,name,avatar')
+            ->with(['author:id,name', 'author.employee.media'])
             ->orderBy('created_at')
             ->orderBy('id')
             ->get()
@@ -602,7 +602,7 @@ class TaskController extends Controller
                 'id' => $comment->id,
                 'body' => $comment->body,
                 'author_name' => $comment->author->name,
-                'author_avatar' => $comment->author->avatar,
+                'author_avatar' => $comment->author->employee?->getFirstMediaUrl('avatar', 'thumb') ?: null,
                 'created_at' => $comment->created_at?->toIso8601String(),
                 'updated_at' => $comment->updated_at?->toIso8601String(),
                 'can_edit' => $user->can('update', $comment),

@@ -5,6 +5,7 @@ use App\Modules\TaskManagement\Enums\TaskStatus;
 use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Models\TaskComment;
 use App\Modules\TaskManagement\Notifications\StaffDatabaseNotification;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Notification;
 
 test('an authorized assignee can create a comment on their task', function () {
@@ -16,13 +17,66 @@ test('an authorized assignee can create a comment on their task', function () {
 
     $this->actingAs($employee->user)
         ->post("/tasks/{$task->id}/comments", ['body' => 'Need the brand palette before I start.'])
-        ->assertRedirect();
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
 
     $comment = TaskComment::query()->sole();
 
     expect($comment->tm_task_id)->toBe($task->id)
         ->and($comment->user_id)->toBe($employee->user->id)
         ->and($comment->body)->toBe('Need the brand palette before I start.');
+});
+
+test('posting a comment reloads the task page with the new discussion entry', function () {
+    $employee = employeeWith(Ability::AccessTasks);
+    $task = Task::factory()->create([
+        'status' => TaskStatus::InProgress,
+        'assigned_employee_id' => $employee->id,
+    ]);
+
+    $this->actingAs($employee->user)
+        ->post("/tasks/{$task->id}/comments", ['body' => 'Draft is ready for review.'])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $comment = TaskComment::query()->sole();
+
+    $this->actingAs($employee->user)
+        ->get("/tasks/{$task->id}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('TaskManagement/tasks/show-employee')
+            ->has('comments', 1)
+            ->where('comments.0.id', $comment->id)
+            ->where('comments.0.body', 'Draft is ready for review.')
+            ->where('comments.0.author_name', $employee->user->name));
+});
+
+test('posting a comment succeeds when reverb broadcast notifications are unavailable', function () {
+    configureReverbForChannelAuth();
+
+    $assignee = employeeWith(Ability::AccessTasks);
+    $manager = employeeWith(Ability::AccessTasks, Ability::ViewAllTasks);
+    $task = Task::factory()->create([
+        'status' => TaskStatus::InProgress,
+        'assigned_employee_id' => $assignee->id,
+    ]);
+
+    Broadcast::shouldReceive('connection')->andThrow(new RuntimeException('Reverb unavailable'));
+
+    $this->actingAs($manager->user)
+        ->post("/tasks/{$task->id}/comments", ['body' => 'Please share a draft by EOD.'])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $comment = TaskComment::query()->sole();
+
+    expect($comment->body)->toBe('Please share a draft by EOD.');
+
+    $notification = $assignee->user->notifications()->sole();
+
+    expect($notification->data['event'] ?? null)->toBe('task.comment')
+        ->and($notification->data['task_id'] ?? null)->toBe($task->id);
 });
 
 test('an unauthorized user cannot comment on someone elses task', function () {
