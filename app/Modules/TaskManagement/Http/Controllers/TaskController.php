@@ -24,6 +24,7 @@ use App\Modules\TaskManagement\Models\TaskReminder;
 use App\Modules\TaskManagement\Models\TaskStatusChange;
 use App\Modules\TaskManagement\Models\TaskSubtask;
 use App\Modules\TaskManagement\Models\TimeEntry;
+use App\Modules\TaskManagement\Services\TaskActionResolver;
 use App\Modules\TaskManagement\Services\TaskListExporter;
 use App\Modules\TaskManagement\Services\TaskWorkflow;
 use App\Support\Pagination;
@@ -209,7 +210,7 @@ class TaskController extends Controller
             'timer' => $this->timerPayload($task, $employeeId),
             'timeEntries' => $timeEntriesQuery->get()->map(fn (TimeEntry $entry) => [
                 'id' => $entry->id,
-                'employee_name' => $entry->employee->user->name,
+                'employee_name' => $entry->employee?->user?->name ?? 'Unknown',
                 'started_at' => $entry->started_at->toIso8601String(),
                 'ended_at' => $entry->ended_at?->toIso8601String(),
                 'hours' => $entry->hours(),
@@ -241,8 +242,7 @@ class TaskController extends Controller
             'subtaskStatuses' => SubtaskStatus::options(),
             'submitReview' => $this->submitReviewContext($task, $user),
             'can' => [
-                'claim' => $user->can('claim', $task),
-                'respond' => $user->can('respond', $task) && $task->status === TaskStatus::Assigned,
+                ...$this->workflowActionPayload($task, $user),
                 'logTime' => $user->can('logTime', $task),
                 'attachFiles' => $user->can('attachFiles', $task),
                 'comment' => $user->can('comment', $task),
@@ -286,7 +286,7 @@ class TaskController extends Controller
                 ->get()
                 ->map(fn (TaskAssignment $assignment) => [
                     'id' => $assignment->id,
-                    'employee_name' => $assignment->employee->user->name,
+                    'employee_name' => $assignment->employee?->user?->name ?? 'Unknown',
                     'mode' => $assignment->mode->label(),
                     'status' => $assignment->status->label(),
                     'assigned_by' => $assignment->assignedBy?->name,
@@ -301,7 +301,9 @@ class TaskController extends Controller
                     $task->status->allowedNext(),
                 )
                 : [],
-            'assignableEmployees' => $user->can('assign', $task) ? $this->assignableEmployees() : [],
+            'assignableEmployees' => $this->workflowActionPayload($task, $user)['can_reassign']
+                ? $this->assignableEmployees()
+                : [],
             'timer' => $this->timerPayload($task, $user->employee?->id),
             'timeEntries' => $task->timeEntries()
                 ->with('employee.user:id,name')
@@ -311,7 +313,7 @@ class TaskController extends Controller
                 ->get()
                 ->map(fn (TimeEntry $entry) => [
                     'id' => $entry->id,
-                    'employee_name' => $entry->employee->user->name,
+                    'employee_name' => $entry->employee?->user?->name ?? 'Unknown',
                     'started_at' => $entry->started_at->toIso8601String(),
                     'ended_at' => $entry->ended_at?->toIso8601String(),
                     'hours' => $entry->hours(),
@@ -355,9 +357,9 @@ class TaskController extends Controller
                     'id' => $reminder->id,
                     'remind_at' => $reminder->remind_at->toIso8601String(),
                     'message' => $reminder->message,
-                    'recipient_name' => $reminder->recipient->name,
+                    'recipient_name' => $reminder->recipient?->name ?? 'Unknown',
                     'recipient_user_id' => $reminder->recipient_user_id,
-                    'created_by' => $reminder->creator->name,
+                    'created_by' => $reminder->creator?->name ?? 'Unknown',
                     'sent_at' => $reminder->sent_at?->toIso8601String(),
                     'can_delete' => $user->can('delete', $reminder),
                 ]),
@@ -378,9 +380,7 @@ class TaskController extends Controller
             'can' => [
                 'update' => $user->can('update', $task),
                 'delete' => $user->can('delete', $task),
-                'assign' => $user->can('assign', $task),
-                'claim' => $user->can('claim', $task),
-                'respond' => $user->can('respond', $task) && $task->status === TaskStatus::Assigned,
+                ...$this->workflowActionPayload($task, $user),
                 'logTime' => $user->can('logTime', $task),
                 'attachFiles' => $user->can('attachFiles', $task),
                 'comment' => $user->can('comment', $task),
@@ -567,7 +567,7 @@ class TaskController extends Controller
                 'status_label' => $deliverable->status->label(),
                 'notes' => $deliverable->notes,
                 'client_feedback' => $deliverable->client_feedback,
-                'submitted_by' => $deliverable->submitter->user->name,
+                'submitted_by' => $deliverable->submitter?->user?->name ?? 'Unknown',
                 'submitted_at' => $deliverable->submitted_at->toIso8601String(),
                 'can_share' => $user->can('share', $deliverable),
                 'share_url' => $deliverable->shareLink?->publicUrl(),
@@ -582,7 +582,7 @@ class TaskController extends Controller
                     'round' => $review->round,
                     'decision' => $review->decision->label(),
                     'comments' => $review->comments,
-                    'reviewer' => $review->reviewer->name,
+                    'reviewer' => $review->reviewer?->name ?? 'Unknown',
                     'reviewed_at' => $review->reviewed_at->toIso8601String(),
                 ])->all(),
             ])->all();
@@ -641,7 +641,8 @@ class TaskController extends Controller
      */
     protected function submitReviewContext(Task $task, User $user): array
     {
-        $isAssignee = $user->can('respond', $task);
+        $isAssignee = $task->assigned_employee_id !== null
+            && $task->assigned_employee_id === $user->employee?->id;
         $canSubmit = $user->can('submitProof', $task);
 
         $blockedReason = null;
@@ -660,6 +661,36 @@ class TaskController extends Controller
             'is_assignee' => $isAssignee,
             'blocked_reason' => $blockedReason,
             'status_label' => $task->status->label(),
+        ];
+    }
+
+    /**
+     * Workflow action flags for task detail pages — single source of truth.
+     *
+     * @return array{
+     *     claim: bool,
+     *     respond: bool,
+     *     assign: bool,
+     *     can_accept: bool,
+     *     can_decline: bool,
+     *     can_claim: bool,
+     *     can_reassign: bool,
+     *     can_move_to_open_board: bool
+     * }
+     */
+    protected function workflowActionPayload(Task $task, User $user): array
+    {
+        $actions = app(TaskActionResolver::class)->resolve($task, $user);
+
+        return [
+            'claim' => $actions['can_claim'],
+            'respond' => $actions['can_accept'],
+            'assign' => $actions['can_assign'],
+            'can_accept' => $actions['can_accept'],
+            'can_decline' => $actions['can_decline'],
+            'can_claim' => $actions['can_claim'],
+            'can_reassign' => $actions['can_reassign'],
+            'can_move_to_open_board' => $actions['can_move_to_open_board'],
         ];
     }
 

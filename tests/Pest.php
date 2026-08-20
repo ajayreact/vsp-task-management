@@ -91,6 +91,16 @@ function superAdmin(): User
 }
 
 /**
+ * Super Admin with an employee profile, matching production seed data.
+ */
+function superAdminEmployee(): Employee
+{
+    $user = superAdmin();
+
+    return Employee::factory()->create(['user_id' => $user->id]);
+}
+
+/**
  * A staff user who also has an employee profile, which is what task work
  * requires: you cannot be assigned a task without one.
  */

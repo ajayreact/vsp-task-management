@@ -52,8 +52,9 @@ interface Props {
     checklist: TaskChecklistPayload;
     submitReview: SubmitReviewContext;
     can: {
-        claim: boolean;
-        respond: boolean;
+        can_accept: boolean;
+        can_decline: boolean;
+        can_claim: boolean;
         logTime: boolean;
         attachFiles: boolean;
         comment: boolean;
@@ -94,7 +95,7 @@ export default function EmployeeTaskShow({
 
     const post = (url: string) => router.post(url, {}, { preserveScroll: true });
 
-    const hasStatusActions = can.respond || can.claim;
+    const hasStatusActions = can.can_accept || can.can_decline || can.can_claim;
     const checklistPercent = checklist.total === 0 ? 0 : Math.round((checklist.completed / checklist.total) * 100);
 
     return (
@@ -174,18 +175,22 @@ export default function EmployeeTaskShow({
                                     <>
                                         <Separator />
                                         <div className="space-y-3">
-                                            {can.respond && (
+                                            {(can.can_accept || can.can_decline) && (
                                                 <div className="flex gap-2">
-                                                    <Button className="flex-1" onClick={() => post(`/tasks/${task.id}/accept`)}>
-                                                        <Check /> Accept task
-                                                    </Button>
-                                                    <Button variant="outline" className="flex-1" onClick={() => setDeclineOpen(true)}>
-                                                        <X /> Decline
-                                                    </Button>
+                                                    {can.can_accept && (
+                                                        <Button className="flex-1" onClick={() => post(`/tasks/${task.id}/accept`)}>
+                                                            <Check /> Accept task
+                                                        </Button>
+                                                    )}
+                                                    {can.can_decline && (
+                                                        <Button variant="outline" className="flex-1" onClick={() => setDeclineOpen(true)}>
+                                                            <X /> Decline
+                                                        </Button>
+                                                    )}
                                                 </div>
                                             )}
 
-                                            {can.claim && (
+                                            {can.can_claim && (
                                                 <Button className="w-full" onClick={() => post(`/tasks/${task.id}/claim`)}>
                                                     Claim this task
                                                 </Button>

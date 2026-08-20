@@ -58,8 +58,20 @@ class CoreServiceProvider extends ServiceProvider
      */
     protected function grantSuperAdminEverything(): void
     {
-        Gate::before(function (User $user): ?bool {
-            return $user->hasRole(SystemRole::SuperAdmin->value) ? true : null;
+        Gate::before(function (User $user, string $ability, array $arguments = []): ?bool {
+            if (! $user->hasRole(SystemRole::SuperAdmin->value)) {
+                return null;
+            }
+
+            $model = $arguments[0] ?? null;
+
+            // Employee-specific task workflow actions must still evaluate TaskPolicy.
+            if ($model instanceof \App\Modules\TaskManagement\Models\Task
+                && in_array($ability, ['respond', 'claim', 'assign'], true)) {
+                return null;
+            }
+
+            return true;
         });
     }
 }

@@ -82,9 +82,11 @@ interface Props {
     can: {
         update: boolean;
         delete: boolean;
-        assign: boolean;
-        claim: boolean;
-        respond: boolean;
+        can_accept: boolean;
+        can_decline: boolean;
+        can_claim: boolean;
+        can_reassign: boolean;
+        can_move_to_open_board: boolean;
         logTime: boolean;
         attachFiles: boolean;
         comment: boolean;
@@ -295,32 +297,37 @@ export default function TaskShow({
                                 <CardDescription>Only the moves this task can legally make right now are shown.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-3">
-                                {can.respond && (
+                                {(can.can_accept || can.can_decline) && (
                                     <div className="flex gap-2">
-                                        <Button className="flex-1" onClick={() => post(`/tasks/${task.id}/accept`)}>
-                                            <Check /> Accept
-                                        </Button>
-                                        <Button variant="outline" className="flex-1" onClick={() => setDeclineOpen(true)}>
-                                            <X /> Decline
-                                        </Button>
+                                        {can.can_accept && (
+                                            <Button className="flex-1" onClick={() => post(`/tasks/${task.id}/accept`)}>
+                                                <Check /> Accept
+                                            </Button>
+                                        )}
+                                        {can.can_decline && (
+                                            <Button variant="outline" className="flex-1" onClick={() => setDeclineOpen(true)}>
+                                                <X /> Decline
+                                            </Button>
+                                        )}
                                     </div>
                                 )}
 
-                                {can.claim && (
+                                {can.can_claim && (
                                     <Button className="w-full" onClick={() => post(`/tasks/${task.id}/claim`)}>
                                         Claim this task
                                     </Button>
                                 )}
 
-                                {can.assign && (
-                                    <>
-                                        <Button variant="outline" className="w-full" onClick={() => setAssignOpen(true)}>
-                                            {task.assignee_name ? 'Reassign' : 'Assign to someone'}
-                                        </Button>
-                                        <Button variant="outline" className="w-full" onClick={() => post(`/tasks/${task.id}/publish`)}>
-                                            Put on the open board
-                                        </Button>
-                                    </>
+                                {can.can_reassign && (
+                                    <Button variant="outline" className="w-full" onClick={() => setAssignOpen(true)}>
+                                        {task.assignee_name ? 'Reassign' : 'Assign to someone'}
+                                    </Button>
+                                )}
+
+                                {can.can_move_to_open_board && (
+                                    <Button variant="outline" className="w-full" onClick={() => post(`/tasks/${task.id}/publish`)}>
+                                        Put on the open board
+                                    </Button>
                                 )}
 
                                 {allowedTransitions.length > 0 && (
@@ -347,7 +354,12 @@ export default function TaskShow({
                                     </div>
                                 )}
 
-                                {!can.respond && !can.claim && !can.assign && allowedTransitions.length === 0 && (
+                                {!can.can_accept &&
+                                    !can.can_decline &&
+                                    !can.can_claim &&
+                                    !can.can_reassign &&
+                                    !can.can_move_to_open_board &&
+                                    allowedTransitions.length === 0 && (
                                     <p className="text-muted-foreground text-sm">Nothing for you to do on this task.</p>
                                 )}
                             </CardContent>

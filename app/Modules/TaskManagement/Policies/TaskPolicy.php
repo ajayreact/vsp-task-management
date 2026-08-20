@@ -4,6 +4,7 @@ namespace App\Modules\TaskManagement\Policies;
 
 use App\Modules\Core\Enums\Ability;
 use App\Modules\Core\Models\User;
+use App\Modules\TaskManagement\Enums\AssignmentStatus;
 use App\Modules\TaskManagement\Enums\TaskStatus;
 use App\Modules\TaskManagement\Models\Task;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -97,7 +98,14 @@ class TaskPolicy
      */
     public function respond(User $user, Task $task): bool
     {
-        return $this->isAssignee($user, $task);
+        if (! $this->isAssignee($user, $task) || $task->status !== TaskStatus::Assigned) {
+            return false;
+        }
+
+        return $task->assignments()
+            ->where('employee_id', $user->employee?->id)
+            ->where('status', AssignmentStatus::Pending)
+            ->exists();
     }
 
     /**
