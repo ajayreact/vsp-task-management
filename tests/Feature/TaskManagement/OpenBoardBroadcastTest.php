@@ -62,3 +62,13 @@ test('open board broadcasts are skipped when broadcasting is disabled', function
 
     Event::assertNotDispatched(OpenBoardTaskClaimed::class);
 });
+
+test('open board publish broadcast does not throw when reverb is unavailable', function () {
+    configureReverbForChannelAuth();
+
+    $service = app(\App\Modules\TaskManagement\Services\OpenBoardBroadcastService::class);
+    $task = Task::factory()->open()->create();
+    $actor = employeeWith(Ability::AccessTasks);
+
+    expect(fn () => $service->taskPublished($task, $actor->user))->not->toThrow(Throwable::class);
+});

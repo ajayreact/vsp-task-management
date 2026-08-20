@@ -7,6 +7,8 @@ use App\Modules\TaskManagement\Events\OpenBoardTaskClaimed;
 use App\Modules\TaskManagement\Events\OpenBoardTaskPublished;
 use App\Modules\TaskManagement\Models\Task;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Live open-board updates over the existing Reverb private user channels.
@@ -31,7 +33,15 @@ class OpenBoardBroadcastService
             return;
         }
 
-        broadcast(new OpenBoardTaskClaimed($task->id, $recipients));
+        try {
+            broadcast(new OpenBoardTaskClaimed($task->id, $recipients));
+        } catch (Throwable $exception) {
+            Log::warning('Open board claim broadcast failed.', [
+                'task_id' => $task->id,
+                'exception' => $exception->getMessage(),
+                'recipient_count' => count($recipients),
+            ]);
+        }
     }
 
     public function taskPublished(Task $task, User $actor): void
@@ -50,7 +60,15 @@ class OpenBoardBroadcastService
             return;
         }
 
-        broadcast(new OpenBoardTaskPublished($this->serializeBoardTask($task), $recipients));
+        try {
+            broadcast(new OpenBoardTaskPublished($this->serializeBoardTask($task), $recipients));
+        } catch (Throwable $exception) {
+            Log::warning('Open board publish broadcast failed.', [
+                'task_id' => $task->id,
+                'exception' => $exception->getMessage(),
+                'recipient_count' => count($recipients),
+            ]);
+        }
     }
 
     /**

@@ -7,6 +7,8 @@ use App\Modules\Core\Models\User;
 use App\Modules\TaskManagement\Events\CommandCenterUpdated;
 use App\Modules\TaskManagement\Models\Task;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Live Command Center refresh over existing Reverb private user channels.
@@ -25,7 +27,14 @@ class DashboardBroadcastService
             return;
         }
 
-        broadcast(new CommandCenterUpdated($recipients));
+        try {
+            broadcast(new CommandCenterUpdated($recipients));
+        } catch (Throwable $exception) {
+            Log::warning('Command Center broadcast failed.', [
+                'exception' => $exception->getMessage(),
+                'recipient_count' => count($recipients),
+            ]);
+        }
     }
 
     /**

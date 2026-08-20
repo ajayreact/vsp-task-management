@@ -45,6 +45,7 @@ class TaskWorkflow
             return $this->settle($task, TaskStatus::Open, $actor);
         });
 
+        $this->refreshDashboard($actor, $task);
         $this->notifier->taskPublished($task, $actor, $withdrawn);
         $this->openBoardBroadcast->taskPublished($task->refresh(), $actor);
 
@@ -85,6 +86,7 @@ class TaskWorkflow
             return $this->settle($task, TaskStatus::Assigned, $actor);
         });
 
+        $this->refreshDashboard($actor, $task);
         $this->notifier->taskAssigned($task, $employee, $actor, $withdrawn);
 
         return $task;
@@ -124,6 +126,7 @@ class TaskWorkflow
             return $this->moveTo($fresh, TaskStatus::InProgress, $actor);
         });
 
+        $this->refreshDashboard($actor, $task);
         $this->notifier->taskClaimed($task, $actor);
         $this->openBoardBroadcast->taskClaimed($task, $actor);
 
@@ -143,6 +146,7 @@ class TaskWorkflow
             return $this->moveTo($task, TaskStatus::InProgress, $actor);
         });
 
+        $this->refreshDashboard($actor, $task);
         $this->notifier->taskInProgress($task, $actor);
 
         return $task;
@@ -174,6 +178,7 @@ class TaskWorkflow
             return $this->moveTo($task, TaskStatus::Open, $actor);
         });
 
+        $this->refreshDashboard($actor, $task);
         $this->notifier->taskDeclined($task, $actor, $assigner, $reason);
         $this->openBoardBroadcast->taskPublished($task->refresh(), $actor);
 
@@ -193,14 +198,18 @@ class TaskWorkflow
             return $this->moveTo($task, $target, $actor);
         });
 
-        if ($notify && $from !== $target) {
-            if ($target === TaskStatus::InProgress && $from !== TaskStatus::InProgress) {
-                $this->notifier->taskInProgress($task, $actor);
-            }
+        if ($from !== $target) {
+            $this->refreshDashboard($actor, $task);
 
-            if ($target === TaskStatus::Completed) {
-                $this->notifier->taskCompleted($task, $actor);
-                $this->recurring->generateNextOccurrence($task->refresh());
+            if ($notify) {
+                if ($target === TaskStatus::InProgress && $from !== TaskStatus::InProgress) {
+                    $this->notifier->taskInProgress($task, $actor);
+                }
+
+                if ($target === TaskStatus::Completed) {
+                    $this->notifier->taskCompleted($task, $actor);
+                    $this->recurring->generateNextOccurrence($task->refresh());
+                }
             }
         }
 
@@ -212,7 +221,7 @@ class TaskWorkflow
      */
     public function completeAfterClientApproval(Task $task, User $actor): Task
     {
-        return DB::transaction(function () use ($task, $actor) {
+        $task = DB::transaction(function () use ($task, $actor) {
             if ($task->status !== TaskStatus::InReview) {
                 throw TaskWorkflowException::cannotTransition($task->status, TaskStatus::Completed);
             }
@@ -222,6 +231,10 @@ class TaskWorkflow
 
             return $task;
         });
+
+        $this->refreshDashboard($actor, $task);
+
+        return $task;
     }
 
     protected function guardTransition(Task $task, TaskStatus $target): void
@@ -278,9 +291,16 @@ class TaskWorkflow
             ]);
         }
 
-        $this->dashboardBroadcast->refresh($actor, $task->refresh());
-
         return $task;
+    }
+
+    /**
+     * Live dashboard refresh runs after the workflow transaction commits so
+     * Reverb outages cannot roll back assignment or status changes.
+     */
+    protected function refreshDashboard(User $actor, Task $task): void
+    {
+        $this->dashboardBroadcast->refresh($actor, $task->refresh());
     }
 
     /**

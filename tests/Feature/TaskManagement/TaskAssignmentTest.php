@@ -258,3 +258,59 @@ test('the open board lists only unclaimed open tasks', function () {
             ->has('tasks.data', 1)
             ->where('tasks.data.0.title', 'Up for grabs'));
 });
+
+test('assigning a task succeeds when reverb broadcasts are unavailable', function () {
+    configureReverbForChannelAuth();
+
+    $manager = manager();
+    $employee = worker();
+    $task = Task::factory()->create();
+
+    $this->actingAs($manager->user)
+        ->post("/tasks/{$task->id}/assign", ['employee_id' => $employee->id])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $task->refresh();
+
+    expect($task->status)->toBe(TaskStatus::Assigned)
+        ->and($task->assigned_employee_id)->toBe($employee->id);
+
+    $assignment = $task->assignments()->sole();
+
+    expect($assignment->status)->toBe(AssignmentStatus::Pending)
+        ->and($assignment->mode)->toBe(AssignmentAction::Direct);
+
+    $change = $task->statusHistory()->sole();
+
+    expect($change->to_status)->toBe(TaskStatus::Assigned);
+});
+
+test('publishing to the open board succeeds when reverb broadcasts are unavailable', function () {
+    configureReverbForChannelAuth();
+
+    $manager = manager();
+    $employee = worker();
+    $task = Task::factory()->awaitingAcceptance($employee)->create();
+    $task->assignments()->create([
+        'employee_id' => $employee->id,
+        'mode' => AssignmentAction::Direct,
+        'status' => AssignmentStatus::Pending,
+    ]);
+
+    $this->actingAs($manager->user)
+        ->post("/tasks/{$task->id}/publish")
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $task->refresh();
+
+    expect($task->status)->toBe(TaskStatus::Open)
+        ->and($task->assigned_employee_id)->toBeNull()
+        ->and($task->assignment_mode)->toBe(AssignmentMode::Open)
+        ->and($task->assignments()->sole()->status)->toBe(AssignmentStatus::Reassigned);
+
+    $change = $task->statusHistory()->where('to_status', TaskStatus::Open)->sole();
+
+    expect($change->changed_by_user_id)->toBe($manager->user->id);
+});

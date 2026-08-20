@@ -21,11 +21,13 @@ class StaffDatabaseNotification extends Notification
     public function __construct(public array $payload) {}
 
     /**
+     * Database is always persisted. Broadcast is added by TaskNotifier when Reverb is configured.
+     *
      * @return list<string>
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'broadcast'];
+        return ['database'];
     }
 
     /**
