@@ -1,4 +1,9 @@
 import { showIncomingBrowserNotification } from '@/lib/browser-notifications';
+import {
+    shouldPlayNotificationSound,
+    shouldShowBrowserNotifications,
+    shouldShowInAppNotifications,
+} from '@/lib/notification-preference-store';
 import { showNotificationToast } from '@/lib/notification-toast-store';
 import { playNotificationSound } from '@/lib/notification-sound';
 import { type AppNotification } from '@/types';
@@ -10,9 +15,17 @@ type NavigateHandler = (url: string) => void;
  * Called only from dispatchIncomingNotification after duplicate filtering.
  */
 export function handleIncomingNotification(notification: AppNotification, options?: { onNavigate?: NavigateHandler }): void {
-    showNotificationToast(notification);
-    playNotificationSound();
-    showIncomingBrowserNotification(notification, {
-        onNavigate: options?.onNavigate,
-    });
+    if (shouldShowInAppNotifications()) {
+        showNotificationToast(notification);
+    }
+
+    if (shouldPlayNotificationSound()) {
+        playNotificationSound();
+    }
+
+    if (shouldShowBrowserNotifications()) {
+        showIncomingBrowserNotification(notification, {
+            onNavigate: options?.onNavigate,
+        });
+    }
 }

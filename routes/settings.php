@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Core\Http\Controllers\Settings\NotificationPreferenceController;
 use App\Modules\Core\Http\Controllers\Settings\PasswordController;
 use App\Modules\Core\Http\Controllers\Settings\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -18,4 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::get('settings/appearance', function () {
         return Inertia::render('Core/settings/appearance');
     })->name('appearance');
+
+    Route::patch('settings/notification-preferences', [NotificationPreferenceController::class, 'update'])
+        ->name('notification-preferences.update');
 });

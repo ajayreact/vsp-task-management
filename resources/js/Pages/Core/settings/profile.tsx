@@ -1,12 +1,13 @@
 import DeleteUser from '@/components/delete-user';
 import InputError from '@/components/input-error';
+import { NotificationPreferencesForm } from '@/components/settings/notification-preferences-form';
 import { SettingsCard, SettingsFormFooter } from '@/components/settings/settings-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
-import { type BreadcrumbItem, type SharedData } from '@/types';
+import { type BreadcrumbItem, type NotificationPreferences, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { User } from 'lucide-react';
@@ -19,7 +20,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
+export default function Profile({
+    mustVerifyEmail,
+    status,
+    notificationPreferences,
+}: {
+    mustVerifyEmail: boolean;
+    status?: string;
+    notificationPreferences: NotificationPreferences;
+}) {
     const { auth } = usePage<SharedData>().props;
 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
@@ -112,6 +121,8 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                         )}
                     </form>
                 </SettingsCard>
+
+                <NotificationPreferencesForm preferences={notificationPreferences} />
 
                 <DeleteUser />
             </SettingsLayout>

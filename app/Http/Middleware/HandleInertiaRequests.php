@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Modules\Core\Enums\Ability;
 use App\Modules\Core\Models\User;
+use App\Modules\Core\Services\UserNotificationPreferenceService;
 use App\Modules\TaskManagement\Services\TaskManagementNotificationSoundService;
 use App\Support\NotificationPresenter;
 use Illuminate\Foundation\Inspiring;
@@ -62,7 +63,20 @@ class HandleInertiaRequests extends Middleware
             ],
             'notifications' => NotificationPresenter::forUser($user),
             'notificationSound' => self::notificationSoundConfig($user),
+            'notificationPreferences' => self::notificationPreferences($user),
         ]);
+    }
+
+    /**
+     * @return array{browser_notifications: bool, notification_sound: bool, in_app_notifications: bool}|null
+     */
+    protected static function notificationPreferences(?User $user): ?array
+    {
+        if ($user === null || ! $user->isInternal() || ! $user->can(Ability::AccessTasks->value)) {
+            return null;
+        }
+
+        return app(UserNotificationPreferenceService::class)->forUser($user);
     }
 
     /**

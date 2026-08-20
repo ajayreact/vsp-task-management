@@ -56,6 +56,7 @@ class NotificationPresenter
             'url' => $data['url'] ?? null,
             'task_id' => $data['task_id'] ?? null,
             'timesheet_id' => $data['timesheet_id'] ?? null,
+            'actor' => $data['actor'] ?? null,
             'read_at' => $notification->read_at?->toIso8601String(),
             'created_at' => $notification->created_at?->toIso8601String(),
         ];

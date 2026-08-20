@@ -41,6 +41,7 @@ export interface SharedData {
         recent: AppNotification[];
     };
     notificationSound?: NotificationSoundPlaybackConfig | null;
+    notificationPreferences?: NotificationPreferences | null;
     [key: string]: unknown;
 }
 
@@ -51,6 +52,18 @@ export type NotificationSoundPlaybackConfig = {
     url?: string | null;
 };
 
+export type NotificationActor = {
+    id: number;
+    name: string;
+    avatar: string | null;
+};
+
+export type NotificationPreferences = {
+    browser_notifications: boolean;
+    notification_sound: boolean;
+    in_app_notifications: boolean;
+};
+
 export interface AppNotification {
     id: string;
     event: string | null;
@@ -59,6 +72,7 @@ export interface AppNotification {
     url: string | null;
     task_id: number | null;
     timesheet_id: number | null;
+    actor?: NotificationActor | null;
     read_at: string | null;
     created_at: string | null;
 }

@@ -16,6 +16,7 @@ use App\Modules\TaskManagement\Models\TaskSubtask;
 use App\Modules\TaskManagement\Models\Timesheet;
 use App\Modules\TaskManagement\Notifications\StaffDatabaseNotification;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 /**
@@ -266,22 +267,39 @@ class TaskNotifier
 
     public function taskCommented(Task $task, User $actor): void
     {
-        $task->loadMissing('assignee.user');
-        $assigneeUser = $task->assignee?->user;
+        $task->loadMissing(['assignee.user', 'creator', 'project.manager.user']);
 
-        if ($assigneeUser === null) {
+        $otherCommenters = User::query()
+            ->internal()
+            ->where('is_active', true)
+            ->whereIn('id', $task->comments()
+                ->where('user_id', '!=', $actor->id)
+                ->distinct()
+                ->pluck('user_id'))
+            ->get();
+
+        $recipients = $this->taskOversightUsers($task)
+            ->push($task->assignee?->user)
+            ->merge($otherCommenters)
+            ->filter()
+            ->unique('id');
+
+        if ($recipients->isEmpty()) {
             return;
         }
 
         $preview = "{$actor->name} commented on \"{$task->title}\".";
 
-        $this->send($assigneeUser, $actor, [
-            'event' => 'task.comment',
-            'title' => 'New task comment',
-            'body' => $preview,
-            'url' => "/tasks/{$task->id}",
-            'task_id' => $task->id,
-        ]);
+        foreach ($recipients as $recipient) {
+            /** @var User $recipient */
+            $this->send($recipient, $actor, [
+                'event' => 'task.comment',
+                'title' => 'New task comment',
+                'body' => $preview,
+                'url' => "/tasks/{$task->id}",
+                'task_id' => $task->id,
+            ]);
+        }
     }
 
     public function taskReminderDue(Task $task, TaskReminder $reminder): void
@@ -439,6 +457,8 @@ class TaskNotifier
             return;
         }
 
+        $payload['actor'] = TaskNotificationActorResolver::forUser($actor);
+
         $this->deliver($recipient, $payload);
     }
 
@@ -446,7 +466,7 @@ class TaskNotifier
      * Persist to the database first, then attempt a live broadcast when configured.
      * Database delivery must succeed even if Reverb/WebSockets are unavailable.
      *
-     * @param  array{event: string, title: string, body: string, url: string, task_id?: int|null, timesheet_id?: int|null}  $payload
+     * @param  array{event: string, title: string, body: string, url: string, task_id?: int|null, timesheet_id?: int|null, actor?: array{id: int, name: string, avatar: string|null}|null}  $payload
      */
     protected function deliver(User $recipient, array $payload): void
     {
@@ -454,21 +474,42 @@ class TaskNotifier
             return;
         }
 
-        $notification = new StaffDatabaseNotification($payload);
-        $channels = ['database'];
+        $payload['actor'] ??= null;
 
-        if ($this->shouldBroadcastNotifications()) {
-            $channels[] = 'broadcast';
+        $notification = new StaffDatabaseNotification($payload);
+
+        try {
+            Notification::sendNow($recipient, $notification, ['database']);
+        } catch (\Throwable $exception) {
+            report($exception);
+            Log::warning('Task notification database delivery failed.', [
+                'recipient_id' => $recipient->id,
+                'event' => $payload['event'] ?? null,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return;
+        }
+
+        $storedId = $recipient->notifications()->latest()->value('id');
+
+        if (is_string($storedId)) {
+            $notification->id = $storedId;
+        }
+
+        if (! $this->shouldBroadcastNotifications()) {
+            return;
         }
 
         try {
-            Notification::sendNow($recipient, $notification, $channels);
+            Notification::sendNow($recipient, $notification, ['broadcast']);
         } catch (\Throwable $exception) {
             report($exception);
-
-            if ($recipient->notifications()->count() === 0) {
-                Notification::sendNow($recipient, $notification, ['database']);
-            }
+            Log::warning('Task notification broadcast failed.', [
+                'recipient_id' => $recipient->id,
+                'event' => $payload['event'] ?? null,
+                'error' => $exception->getMessage(),
+            ]);
         }
     }
 

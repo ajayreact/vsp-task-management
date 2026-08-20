@@ -48,7 +48,10 @@ function openNotification(notification: AppNotification) {
         return;
     }
 
-    router.post(`/notifications/${notification.id}/read`, { redirect: true }, { preserveScroll: true });
+    router.post(`/notifications/${notification.id}/read`, { redirect: true }, {
+        preserveScroll: true,
+        onSuccess: () => router.reload({ only: ['notifications'] }),
+    });
 }
 
 export function NotificationBell() {
@@ -82,7 +85,12 @@ export function NotificationBell() {
                             variant="ghost"
                             size="sm"
                             className="text-muted-foreground h-7 px-2 text-xs"
-                            onClick={() => router.post('/notifications/read-all', {}, { preserveScroll: true })}
+                            onClick={() =>
+                                router.post('/notifications/read-all', {}, {
+                                    preserveScroll: true,
+                                    onSuccess: () => router.reload({ only: ['notifications'] }),
+                                })
+                            }
                         >
                             Mark all read
                         </Button>

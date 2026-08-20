@@ -16,7 +16,7 @@ class StaffDatabaseNotification extends Notification
     use Queueable;
 
     /**
-     * @param  array{event: string, title: string, body: string, url: string, task_id?: int|null, timesheet_id?: int|null}  $payload
+     * @param  array{event: string, title: string, body: string, url: string, task_id?: int|null, timesheet_id?: int|null, actor?: array{id: int, name: string, avatar: string|null}|null}  $payload
      */
     public function __construct(public array $payload) {}
 
@@ -42,6 +42,7 @@ class StaffDatabaseNotification extends Notification
             'url' => $this->payload['url'],
             'task_id' => $this->payload['task_id'] ?? null,
             'timesheet_id' => $this->payload['timesheet_id'] ?? null,
+            'actor' => $this->payload['actor'] ?? null,
         ];
     }
 

@@ -14,6 +14,11 @@ type RealtimePayload = {
     url?: string | null;
     task_id?: number | null;
     timesheet_id?: number | null;
+    actor?: {
+        id?: number;
+        name?: string;
+        avatar?: string | null;
+    } | null;
     created_at?: string | null;
     read_at?: string | null;
     type?: string;
@@ -49,6 +54,13 @@ function toAppNotification(payload: RealtimePayload): AppNotification | null {
         url: payload.url ?? null,
         task_id: payload.task_id ?? null,
         timesheet_id: payload.timesheet_id ?? null,
+        actor: payload.actor
+            ? {
+                  id: payload.actor.id ?? 0,
+                  name: payload.actor.name ?? 'Someone',
+                  avatar: payload.actor.avatar ?? null,
+              }
+            : null,
         read_at: payload.read_at ?? null,
         created_at: payload.created_at ?? new Date().toISOString(),
     };

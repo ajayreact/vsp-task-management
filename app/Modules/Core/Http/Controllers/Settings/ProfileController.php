@@ -4,6 +4,7 @@ namespace App\Modules\Core\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Core\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Modules\Core\Services\UserNotificationPreferenceService;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,6 +22,7 @@ class ProfileController extends Controller
         return Inertia::render('Core/settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
+            'notificationPreferences' => app(UserNotificationPreferenceService::class)->forUser($request->user()),
         ]);
     }
 
