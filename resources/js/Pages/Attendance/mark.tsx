@@ -38,6 +38,8 @@ interface TodaySnapshot {
 
 interface Props {
     office: OfficeSummary | null;
+    can_mark_attendance: boolean;
+    location_bypass_enabled: boolean;
     today: TodaySnapshot;
 }
 
@@ -51,7 +53,12 @@ const STATUS_TONE: Record<string, 'success' | 'warning' | 'neutral' | 'info'> = 
     checked_out: 'neutral',
 };
 
-export default function AttendanceMark({ office, today }: Props) {
+export default function AttendanceMark({
+    office,
+    can_mark_attendance,
+    location_bypass_enabled,
+    today,
+}: Props) {
     const { flash } = usePage<SharedData>().props;
     const { perform, reset, isBusy: isAttendanceBusy, phase, action, error } = useAttendanceActions();
     const {
@@ -112,7 +119,11 @@ export default function AttendanceMark({ office, today }: Props) {
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
                 <PageHeader
                     title="Attendance"
-                    description="Check in and check out from your assigned office. GPS verification runs automatically before each action."
+                    description={
+                        location_bypass_enabled
+                            ? 'Check in and check out from any location. GPS verification still runs, but location restrictions are bypassed for Super Admin.'
+                            : 'Check in and check out from your assigned office. GPS verification runs automatically before each action.'
+                    }
                 />
 
                 <div className="grid gap-6 lg:grid-cols-2">
@@ -147,6 +158,10 @@ export default function AttendanceMark({ office, today }: Props) {
                                         </p>
                                     )}
                                 </>
+                            ) : location_bypass_enabled ? (
+                                <p className="text-muted-foreground text-sm">
+                                    As Super Admin, you can mark attendance from any location.
+                                </p>
                             ) : (
                                 <p className="text-muted-foreground text-sm">
                                     No office is assigned to your profile yet. Ask a Super Admin to assign one before marking
@@ -168,7 +183,10 @@ export default function AttendanceMark({ office, today }: Props) {
                                 Today&apos;s attendance
                             </CardTitle>
                             <CardDescription>
-                                {today.can_check_in && 'Check in when you arrive at the office.'}
+                                {today.can_check_in &&
+                                    (location_bypass_enabled
+                                        ? 'Check in when you are ready to start your day.'
+                                        : 'Check in when you arrive at the office.')}
                                 {today.can_check_out && 'You are currently working. Start a break when you step away.'}
                                 {today.status === 'late' && today.can_check_out && 'You checked in late today. Start a break when you step away.'}
                                 {today.can_resume_work && 'You are on a break. Resume work when you return.'}
@@ -272,7 +290,7 @@ export default function AttendanceMark({ office, today }: Props) {
                                 {today.can_check_in && (
                                     <Button
                                         type="button"
-                                        disabled={!office?.is_active || isBusy}
+                                        disabled={!can_mark_attendance || isBusy}
                                         onClick={() => handleAction('check_in')}
                                     >
                                         {isAttendanceBusy && action === 'check_in' ? (
@@ -288,7 +306,7 @@ export default function AttendanceMark({ office, today }: Props) {
                                     <Button
                                         type="button"
                                         variant="secondary"
-                                        disabled={!office?.is_active || isBusy}
+                                        disabled={!can_mark_attendance || isBusy}
                                         onClick={() => handleBreakAction('start')}
                                     >
                                         {isBreakBusy && breakAction === 'start' ? (
@@ -303,7 +321,7 @@ export default function AttendanceMark({ office, today }: Props) {
                                 {today.can_resume_work && (
                                     <Button
                                         type="button"
-                                        disabled={!office?.is_active || isBusy}
+                                        disabled={!can_mark_attendance || isBusy}
                                         onClick={() => handleBreakAction('resume')}
                                     >
                                         {isBreakBusy && breakAction === 'resume' ? (
@@ -319,7 +337,7 @@ export default function AttendanceMark({ office, today }: Props) {
                                     <Button
                                         type="button"
                                         variant="outline"
-                                        disabled={!office?.is_active || isBusy}
+                                        disabled={!can_mark_attendance || isBusy}
                                         onClick={() => handleAction('check_out')}
                                     >
                                         {isAttendanceBusy && action === 'check_out' ? (

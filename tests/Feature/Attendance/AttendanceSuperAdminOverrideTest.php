@@ -228,3 +228,99 @@ test('super admin override does not bypass attendance workflow rules', function 
         ->assertRedirect()
         ->assertSessionHas('error', 'You have already checked in today.');
 });
+
+test('super admin with no assigned office sees an enabled check in action on the attendance page', function () {
+    OfficeLocation::factory()->create([
+        'latitude' => 28.613939,
+        'longitude' => 77.209023,
+        'allowed_gps_radius_meters' => 100,
+        'is_active' => true,
+    ]);
+
+    $employee = superAdminEmployee();
+
+    $this->actingAs($employee->user)
+        ->get('/attendance/mark')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Attendance/mark')
+            ->where('office', null)
+            ->where('can_mark_attendance', true)
+            ->where('location_bypass_enabled', true)
+            ->where('today.can_check_in', true));
+});
+
+test('super admin with no assigned office can check in from the attendance page', function () {
+    $office = OfficeLocation::factory()->create([
+        'latitude' => 28.613939,
+        'longitude' => 77.209023,
+        'allowed_gps_radius_meters' => 100,
+        'is_active' => true,
+    ]);
+
+    $employee = superAdminEmployee();
+
+    $this->actingAs($employee->user)
+        ->post('/attendance/check-in', [
+            'latitude' => 28.704060,
+            'longitude' => 77.102493,
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('success');
+
+    expect(AttendanceEntry::query()->where('employee_id', $employee->id)->value('office_location_id'))
+        ->toBe($office->id);
+});
+
+test('super admin with no assigned office can check out from the attendance page', function () {
+    OfficeLocation::factory()->create([
+        'latitude' => 28.613939,
+        'longitude' => 77.209023,
+        'allowed_gps_radius_meters' => 100,
+        'is_active' => true,
+    ]);
+
+    $employee = superAdminEmployee();
+
+    $this->actingAs($employee->user)
+        ->post('/attendance/check-in', [
+            'latitude' => 28.704060,
+            'longitude' => 77.102493,
+        ])
+        ->assertSessionHas('success');
+
+    $this->actingAs($employee->user)
+        ->post('/attendance/check-out', [
+            'latitude' => 28.704060,
+            'longitude' => 77.102493,
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('success');
+
+    expect(AttendanceEntry::query()->where('employee_id', $employee->id)->value('status'))
+        ->toBe(AttendanceStatus::CheckedOut);
+});
+
+test('normal employee with no assigned office remains blocked on the attendance page', function () {
+    $employee = employeeWith(Ability::AccessTasks);
+
+    $this->actingAs($employee->user)
+        ->get('/attendance/mark')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Attendance/mark')
+            ->where('office', null)
+            ->where('can_mark_attendance', false)
+            ->where('location_bypass_enabled', false)
+            ->where('today.can_check_in', true));
+
+    $this->actingAs($employee->user)
+        ->post('/attendance/check-in', [
+            'latitude' => 28.613939,
+            'longitude' => 77.209023,
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('error', 'You do not have an office location assigned.');
+
+    expect(AttendanceEntry::query()->where('employee_id', $employee->id)->exists())->toBeFalse();
+});

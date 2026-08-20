@@ -23,7 +23,10 @@ class AttendanceMarkController extends Controller
 
         abort_if($employee === null, 403);
 
+        $user = request()->user();
         $office = $this->officeAssignments->assignedOfficeFor($employee);
+        $locationBypassEnabled = $user?->isSuperAdmin() ?? false;
+        $canMarkAttendance = $locationBypassEnabled || ($office !== null && $office->is_active);
 
         return Inertia::render('Attendance/mark', [
             'office' => $office ? [
@@ -34,6 +37,8 @@ class AttendanceMarkController extends Controller
                 'network_verification_enabled' => $office->network_verification_enabled,
                 'is_active' => $office->is_active,
             ] : null,
+            'can_mark_attendance' => $canMarkAttendance,
+            'location_bypass_enabled' => $locationBypassEnabled,
             'today' => $this->attendance->todaySnapshot($employee),
         ]);
     }
