@@ -25,7 +25,8 @@ interface Props {
     };
     files: SharedFile[];
     can_respond: boolean;
-    token: string;
+    approve_url: string;
+    request_changes_url: string;
 }
 
 type SharePageProps = Props & {
@@ -100,7 +101,8 @@ export default function PublicDeliverableShare({
     deliverable,
     files,
     can_respond,
-    token,
+    approve_url,
+    request_changes_url,
 }: Props) {
     const { flash } = usePage<SharePageProps>().props;
     const feedbackForm = useForm({ feedback: '' });
@@ -176,7 +178,7 @@ export default function PublicDeliverableShare({
                                 <form
                                     onSubmit={(event) => {
                                         event.preventDefault();
-                                        feedbackForm.post(`/share/${token}/request-changes`, { preserveScroll: true });
+                                        feedbackForm.post(request_changes_url, { preserveScroll: true });
                                     }}
                                     className="space-y-3"
                                 >
@@ -196,7 +198,7 @@ export default function PublicDeliverableShare({
                                             type="button"
                                             className="gap-2"
                                             disabled={feedbackForm.processing}
-                                            onClick={() => feedbackForm.post(`/share/${token}/approve`, { preserveScroll: true })}
+                                            onClick={() => feedbackForm.post(approve_url, { preserveScroll: true })}
                                         >
                                             <Check className="size-4" />
                                             Approve work

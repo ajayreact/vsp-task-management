@@ -8,7 +8,7 @@ use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Services\DeliverableShareLinkService;
 use Illuminate\Database\QueryException;
 
-test('the service creates a share link with a 64-character hex token', function () {
+test('the service creates a share link with a 64-character hex token and short code', function () {
     $deliverable = Deliverable::factory()->create();
     $user = User::factory()->create();
 
@@ -18,13 +18,16 @@ test('the service creates a share link with a 64-character hex token', function 
         ->and($link->tm_deliverable_id)->toBe($deliverable->id)
         ->and($link->created_by_user_id)->toBe($user->id)
         ->and($link->token)->toHaveLength(64)
-        ->and($link->token)->toMatch('/^[0-9a-f]{64}$/');
+        ->and($link->token)->toMatch('/^[0-9a-f]{64}$/')
+        ->and($link->short_code)->toHaveLength(8)
+        ->and($link->short_code)->toMatch('/^[A-Za-z0-9]{8}$/');
 
     $this->assertDatabaseCount('tm_deliverable_share_links', 1);
     $this->assertDatabaseHas('tm_deliverable_share_links', [
         'id' => $link->id,
         'tm_deliverable_id' => $deliverable->id,
         'token' => $link->token,
+        'short_code' => $link->short_code,
         'created_by_user_id' => $user->id,
     ]);
 });
@@ -40,6 +43,7 @@ test('calling the service twice for the same deliverable returns the same link',
 
     expect($second->id)->toBe($first->id)
         ->and($second->token)->toBe($first->token)
+        ->and($second->short_code)->toBe($first->short_code)
         ->and($second->created_by_user_id)->toBe($firstUser->id);
 
     expect(DeliverableShareLink::query()->where('tm_deliverable_id', $deliverable->id)->count())->toBe(1);
@@ -52,9 +56,23 @@ test('share links for different deliverables receive unique tokens', function ()
     $first = $service->getOrCreate(Deliverable::factory()->create(), $user);
     $second = $service->getOrCreate(Deliverable::factory()->create(), $user);
 
-    expect($first->token)->not->toBe($second->token);
+    expect($first->token)->not->toBe($second->token)
+        ->and($first->short_code)->not->toBe($second->short_code);
 
     $this->assertDatabaseCount('tm_deliverable_share_links', 2);
+});
+
+test('the database rejects a duplicate short code', function () {
+    $user = User::factory()->create();
+    $existing = app(DeliverableShareLinkService::class)
+        ->getOrCreate(Deliverable::factory()->create(), $user);
+
+    expect(fn () => DeliverableShareLink::query()->create([
+        'tm_deliverable_id' => Deliverable::factory()->create()->id,
+        'token' => bin2hex(random_bytes(32)),
+        'short_code' => $existing->short_code,
+        'created_by_user_id' => $user->id,
+    ]))->toThrow(QueryException::class);
 });
 
 test('the database rejects a duplicate token', function () {
@@ -171,7 +189,9 @@ test('generating a share link twice returns the same url and does not create dup
 
     expect($second->id)->toBe($first->id)
         ->and($second->token)->toBe($first->token)
-        ->and($second->publicUrl())->toBe($first->publicUrl());
+        ->and($second->short_code)->toBe($first->short_code)
+        ->and($second->publicUrl())->toBe($first->publicUrl())
+        ->and($second->publicUrl())->toMatch('#/d/[A-Za-z0-9]{8}$#');
 
     $this->assertDatabaseCount('tm_deliverable_share_links', 1);
 });

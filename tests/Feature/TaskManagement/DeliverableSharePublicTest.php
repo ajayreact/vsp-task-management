@@ -30,12 +30,80 @@ test('a valid token shows the deliverable to a guest', function () {
             ->missing('auth.user.id'));
 });
 
-test('the public share url is built from the named route', function () {
+test('the public share url uses the short code route', function () {
     $deliverable = Deliverable::factory()->create();
     $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
 
-    expect($link->publicUrl())->toEndWith('/share/'.$link->token)
-        ->and(route('share.show', ['token' => $link->token], false))->toBe('/share/'.$link->token);
+    expect($link->publicUrl())->toEndWith('/d/'.$link->short_code)
+        ->and(route('share.short.show', ['shortCode' => $link->short_code], false))->toBe('/d/'.$link->short_code);
+});
+
+test('a valid short code shows the deliverable to a guest', function () {
+    $deliverable = Deliverable::factory()->create();
+    $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
+    $deliverable->load('task.project.company');
+
+    $this->get(route('share.short.show', ['shortCode' => $link->short_code]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('TaskManagement/share/show')
+            ->where('client_name', $deliverable->task->project->company->name)
+            ->where('approve_url', $link->publicApproveUrl())
+            ->where('request_changes_url', $link->publicRequestChangesUrl()));
+});
+
+test('legacy long token urls continue to work', function () {
+    $deliverable = Deliverable::factory()->create();
+    $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
+
+    $this->get(route('share.show', ['token' => $link->token]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('TaskManagement/share/show')
+            ->where('approve_url', route('share.approve', ['token' => $link->token]))
+            ->where('request_changes_url', route('share.request-changes', ['token' => $link->token])));
+});
+
+test('an invalid short code returns a link not found page', function () {
+    $this->get('/d/not-valid')->assertNotFound();
+    $this->get('/d/zzzzzzzz')
+        ->assertNotFound()
+        ->assertInertia(fn ($page) => $page->component('TaskManagement/share/error'));
+});
+
+test('a revoked share link shows the unavailable message for both short and legacy urls', function () {
+    $deliverable = Deliverable::factory()->create();
+    $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
+    $link->update(['revoked_at' => now()]);
+
+    $this->get(route('share.short.show', ['shortCode' => $link->short_code]))
+        ->assertForbidden()
+        ->assertInertia(fn ($page) => $page
+            ->component('TaskManagement/share/error')
+            ->where('message', 'This shared link is no longer available.'));
+
+    $this->get(route('share.show', ['token' => $link->token]))
+        ->assertForbidden()
+        ->assertInertia(fn ($page) => $page
+            ->component('TaskManagement/share/error')
+            ->where('message', 'This shared link is no longer available.'));
+});
+
+test('a deleted share link returns link not found for both short and legacy urls', function () {
+    $deliverable = Deliverable::factory()->create();
+    $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
+    $token = $link->token;
+    $shortCode = $link->short_code;
+
+    $link->delete();
+
+    $this->get(route('share.short.show', ['shortCode' => $shortCode]))
+        ->assertNotFound()
+        ->assertInertia(fn ($page) => $page->component('TaskManagement/share/error'));
+
+    $this->get(route('share.show', ['token' => $token]))
+        ->assertNotFound()
+        ->assertInertia(fn ($page) => $page->component('TaskManagement/share/error'));
 });
 
 test('an invalid token returns 404', function () {
@@ -68,7 +136,7 @@ test('the public share page returns only proof files for that deliverable', func
     $deliverable->task->addMedia(UploadedFile::fake()->create('brief.pdf', 30, 'application/pdf'))->toMediaCollection('attachments');
 
     $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
-    $expectedUrl = $link->publicFileUrl($proof->uuid);
+    $expectedUrl = route('share.file', ['token' => $link->token, 'mediaUuid' => $proof->uuid]);
 
     $this->get(route('share.show', ['token' => $link->token]))
         ->assertOk()
@@ -111,7 +179,7 @@ test('a valid share token cannot fetch a proof from another deliverable', functi
     $foreign = $other->addMedia(UploadedFile::fake()->image('secret-other.jpg'))->toMediaCollection('proofs');
     $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
 
-    $this->get($link->publicFileUrl($foreign->uuid))->assertNotFound();
+    $this->get($link->publicFileUrl($foreign->uuid))->assertForbidden();
 });
 
 test('a valid share token cannot fetch media outside the proofs collection', function () {
@@ -123,8 +191,8 @@ test('a valid share token cannot fetch media outside the proofs collection', fun
     $attachment = $deliverable->task->addMedia(UploadedFile::fake()->create('brief.pdf', 30, 'application/pdf'))->toMediaCollection('attachments');
     $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
 
-    $this->get($link->publicFileUrl($working->uuid))->assertNotFound();
-    $this->get($link->publicFileUrl($attachment->uuid))->assertNotFound();
+    $this->get($link->publicFileUrl($working->uuid))->assertForbidden();
+    $this->get($link->publicFileUrl($attachment->uuid))->assertForbidden();
 });
 
 test('an invalid token cannot fetch a real media uuid', function () {
@@ -156,6 +224,27 @@ test('the public share page does not include staff navigation', function () {
         ->assertDontSee('Open Board')
         ->assertDontSee('>Employees<', false)
         ->assertDontSee('>Workload<', false);
+});
+
+test('a client can approve through the short url', function () {
+    $employee = employeeWith(\App\Modules\Core\Enums\Ability::AccessTasks);
+    $reviewer = employeeWith(\App\Modules\Core\Enums\Ability::AccessTasks, \App\Modules\Core\Enums\Ability::ReviewDeliverables);
+    $task = \App\Modules\TaskManagement\Models\Task::factory()->create([
+        'status' => TaskStatus::InReview,
+        'assigned_employee_id' => $employee->id,
+    ]);
+    $deliverable = Deliverable::factory()->create([
+        'tm_task_id' => $task->id,
+        'submitted_by_employee_id' => $employee->id,
+        'status' => DeliverableStatus::Approved,
+    ]);
+    $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, $reviewer->user);
+
+    $this->post(route('share.short.approve', ['shortCode' => $link->short_code]))
+        ->assertRedirect()
+        ->assertSessionHas('success');
+
+    expect($task->refresh()->status)->toBe(TaskStatus::Completed);
 });
 
 test('a client can approve an internally approved deliverable and complete the task', function () {
