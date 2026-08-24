@@ -2,12 +2,16 @@ import { subscribeToAttendanceDashboardEvents } from '@/lib/attendance-dashboard
 import { router } from '@inertiajs/react';
 import { useEffect } from 'react';
 
-export function useAttendanceDashboardRealtime(): void {
+export function useAttendanceDashboardRealtime(enabled = true): void {
     useEffect(() => {
+        if (! enabled) {
+            return;
+        }
+
         const unsubscribe = subscribeToAttendanceDashboardEvents(() => {
             router.reload({ only: ['snapshot'] });
         });
 
         return unsubscribe;
-    }, []);
+    }, [enabled]);
 }

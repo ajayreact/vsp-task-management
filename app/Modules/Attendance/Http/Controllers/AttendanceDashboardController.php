@@ -15,7 +15,10 @@ class AttendanceDashboardController extends Controller
         $this->authorize('viewAttendance');
 
         return Inertia::render('Attendance/dashboard', [
-            'snapshot' => $dashboard->snapshot($request->query('status')),
+            'snapshot' => $dashboard->snapshot(
+                $request->query('status'),
+                $request->query('date'),
+            ),
         ]);
     }
 }

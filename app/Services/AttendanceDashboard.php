@@ -6,6 +6,7 @@ use App\Modules\Attendance\Enums\AttendanceStatus;
 use App\Modules\Attendance\Models\AttendanceEntry;
 use App\Modules\Attendance\Services\AttendanceTimeCalculator;
 use App\Modules\Core\Models\Employee;
+use Illuminate\Support\Carbon;
 
 /**
  * Super Admin attendance overview. Lives outside the Attendance module folder
@@ -21,14 +22,16 @@ class AttendanceDashboard
     /**
      * @return array<string, mixed>
      */
-    public function snapshot(?string $statusFilter = null): array
+    public function snapshot(?string $statusFilter = null, ?string $date = null): array
     {
         $statusFilter = $this->normalizeStatusFilter($statusFilter);
-        $today = today();
+        $selectedDate = $this->resolveDate($date);
+        $dateString = $selectedDate->toDateString();
+        $isToday = $selectedDate->isToday();
         $totalEmployees = Employee::query()->assignable()->count();
 
         $entries = AttendanceEntry::query()
-            ->whereDate('attendance_date', $today)
+            ->whereDate('attendance_date', $selectedDate)
             ->get();
 
         $counts = [
@@ -46,37 +49,70 @@ class AttendanceDashboard
             }
         }
 
-        $markedToday = AttendanceEntry::query()
-            ->whereDate('attendance_date', $today)
+        $markedCount = AttendanceEntry::query()
+            ->whereDate('attendance_date', $selectedDate)
             ->whereNotNull('check_in_at')
             ->count();
-        $absentToday = max(0, $totalEmployees - $markedToday);
+        $absentCount = max(0, $totalEmployees - $markedCount);
         $base = '/admin/attendance';
 
         return [
-            'date' => $today->toDateString(),
+            'date' => $dateString,
+            'is_today' => $isToday,
             'filter' => [
                 'status' => $statusFilter,
+                'date' => $dateString,
             ],
             'overview' => [
-                $this->stat('total_employees', 'Total Employees', $totalEmployees, $base, 'Active employee profiles'),
-                $this->stat('present_today', 'Present Today', $counts[AttendanceStatus::Present->value], $base.'?status=present'),
-                $this->stat('absent_today', 'Absent Today', $absentToday, $base.'?status=absent'),
-                $this->stat('late_today', 'Late Today', $counts[AttendanceStatus::Late->value], $base.'?status=late'),
-                $this->stat('on_break', 'On Break', $counts[AttendanceStatus::OnBreak->value], $base.'?status=on_break'),
-                $this->stat('checked_out', 'Checked Out', $counts[AttendanceStatus::CheckedOut->value], $base.'?status=checked_out'),
+                $this->stat(
+                    'total_employees',
+                    'Total Employees',
+                    $totalEmployees,
+                    $this->filterHref($base, $dateString),
+                    'Active employee profiles',
+                ),
+                $this->stat(
+                    'present_today',
+                    $isToday ? 'Present Today' : 'Present',
+                    $counts[AttendanceStatus::Present->value],
+                    $this->filterHref($base, $dateString, 'present'),
+                ),
+                $this->stat(
+                    'absent_today',
+                    $isToday ? 'Absent Today' : 'Absent',
+                    $absentCount,
+                    $this->filterHref($base, $dateString, 'absent'),
+                ),
+                $this->stat(
+                    'late_today',
+                    $isToday ? 'Late Today' : 'Late',
+                    $counts[AttendanceStatus::Late->value],
+                    $this->filterHref($base, $dateString, 'late'),
+                ),
+                $this->stat(
+                    'on_break',
+                    'On Break',
+                    $counts[AttendanceStatus::OnBreak->value],
+                    $this->filterHref($base, $dateString, 'on_break'),
+                ),
+                $this->stat(
+                    'checked_out',
+                    'Checked Out',
+                    $counts[AttendanceStatus::CheckedOut->value],
+                    $this->filterHref($base, $dateString, 'checked_out'),
+                ),
             ],
-            'records' => $this->todayRecords($statusFilter),
+            'records' => $this->recordsForDate($selectedDate, $statusFilter),
         ];
     }
 
     /**
      * @return list<array<string, mixed>>
      */
-    protected function todayRecords(?string $statusFilter = null): array
+    protected function recordsForDate(Carbon $date, ?string $statusFilter = null): array
     {
         if ($statusFilter === 'absent') {
-            return $this->absentRecords();
+            return $this->absentRecords($date);
         }
 
         $query = AttendanceEntry::query()
@@ -86,7 +122,7 @@ class AttendanceDashboard
                 'officeLocation:id,name',
                 'breaks' => fn ($query) => $query->orderBy('started_at'),
             ])
-            ->whereDate('attendance_date', today())
+            ->whereDate('attendance_date', $date)
             ->whereNotNull('check_in_at')
             ->orderByDesc('check_in_at');
 
@@ -96,17 +132,17 @@ class AttendanceDashboard
 
         return $query
             ->get()
-            ->map(fn (AttendanceEntry $entry) => $this->mapEntryRecord($entry))
+            ->map(fn (AttendanceEntry $entry) => $this->mapEntryRecord($entry, $date->isToday()))
             ->all();
     }
 
     /**
      * @return list<array<string, mixed>>
      */
-    protected function absentRecords(): array
+    protected function absentRecords(Carbon $date): array
     {
         $checkedInEmployeeIds = AttendanceEntry::query()
-            ->whereDate('attendance_date', today())
+            ->whereDate('attendance_date', $date)
             ->whereNotNull('check_in_at')
             ->pluck('employee_id');
 
@@ -142,7 +178,7 @@ class AttendanceDashboard
     /**
      * @return array<string, mixed>
      */
-    protected function mapEntryRecord(AttendanceEntry $entry): array
+    protected function mapEntryRecord(AttendanceEntry $entry, bool $isToday): array
     {
         return [
             'id' => $entry->id,
@@ -153,12 +189,42 @@ class AttendanceDashboard
             'status_label' => $entry->status->label(),
             'check_in_at' => $entry->check_in_at?->toIso8601String(),
             'check_out_at' => $entry->check_out_at?->toIso8601String(),
-            'total_break_seconds' => $entry->total_break_seconds + $this->time->activeBreakSeconds($entry),
+            'total_break_seconds' => $entry->total_break_seconds + ($isToday ? $this->time->activeBreakSeconds($entry) : 0),
             'break_count' => $entry->breaks->count(),
             'net_working_seconds' => $entry->check_out_at !== null
                 ? $entry->net_working_seconds
-                : $this->time->netWorkingSeconds($entry),
+                : ($isToday ? $this->time->netWorkingSeconds($entry) : null),
         ];
+    }
+
+    protected function resolveDate(?string $date): Carbon
+    {
+        if ($date === null || $date === '') {
+            return today();
+        }
+
+        try {
+            $parsed = Carbon::parse($date)->startOfDay();
+        } catch (\Throwable) {
+            return today();
+        }
+
+        if ($parsed->isFuture()) {
+            return today();
+        }
+
+        return $parsed;
+    }
+
+    protected function filterHref(string $base, string $date, ?string $status = null): string
+    {
+        $query = ['date' => $date];
+
+        if ($status !== null) {
+            $query['status'] = $status;
+        }
+
+        return $base.'?'.http_build_query($query);
     }
 
     protected function normalizeStatusFilter(?string $statusFilter): ?string

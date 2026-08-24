@@ -2,13 +2,15 @@ import { DataTableCard } from '@/components/admin/data-table-card';
 import { KpiStatCard, type KpiTone } from '@/components/admin/kpi-stat-card';
 import { PageHeader } from '@/components/admin/page-header';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { formatDuration, formatTimeLabel } from '@/lib/attendance/format';
 import { useAttendanceDashboardRealtime } from '@/hooks/use-attendance-dashboard-realtime';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Clock, Coffee, LogOut, UserCheck, Users, UserX } from 'lucide-react';
 import { type ComponentType } from 'react';
 
@@ -23,8 +25,10 @@ interface OverviewStat {
 
 interface Snapshot {
     date: string;
+    is_today: boolean;
     filter: {
         status: string | null;
+        date: string;
     };
     overview: OverviewStat[];
     records: AttendanceRecord[];
@@ -60,12 +64,13 @@ const FILTER_LABELS: Record<string, string> = {
     checked_out: 'Checked out',
 };
 
-const FILTER_EMPTY_MESSAGES: Record<string, string> = {
-    present: 'No present employees recorded yet today.',
-    absent: 'No absent employees today.',
-    late: 'No late check-ins recorded yet today.',
-    on_break: 'No employees are currently on break.',
-    checked_out: 'No checked-out employees recorded yet today.',
+const FILTER_EMPTY_MESSAGES: Record<string, (isToday: boolean) => string> = {
+    present: (isToday) => (isToday ? 'No present employees recorded yet today.' : 'No present employees recorded for this date.'),
+    absent: (isToday) => (isToday ? 'No absent employees today.' : 'No absent employees for this date.'),
+    late: (isToday) => (isToday ? 'No late check-ins recorded yet today.' : 'No late check-ins recorded for this date.'),
+    on_break: (isToday) => (isToday ? 'No employees are currently on break.' : 'No employees were on break for this date.'),
+    checked_out: (isToday) =>
+        isToday ? 'No checked-out employees recorded yet today.' : 'No checked-out employees recorded for this date.',
 };
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Attendance', href: '/admin/attendance' }];
@@ -141,17 +146,49 @@ function formatDateLabel(isoDate: string): string {
     });
 }
 
+function todayIsoDate(): string {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+
+    return `${now.getFullYear()}-${month}-${day}`;
+}
+
 export default function AttendanceDashboard({ snapshot }: { snapshot: Snapshot }) {
-    useAttendanceDashboardRealtime();
+    useAttendanceDashboardRealtime(snapshot.is_today);
 
     const activeStatus = snapshot.filter.status;
-    const recordsTitle = activeStatus ? `${FILTER_LABELS[activeStatus]} employees` : "Today's check-ins";
+    const isToday = snapshot.is_today;
+    const recordsTitle = activeStatus ? `${FILTER_LABELS[activeStatus]} employees` : isToday ? "Today's check-ins" : 'Check-ins';
     const recordsDescription = activeStatus
         ? `Showing employees filtered by ${FILTER_LABELS[activeStatus].toLowerCase()} status.`
-        : 'Check-in and check-out events recorded today.';
+        : isToday
+          ? 'Check-in and check-out events recorded today.'
+          : `Check-in and check-out events recorded on ${formatDateLabel(snapshot.date)}.`;
     const emptyMessage = activeStatus
-        ? FILTER_EMPTY_MESSAGES[activeStatus]
-        : 'No check-ins recorded yet today.';
+        ? FILTER_EMPTY_MESSAGES[activeStatus](isToday)
+        : isToday
+          ? 'No check-ins recorded yet today.'
+          : 'No check-ins recorded for this date.';
+
+    const handleDateChange = (nextDate: string) => {
+        if (nextDate === '' || nextDate > todayIsoDate()) {
+            return;
+        }
+
+        router.get(
+            '/admin/attendance',
+            {
+                date: nextDate,
+                ...(activeStatus ? { status: activeStatus } : {}),
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -163,8 +200,20 @@ export default function AttendanceDashboard({ snapshot }: { snapshot: Snapshot }
                     description={`Daily attendance overview for ${formatDateLabel(snapshot.date)}.`}
                 />
 
+                <div className="max-w-xs">
+                    <Label htmlFor="attendance-date">View date</Label>
+                    <Input
+                        id="attendance-date"
+                        type="date"
+                        value={snapshot.filter.date}
+                        max={todayIsoDate()}
+                        onChange={(event) => handleDateChange(event.target.value)}
+                        className="mt-2"
+                    />
+                </div>
+
                 <section className="space-y-4">
-                    <SectionHeading title="Today's overview" />
+                    <SectionHeading title={isToday ? "Today's overview" : 'Daily overview'} />
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                         {snapshot.overview.map((stat) => (
                             <OverviewCard
