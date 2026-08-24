@@ -3,6 +3,7 @@
 namespace App\Modules\Attendance\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Attendance\Models\OfficeLocation;
 use App\Modules\Attendance\Services\AttendanceCheckInOutService;
 use App\Services\EmployeeOfficeAssignmentService;
 use Inertia\Inertia;
@@ -27,6 +28,7 @@ class AttendanceMarkController extends Controller
         $office = $this->officeAssignments->assignedOfficeFor($employee);
         $locationBypassEnabled = $user?->isSuperAdmin() ?? false;
         $canMarkAttendance = $locationBypassEnabled || ($office !== null && $office->is_active);
+        $locationFallback = $this->locationFallbackCoordinates($office, $locationBypassEnabled);
 
         return Inertia::render('Attendance/mark', [
             'office' => $office ? [
@@ -39,7 +41,33 @@ class AttendanceMarkController extends Controller
             ] : null,
             'can_mark_attendance' => $canMarkAttendance,
             'location_bypass_enabled' => $locationBypassEnabled,
+            'location_fallback' => $locationFallback,
             'today' => $this->attendance->todaySnapshot($employee),
         ]);
+    }
+
+    /**
+     * @return array{latitude: float, longitude: float}|null
+     */
+    protected function locationFallbackCoordinates(?OfficeLocation $assignedOffice, bool $locationBypassEnabled): ?array
+    {
+        if (! $locationBypassEnabled) {
+            return null;
+        }
+
+        $office = $assignedOffice ?? OfficeLocation::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->first()
+            ?? OfficeLocation::query()->orderBy('name')->first();
+
+        if ($office === null) {
+            return null;
+        }
+
+        return [
+            'latitude' => (float) $office->latitude,
+            'longitude' => (float) $office->longitude,
+        ];
     }
 }

@@ -40,6 +40,7 @@ interface Props {
     office: OfficeSummary | null;
     can_mark_attendance: boolean;
     location_bypass_enabled: boolean;
+    location_fallback: { latitude: number; longitude: number } | null;
     today: TodaySnapshot;
 }
 
@@ -57,10 +58,14 @@ export default function AttendanceMark({
     office,
     can_mark_attendance,
     location_bypass_enabled,
+    location_fallback,
     today,
 }: Props) {
     const { flash } = usePage<SharedData>().props;
-    const { perform, reset, isBusy: isAttendanceBusy, phase, action, error } = useAttendanceActions();
+    const { perform, reset, isBusy: isAttendanceBusy, phase, action, error } = useAttendanceActions({
+        locationBypassEnabled: location_bypass_enabled,
+        fallbackCoordinates: location_fallback,
+    });
     const {
         perform: performBreak,
         reset: resetBreak,
@@ -104,7 +109,12 @@ export default function AttendanceMark({
     };
 
     const isBusy = isAttendanceBusy || isBreakBusy;
-    const busyLabel = phase === 'locating' ? 'Getting location…' : 'Verifying location and saving…';
+    const busyLabel =
+        phase === 'locating'
+            ? location_bypass_enabled
+                ? 'Saving attendance…'
+                : 'Getting location…'
+            : 'Verifying location and saving…';
     const displayError = error ?? flash?.error ?? null;
     const displaySuccess = flash?.success ?? null;
 
@@ -121,7 +131,7 @@ export default function AttendanceMark({
                     title="Attendance"
                     description={
                         location_bypass_enabled
-                            ? 'Check in and check out from any location. GPS verification still runs, but location restrictions are bypassed for Super Admin.'
+                            ? 'Check in and check out from any location. Location restrictions are bypassed for Super Admin.'
                             : 'Check in and check out from your assigned office. GPS verification runs automatically before each action.'
                     }
                 />

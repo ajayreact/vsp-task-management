@@ -230,7 +230,7 @@ test('super admin override does not bypass attendance workflow rules', function 
 });
 
 test('super admin with no assigned office sees an enabled check in action on the attendance page', function () {
-    OfficeLocation::factory()->create([
+    $office = OfficeLocation::factory()->create([
         'latitude' => 28.613939,
         'longitude' => 77.209023,
         'allowed_gps_radius_meters' => 100,
@@ -247,6 +247,8 @@ test('super admin with no assigned office sees an enabled check in action on the
             ->where('office', null)
             ->where('can_mark_attendance', true)
             ->where('location_bypass_enabled', true)
+            ->where('location_fallback.latitude', (float) $office->latitude)
+            ->where('location_fallback.longitude', (float) $office->longitude)
             ->where('today.can_check_in', true));
 });
 
@@ -312,6 +314,7 @@ test('normal employee with no assigned office remains blocked on the attendance 
             ->where('office', null)
             ->where('can_mark_attendance', false)
             ->where('location_bypass_enabled', false)
+            ->where('location_fallback', null)
             ->where('today.can_check_in', true));
 
     $this->actingAs($employee->user)
