@@ -29,7 +29,7 @@ test('super admin can view the daily attendance table with all employees', funct
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Attendance/dashboard')
-            ->where('tab', 'daily')
+            ->has('monthlyReport.rows')
             ->has('dailyTable.records', 2)
             ->where('dailyTable.records.0.date', $date->toDateString())
             ->where('dailyTable.records.0.day', $date->format('l'))
@@ -105,10 +105,9 @@ test('super admin can view monthly attendance report matrix', function () {
     ]);
 
     $this->actingAs(superAdmin())
-        ->get('/admin/attendance?tab=monthly&month=8&year=2026')
+        ->get('/admin/attendance?month=8&year=2026')
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->where('tab', 'monthly')
             ->has('monthlyReport.rows', 1)
             ->where('monthlyReport.summary.total_employees', 1)
             ->where('monthlyReport.rows.0.totals.present', 1));
@@ -122,7 +121,7 @@ test('monthly report treats saturday and sunday as off not absent', function () 
     $employee = Employee::factory()->create(['employee_code' => 'EMP-WEEKEND']);
 
     $this->actingAs(superAdmin())
-        ->get('/admin/attendance?tab=monthly&month=8&year=2026&employee_id='.$employee->id)
+        ->get('/admin/attendance?month=8&year=2026&employee_id='.$employee->id)
         ->assertOk()
         ->assertInertia(function ($page) {
             $days = collect($page->toArray()['props']['monthlyReport']['rows'][0]['days']);
@@ -149,14 +148,14 @@ test('monthly report can be filtered by department and office', function () {
     ]);
 
     $this->actingAs(superAdmin())
-        ->get('/admin/attendance?tab=monthly&month=8&year=2026&department_id='.$department->id)
+        ->get('/admin/attendance?month=8&year=2026&department_id='.$department->id)
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('monthlyReport.rows', 1)
             ->where('monthlyReport.rows.0.employee_id', $included->id));
 
     $this->actingAs(superAdmin())
-        ->get('/admin/attendance?tab=monthly&month=8&year=2026&office_id='.$office->id)
+        ->get('/admin/attendance?month=8&year=2026&office_id='.$office->id)
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('monthlyReport.rows', 1)
@@ -181,7 +180,7 @@ test('super admin can inspect employee monthly detail from monthly report', func
     ]);
 
     $this->actingAs(superAdmin())
-        ->get('/admin/attendance?tab=monthly&month=8&year=2026&detail_employee_id='.$employee->id)
+        ->get('/admin/attendance?month=8&year=2026&detail_employee_id='.$employee->id)
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->where('employeeDetail.employee.employee_code', 'EMP-DETAIL')
@@ -206,9 +205,26 @@ test('super admin can download monthly attendance excel export', function () {
     Carbon::setTestNow();
 });
 
+test('legacy monthly tab query still loads the combined attendance dashboard', function () {
+    Carbon::setTestNow(Carbon::parse('2026-08-24 12:00:00'));
+
+    Employee::factory()->create();
+
+    $this->actingAs(superAdmin())
+        ->get('/admin/attendance?tab=monthly&month=8&year=2026')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Attendance/dashboard')
+            ->has('monthlyReport.rows')
+            ->has('dailyTable.records')
+            ->has('snapshot.overview', 6));
+
+    Carbon::setTestNow();
+});
+
 test('staff without super admin role cannot access monthly report or export', function () {
     $this->actingAs(staffWith())
-        ->get('/admin/attendance?tab=monthly&month=8&year=2026')
+        ->get('/admin/attendance?month=8&year=2026')
         ->assertForbidden();
 
     $this->actingAs(staffWith())
@@ -241,10 +257,9 @@ test('historical monthly report is not marked as today', function () {
     Carbon::setTestNow(Carbon::parse('2026-08-24 12:00:00'));
 
     $this->actingAs(superAdmin())
-        ->get('/admin/attendance?tab=monthly&month=7&year=2026')
+        ->get('/admin/attendance?month=7&year=2026')
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->where('tab', 'monthly')
             ->where('monthlyReport.month', 7)
             ->where('monthlyReport.year', 2026));
 

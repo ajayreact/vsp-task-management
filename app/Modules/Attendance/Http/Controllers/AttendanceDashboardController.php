@@ -20,7 +20,6 @@ class AttendanceDashboardController extends Controller
     ): Response {
         $this->authorize('viewAttendance');
 
-        $tab = $request->query('tab', 'daily');
         $month = (int) $request->query('month', now()->month);
         $year = (int) $request->query('year', now()->year);
         $employeeId = $request->integer('employee_id') ?: null;
@@ -29,7 +28,6 @@ class AttendanceDashboardController extends Controller
         $detailEmployeeId = $request->integer('detail_employee_id') ?: null;
 
         return Inertia::render('Attendance/dashboard', [
-            'tab' => in_array($tab, ['daily', 'monthly'], true) ? $tab : 'daily',
             'snapshot' => $dashboard->snapshot(
                 $request->query('status'),
                 $request->query('date'),
@@ -40,10 +38,8 @@ class AttendanceDashboardController extends Controller
                 $employeeId,
                 $request->query('search'),
             ),
-            'monthlyReport' => $tab === 'monthly'
-                ? $reports->monthlyReport($month, $year, $employeeId, $departmentId, $officeId)
-                : null,
-            'employeeDetail' => ($tab === 'monthly' && $detailEmployeeId !== null)
+            'monthlyReport' => $reports->monthlyReport($month, $year, $employeeId, $departmentId, $officeId),
+            'employeeDetail' => $detailEmployeeId !== null
                 ? $reports->employeeMonthlyDetail($detailEmployeeId, $month, $year)
                 : null,
             'filterOptions' => $reports->filterOptions(),

@@ -38,7 +38,7 @@ const TONES: Record<
 };
 
 interface KpiStatCardProps {
-    href: string;
+    href?: string;
     label: string;
     value: ReactNode;
     icon: ComponentType<{ className?: string; strokeWidth?: number }>;
@@ -53,19 +53,27 @@ interface KpiStatCardProps {
 export function KpiStatCard({ href, label, value, icon: Icon, tone = 'indigo', footer, className }: KpiStatCardProps) {
     const theme = TONES[tone];
 
-    return (
-        <Link href={href} className={cn('group mb-0 block h-full', className)}>
-            <article className={cn('vsp-card relative mb-0 flex h-full items-center gap-4 overflow-hidden px-5 py-5', theme.card)}>
-                <div className="min-w-0 flex-1 space-y-2">
-                    <p className="text-muted-foreground text-sm font-medium">{label}</p>
-                    <p className="text-foreground text-[1.75rem] leading-none font-bold tracking-tight tabular-nums sm:text-[2rem]">{value}</p>
-                    {footer && <div className="pt-0.5">{footer}</div>}
-                </div>
+    const card = (
+        <article className={cn('vsp-card relative mb-0 flex h-full items-center gap-4 overflow-hidden px-5 py-4', theme.card)}>
+            <div className="min-w-0 flex-1 space-y-1.5">
+                <p className="text-muted-foreground text-sm font-medium">{label}</p>
+                <p className="text-foreground text-[1.75rem] leading-none font-bold tracking-tight tabular-nums sm:text-[2rem]">{value}</p>
+                {footer && <div className="pt-0.5">{footer}</div>}
+            </div>
 
-                <span className={cn('flex size-14 shrink-0 items-center justify-center rounded-full text-white shadow-sm', theme.iconWrap)}>
-                    <Icon className="size-6" strokeWidth={1.75} />
-                </span>
-            </article>
-        </Link>
+            <span className={cn('flex size-12 shrink-0 items-center justify-center rounded-full text-white shadow-sm sm:size-14', theme.iconWrap)}>
+                <Icon className="size-5 sm:size-6" strokeWidth={1.75} />
+            </span>
+        </article>
     );
+
+    if (href) {
+        return (
+            <Link href={href} className={cn('group mb-0 block h-full', className)}>
+                {card}
+            </Link>
+        );
+    }
+
+    return <div className={cn('mb-0 block h-full', className)}>{card}</div>;
 }

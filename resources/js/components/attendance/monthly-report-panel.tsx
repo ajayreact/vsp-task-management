@@ -1,14 +1,22 @@
 import { DataTableCard } from '@/components/admin/data-table-card';
+import { buildExportQuery } from '@/components/admin/data-table-export';
 import { KpiStatCard, type KpiTone } from '@/components/admin/kpi-stat-card';
 import { DailyAttendanceTable, type DailyAttendanceRecord } from '@/components/attendance/daily-attendance-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { formatDuration, formatTimeLabel } from '@/lib/attendance/format';
+import { REPORT_STATUS_STYLES, reportCodeClass } from '@/lib/attendance/report-status';
 import { cn } from '@/lib/utils';
-import { reportCodeClass } from '@/lib/attendance/report-status';
-import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
-import { buildExportQuery } from '@/components/admin/data-table-export';
+import { ChevronLeft, ChevronRight, Download, CalendarDays, Clock, Coffee, LogOut, UserCheck, Users, UserX } from 'lucide-react';
+import { useState } from 'react';
+
+interface FilterOption {
+    id: number;
+    name: string;
+    employee_code?: string;
+}
 
 interface MonthlyDay {
     date: string;
@@ -51,7 +59,7 @@ interface MonthlySummary {
     average_working_hours: number;
 }
 
-interface MonthlyReport {
+export interface MonthlyReport {
     month: number;
     year: number;
     label: string;
@@ -83,9 +91,23 @@ interface EmployeeDetail {
 interface MonthlyReportPanelProps {
     report: MonthlyReport;
     employeeDetail: EmployeeDetail | null;
-    selectedEmployeeId: number | null;
-    onEmployeeSelect: (employeeId: number | null) => void;
+    filterOptions: {
+        employees: FilterOption[];
+        departments: FilterOption[];
+        offices: FilterOption[];
+    };
+    onFilterChange: (changes: Record<string, string | number | null | undefined>) => void;
 }
+
+const SUMMARY_ICONS: Record<string, typeof Users> = {
+    total_employees: Users,
+    working_days: CalendarDays,
+    present: UserCheck,
+    absent: UserX,
+    late: Clock,
+    week_off: Coffee,
+    average_working_hours: LogOut,
+};
 
 const SUMMARY_TONES: Record<string, KpiTone> = {
     total_employees: 'indigo',
@@ -97,12 +119,72 @@ const SUMMARY_TONES: Record<string, KpiTone> = {
     average_working_hours: 'fuchsia',
 };
 
+const LEGEND_ITEMS = [
+    { label: 'Present', className: `${REPORT_STATUS_STYLES.P.cell} ${REPORT_STATUS_STYLES.P.text}` },
+    { label: 'Absent', className: `${REPORT_STATUS_STYLES.A.cell} ${REPORT_STATUS_STYLES.A.text}` },
+    { label: 'Late', className: `${REPORT_STATUS_STYLES.L.cell} ${REPORT_STATUS_STYLES.L.text}` },
+    { label: 'Week Off', className: `${REPORT_STATUS_STYLES.OFF.cell} ${REPORT_STATUS_STYLES.OFF.text}` },
+];
+
+export function MonthYearControls({
+    month,
+    year,
+    onNavigate,
+}: {
+    month: number;
+    year: number;
+    onNavigate: (month: number, year: number) => void;
+}) {
+    const previous = () => {
+        const date = new Date(year, month - 2, 1);
+        onNavigate(date.getMonth() + 1, date.getFullYear());
+    };
+
+    const next = () => {
+        const date = new Date(year, month, 1);
+        const now = new Date();
+        if (date > now) {
+            return;
+        }
+        onNavigate(date.getMonth() + 1, date.getFullYear());
+    };
+
+    const atCurrentMonth = year === new Date().getFullYear() && month === new Date().getMonth() + 1;
+
+    return (
+        <div className="flex items-center gap-2">
+            <Button type="button" variant="outline" size="icon" onClick={previous} aria-label="Previous month">
+                <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="min-w-36 text-center text-sm font-medium sm:min-w-40">
+                {new Date(year, month - 1, 1).toLocaleDateString(undefined, {
+                    month: 'long',
+                    year: 'numeric',
+                })}
+            </div>
+            <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={next}
+                disabled={atCurrentMonth}
+                aria-label="Next month"
+            >
+                <ChevronRight className="h-4 w-4" />
+            </Button>
+        </div>
+    );
+}
+
 export function MonthlyReportPanel({
     report,
     employeeDetail,
-    selectedEmployeeId,
-    onEmployeeSelect,
+    filterOptions,
+    onFilterChange,
 }: MonthlyReportPanelProps) {
+    const [exportError, setExportError] = useState<string | null>(null);
+    const selectedEmployeeId = employeeDetail?.employee.id ?? null;
+
     const exportHref = `/admin/attendance/export/monthly?${buildExportQuery({
         month: report.filter.month,
         year: report.filter.year,
@@ -111,22 +193,128 @@ export function MonthlyReportPanel({
         office_id: report.filter.office_id ?? undefined,
     })}`;
 
+    const handleExport = async () => {
+        setExportError(null);
+
+        try {
+            const response = await fetch(exportHref, {
+                credentials: 'same-origin',
+                headers: { Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+            });
+
+            if (! response.ok) {
+                throw new Error('Unable to download the attendance report. Please try again.');
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `VSP_Attendance_${new Date(report.filter.year, report.filter.month - 1, 1).toLocaleDateString('en-US', { month: 'long' })}_${report.filter.year}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch {
+            setExportError('Unable to download the attendance report. Please try again.');
+        }
+    };
+
     return (
-        <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                    <h2 className="text-lg font-semibold">{report.label}</h2>
-                    <p className="text-muted-foreground text-sm">Monthly attendance matrix and summary totals.</p>
+        <section id="monthly-attendance-report" className="space-y-5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="space-y-1">
+                    <h2 className="text-lg font-semibold tracking-tight">Monthly Attendance Report</h2>
+                    <p className="text-muted-foreground text-sm">
+                        Monthly attendance summary and employee-wise attendance register.
+                    </p>
                 </div>
-                <Button asChild>
-                    <a href={exportHref}>
+                <div className="flex flex-col items-stretch gap-2 sm:items-end">
+                    <Button type="button" onClick={handleExport} className="w-full sm:w-auto">
                         <Download className="mr-2 h-4 w-4" />
-                        Download Monthly Excel
-                    </a>
-                </Button>
+                        Download Excel
+                    </Button>
+                    {exportError && <p className="text-destructive text-sm">{exportError}</p>}
+                </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                <MonthYearControls
+                    month={report.filter.month}
+                    year={report.filter.year}
+                    onNavigate={(month, year) => onFilterChange({ month, year, detail_employee_id: null })}
+                />
+
+                <div className="grid gap-3 sm:grid-cols-3 xl:max-w-3xl xl:flex-1">
+                    <Select
+                        value={report.filter.employee_id ? String(report.filter.employee_id) : 'all'}
+                        onValueChange={(value) =>
+                            onFilterChange({
+                                employee_id: value === 'all' ? null : Number(value),
+                                detail_employee_id: null,
+                            })
+                        }
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="All employees" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All employees</SelectItem>
+                            {filterOptions.employees.map((employee) => (
+                                <SelectItem key={employee.id} value={String(employee.id)}>
+                                    {employee.name} ({employee.employee_code})
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <Select
+                        value={report.filter.department_id ? String(report.filter.department_id) : 'all'}
+                        onValueChange={(value) =>
+                            onFilterChange({
+                                department_id: value === 'all' ? null : Number(value),
+                                detail_employee_id: null,
+                            })
+                        }
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="All departments" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All departments</SelectItem>
+                            {filterOptions.departments.map((department) => (
+                                <SelectItem key={department.id} value={String(department.id)}>
+                                    {department.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <Select
+                        value={report.filter.office_id ? String(report.filter.office_id) : 'all'}
+                        onValueChange={(value) =>
+                            onFilterChange({
+                                office_id: value === 'all' ? null : Number(value),
+                                detail_employee_id: null,
+                            })
+                        }
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="All offices" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All offices</SelectItem>
+                            {filterOptions.offices.map((office) => (
+                                <SelectItem key={office.id} value={String(office.id)}>
+                                    {office.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
                 {[
                     ['total_employees', 'Total Employees', report.summary.total_employees],
                     ['working_days', 'Working Days', report.summary.working_days],
@@ -135,13 +323,29 @@ export function MonthlyReportPanel({
                     ['late', 'Late', report.summary.late],
                     ['week_off', 'Week Off', report.summary.week_off],
                     ['average_working_hours', 'Average Working Hours', report.summary.average_working_hours],
-                ].map(([key, label, value]) => (
-                    <KpiStatCard
-                        key={key}
-                        label={label}
-                        value={String(value)}
-                        tone={SUMMARY_TONES[key] ?? 'indigo'}
-                    />
+                ].map(([key, label, value]) => {
+                    const Icon = SUMMARY_ICONS[key] ?? Users;
+
+                    return (
+                        <KpiStatCard
+                            key={key}
+                            label={label}
+                            value={String(value)}
+                            icon={Icon}
+                            tone={SUMMARY_TONES[key] ?? 'indigo'}
+                        />
+                    );
+                })}
+            </div>
+
+            <div className="flex flex-wrap gap-3 text-xs font-medium">
+                {LEGEND_ITEMS.map((item) => (
+                    <span
+                        key={item.label}
+                        className={cn('inline-flex items-center rounded-md border px-2.5 py-1', item.className)}
+                    >
+                        {item.label}
+                    </span>
                 ))}
             </div>
 
@@ -153,8 +357,8 @@ export function MonthlyReportPanel({
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="sticky left-0 z-10 bg-background">Employee</TableHead>
-                                <TableHead>Employee ID</TableHead>
+                                <TableHead className="sticky left-0 z-10 min-w-40 bg-background">Employee</TableHead>
+                                <TableHead className="min-w-28">Employee ID</TableHead>
                                 {report.days.map((day) => (
                                     <TableHead
                                         key={day.date}
@@ -163,7 +367,7 @@ export function MonthlyReportPanel({
                                             day.is_weekend && 'bg-yellow-100 text-yellow-900',
                                         )}
                                     >
-                                        {String(day.day).padStart(2, '0')}
+                                        {day.day}
                                     </TableHead>
                                 ))}
                                 <TableHead className="text-center">Present</TableHead>
@@ -173,6 +377,17 @@ export function MonthlyReportPanel({
                             </TableRow>
                         </TableHeader>
                         <TableBody>
+                            {report.rows.length === 0 && (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={report.days.length + 6}
+                                        className="text-muted-foreground py-10 text-center"
+                                    >
+                                        No employees match the selected monthly filters.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+
                             {report.rows.map((row) => (
                                 <TableRow
                                     key={row.employee_id}
@@ -181,9 +396,10 @@ export function MonthlyReportPanel({
                                         selectedEmployeeId === row.employee_id && 'bg-muted/50',
                                     )}
                                     onClick={() =>
-                                        onEmployeeSelect(
-                                            selectedEmployeeId === row.employee_id ? null : row.employee_id,
-                                        )
+                                        onFilterChange({
+                                            detail_employee_id:
+                                                selectedEmployeeId === row.employee_id ? null : row.employee_id,
+                                        })
                                     }
                                 >
                                     <TableCell className="sticky left-0 z-10 bg-background font-medium">
@@ -217,7 +433,7 @@ export function MonthlyReportPanel({
                     title={`${employeeDetail.employee.name} — ${employeeDetail.label}`}
                     description="Detailed attendance records for the selected employee."
                     action={
-                        <Button variant="outline" size="sm" onClick={() => onEmployeeSelect(null)}>
+                        <Button variant="outline" size="sm" onClick={() => onFilterChange({ detail_employee_id: null })}>
                             Close detail
                         </Button>
                     }
@@ -271,49 +487,6 @@ export function MonthlyReportPanel({
                     </Table>
                 </DataTableCard>
             )}
-        </div>
-    );
-}
-
-export function MonthYearControls({
-    month,
-    year,
-    onNavigate,
-}: {
-    month: number;
-    year: number;
-    onNavigate: (month: number, year: number) => void;
-}) {
-    const previous = () => {
-        const date = new Date(year, month - 2, 1);
-        onNavigate(date.getMonth() + 1, date.getFullYear());
-    };
-
-    const next = () => {
-        const date = new Date(year, month, 1);
-        const now = new Date();
-        if (date > now) {
-            return;
-        }
-        onNavigate(date.getMonth() + 1, date.getFullYear());
-    };
-
-    const atCurrentMonth = year === new Date().getFullYear() && month === new Date().getMonth() + 1;
-
-    return (
-        <div className="flex items-center gap-2">
-            <Button type="button" variant="outline" size="icon" onClick={previous}>
-                <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="min-w-40 text-center text-sm font-medium">
-                {new Date(year, month - 1, 1).toLocaleDateString(undefined, {
-                    month: 'long',
-                    year: 'numeric',
-                })}
-            </div>
-            <Button type="button" variant="outline" size="icon" onClick={next} disabled={atCurrentMonth}>
-                <ChevronRight className="h-4 w-4" />
-            </Button>
-        </div>
+        </section>
     );
 }
