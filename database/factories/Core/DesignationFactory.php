@@ -23,7 +23,7 @@ class DesignationFactory extends Factory
 
         return [
             'name' => $name,
-            'code' => Str::upper(Str::slug($name).'-'.fake()->unique()->numberBetween(1, 9999)),
+            'code' => Str::limit(Str::upper(Str::slug($name).'-'.fake()->unique()->numberBetween(1, 9999)), 64, ''),
             'is_active' => true,
         ];
     }

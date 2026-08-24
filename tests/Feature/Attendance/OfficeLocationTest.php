@@ -2,6 +2,10 @@
 
 use App\Modules\Attendance\Models\OfficeLocation;
 
+beforeEach(function () {
+    $this->withoutVite();
+});
+
 test('super admin can manage office locations', function () {
     $office = OfficeLocation::factory()->create([
         'name' => 'Head Office',

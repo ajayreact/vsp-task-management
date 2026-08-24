@@ -4,7 +4,8 @@ use App\Modules\Attendance\Http\Controllers\AttendanceDashboardController;
 use App\Modules\Attendance\Http\Controllers\OfficeLocationController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('attendance', AttendanceDashboardController::class)->name('attendance.index');
+Route::get('attendance', [AttendanceDashboardController::class, '__invoke'])->name('attendance.index');
+Route::get('attendance/export/monthly', [AttendanceDashboardController::class, 'exportMonthly'])->name('attendance.export.monthly');
 
 Route::prefix('attendance/offices')->name('attendance.offices.')->group(function () {
     Route::get('/', [OfficeLocationController::class, 'index'])->name('index');

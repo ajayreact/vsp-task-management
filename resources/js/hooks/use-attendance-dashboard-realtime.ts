@@ -9,7 +9,7 @@ export function useAttendanceDashboardRealtime(enabled = true): void {
         }
 
         const unsubscribe = subscribeToAttendanceDashboardEvents(() => {
-            router.reload({ only: ['snapshot'] });
+            router.reload({ only: ['snapshot', 'dailyTable'] });
         });
 
         return unsubscribe;

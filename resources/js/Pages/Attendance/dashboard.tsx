@@ -1,18 +1,21 @@
 import { DataTableCard } from '@/components/admin/data-table-card';
 import { KpiStatCard, type KpiTone } from '@/components/admin/kpi-stat-card';
 import { PageHeader } from '@/components/admin/page-header';
-import { Badge } from '@/components/ui/badge';
+import { SearchInput } from '@/components/admin/search-input';
+import { DailyAttendanceTable } from '@/components/attendance/daily-attendance-table';
+import { MonthYearControls, MonthlyReportPanel } from '@/components/attendance/monthly-report-panel';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { formatDuration, formatTimeLabel } from '@/lib/attendance/format';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAttendanceDashboardRealtime } from '@/hooks/use-attendance-dashboard-realtime';
 import AppLayout from '@/layouts/app-layout';
+import { FILTER_LABELS } from '@/lib/attendance/report-status';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { Clock, Coffee, LogOut, UserCheck, Users, UserX } from 'lucide-react';
-import { type ComponentType } from 'react';
+import { ChevronLeft, ChevronRight, Clock, Coffee, LogOut, UserCheck, Users, UserX } from 'lucide-react';
+import { type ComponentType, useEffect, useState } from 'react';
 
 interface OverviewStat {
     key: string;
@@ -31,47 +34,40 @@ interface Snapshot {
         date: string;
     };
     overview: OverviewStat[];
-    records: AttendanceRecord[];
+    records: unknown[];
 }
 
-interface AttendanceRecord {
+interface FilterOption {
     id: number;
-    employee: string;
-    employee_code: string;
-    office: string;
-    status: string;
-    status_label: string;
-    check_in_at: string | null;
-    check_out_at: string | null;
-    total_break_seconds: number;
-    break_count: number;
-    net_working_seconds: number | null;
+    name: string;
+    employee_code?: string;
 }
 
-const RECORD_STATUS_TONE: Record<string, 'success' | 'warning' | 'neutral' | 'info'> = {
-    present: 'success',
-    late: 'warning',
-    on_break: 'info',
-    checked_out: 'neutral',
-    absent: 'neutral',
-};
+interface FilterOptions {
+    employees: FilterOption[];
+    departments: FilterOption[];
+    offices: FilterOption[];
+}
 
-const FILTER_LABELS: Record<string, string> = {
-    present: 'Present',
-    absent: 'Absent',
-    late: 'Late',
-    on_break: 'On break',
-    checked_out: 'Checked out',
-};
-
-const FILTER_EMPTY_MESSAGES: Record<string, (isToday: boolean) => string> = {
-    present: (isToday) => (isToday ? 'No present employees recorded yet today.' : 'No present employees recorded for this date.'),
-    absent: (isToday) => (isToday ? 'No absent employees today.' : 'No absent employees for this date.'),
-    late: (isToday) => (isToday ? 'No late check-ins recorded yet today.' : 'No late check-ins recorded for this date.'),
-    on_break: (isToday) => (isToday ? 'No employees are currently on break.' : 'No employees were on break for this date.'),
-    checked_out: (isToday) =>
-        isToday ? 'No checked-out employees recorded yet today.' : 'No checked-out employees recorded for this date.',
-};
+interface Props {
+    tab: 'daily' | 'monthly';
+    snapshot: Snapshot;
+    dailyTable: {
+        date: string;
+        day: string;
+        is_today: boolean;
+        filter: {
+            status: string | null;
+            date: string;
+            employee_id: number | null;
+            search: string | null;
+        };
+        records: Parameters<typeof DailyAttendanceTable>[0]['records'];
+    };
+    monthlyReport: Parameters<typeof MonthlyReportPanel>[0]['report'] | null;
+    employeeDetail: Parameters<typeof MonthlyReportPanel>[0]['employeeDetail'];
+    filterOptions: FilterOptions;
+}
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Attendance', href: '/admin/attendance' }];
 
@@ -154,33 +150,52 @@ function todayIsoDate(): string {
     return `${now.getFullYear()}-${month}-${day}`;
 }
 
-export default function AttendanceDashboard({ snapshot }: { snapshot: Snapshot }) {
-    useAttendanceDashboardRealtime(snapshot.is_today);
+function shiftDate(isoDate: string, days: number): string {
+    const date = new Date(`${isoDate}T12:00:00`);
+    date.setDate(date.getDate() + days);
+    return date.toISOString().slice(0, 10);
+}
+
+export default function AttendanceDashboard({
+    tab,
+    snapshot,
+    dailyTable,
+    monthlyReport,
+    employeeDetail,
+    filterOptions,
+}: Props) {
+    useAttendanceDashboardRealtime(tab === 'daily' && snapshot.is_today);
 
     const activeStatus = snapshot.filter.status;
     const isToday = snapshot.is_today;
-    const recordsTitle = activeStatus ? `${FILTER_LABELS[activeStatus]} employees` : isToday ? "Today's check-ins" : 'Check-ins';
-    const recordsDescription = activeStatus
-        ? `Showing employees filtered by ${FILTER_LABELS[activeStatus].toLowerCase()} status.`
-        : isToday
-          ? 'Check-in and check-out events recorded today.'
-          : `Check-in and check-out events recorded on ${formatDateLabel(snapshot.date)}.`;
-    const emptyMessage = activeStatus
-        ? FILTER_EMPTY_MESSAGES[activeStatus](isToday)
-        : isToday
-          ? 'No check-ins recorded yet today.'
-          : 'No check-ins recorded for this date.';
+    const [search, setSearch] = useState(dailyTable.filter.search ?? '');
 
-    const handleDateChange = (nextDate: string) => {
-        if (nextDate === '' || nextDate > todayIsoDate()) {
-            return;
-        }
+    useEffect(() => {
+        setSearch(dailyTable.filter.search ?? '');
+    }, [dailyTable.filter.search]);
 
+    useEffect(() => {
+        const timeout = window.setTimeout(() => {
+            if (search === (dailyTable.filter.search ?? '')) {
+                return;
+            }
+
+            applyDailyFilters({ search: search || undefined });
+        }, 300);
+
+        return () => window.clearTimeout(timeout);
+    }, [search]);
+
+    const applyDailyFilters = (changes: Record<string, string | number | null | undefined>) => {
         router.get(
             '/admin/attendance',
             {
-                date: nextDate,
+                tab: 'daily',
+                date: dailyTable.filter.date,
                 ...(activeStatus ? { status: activeStatus } : {}),
+                ...(dailyTable.filter.employee_id ? { employee_id: dailyTable.filter.employee_id } : {}),
+                ...(dailyTable.filter.search ? { search: dailyTable.filter.search } : {}),
+                ...changes,
             },
             {
                 preserveState: true,
@@ -190,6 +205,53 @@ export default function AttendanceDashboard({ snapshot }: { snapshot: Snapshot }
         );
     };
 
+    const applyMonthlyFilters = (changes: Record<string, string | number | null | undefined>) => {
+        router.get(
+            '/admin/attendance',
+            {
+                tab: 'monthly',
+                month: monthlyReport?.filter.month ?? new Date().getMonth() + 1,
+                year: monthlyReport?.filter.year ?? new Date().getFullYear(),
+                ...(monthlyReport?.filter.employee_id ? { employee_id: monthlyReport.filter.employee_id } : {}),
+                ...(monthlyReport?.filter.department_id ? { department_id: monthlyReport.filter.department_id } : {}),
+                ...(monthlyReport?.filter.office_id ? { office_id: monthlyReport.filter.office_id } : {}),
+                ...(employeeDetail ? { detail_employee_id: employeeDetail.employee.id } : {}),
+                ...changes,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    };
+
+    const switchTab = (nextTab: 'daily' | 'monthly') => {
+        router.get(
+            '/admin/attendance',
+            nextTab === 'daily'
+                ? { tab: 'daily', date: snapshot.filter.date, ...(activeStatus ? { status: activeStatus } : {}) }
+                : {
+                      tab: 'monthly',
+                      month: new Date().getMonth() + 1,
+                      year: new Date().getFullYear(),
+                  },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    };
+
+    const handleDateChange = (nextDate: string) => {
+        if (nextDate === '' || nextDate > todayIsoDate()) {
+            return;
+        }
+
+        applyDailyFilters({ date: nextDate });
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Attendance" />
@@ -197,99 +259,253 @@ export default function AttendanceDashboard({ snapshot }: { snapshot: Snapshot }
             <div className="flex flex-1 flex-col gap-8 p-4 md:p-6">
                 <PageHeader
                     title="Attendance"
-                    description={`Daily attendance overview for ${formatDateLabel(snapshot.date)}.`}
+                    description="Daily attendance register and monthly attendance reports for Super Admin review."
                 />
 
-                <div className="max-w-xs">
-                    <Label htmlFor="attendance-date">View date</Label>
-                    <Input
-                        id="attendance-date"
-                        type="date"
-                        value={snapshot.filter.date}
-                        max={todayIsoDate()}
-                        onChange={(event) => handleDateChange(event.target.value)}
-                        className="mt-2"
-                    />
+                <div className="flex flex-wrap gap-2">
+                    <Button variant={tab === 'daily' ? 'default' : 'outline'} onClick={() => switchTab('daily')}>
+                        Daily Attendance
+                    </Button>
+                    <Button variant={tab === 'monthly' ? 'default' : 'outline'} onClick={() => switchTab('monthly')}>
+                        Monthly Report
+                    </Button>
                 </div>
 
-                <section className="space-y-4">
-                    <SectionHeading title={isToday ? "Today's overview" : 'Daily overview'} />
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-                        {snapshot.overview.map((stat) => (
-                            <OverviewCard
-                                key={stat.key}
-                                stat={stat}
-                                active={isStatActive(stat, activeStatus)}
-                            />
-                        ))}
-                    </div>
-                </section>
+                {tab === 'daily' ? (
+                    <>
+                        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-end">
+                            <div>
+                                <Label htmlFor="attendance-date">View date</Label>
+                                <div className="mt-2 flex items-center gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => handleDateChange(shiftDate(snapshot.filter.date, -1))}
+                                    >
+                                        <ChevronLeft className="h-4 w-4" />
+                                    </Button>
+                                    <Input
+                                        id="attendance-date"
+                                        type="date"
+                                        value={snapshot.filter.date}
+                                        max={todayIsoDate()}
+                                        onChange={(event) => handleDateChange(event.target.value)}
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="icon"
+                                        disabled={snapshot.filter.date >= todayIsoDate()}
+                                        onClick={() => handleDateChange(shiftDate(snapshot.filter.date, 1))}
+                                    >
+                                        <ChevronRight className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                <p className="text-muted-foreground mt-2 text-sm">{formatDateLabel(snapshot.filter.date)}</p>
+                            </div>
 
-                <section className="space-y-4">
-                    <SectionHeading title={recordsTitle} />
-                    <DataTableCard title="Employee attendance records" description={recordsDescription}>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Employee</TableHead>
-                                    <TableHead>Office</TableHead>
-                                    <TableHead>Check in</TableHead>
-                                    <TableHead>Check out</TableHead>
-                                    <TableHead>Break time</TableHead>
-                                    <TableHead>Net working</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {snapshot.records.length === 0 && (
-                                    <TableRow>
-                                        <TableCell colSpan={7} className="text-muted-foreground py-10 text-center">
-                                            {emptyMessage}
-                                        </TableCell>
-                                    </TableRow>
-                                )}
+                            <div>
+                                <Label>Employee</Label>
+                                <Select
+                                    value={dailyTable.filter.employee_id ? String(dailyTable.filter.employee_id) : 'all'}
+                                    onValueChange={(value) =>
+                                        applyDailyFilters({ employee_id: value === 'all' ? null : Number(value) })
+                                    }
+                                >
+                                    <SelectTrigger className="mt-2 w-56">
+                                        <SelectValue placeholder="All employees" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All employees</SelectItem>
+                                        {filterOptions.employees.map((employee) => (
+                                            <SelectItem key={employee.id} value={String(employee.id)}>
+                                                {employee.name} ({employee.employee_code})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
-                                {snapshot.records.map((record) => (
-                                    <TableRow key={record.id}>
-                                        <TableCell>
-                                            <div className="font-medium">{record.employee}</div>
-                                            <div className="text-muted-foreground font-mono text-xs">{record.employee_code}</div>
-                                        </TableCell>
-                                        <TableCell>{record.office}</TableCell>
-                                        <TableCell className="tabular-nums">
-                                            {record.check_in_at ? formatTimeLabel(record.check_in_at) : '—'}
-                                        </TableCell>
-                                        <TableCell className="tabular-nums">
-                                            {record.check_out_at ? formatTimeLabel(record.check_out_at) : '—'}
-                                        </TableCell>
-                                        <TableCell className="tabular-nums">
-                                            {record.total_break_seconds > 0 || record.break_count > 0
-                                                ? formatDuration(record.total_break_seconds)
-                                                : '—'}
-                                            {record.break_count > 0 && (
-                                                <div className="text-muted-foreground text-xs">
-                                                    {record.break_count} break{record.break_count === 1 ? '' : 's'}
-                                                </div>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="tabular-nums">
-                                            {record.net_working_seconds !== null
-                                                ? formatDuration(record.net_working_seconds)
-                                                : record.check_in_at && !record.check_out_at
-                                                  ? 'In progress'
-                                                  : '—'}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant={RECORD_STATUS_TONE[record.status] ?? 'neutral'}>
-                                                {record.status_label}
-                                            </Badge>
-                                        </TableCell>
-                                    </TableRow>
+                            <div>
+                                <Label>Status</Label>
+                                <Select
+                                    value={activeStatus ?? 'all'}
+                                    onValueChange={(value) =>
+                                        applyDailyFilters({ status: value === 'all' ? null : value })
+                                    }
+                                >
+                                    <SelectTrigger className="mt-2 w-44">
+                                        <SelectValue placeholder="All statuses" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All statuses</SelectItem>
+                                        {Object.entries(FILTER_LABELS).map(([value, label]) => (
+                                            <SelectItem key={value} value={value}>
+                                                {label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <SearchInput
+                            value={search}
+                            onChange={(event) => setSearch(event.target.value)}
+                            placeholder="Search employee name or ID"
+                            containerClassName="max-w-md"
+                        />
+
+                        <section className="space-y-4">
+                            <SectionHeading title={isToday ? "Today's overview" : 'Daily overview'} />
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                                {snapshot.overview.map((stat) => (
+                                    <OverviewCard
+                                        key={stat.key}
+                                        stat={stat}
+                                        active={isStatActive(stat, activeStatus)}
+                                    />
                                 ))}
-                            </TableBody>
-                        </Table>
-                    </DataTableCard>
-                </section>
+                            </div>
+                        </section>
+
+                        <section className="space-y-4">
+                            <SectionHeading title="Attendance register" />
+                            <DataTableCard
+                                title="Daily attendance records"
+                                description={
+                                    activeStatus
+                                        ? `Showing employees filtered by ${FILTER_LABELS[activeStatus].toLowerCase()} status.`
+                                        : `All employees for ${formatDateLabel(snapshot.filter.date)}.`
+                                }
+                            >
+                                <DailyAttendanceTable
+                                    records={dailyTable.records}
+                                    isToday={isToday}
+                                    activeStatus={activeStatus}
+                                />
+                            </DataTableCard>
+                        </section>
+                    </>
+                ) : (
+                    <>
+                        <div className="grid gap-4 lg:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] lg:items-end">
+                            <div>
+                                <Label>Month</Label>
+                                <div className="mt-2">
+                                    {monthlyReport && (
+                                        <MonthYearControls
+                                            month={monthlyReport.filter.month}
+                                            year={monthlyReport.filter.year}
+                                            onNavigate={(month, year) => applyMonthlyFilters({ month, year })}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+
+                            <div>
+                                <Label>Employee</Label>
+                                <Select
+                                    value={
+                                        monthlyReport?.filter.employee_id
+                                            ? String(monthlyReport.filter.employee_id)
+                                            : 'all'
+                                    }
+                                    onValueChange={(value) =>
+                                        applyMonthlyFilters({
+                                            employee_id: value === 'all' ? null : Number(value),
+                                            detail_employee_id: null,
+                                        })
+                                    }
+                                >
+                                    <SelectTrigger className="mt-2">
+                                        <SelectValue placeholder="All employees" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All employees</SelectItem>
+                                        {filterOptions.employees.map((employee) => (
+                                            <SelectItem key={employee.id} value={String(employee.id)}>
+                                                {employee.name} ({employee.employee_code})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div>
+                                <Label>Department</Label>
+                                <Select
+                                    value={
+                                        monthlyReport?.filter.department_id
+                                            ? String(monthlyReport.filter.department_id)
+                                            : 'all'
+                                    }
+                                    onValueChange={(value) =>
+                                        applyMonthlyFilters({
+                                            department_id: value === 'all' ? null : Number(value),
+                                            detail_employee_id: null,
+                                        })
+                                    }
+                                >
+                                    <SelectTrigger className="mt-2">
+                                        <SelectValue placeholder="All departments" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All departments</SelectItem>
+                                        {filterOptions.departments.map((department) => (
+                                            <SelectItem key={department.id} value={String(department.id)}>
+                                                {department.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div>
+                                <Label>Office</Label>
+                                <Select
+                                    value={
+                                        monthlyReport?.filter.office_id
+                                            ? String(monthlyReport.filter.office_id)
+                                            : 'all'
+                                    }
+                                    onValueChange={(value) =>
+                                        applyMonthlyFilters({
+                                            office_id: value === 'all' ? null : Number(value),
+                                            detail_employee_id: null,
+                                        })
+                                    }
+                                >
+                                    <SelectTrigger className="mt-2">
+                                        <SelectValue placeholder="All offices" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All offices</SelectItem>
+                                        {filterOptions.offices.map((office) => (
+                                            <SelectItem key={office.id} value={String(office.id)}>
+                                                {office.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        {monthlyReport && (
+                            <MonthlyReportPanel
+                                report={monthlyReport}
+                                employeeDetail={employeeDetail}
+                                selectedEmployeeId={employeeDetail?.employee.id ?? null}
+                                onEmployeeSelect={(employeeId) =>
+                                    applyMonthlyFilters({
+                                        detail_employee_id: employeeId,
+                                    })
+                                }
+                            />
+                        )}
+                    </>
+                )}
             </div>
         </AppLayout>
     );
