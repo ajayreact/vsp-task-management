@@ -45,7 +45,7 @@ class HandleInertiaRequests extends Middleware
 
         $user = $request->user();
 
-        return array_merge(parent::share($request), [
+        return [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
@@ -64,7 +64,7 @@ class HandleInertiaRequests extends Middleware
             'notifications' => NotificationPresenter::forUser($user),
             'notificationSound' => self::notificationSoundConfig($user),
             'notificationPreferences' => self::notificationPreferences($user),
-        ]);
+        ];
     }
 
     /**

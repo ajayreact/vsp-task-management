@@ -5,6 +5,7 @@ use App\Modules\Core\Http\Middleware\EnsureUserIsInternal;
 use App\Modules\TaskManagement\Exceptions\DeliverableShareException;
 use App\Modules\TaskManagement\Services\DeliverableShareLogger;
 use App\Modules\TaskManagement\Services\DeliverableShareResponder;
+use App\Support\InertiaErrorPresenter;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -64,5 +65,16 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             return app(DeliverableShareResponder::class)->respondUnexpected($throwable, $request);
+        });
+
+        $exceptions->respond(function (\Symfony\Component\HttpFoundation\Response $response, \Throwable $exception, Request $request) {
+            $presenter = app(InertiaErrorPresenter::class);
+            $status = $response->getStatusCode();
+
+            if (! $presenter->shouldHandle($request, $status, $exception)) {
+                return $response;
+            }
+
+            return $presenter->render($request, $status, $exception);
         });
     })->create();

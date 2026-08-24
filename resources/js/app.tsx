@@ -1,6 +1,6 @@
 import '../css/app.css';
 
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, router } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { route as routeFn } from 'ziggy-js';
@@ -23,6 +23,13 @@ createInertiaApp({
     progress: {
         color: '#4B5563',
     },
+});
+
+router.on('invalid', (event) => {
+    if (event.detail.response?.status === 419) {
+        event.preventDefault();
+        window.location.reload();
+    }
 });
 
 // This will set light / dark mode on load...
