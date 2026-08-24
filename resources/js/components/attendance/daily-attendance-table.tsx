@@ -1,5 +1,6 @@
+import { AttendanceTableScroll, attendanceTableClassName } from '@/components/attendance/attendance-table-scroll';
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { formatDuration, formatTimeLabel } from '@/lib/attendance/format';
 import { FILTER_LABELS, RECORD_STATUS_TONE } from '@/lib/attendance/report-status';
 
@@ -37,73 +38,75 @@ export function DailyAttendanceTable({ records, isToday, activeStatus }: DailyAt
           : 'No attendance records for this date.';
 
     return (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Employee</TableHead>
-                    <TableHead>Employee ID</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Day</TableHead>
-                    <TableHead>Office</TableHead>
-                    <TableHead>Check in</TableHead>
-                    <TableHead>Check out</TableHead>
-                    <TableHead>Break time</TableHead>
-                    <TableHead>Net working hours</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Late</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {records.length === 0 && (
+        <AttendanceTableScroll className="daily-attendance-table-container">
+            <table className={attendanceTableClassName}>
+                <TableHeader>
                     <TableRow>
-                        <TableCell colSpan={11} className="text-muted-foreground py-10 text-center">
-                            {emptyMessage}
-                        </TableCell>
+                        <TableHead className="min-w-40">Employee</TableHead>
+                        <TableHead className="min-w-28">Employee ID</TableHead>
+                        <TableHead className="min-w-28">Date</TableHead>
+                        <TableHead className="min-w-24">Day</TableHead>
+                        <TableHead className="min-w-32">Office</TableHead>
+                        <TableHead className="min-w-24">Check in</TableHead>
+                        <TableHead className="min-w-24">Check out</TableHead>
+                        <TableHead className="min-w-28">Break time</TableHead>
+                        <TableHead className="min-w-32">Net working hours</TableHead>
+                        <TableHead className="min-w-28">Status</TableHead>
+                        <TableHead className="min-w-24">Late</TableHead>
                     </TableRow>
-                )}
+                </TableHeader>
+                <TableBody>
+                    {records.length === 0 && (
+                        <TableRow>
+                            <TableCell colSpan={11} className="text-muted-foreground py-10 text-center">
+                                {emptyMessage}
+                            </TableCell>
+                        </TableRow>
+                    )}
 
-                {records.map((record) => (
-                    <TableRow key={record.id}>
-                        <TableCell className="font-medium">{record.employee}</TableCell>
-                        <TableCell className="font-mono text-xs">{record.employee_code}</TableCell>
-                        <TableCell className="tabular-nums">{record.date}</TableCell>
-                        <TableCell>{record.day}</TableCell>
-                        <TableCell>{record.office}</TableCell>
-                        <TableCell className="tabular-nums">
-                            {record.check_in_at ? formatTimeLabel(record.check_in_at) : '—'}
-                        </TableCell>
-                        <TableCell className="tabular-nums">
-                            {record.check_out_at ? formatTimeLabel(record.check_out_at) : '—'}
-                        </TableCell>
-                        <TableCell className="tabular-nums">
-                            {record.total_break_seconds > 0 || record.break_count > 0
-                                ? formatDuration(record.total_break_seconds)
-                                : '—'}
-                        </TableCell>
-                        <TableCell className="tabular-nums">
-                            {record.net_working_seconds !== null
-                                ? formatDuration(record.net_working_seconds)
-                                : record.check_in_at && !record.check_out_at
-                                  ? 'In progress'
-                                  : '—'}
-                        </TableCell>
-                        <TableCell>
-                            <Badge variant={RECORD_STATUS_TONE[record.status] ?? 'neutral'}>
-                                {record.status_label}
-                            </Badge>
-                        </TableCell>
-                        <TableCell>
-                            {record.is_late ? (
-                                <Badge variant="warning">Late</Badge>
-                            ) : record.check_in_at ? (
-                                <span className="text-muted-foreground text-sm">On time</span>
-                            ) : (
-                                '—'
-                            )}
-                        </TableCell>
-                    </TableRow>
-                ))}
-            </TableBody>
-        </Table>
+                    {records.map((record) => (
+                        <TableRow key={record.id}>
+                            <TableCell className="font-medium">{record.employee}</TableCell>
+                            <TableCell className="font-mono text-xs">{record.employee_code}</TableCell>
+                            <TableCell className="tabular-nums">{record.date}</TableCell>
+                            <TableCell>{record.day}</TableCell>
+                            <TableCell>{record.office}</TableCell>
+                            <TableCell className="tabular-nums">
+                                {record.check_in_at ? formatTimeLabel(record.check_in_at) : '—'}
+                            </TableCell>
+                            <TableCell className="tabular-nums">
+                                {record.check_out_at ? formatTimeLabel(record.check_out_at) : '—'}
+                            </TableCell>
+                            <TableCell className="tabular-nums">
+                                {record.total_break_seconds > 0 || record.break_count > 0
+                                    ? formatDuration(record.total_break_seconds)
+                                    : '—'}
+                            </TableCell>
+                            <TableCell className="tabular-nums">
+                                {record.net_working_seconds !== null
+                                    ? formatDuration(record.net_working_seconds)
+                                    : record.check_in_at && !record.check_out_at
+                                      ? 'In progress'
+                                      : '—'}
+                            </TableCell>
+                            <TableCell>
+                                <Badge variant={RECORD_STATUS_TONE[record.status] ?? 'neutral'}>
+                                    {record.status_label}
+                                </Badge>
+                            </TableCell>
+                            <TableCell>
+                                {record.is_late ? (
+                                    <Badge variant="warning">Late</Badge>
+                                ) : record.check_in_at ? (
+                                    <span className="text-muted-foreground text-sm">On time</span>
+                                ) : (
+                                    '—'
+                                )}
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </table>
+        </AttendanceTableScroll>
     );
 }

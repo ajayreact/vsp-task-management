@@ -247,6 +247,16 @@
     .data-table-header th {
         background-color: var(--table-header-bg-color, #f5f5f7);
     }
+
+    .monthly-attendance-table-container,
+    .daily-attendance-table-container {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
 @keyframes login-float {

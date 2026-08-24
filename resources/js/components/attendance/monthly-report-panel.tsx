@@ -1,3 +1,4 @@
+import { AttendanceTableScroll, attendanceTableClassName } from '@/components/attendance/attendance-table-scroll';
 import { DataTableCard } from '@/components/admin/data-table-card';
 import { buildExportQuery } from '@/components/admin/data-table-export';
 import { KpiStatCard, type KpiTone } from '@/components/admin/kpi-stat-card';
@@ -5,7 +6,7 @@ import { DailyAttendanceTable, type DailyAttendanceRecord } from '@/components/a
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { formatDuration, formatTimeLabel } from '@/lib/attendance/format';
 import { REPORT_STATUS_STYLES, reportCodeClass } from '@/lib/attendance/report-status';
 import { cn } from '@/lib/utils';
@@ -152,11 +153,11 @@ export function MonthYearControls({
     const atCurrentMonth = year === new Date().getFullYear() && month === new Date().getMonth() + 1;
 
     return (
-        <div className="flex items-center gap-2">
-            <Button type="button" variant="outline" size="icon" onClick={previous} aria-label="Previous month">
+        <div className="flex w-full max-w-full min-w-0 items-center justify-center gap-2 sm:justify-start">
+            <Button type="button" variant="outline" size="icon" className="shrink-0" onClick={previous} aria-label="Previous month">
                 <ChevronLeft className="h-4 w-4" />
             </Button>
-            <div className="min-w-36 text-center text-sm font-medium sm:min-w-40">
+            <div className="min-w-0 max-w-[min(100%,12rem)] truncate text-center text-sm font-medium sm:max-w-none sm:min-w-36 sm:overflow-visible">
                 {new Date(year, month - 1, 1).toLocaleDateString(undefined, {
                     month: 'long',
                     year: 'numeric',
@@ -166,6 +167,7 @@ export function MonthYearControls({
                 type="button"
                 variant="outline"
                 size="icon"
+                className="shrink-0"
                 onClick={next}
                 disabled={atCurrentMonth}
                 aria-label="Next month"
@@ -221,7 +223,7 @@ export function MonthlyReportPanel({
     };
 
     return (
-        <section id="monthly-attendance-report" className="space-y-5">
+        <section id="monthly-attendance-report" className="min-w-0 max-w-full space-y-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="space-y-1">
                     <h2 className="text-lg font-semibold tracking-tight">Monthly Attendance Report</h2>
@@ -239,13 +241,15 @@ export function MonthlyReportPanel({
             </div>
 
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                <MonthYearControls
-                    month={report.filter.month}
-                    year={report.filter.year}
-                    onNavigate={(month, year) => onFilterChange({ month, year, detail_employee_id: null })}
-                />
+                <div className="min-w-0 max-w-full">
+                    <MonthYearControls
+                        month={report.filter.month}
+                        year={report.filter.year}
+                        onNavigate={(month, year) => onFilterChange({ month, year, detail_employee_id: null })}
+                    />
+                </div>
 
-                <div className="grid gap-3 sm:grid-cols-3 xl:max-w-3xl xl:flex-1">
+                <div className="grid min-w-0 max-w-full gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:max-w-3xl xl:flex-1">
                     <Select
                         value={report.filter.employee_id ? String(report.filter.employee_id) : 'all'}
                         onValueChange={(value) =>
@@ -255,7 +259,7 @@ export function MonthlyReportPanel({
                             })
                         }
                     >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full min-w-0">
                             <SelectValue placeholder="All employees" />
                         </SelectTrigger>
                         <SelectContent>
@@ -277,7 +281,7 @@ export function MonthlyReportPanel({
                             })
                         }
                     >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full min-w-0">
                             <SelectValue placeholder="All departments" />
                         </SelectTrigger>
                         <SelectContent>
@@ -299,7 +303,7 @@ export function MonthlyReportPanel({
                             })
                         }
                     >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full min-w-0">
                             <SelectValue placeholder="All offices" />
                         </SelectTrigger>
                         <SelectContent>
@@ -353,11 +357,13 @@ export function MonthlyReportPanel({
                 title="Monthly attendance matrix"
                 description="Click an employee row to inspect daily records for the selected month."
             >
-                <div className="overflow-x-auto">
-                    <Table>
+                <AttendanceTableScroll className="monthly-attendance-table-container">
+                    <table className={attendanceTableClassName}>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="sticky left-0 z-10 min-w-40 bg-background">Employee</TableHead>
+                                <TableHead className="sticky left-0 z-10 min-w-40 bg-[var(--table-header-bg-color,#f5f5f7)]">
+                                    Employee
+                                </TableHead>
                                 <TableHead className="min-w-28">Employee ID</TableHead>
                                 {report.days.map((day) => (
                                     <TableHead
@@ -370,10 +376,10 @@ export function MonthlyReportPanel({
                                         {day.day}
                                     </TableHead>
                                 ))}
-                                <TableHead className="text-center">Present</TableHead>
-                                <TableHead className="text-center">Absent</TableHead>
-                                <TableHead className="text-center">Late</TableHead>
-                                <TableHead className="text-center">Off</TableHead>
+                                <TableHead className="min-w-20 text-center">Present</TableHead>
+                                <TableHead className="min-w-20 text-center">Absent</TableHead>
+                                <TableHead className="min-w-16 text-center">Late</TableHead>
+                                <TableHead className="min-w-16 text-center">Off</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -402,7 +408,12 @@ export function MonthlyReportPanel({
                                         })
                                     }
                                 >
-                                    <TableCell className="sticky left-0 z-10 bg-background font-medium">
+                                    <TableCell
+                                        className={cn(
+                                            'sticky left-0 z-10 bg-card font-medium',
+                                            selectedEmployeeId === row.employee_id && 'bg-muted/50',
+                                        )}
+                                    >
                                         {row.employee}
                                     </TableCell>
                                     <TableCell className="font-mono text-xs">{row.employee_code}</TableCell>
@@ -424,8 +435,8 @@ export function MonthlyReportPanel({
                                 </TableRow>
                             ))}
                         </TableBody>
-                    </Table>
-                </div>
+                    </table>
+                </AttendanceTableScroll>
             </DataTableCard>
 
             {employeeDetail && (
@@ -438,53 +449,55 @@ export function MonthlyReportPanel({
                         </Button>
                     }
                 >
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Day</TableHead>
-                                <TableHead>Check in</TableHead>
-                                <TableHead>Check out</TableHead>
-                                <TableHead>Break</TableHead>
-                                <TableHead>Net hours</TableHead>
-                                <TableHead>Status</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {employeeDetail.records.map((record) => (
-                                <TableRow key={`${record.date}-${record.id}`}>
-                                    <TableCell className="tabular-nums">{record.date}</TableCell>
-                                    <TableCell>{record.day}</TableCell>
-                                    <TableCell className="tabular-nums">
-                                        {record.check_in_at ? formatTimeLabel(record.check_in_at) : '—'}
-                                    </TableCell>
-                                    <TableCell className="tabular-nums">
-                                        {record.check_out_at ? formatTimeLabel(record.check_out_at) : '—'}
-                                    </TableCell>
-                                    <TableCell className="tabular-nums">
-                                        {record.total_break_seconds > 0
-                                            ? formatDuration(record.total_break_seconds)
-                                            : '—'}
-                                    </TableCell>
-                                    <TableCell className="tabular-nums">
-                                        {record.net_working_seconds !== null
-                                            ? formatDuration(record.net_working_seconds)
-                                            : '—'}
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge
-                                            className={reportCodeClass(
-                                                record.report_code ?? '',
-                                                record.status === 'week_off',
-                                            )}
-                                        >
-                                            {record.report_label || record.status_label}
-                                        </Badge>
-                                    </TableCell>
+                    <AttendanceTableScroll className="daily-attendance-table-container">
+                        <table className={attendanceTableClassName}>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="min-w-28">Date</TableHead>
+                                    <TableHead className="min-w-24">Day</TableHead>
+                                    <TableHead className="min-w-24">Check in</TableHead>
+                                    <TableHead className="min-w-24">Check out</TableHead>
+                                    <TableHead className="min-w-24">Break</TableHead>
+                                    <TableHead className="min-w-28">Net hours</TableHead>
+                                    <TableHead className="min-w-28">Status</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {employeeDetail.records.map((record) => (
+                                    <TableRow key={`${record.date}-${record.id}`}>
+                                        <TableCell className="tabular-nums">{record.date}</TableCell>
+                                        <TableCell>{record.day}</TableCell>
+                                        <TableCell className="tabular-nums">
+                                            {record.check_in_at ? formatTimeLabel(record.check_in_at) : '—'}
+                                        </TableCell>
+                                        <TableCell className="tabular-nums">
+                                            {record.check_out_at ? formatTimeLabel(record.check_out_at) : '—'}
+                                        </TableCell>
+                                        <TableCell className="tabular-nums">
+                                            {record.total_break_seconds > 0
+                                                ? formatDuration(record.total_break_seconds)
+                                                : '—'}
+                                        </TableCell>
+                                        <TableCell className="tabular-nums">
+                                            {record.net_working_seconds !== null
+                                                ? formatDuration(record.net_working_seconds)
+                                                : '—'}
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge
+                                                className={reportCodeClass(
+                                                    record.report_code ?? '',
+                                                    record.status === 'week_off',
+                                                )}
+                                            >
+                                                {record.report_label || record.status_label}
+                                            </Badge>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </table>
+                    </AttendanceTableScroll>
                 </DataTableCard>
             )}
         </section>

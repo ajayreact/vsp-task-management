@@ -163,6 +163,14 @@ function todayIsoDate(): string {
     return `${now.getFullYear()}-${month}-${day}`;
 }
 
+function formatShortDateLabel(isoDate: string): string {
+    return new Date(`${isoDate}T12:00:00`).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+    });
+}
+
 function shiftDate(isoDate: string, days: number): string {
     const date = new Date(`${isoDate}T12:00:00`);
     date.setDate(date.getDate() + days);
@@ -266,13 +274,13 @@ export default function AttendanceDashboard({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Attendance" />
 
-            <div className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-6">
+            <div className="flex w-full min-w-0 max-w-full flex-1 flex-col gap-6 overflow-x-hidden p-4 md:gap-8 md:p-6">
                 <PageHeader
                     title="Attendance"
                     description="Daily attendance register and monthly attendance reports for Super Admin review."
                 />
 
-                <section className="space-y-4">
+                <section className="min-w-0 max-w-full space-y-4">
                     <SectionHeading title={isToday ? "Today's Overview" : 'Daily Overview'} />
                     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                         {snapshot.overview.map((stat) => (
@@ -281,29 +289,34 @@ export default function AttendanceDashboard({
                     </div>
                 </section>
 
-                <section className="space-y-4">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                        <SectionHeading
-                            title="Daily Attendance"
-                            description="Employee attendance records for the selected date."
-                        />
-                        <div className="flex items-center gap-2 self-start lg:self-auto">
+                <section className="min-w-0 max-w-full space-y-4">
+                    <div className="flex min-w-0 max-w-full flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0">
+                            <SectionHeading
+                                title="Daily Attendance"
+                                description="Employee attendance records for the selected date."
+                            />
+                        </div>
+                        <div className="flex w-full min-w-0 max-w-full items-center justify-center gap-2 sm:w-auto sm:justify-end">
                             <Button
                                 type="button"
                                 variant="outline"
                                 size="icon"
+                                className="shrink-0"
                                 onClick={() => handleDateChange(shiftDate(snapshot.filter.date, -1))}
                                 aria-label="Previous day"
                             >
                                 <ChevronLeft className="h-4 w-4" />
                             </Button>
-                            <div className="min-w-44 rounded-md border bg-background px-3 py-2 text-center text-sm font-medium">
-                                {formatDateLabel(snapshot.filter.date)}
+                            <div className="min-w-0 max-w-[min(100%,16rem)] flex-1 rounded-md border bg-background px-2 py-2 text-center text-xs font-medium sm:max-w-none sm:flex-none sm:px-3 sm:text-sm">
+                                <span className="block truncate sm:hidden">{formatShortDateLabel(snapshot.filter.date)}</span>
+                                <span className="hidden sm:block">{formatDateLabel(snapshot.filter.date)}</span>
                             </div>
                             <Button
                                 type="button"
                                 variant="outline"
                                 size="icon"
+                                className="shrink-0"
                                 disabled={snapshot.filter.date >= todayIsoDate()}
                                 onClick={() => handleDateChange(shiftDate(snapshot.filter.date, 1))}
                                 aria-label="Next day"
@@ -313,12 +326,12 @@ export default function AttendanceDashboard({
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+                    <div className="grid min-w-0 max-w-full gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">
                         <SearchInput
                             value={search}
                             onChange={(event) => setSearch(event.target.value)}
                             placeholder="Search employee name or ID"
-                            containerClassName="w-full lg:max-w-sm lg:flex-1"
+                            containerClassName="w-full min-w-0 md:col-span-2 xl:col-span-1"
                         />
                         <Select
                             value={dailyTable.filter.employee_id ? String(dailyTable.filter.employee_id) : 'all'}
@@ -326,7 +339,7 @@ export default function AttendanceDashboard({
                                 navigate({ employee_id: value === 'all' ? null : Number(value) })
                             }
                         >
-                            <SelectTrigger className="w-full lg:w-52">
+                            <SelectTrigger className="w-full min-w-0">
                                 <SelectValue placeholder="All employees" />
                             </SelectTrigger>
                             <SelectContent>
@@ -342,7 +355,7 @@ export default function AttendanceDashboard({
                             value={activeStatus ?? 'all'}
                             onValueChange={(value) => navigate({ status: value === 'all' ? null : value })}
                         >
-                            <SelectTrigger className="w-full lg:w-44">
+                            <SelectTrigger className="w-full min-w-0">
                                 <SelectValue placeholder="All statuses" />
                             </SelectTrigger>
                             <SelectContent>
