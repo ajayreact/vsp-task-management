@@ -53,6 +53,7 @@ export default function CreateTask({
                         department_id: '',
                         title: '',
                         description: '',
+                        requirement: '',
                         type: 'design',
                         priority: 'normal',
                         estimated_hours: '',

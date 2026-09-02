@@ -220,6 +220,7 @@ class TaskController extends Controller
             'task' => [
                 ...$this->summarise($task),
                 'description' => $task->description,
+                'requirement' => $task->requirement,
                 'company_name' => $task->project->company->name,
             ],
             'allowedTransitions' => $user->can('progress', $task)
@@ -282,6 +283,7 @@ class TaskController extends Controller
             'task' => [
                 ...$this->summarise($task),
                 'description' => $task->description,
+                'requirement' => $task->requirement,
                 'estimated_hours' => $task->estimated_hours,
                 'company_name' => $task->project->company->name,
                 'created_by' => $task->creator->name,
@@ -427,6 +429,7 @@ class TaskController extends Controller
                 'department_id' => $task->department_id,
                 'title' => $task->title,
                 'description' => $task->description,
+                'requirement' => $task->requirement,
                 'type' => $task->type->value,
                 'priority' => $task->priority->value,
                 'estimated_hours' => $task->estimated_hours,

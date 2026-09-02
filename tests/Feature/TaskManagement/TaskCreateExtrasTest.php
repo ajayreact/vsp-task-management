@@ -10,6 +10,47 @@ use App\Modules\TaskManagement\Models\TaskSubtask;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
+test('creating a task can save a detailed requirement brief', function () {
+    $author = employeeWith(Ability::AccessTasks, Ability::ManageTasks);
+    $project = Project::factory()->create();
+
+    $requirement = "Create a 30-second promotional video.\n\nScene 1: Opening shot\nScene 2: Product demo\n\nUse brand colors.\nhttps://example.com/reference";
+
+    $this->actingAs($author->user)
+        ->post('/tasks', [
+            'tm_project_id' => $project->id,
+            'title' => 'Promotional video',
+            'type' => 'design',
+            'priority' => 'normal',
+            'requirement' => $requirement,
+        ])
+        ->assertRedirect();
+
+    $task = Task::query()->sole();
+
+    expect($task->requirement)->toBe($requirement);
+});
+
+test('updating a task can change the requirement brief', function () {
+    $author = employeeWith(Ability::AccessTasks, Ability::ManageTasks);
+    $task = Task::factory()->create([
+        'created_by_user_id' => $author->user->id,
+        'requirement' => 'Original brief',
+    ]);
+
+    $this->actingAs($author->user)
+        ->put("/tasks/{$task->id}", [
+            'tm_project_id' => $task->tm_project_id,
+            'title' => $task->title,
+            'type' => $task->type->value,
+            'priority' => $task->priority->value,
+            'requirement' => "Updated brief\n\nLine two",
+        ])
+        ->assertRedirect();
+
+    expect($task->fresh()->requirement)->toBe("Updated brief\n\nLine two");
+});
+
 test('creating a task without extras still works', function () {
     $author = employeeWith(Ability::AccessTasks, Ability::ManageTasks);
     $project = Project::factory()->create();

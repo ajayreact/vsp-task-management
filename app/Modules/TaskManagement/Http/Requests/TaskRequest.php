@@ -60,6 +60,7 @@ class TaskRequest extends FormRequest
             'department_id' => ['nullable', 'integer', Rule::exists('departments', 'id')],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
+            'requirement' => ['nullable', 'string', 'max:65535'],
             'type' => ['required', Rule::enum(TaskType::class)],
             'priority' => ['required', Rule::enum(TaskPriority::class)],
             'estimated_hours' => ['nullable', 'numeric', 'min:0', 'max:999'],

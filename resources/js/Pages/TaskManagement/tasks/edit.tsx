@@ -10,6 +10,7 @@ interface TaskProps {
     department_id: number | null;
     title: string;
     description: string | null;
+    requirement: string | null;
     type: string;
     priority: string;
     estimated_hours: string | null;
@@ -44,6 +45,7 @@ export default function EditTask({ task, ...options }: TaskFormOptions & { task:
                         department_id: task.department_id ? String(task.department_id) : '',
                         title: task.title,
                         description: task.description ?? '',
+                        requirement: task.requirement ?? '',
                         type: task.type,
                         priority: task.priority,
                         estimated_hours: task.estimated_hours ?? '',

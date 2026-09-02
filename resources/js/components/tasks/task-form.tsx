@@ -15,6 +15,7 @@ export type TaskFormValues = {
     department_id: string;
     title: string;
     description: string;
+    requirement: string;
     type: string;
     priority: string;
     estimated_hours: string;
@@ -192,6 +193,43 @@ export function TaskDetailsCard({
     );
 }
 
+export function TaskRequirementCard({
+    value,
+    onChange,
+    error,
+}: {
+    value: string;
+    onChange: (value: string) => void;
+    error?: string;
+}) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Task Requirement</CardTitle>
+                <CardDescription>
+                    Paste the complete brief, script, client instructions, creative direction, or development details for the team.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="grid min-w-0 gap-2">
+                    <Label htmlFor="requirement" className="sr-only">
+                        Task Requirement
+                    </Label>
+                    <Textarea
+                        id="requirement"
+                        value={value}
+                        onChange={(e) => onChange(e.target.value)}
+                        rows={14}
+                        placeholder="Paste the complete requirement, script, client instructions, creative brief, or development details here..."
+                        className="min-h-[12rem] resize-y break-words"
+                    />
+                    <InputError message={error} />
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
 export function TaskForm({
     options,
     initial,
@@ -220,6 +258,12 @@ export function TaskForm({
     return (
         <form onSubmit={submit} className="max-w-3xl space-y-6">
             <TaskDetailsCard data={data} setData={setData} errors={errors} options={options} showAssignee={showAssignee} />
+
+            <TaskRequirementCard
+                value={data.requirement}
+                onChange={(value) => setData('requirement', value)}
+                error={errors.requirement}
+            />
 
             <div className="flex gap-2">
                 <Button type="submit" disabled={processing}>

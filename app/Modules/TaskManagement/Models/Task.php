@@ -29,6 +29,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property int|null $department_id
  * @property string $title
  * @property string|null $description
+ * @property string|null $requirement
  * @property TaskType $type
  * @property TaskPriority $priority
  * @property TaskStatus $status
@@ -61,6 +62,7 @@ class Task extends Model implements HasMedia
         'department_id',
         'title',
         'description',
+        'requirement',
         'type',
         'priority',
         'status',

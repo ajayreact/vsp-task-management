@@ -23,6 +23,7 @@ interface TaskDetail {
     id: number;
     title: string;
     description: string | null;
+    requirement: string | null;
     priority: string;
     priority_label: string;
     status: string;
@@ -213,6 +214,22 @@ export default function EmployeeTaskShow({
                             </CardContent>
                         </Card>
                     </StretchCell>
+
+                    {task.requirement && (
+                        <StretchCell className="md:col-span-2">
+                            <Card className="h-full">
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-base">Task Requirement</CardTitle>
+                                    <CardDescription>Full brief, script, or client instructions for this task.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-sm whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+                                        {task.requirement}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </StretchCell>
+                    )}
 
                     {/* Row 2 — Checklist | Discussion */}
                     <StretchCell className="[&>div]:h-full">

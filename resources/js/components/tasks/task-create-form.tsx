@@ -14,7 +14,7 @@ import {
     sanitizeSubtasks,
     type DraftSubtask,
 } from '@/components/tasks/task-create-subtasks';
-import { TaskDetailsCard, type TaskFormOptions, type TaskFormValues } from '@/components/tasks/task-form';
+import { TaskDetailsCard, TaskRequirementCard, type TaskFormOptions, type TaskFormValues } from '@/components/tasks/task-form';
 import { Button } from '@/components/ui/button';
 import { Link, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
@@ -81,12 +81,17 @@ export function TaskCreateForm({
                 errors={form.errors}
                 options={options}
                 showAssignee={showAssignee}
-                cardTitle="Task details"
                 cardDescription={
                     showAssignee
                         ? 'Describe the work and optionally assign someone now. They will receive a notification when assigned.'
                         : 'Describe the work. The task starts as a draft until it is assigned or published.'
                 }
+            />
+
+            <TaskRequirementCard
+                value={form.data.requirement}
+                onChange={(value) => form.setData('requirement', value)}
+                error={form.errors.requirement}
             />
 
             {canManageChecklist && (

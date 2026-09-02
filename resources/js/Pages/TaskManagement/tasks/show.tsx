@@ -26,6 +26,7 @@ interface TaskDetail {
     id: number;
     title: string;
     description: string | null;
+    requirement: string | null;
     type: string;
     priority: string;
     priority_label: string;
@@ -199,6 +200,20 @@ export default function TaskShow({
                                 </dl>
                             </CardContent>
                         </Card>
+
+                        {task.requirement && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Task Requirement</CardTitle>
+                                    <CardDescription>Full brief, script, or client instructions for this task.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-sm whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+                                        {task.requirement}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
 
                         <TaskChecklist taskId={task.id} checklist={checklist} canManage={can.manageChecklist} />
 
