@@ -8,11 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * Opaque public token that resolves to one deliverable. The token is the only
- * identifier exposed outside the staff app.
- *
  * @property int $id
- * @property int $tm_deliverable_id
+ * @property int $tm_company_id
  * @property string $token
  * @property string|null $short_code
  * @property Carbon|null $expires_at
@@ -20,18 +17,18 @@ use Illuminate\Support\Carbon;
  * @property int $created_by_user_id
  * @property Carbon $created_at
  * @property Carbon $updated_at
- * @property-read Deliverable $deliverable
+ * @property-read Company $company
  * @property-read User $createdBy
  */
-class DeliverableShareLink extends Model
+class CompanyShareLink extends Model
 {
-    protected $table = 'tm_deliverable_share_links';
+    protected $table = 'tm_company_share_links';
 
     /**
      * @var list<string>
      */
     protected $fillable = [
-        'tm_deliverable_id',
+        'tm_company_id',
         'token',
         'short_code',
         'expires_at',
@@ -61,11 +58,11 @@ class DeliverableShareLink extends Model
     }
 
     /**
-     * @return BelongsTo<Deliverable, $this>
+     * @return BelongsTo<Company, $this>
      */
-    public function deliverable(): BelongsTo
+    public function company(): BelongsTo
     {
-        return $this->belongsTo(Deliverable::class, 'tm_deliverable_id');
+        return $this->belongsTo(Company::class, 'tm_company_id');
     }
 
     /**
@@ -79,22 +76,22 @@ class DeliverableShareLink extends Model
     public function publicUrl(): string
     {
         if ($this->short_code !== null) {
-            return route('share.short.show', ['shortCode' => $this->short_code]);
+            return route('company-share.short.show', ['shortCode' => $this->short_code]);
         }
 
-        return route('share.show', ['token' => $this->token]);
+        return route('company-share.show', ['token' => $this->token]);
     }
 
     public function publicFileUrl(string $mediaUuid): string
     {
         if ($this->short_code !== null) {
-            return route('share.short.file', [
+            return route('company-share.short.file', [
                 'shortCode' => $this->short_code,
                 'mediaUuid' => $mediaUuid,
             ]);
         }
 
-        return route('share.file', [
+        return route('company-share.file', [
             'token' => $this->token,
             'mediaUuid' => $mediaUuid,
         ]);
@@ -103,33 +100,15 @@ class DeliverableShareLink extends Model
     public function publicFileDownloadUrl(string $mediaUuid): string
     {
         if ($this->short_code !== null) {
-            return route('share.short.file.download', [
+            return route('company-share.short.file.download', [
                 'shortCode' => $this->short_code,
                 'mediaUuid' => $mediaUuid,
             ]);
         }
 
-        return route('share.file.download', [
+        return route('company-share.file.download', [
             'token' => $this->token,
             'mediaUuid' => $mediaUuid,
         ]);
-    }
-
-    public function publicApproveUrl(): string
-    {
-        if ($this->short_code !== null) {
-            return route('share.short.approve', ['shortCode' => $this->short_code]);
-        }
-
-        return route('share.approve', ['token' => $this->token]);
-    }
-
-    public function publicRequestChangesUrl(): string
-    {
-        if ($this->short_code !== null) {
-            return route('share.short.request-changes', ['shortCode' => $this->short_code]);
-        }
-
-        return route('share.request-changes', ['token' => $this->token]);
     }
 }

@@ -150,6 +150,7 @@ test('the public share page returns only proof files for that deliverable', func
             ->where('files.0.mime', $proof->mime_type)
             ->where('files.0.size', $proof->size)
             ->where('files.0.url', $expectedUrl)
+            ->where('files.0.download_url', route('share.file.download', ['token' => $link->token, 'mediaUuid' => $proof->uuid]))
             ->missing('files.0.id')
             ->missing('files.0.uuid')
             ->missing('deliverable.id')
@@ -169,6 +170,43 @@ test('a valid share token and proof media uuid returns the file', function () {
         ->assertHeader('content-type', $media->mime_type);
 
     $this->assertGuest();
+});
+
+test('a valid share download returns attachment disposition with the original filename', function () {
+    Storage::fake('public');
+
+    $deliverable = Deliverable::factory()->create();
+    $media = $deliverable->addMedia(UploadedFile::fake()->image('hero.jpg'))->toMediaCollection('proofs');
+    $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
+
+    $this->get($link->publicFileDownloadUrl($media->uuid))
+        ->assertOk()
+        ->assertHeader('content-disposition', 'attachment; filename=hero.jpg')
+        ->assertHeader('content-type', $media->mime_type);
+
+    $this->assertGuest();
+});
+
+test('an expired share link cannot download proof files', function () {
+    Storage::fake('public');
+
+    $deliverable = Deliverable::factory()->create();
+    $media = $deliverable->addMedia(UploadedFile::fake()->image('hero.jpg'))->toMediaCollection('proofs');
+    $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
+    $link->update(['expires_at' => now()->subDay()]);
+
+    $this->get($link->publicFileDownloadUrl($media->uuid))->assertStatus(410);
+});
+
+test('a revoked share link cannot download proof files', function () {
+    Storage::fake('public');
+
+    $deliverable = Deliverable::factory()->create();
+    $media = $deliverable->addMedia(UploadedFile::fake()->image('hero.jpg'))->toMediaCollection('proofs');
+    $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
+    $link->update(['revoked_at' => now()]);
+
+    $this->get($link->publicFileDownloadUrl($media->uuid))->assertForbidden();
 });
 
 test('a valid share token cannot fetch a proof from another deliverable', function () {

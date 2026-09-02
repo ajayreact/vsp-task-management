@@ -1,10 +1,11 @@
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { usePermissions } from '@/hooks/use-permissions';
-import { type NavItem } from '@/types';
+import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 
 export function NavMain({ items = [], label = 'Platform', anyPermission }: { items: NavItem[]; label?: string; anyPermission?: string[] }) {
-    const page = usePage();
+    const page = usePage<SharedData>();
+    const { auth } = page.props;
     const { can, canAny, hasRole } = usePermissions();
     const isAdmin = hasRole('super-admin') || hasRole('admin');
 
@@ -15,6 +16,10 @@ export function NavMain({ items = [], label = 'Platform', anyPermission }: { ite
     const visible = items.filter((item) => {
         if (item.role && !hasRole(item.role)) {
             return false;
+        }
+
+        if (item.capability) {
+            return !!auth.capabilities?.[item.capability];
         }
 
         return can(item.permission);

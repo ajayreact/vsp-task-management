@@ -2,6 +2,7 @@
 
 use App\Modules\TaskManagement\Http\Controllers\AvailabilityController;
 use App\Modules\TaskManagement\Http\Controllers\CompanyController;
+use App\Modules\TaskManagement\Http\Controllers\CompanyLogoLibraryController;
 use App\Modules\TaskManagement\Http\Controllers\DeliverableController;
 use App\Modules\TaskManagement\Http\Controllers\NotificationSoundController;
 use App\Modules\TaskManagement\Http\Controllers\OpenBoardController;
@@ -75,6 +76,15 @@ Route::get('clients/export/pdf', [CompanyController::class, 'exportPdf'])->name(
 Route::resource('clients', CompanyController::class)
     ->parameters(['clients' => 'company'])
     ->only(['index', 'store', 'update', 'destroy']);
+
+Route::get('logo-library', [CompanyLogoLibraryController::class, 'index'])->name('logo-library.index');
+Route::get('logo-library/{company}', [CompanyLogoLibraryController::class, 'show'])->name('logo-library.show');
+Route::put('logo-library/{company}', [CompanyLogoLibraryController::class, 'update'])->name('logo-library.update');
+Route::post('logo-library/{company}/logos', [CompanyLogoLibraryController::class, 'storeLogo'])->name('logo-library.logos.store');
+Route::get('logo-library/{company}/logos/{media}/preview', [CompanyLogoLibraryController::class, 'previewLogo'])->name('logo-library.logos.preview');
+Route::get('logo-library/{company}/logos/{media}/download', [CompanyLogoLibraryController::class, 'downloadLogo'])->name('logo-library.logos.download');
+Route::delete('logo-library/{company}/logos/{media}', [CompanyLogoLibraryController::class, 'destroyLogo'])->name('logo-library.logos.destroy');
+Route::post('logo-library/{company}/share-link', [CompanyLogoLibraryController::class, 'shareLink'])->name('logo-library.share-link');
 
 Route::get('projects/export/excel', [ProjectController::class, 'exportExcel'])->name('projects.export.excel');
 Route::get('projects/export/pdf', [ProjectController::class, 'exportPdf'])->name('projects.export.pdf');

@@ -114,6 +114,22 @@ class DeliverableShareController extends Controller
         );
     }
 
+    public function downloadFile(string $token, string $mediaUuid): SymfonyResponse
+    {
+        return $this->handleShareRequest(
+            fn () => $this->renderDownloadFile($this->shareLinks->resolveByToken($token), $mediaUuid),
+            ['identifier_type' => 'legacy_token', 'token_suffix' => substr($token, -8), 'media_uuid' => $mediaUuid],
+        );
+    }
+
+    public function downloadFileShort(string $shortCode, string $mediaUuid): SymfonyResponse
+    {
+        return $this->handleShareRequest(
+            fn () => $this->renderDownloadFile($this->shareLinks->resolveByShortCode($shortCode), $mediaUuid),
+            ['identifier_type' => 'short_code', 'short_code' => $shortCode, 'media_uuid' => $mediaUuid],
+        );
+    }
+
     /**
      * @param  callable(): Response|RedirectResponse|SymfonyResponse  $callback
      * @param  array<string, mixed>  $context
@@ -174,6 +190,23 @@ class DeliverableShareController extends Controller
         return $media->toInlineResponse(request());
     }
 
+    protected function renderDownloadFile(DeliverableShareLink $link, string $mediaUuid): SymfonyResponse
+    {
+        $media = $this->proofMediaForLink($link, $mediaUuid);
+
+        if (! is_file($media->getPath())) {
+            throw DeliverableShareException::notFound([
+                'share_link_id' => $link->id,
+                'deliverable_id' => $link->tm_deliverable_id,
+                'missing' => 'file',
+            ]);
+        }
+
+        return response()->download($media->getPath(), $media->file_name, [
+            'Content-Type' => $media->mime_type,
+        ]);
+    }
+
     /**
      * @param  callable(): DeliverableShareLink  $resolveLink
      * @param  callable(DeliverableShareLink): void  $action
@@ -192,7 +225,7 @@ class DeliverableShareController extends Controller
     }
 
     /**
-     * @return list<array{name: string, mime: string, size: int, url: string}>
+     * @return list<array{name: string, mime: string, size: int, url: string, download_url: string}>
      */
     protected function publicProofFiles(DeliverableShareLink $link, bool $preferLegacyUrls = false): array
     {
@@ -205,6 +238,9 @@ class DeliverableShareController extends Controller
                 'url' => $preferLegacyUrls
                     ? route('share.file', ['token' => $link->token, 'mediaUuid' => $media->uuid])
                     : $link->publicFileUrl($media->uuid),
+                'download_url' => $preferLegacyUrls
+                    ? route('share.file.download', ['token' => $link->token, 'mediaUuid' => $media->uuid])
+                    : $link->publicFileDownloadUrl($media->uuid),
             ])
             ->values()
             ->all();

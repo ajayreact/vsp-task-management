@@ -27,6 +27,9 @@ enum Ability: string
     case ViewCompanies = 'companies.view';
     case ManageCompanies = 'companies.manage';
 
+    case ViewCompanyLogos = 'company_logos.view';
+    case ManageCompanyLogos = 'company_logos.manage';
+
     case ViewProjects = 'projects.view';
     case ManageProjects = 'projects.manage';
 
@@ -78,6 +81,8 @@ enum Ability: string
             self::AccessTasks => 'Open the Task Management module',
             self::ViewCompanies => 'View clients',
             self::ManageCompanies => 'Create, edit and remove clients',
+            self::ViewCompanyLogos => 'View the company logo library',
+            self::ManageCompanyLogos => 'Upload and manage company logos',
             self::ViewProjects => 'View projects',
             self::ManageProjects => 'Create, edit and remove projects',
             self::ViewAllTasks => "View everyone's tasks, not just your own",
@@ -102,6 +107,7 @@ enum Ability: string
             self::ViewActivityLog => 'Audit',
             self::AccessTasks => 'Module access',
             self::ViewCompanies, self::ManageCompanies => 'Clients',
+            self::ViewCompanyLogos, self::ManageCompanyLogos => 'Company logos',
             self::ViewProjects, self::ManageProjects => 'Projects',
             self::ViewAllTasks, self::ManageTasks, self::AssignTasks => 'Tasks',
             self::ManageCapacity, self::ViewWorkload => 'Capacity',

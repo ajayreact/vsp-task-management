@@ -249,6 +249,25 @@ class Task extends Model implements HasMedia
     }
 
     /**
+     * Default ordering for the Tasks list and exports: active work first, completed last.
+     *
+     * @param  Builder<$this>  $query
+     */
+    public function scopeOrderedForList(Builder $query): void
+    {
+        $completed = TaskStatus::Completed->value;
+
+        $query
+            ->orderByRaw('case when status = ? then 1 else 0 end', [$completed])
+            ->orderByRaw("case when status <> ? then field(priority, 'urgent', 'high', 'normal', 'low') end", [$completed])
+            ->orderByRaw('case when status <> ? then due_at is null end', [$completed])
+            ->orderByRaw('case when status <> ? then due_at end', [$completed])
+            ->orderByRaw('case when status <> ? then updated_at end desc', [$completed])
+            ->orderByRaw('case when status = ? then coalesce(completed_at, updated_at) end desc', [$completed])
+            ->orderByDesc('id');
+    }
+
+    /**
      * Active work past its due date.
      *
      * @param  Builder<$this>  $query

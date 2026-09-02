@@ -143,4 +143,19 @@ class UploadLimits
 
         return null;
     }
+
+    public static function validateLogoFile(UploadedFile $file): ?string
+    {
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        if (! in_array($extension, self::imageExtensions(), true)) {
+            return sprintf('"%s" is not an allowed logo file type.', $file->getClientOriginalName());
+        }
+
+        if ($file->getSize() > (self::IMAGE_MAX_KILOBYTES * 1024)) {
+            return self::sizeExceededMessage($file->getClientOriginalName(), self::IMAGE_MAX_KILOBYTES);
+        }
+
+        return null;
+    }
 }

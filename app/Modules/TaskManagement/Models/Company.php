@@ -7,14 +7,18 @@ use Database\Factories\TaskManagement\CompanyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
  * A work client. Delivery relationships live on `tm_companies`.
  *
  * @property int $id
  * @property string $name
+ * @property string|null $website
  * @property string $code
  * @property CompanyStatus $status
  * @property string|null $primary_contact_name
@@ -23,10 +27,10 @@ use Spatie\Activitylog\Traits\LogsActivity;
  * @property string|null $notes
  * @property-read int|null $projects_count
  */
-class Company extends Model
+class Company extends Model implements HasMedia
 {
     /** @use HasFactory<CompanyFactory> */
-    use HasFactory, LogsActivity;
+    use HasFactory, InteractsWithMedia, LogsActivity;
 
     protected $table = 'tm_companies';
 
@@ -35,6 +39,7 @@ class Company extends Model
      */
     protected $fillable = [
         'name',
+        'website',
         'code',
         'status',
         'primary_contact_name',
@@ -59,6 +64,19 @@ class Company extends Model
     public function projects(): HasMany
     {
         return $this->hasMany(Project::class, 'tm_company_id');
+    }
+
+    /**
+     * @return HasOne<CompanyShareLink, $this>
+     */
+    public function shareLink(): HasOne
+    {
+        return $this->hasOne(CompanyShareLink::class, 'tm_company_id');
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('logos');
     }
 
     public function getActivitylogOptions(): LogOptions

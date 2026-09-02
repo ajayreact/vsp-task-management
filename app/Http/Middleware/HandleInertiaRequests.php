@@ -5,10 +5,12 @@ namespace App\Http\Middleware;
 use App\Modules\Core\Enums\Ability;
 use App\Modules\Core\Models\User;
 use App\Modules\Core\Services\UserNotificationPreferenceService;
+use App\Modules\TaskManagement\Models\Company;
 use App\Modules\TaskManagement\Services\TaskManagementNotificationSoundService;
 use App\Support\NotificationPresenter;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -56,10 +58,14 @@ class HandleInertiaRequests extends Middleware
                 // UI, never the authorization boundary.
                 'permissions' => $user?->effectivePermissions() ?? [],
                 'roles' => $user?->getRoleNames()->values() ?? [],
+                'capabilities' => [
+                    'logo_library' => $user ? Gate::allows('viewLogoLibrary', Company::class) : false,
+                ],
             ],
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
+                'share_url' => $request->session()->get('share_url'),
             ],
             'notifications' => NotificationPresenter::forUser($user),
             'notificationSound' => self::notificationSoundConfig($user),

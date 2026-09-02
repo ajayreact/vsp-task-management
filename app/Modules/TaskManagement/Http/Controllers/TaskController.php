@@ -25,6 +25,7 @@ use App\Modules\TaskManagement\Models\TaskStatusChange;
 use App\Modules\TaskManagement\Models\TaskSubtask;
 use App\Modules\TaskManagement\Models\TimeEntry;
 use App\Modules\TaskManagement\Services\TaskActionResolver;
+use App\Modules\TaskManagement\Services\TaskCreationService;
 use App\Modules\TaskManagement\Services\TaskListExporter;
 use App\Modules\TaskManagement\Services\TaskWorkflow;
 use App\Support\Pagination;
@@ -91,45 +92,65 @@ class TaskController extends Controller
     {
         $this->authorize('create', Task::class);
 
+        $user = $request->user();
+        $canManageStructure = $user->can(Ability::AssignTasks->value) || $user->can(Ability::ViewAllTasks->value);
+
         return Inertia::render('TaskManagement/tasks/create', [
             ...$this->formOptions(),
             'defaultProjectId' => $request->integer('project') ?: null,
-            'assignableEmployees' => $request->user()->can(Ability::AssignTasks->value)
+            'assignableEmployees' => $user->can(Ability::AssignTasks->value)
                 ? $this->assignableEmployees()
                 : [],
+            'subtaskStatuses' => SubtaskStatus::options(),
             'can' => [
-                'assign' => $request->user()->can(Ability::AssignTasks->value),
+                'assign' => $user->can(Ability::AssignTasks->value),
+                'manageChecklist' => $canManageStructure,
+                'manageSubtasks' => $canManageStructure,
+                'attachFiles' => true,
             ],
         ]);
     }
 
-    public function store(TaskRequest $request, TaskWorkflow $workflow): RedirectResponse
+    public function store(TaskRequest $request, TaskCreationService $creation): RedirectResponse
     {
         $this->authorize('create', Task::class);
 
         $validated = $request->validated();
         $assigneeId = $validated['assigned_employee_id'] ?? null;
-        unset($validated['assigned_employee_id']);
+        $checklist = $validated['checklist'] ?? [];
+        $subtasks = $validated['subtasks'] ?? [];
+        $files = $request->file('files', []) ?? [];
 
-        $task = Task::create([
-            ...$validated,
-            'status' => TaskStatus::Draft,
-            'created_by_user_id' => $request->user()->id,
-        ]);
+        unset(
+            $validated['assigned_employee_id'],
+            $validated['checklist'],
+            $validated['subtasks'],
+            $validated['files'],
+        );
 
-        $task->statusHistory()->create([
-            'from_status' => null,
-            'to_status' => TaskStatus::Draft,
-            'changed_by_user_id' => $request->user()->id,
-            'changed_at' => now(),
-        ]);
+        $user = $request->user();
+
+        if ($checklist !== []) {
+            abort_unless(
+                $user->can(Ability::AssignTasks->value) || $user->can(Ability::ViewAllTasks->value),
+                403,
+            );
+        }
+
+        if ($subtasks !== []) {
+            abort_unless(
+                $user->can(Ability::AssignTasks->value) || $user->can(Ability::ViewAllTasks->value),
+                403,
+            );
+        }
 
         if ($assigneeId !== null) {
-            $this->authorize('assign', $task);
+            abort_unless($user->can(Ability::AssignTasks->value), 403);
+        }
 
-            $employee = Employee::query()->findOrFail($assigneeId);
-            $workflow->assign($task, $employee, $request->user());
+        $task = $creation->create($user, $validated, $assigneeId, $checklist, $subtasks, $files);
 
+        if ($assigneeId !== null) {
             return to_route('tasks.show', $task)->with('success', 'Task created and assigned.');
         }
 
@@ -492,8 +513,7 @@ class TaskController extends Controller
             ->when($filters['completed'] === 'today', fn (Builder $query) => $query
                 ->where('status', TaskStatus::Completed)
                 ->whereDate('completed_at', today()))
-            ->orderByRaw("field(priority, 'urgent', 'high', 'normal', 'low')")
-            ->orderByRaw('due_at is null, due_at');
+            ->orderedForList();
     }
 
     /**

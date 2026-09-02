@@ -6,6 +6,7 @@ import {
     Clock,
     FolderKanban,
     Gauge,
+    Image,
     Inbox,
     LayoutDashboard,
     ListChecks,
@@ -63,6 +64,12 @@ export const taskNavItems: NavItem[] = [
         url: '/tasks/clients',
         icon: Briefcase,
         permission: 'companies.view',
+    },
+    {
+        title: 'Company Logo Library',
+        url: '/tasks/logo-library',
+        icon: Image,
+        capability: 'logo_library',
     },
     {
         title: 'Projects',

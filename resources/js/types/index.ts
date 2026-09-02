@@ -4,6 +4,9 @@ export interface Auth {
     user: User;
     permissions: string[];
     roles: string[];
+    capabilities?: {
+        logo_library?: boolean;
+    };
 }
 
 export interface BreadcrumbItem {
@@ -27,6 +30,8 @@ export interface NavItem {
     isActive?: boolean;
     /** Hidden unless the signed-in user holds this permission. */
     permission?: string;
+    /** Hidden unless the signed-in user has this server-computed capability. */
+    capability?: keyof NonNullable<Auth['capabilities']>;
     /** Hidden unless the signed-in user holds this role. Super Admin only items use this. */
     role?: string;
 }
@@ -35,7 +40,7 @@ export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
-    flash: { success: string | null; error: string | null };
+    flash: { success: string | null; error: string | null; share_url?: string | null };
     notifications: {
         unread_count: number;
         recent: AppNotification[];

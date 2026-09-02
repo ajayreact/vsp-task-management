@@ -11,6 +11,7 @@ interface SharedFile {
     mime: string;
     size: number;
     url: string;
+    download_url: string;
 }
 
 interface Props {
@@ -74,8 +75,8 @@ function ProofFile({ file }: { file: SharedFile }) {
                     </p>
                 </div>
                 <Button asChild size="sm" variant="outline">
-                    <a href={file.url} target="_blank" rel="noreferrer">
-                        Download / Open
+                    <a href={file.download_url} download={file.name}>
+                        Download
                     </a>
                 </Button>
             </div>
