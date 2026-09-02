@@ -158,4 +158,24 @@ class UploadLimits
 
         return null;
     }
+
+    public static function validateDocumentFile(UploadedFile $file): ?string
+    {
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        if (! in_array($extension, self::documentExtensions(), true)) {
+            return sprintf('"%s" is not an allowed document file type.', $file->getClientOriginalName());
+        }
+
+        if ($file->getSize() > (self::DOCUMENT_MAX_KILOBYTES * 1024)) {
+            return self::sizeExceededMessage($file->getClientOriginalName(), self::DOCUMENT_MAX_KILOBYTES);
+        }
+
+        return null;
+    }
+
+    public static function validateContentAttachmentFile(UploadedFile $file): ?string
+    {
+        return self::validateProofFile($file);
+    }
 }

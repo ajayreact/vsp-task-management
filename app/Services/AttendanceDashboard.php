@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Modules\Attendance\Enums\AttendanceStatus;
+use App\Modules\Attendance\Enums\WorkMode;
 use App\Modules\Attendance\Models\AttendanceEntry;
 use App\Modules\Attendance\Services\AttendanceTimeCalculator;
 use App\Modules\Core\Models\Employee;
@@ -53,6 +54,16 @@ class AttendanceDashboard
             ->whereDate('attendance_date', $selectedDate)
             ->whereNotNull('check_in_at')
             ->count();
+        $officePresentCount = AttendanceEntry::query()
+            ->whereDate('attendance_date', $selectedDate)
+            ->whereNotNull('check_in_at')
+            ->where('work_mode', WorkMode::Office)
+            ->count();
+        $wfhPresentCount = AttendanceEntry::query()
+            ->whereDate('attendance_date', $selectedDate)
+            ->whereNotNull('check_in_at')
+            ->where('work_mode', WorkMode::Wfh)
+            ->count();
         $absentCount = max(0, $totalEmployees - $markedCount);
         $base = '/admin/attendance';
 
@@ -74,7 +85,20 @@ class AttendanceDashboard
                 $this->stat(
                     'present_today',
                     $isToday ? 'Present Today' : 'Present',
-                    $counts[AttendanceStatus::Present->value],
+                    $markedCount,
+                    $this->filterHref($base, $dateString, 'present'),
+                    "Office: {$officePresentCount} · WFH: {$wfhPresentCount}",
+                ),
+                $this->stat(
+                    'office_present',
+                    $isToday ? 'Office Present' : 'Office',
+                    $officePresentCount,
+                    $this->filterHref($base, $dateString, 'present'),
+                ),
+                $this->stat(
+                    'wfh_present',
+                    $isToday ? 'WFH Present' : 'WFH',
+                    $wfhPresentCount,
                     $this->filterHref($base, $dateString, 'present'),
                 ),
                 $this->stat(
@@ -184,7 +208,9 @@ class AttendanceDashboard
             'id' => $entry->id,
             'employee' => $entry->employee->user->name,
             'employee_code' => $entry->employee->employee_code,
-            'office' => $entry->officeLocation?->name ?? '—',
+            'office' => $entry->officeLocation?->name ?? ($entry->work_mode === WorkMode::Wfh ? 'Work From Home' : '—'),
+            'work_mode' => $entry->work_mode->value,
+            'work_mode_label' => $entry->work_mode->label(),
             'status' => $entry->status->value,
             'status_label' => $entry->status->label(),
             'check_in_at' => $entry->check_in_at?->toIso8601String(),

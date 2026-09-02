@@ -14,6 +14,7 @@ use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Models\TaskStatusChange;
 use App\Modules\TaskManagement\Models\TimeEntry;
 use App\Modules\TaskManagement\Models\Timesheet;
+use App\Modules\TaskManagement\Services\MyTodoService;
 use App\Modules\TaskManagement\Services\WorkloadCalculator;
 use App\Modules\TaskManagement\Support\WorkWeek;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,7 +25,10 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class CommandCenter
 {
-    public function __construct(protected WorkloadCalculator $workload) {}
+    public function __construct(
+        protected WorkloadCalculator $workload,
+        protected MyTodoService $myTodos,
+    ) {}
 
     /**
      * @return array<string, mixed>
@@ -47,6 +51,7 @@ class CommandCenter
             'actions' => $canTasks ? $this->actions($employee, $agency) : [],
             'approvals' => $canTasks ? $this->approvals($user, $employee, $agency) : [],
             'timer' => $canTasks ? $this->timer($employee) : null,
+            'my_todo' => $canTasks ? $this->myTodos->dashboardSnapshot($user) : null,
             'can' => [
                 'create_task' => $canTasks && $user->can(Ability::ManageTasks->value),
                 'open_board' => $canTasks,

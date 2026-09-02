@@ -8,6 +8,7 @@ namespace App\Modules\Attendance\Enums;
 enum AttendanceReportCode: string
 {
     case Present = 'P';
+    case Wfh = 'WFH';
     case Absent = 'A';
     case Late = 'L';
     case WeekOff = 'OFF';
@@ -17,6 +18,7 @@ enum AttendanceReportCode: string
     {
         return match ($this) {
             self::Present => 'Present',
+            self::Wfh => 'Work From Home',
             self::Absent => 'Absent',
             self::Late => 'Late',
             self::WeekOff => 'Week off',
@@ -26,7 +28,7 @@ enum AttendanceReportCode: string
 
     public function countsTowardPresent(): bool
     {
-        return in_array($this, [self::Present, self::Late], true);
+        return in_array($this, [self::Present, self::Late, self::Wfh], true);
     }
 
     public function countsTowardAbsent(): bool

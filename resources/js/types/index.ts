@@ -6,6 +6,8 @@ export interface Auth {
     roles: string[];
     capabilities?: {
         logo_library?: boolean;
+        document_library?: boolean;
+        content_calendar?: boolean;
     };
 }
 

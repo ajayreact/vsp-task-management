@@ -37,6 +37,7 @@ export default function CreateEmployee(options: EmployeeFormOptions) {
                         joined_on: '',
                         exited_on: '',
                         status: 'active',
+                        work_arrangement: 'office',
                         is_active: true,
                         roles: ['employee'],
                     }}

@@ -9,13 +9,13 @@ class SendDueTaskReminders extends Command
 {
     protected $signature = 'tasks:send-due-reminders';
 
-    protected $description = 'Send due Task Management reminders through the in-app notification system';
+    protected $description = 'Send due Task Management and personal todo reminders through the in-app notification system';
 
     public function handle(TaskReminderService $reminders): int
     {
         $sent = $reminders->sendDueReminders();
 
-        $this->info("Sent {$sent} task reminder(s).");
+        $this->info("Sent {$sent} reminder(s).");
 
         return self::SUCCESS;
     }

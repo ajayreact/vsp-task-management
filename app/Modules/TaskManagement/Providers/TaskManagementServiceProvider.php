@@ -6,8 +6,11 @@ use App\Modules\Core\Enums\Ability;
 use App\Modules\Core\Enums\SystemRole;
 use App\Modules\Core\Models\User;
 use App\Modules\TaskManagement\Models\Company;
+use App\Modules\TaskManagement\Models\CompanyDocument;
+use App\Modules\TaskManagement\Models\ContentCalendarItem;
 use App\Modules\TaskManagement\Models\Deliverable;
 use App\Modules\TaskManagement\Models\EmployeeAvailability;
+use App\Modules\TaskManagement\Models\PersonalTodo;
 use App\Modules\TaskManagement\Models\Project;
 use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Models\TaskChecklistItem;
@@ -16,9 +19,12 @@ use App\Modules\TaskManagement\Models\TaskReminder;
 use App\Modules\TaskManagement\Models\TaskSubtask;
 use App\Modules\TaskManagement\Models\TimeEntry;
 use App\Modules\TaskManagement\Models\Timesheet;
+use App\Modules\TaskManagement\Policies\CompanyDocumentPolicy;
 use App\Modules\TaskManagement\Policies\CompanyPolicy;
+use App\Modules\TaskManagement\Policies\ContentCalendarItemPolicy;
 use App\Modules\TaskManagement\Policies\DeliverablePolicy;
 use App\Modules\TaskManagement\Policies\EmployeeAvailabilityPolicy;
+use App\Modules\TaskManagement\Policies\PersonalTodoPolicy;
 use App\Modules\TaskManagement\Policies\ProjectPolicy;
 use App\Modules\TaskManagement\Policies\TaskChecklistItemPolicy;
 use App\Modules\TaskManagement\Policies\TaskCommentPolicy;
@@ -50,6 +56,8 @@ class TaskManagementServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(database_path('migrations/tasks'));
 
         Gate::policy(Company::class, CompanyPolicy::class);
+        Gate::policy(CompanyDocument::class, CompanyDocumentPolicy::class);
+        Gate::policy(ContentCalendarItem::class, ContentCalendarItemPolicy::class);
         Gate::policy(Project::class, ProjectPolicy::class);
         Gate::policy(Task::class, TaskPolicy::class);
         Gate::policy(TaskComment::class, TaskCommentPolicy::class);
@@ -60,10 +68,15 @@ class TaskManagementServiceProvider extends ServiceProvider
         Gate::policy(Timesheet::class, TimesheetPolicy::class);
         Gate::policy(TimeEntry::class, TimeEntryPolicy::class);
         Gate::policy(EmployeeAvailability::class, EmployeeAvailabilityPolicy::class);
+        Gate::policy(PersonalTodo::class, PersonalTodoPolicy::class);
 
         Gate::define('manageTaskManagementSettings', function (User $user): bool {
             return $user->hasRole(SystemRole::SuperAdmin->value);
         });
+
+        Route::bind('document', fn (string $value) => CompanyDocument::query()->findOrFail($value));
+        Route::bind('calendarItem', fn (string $value) => ContentCalendarItem::query()->findOrFail($value));
+        Route::bind('personalTodo', fn (string $value) => PersonalTodo::query()->findOrFail($value));
 
         Route::middleware(['web', 'auth', 'internal', 'permission:'.Ability::AccessTasks->value])
             ->prefix('tasks')

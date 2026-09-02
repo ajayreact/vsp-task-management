@@ -32,6 +32,7 @@ test('employee can check in with gps verification and cannot check in twice', fu
     $entry = AttendanceEntry::query()->where('employee_id', $employee->id)->sole();
 
     expect($entry->status)->toBe(AttendanceStatus::Present)
+        ->and($entry->work_mode)->toBe(\App\Modules\Attendance\Enums\WorkMode::Office)
         ->and($entry->office_location_id)->toBe($office->id)
         ->and($entry->check_in_at)->not->toBeNull()
         ->and((float) $entry->check_in_latitude)->toBe(28.614339)

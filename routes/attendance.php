@@ -2,10 +2,14 @@
 
 use App\Modules\Attendance\Http\Controllers\AttendanceDashboardController;
 use App\Modules\Attendance\Http\Controllers\OfficeLocationController;
+use App\Modules\Attendance\Http\Controllers\WfhManagementController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('attendance', [AttendanceDashboardController::class, '__invoke'])->name('attendance.index');
 Route::get('attendance/export/monthly', [AttendanceDashboardController::class, 'exportMonthly'])->name('attendance.export.monthly');
+Route::get('attendance/wfh', [WfhManagementController::class, 'index'])->name('attendance.wfh.index');
+Route::post('attendance/wfh/{wfhRequest}/approve', [WfhManagementController::class, 'approve'])->name('attendance.wfh.approve');
+Route::post('attendance/wfh/{wfhRequest}/reject', [WfhManagementController::class, 'reject'])->name('attendance.wfh.reject');
 
 Route::prefix('attendance/offices')->name('attendance.offices.')->group(function () {
     Route::get('/', [OfficeLocationController::class, 'index'])->name('index');

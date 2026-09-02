@@ -9,6 +9,7 @@ use App\Modules\Core\Models\Employee;
 use App\Modules\Core\Models\User;
 use App\Modules\TaskManagement\Enums\ReviewDecision;
 use App\Modules\TaskManagement\Enums\TimesheetStatus;
+use App\Modules\TaskManagement\Models\PersonalTodo;
 use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Models\TaskAssignment;
 use App\Modules\TaskManagement\Models\TaskReminder;
@@ -319,6 +320,23 @@ class TaskNotifier
             'body' => $body,
             'url' => "/tasks/{$task->id}",
             'task_id' => $task->id,
+        ]);
+    }
+
+    public function personalTodoReminderDue(PersonalTodo $todo): void
+    {
+        $todo->loadMissing('user');
+        $recipient = $todo->user;
+
+        if (! $recipient->is_active || $recipient->user_type !== UserType::Internal) {
+            return;
+        }
+
+        $this->deliver($recipient, [
+            'event' => 'todo.reminder',
+            'title' => 'Todo due soon',
+            'body' => "\"{$todo->title}\" is due soon.",
+            'url' => '/tasks/todos',
         ]);
     }
 

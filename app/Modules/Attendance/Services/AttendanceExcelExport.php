@@ -65,25 +65,28 @@ class AttendanceExcelExport
         $sheet->setCellValue("D{$metaRow}", 'Working Days');
         $sheet->setCellValue("E{$metaRow}", $summary['working_days']);
         $metaRow++;
-        $sheet->setCellValue("A{$metaRow}", 'Present');
+        $sheet->setCellValue("A{$metaRow}", 'Present (Office)');
         $sheet->setCellValue("B{$metaRow}", $summary['present']);
-        $sheet->setCellValue("D{$metaRow}", 'Absent');
-        $sheet->setCellValue("E{$metaRow}", $summary['absent']);
+        $sheet->setCellValue("D{$metaRow}", 'Present (WFH)');
+        $sheet->setCellValue("E{$metaRow}", $summary['wfh'] ?? 0);
         $metaRow++;
-        $sheet->setCellValue("A{$metaRow}", 'Late');
-        $sheet->setCellValue("B{$metaRow}", $summary['late']);
-        $sheet->setCellValue("D{$metaRow}", 'Week Off');
-        $sheet->setCellValue("E{$metaRow}", $summary['week_off']);
+        $sheet->setCellValue("A{$metaRow}", 'Absent');
+        $sheet->setCellValue("B{$metaRow}", $summary['absent']);
+        $sheet->setCellValue("D{$metaRow}", 'Late');
+        $sheet->setCellValue("E{$metaRow}", $summary['late']);
         $metaRow++;
-        $sheet->setCellValue("A{$metaRow}", 'Average Working Hours');
-        $sheet->setCellValue("B{$metaRow}", $summary['average_working_hours']);
+        $sheet->setCellValue("A{$metaRow}", 'Week Off');
+        $sheet->setCellValue("B{$metaRow}", $summary['week_off']);
+        $sheet->setCellValue("D{$metaRow}", 'Average Working Hours');
+        $sheet->setCellValue("E{$metaRow}", $summary['average_working_hours']);
 
         $headers = [
             'Employee ID',
             'Employee Name',
             'Department',
             'Office',
-            'Present',
+            'Present (Office)',
+            'Present (WFH)',
             'Absent',
             'Late',
             'Week Off',
@@ -96,13 +99,14 @@ class AttendanceExcelExport
 
         $rowIndex = $headerRow + 1;
         foreach ($report['rows'] as $row) {
-            $presentDays = $row['totals']['present'] + $row['totals']['late'];
+            $presentDays = $row['totals']['present'] + ($row['totals']['wfh'] ?? 0) + $row['totals']['late'];
             $sheet->fromArray([
                 $row['employee_code'],
                 $row['employee'],
                 $row['department'],
                 $row['office'],
                 $row['totals']['present'],
+                $row['totals']['wfh'] ?? 0,
                 $row['totals']['absent'],
                 $row['totals']['late'],
                 $row['totals']['week_off'],
@@ -202,7 +206,7 @@ class AttendanceExcelExport
         foreach ($report['days'] as $day) {
             $headers[] = sprintf('%02d-%s', $day['day'], \Illuminate\Support\Carbon::parse($day['date'])->format('M'));
         }
-        $headers = array_merge($headers, ['Present', 'Absent', 'Late', 'Off']);
+        $headers = array_merge($headers, ['Present', 'WFH', 'Absent', 'Late', 'Off']);
 
         $headerRow = 5;
         $sheet->fromArray($headers, null, "A{$headerRow}");
@@ -216,6 +220,7 @@ class AttendanceExcelExport
             }
 
             $line[] = $row['totals']['present'];
+            $line[] = $row['totals']['wfh'] ?? 0;
             $line[] = $row['totals']['absent'];
             $line[] = $row['totals']['late'];
             $line[] = $row['totals']['week_off'];
@@ -319,6 +324,7 @@ class AttendanceExcelExport
     {
         $styles = match ($code) {
             'P' => ['fill' => 'DCFCE7', 'font' => '166534'],
+            'WFH' => ['fill' => 'E0F2FE', 'font' => '075985'],
             'A' => ['fill' => 'FEE2E2', 'font' => '991B1B'],
             'L' => ['fill' => 'FFEDD5', 'font' => '9A3412'],
             'OFF' => ['fill' => 'FEF3C7', 'font' => '92400E'],

@@ -40,4 +40,9 @@ class AttendanceWorkflowException extends Exception
     {
         return new self('End your break before checking out.');
     }
+
+    public static function wfhNotApproved(): self
+    {
+        return new self('Work From Home is not approved for today.');
+    }
 }

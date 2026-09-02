@@ -25,6 +25,7 @@ export type EmployeeFormValues = {
     joined_on: string;
     exited_on: string;
     status: string;
+    work_arrangement: string;
     is_active: boolean;
     roles: string[];
 };
@@ -35,6 +36,7 @@ export interface EmployeeFormOptions {
     managers: { id: number; label: string }[];
     officeLocations?: { id: number; name: string }[];
     statuses: Option[];
+    workArrangements?: Option[];
     roles: string[];
 }
 
@@ -245,6 +247,28 @@ export function EmployeeForm({
                             </Select>
                             <InputError message={errors.status} />
                         </div>
+
+                        {options.workArrangements && (
+                            <div className="grid gap-2">
+                                <Label htmlFor="work_arrangement">Work arrangement</Label>
+                                <Select
+                                    value={data.work_arrangement}
+                                    onValueChange={(value) => setData('work_arrangement', value)}
+                                >
+                                    <SelectTrigger id="work_arrangement">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {options.workArrangements.map((arrangement) => (
+                                            <SelectItem key={arrangement.value} value={arrangement.value}>
+                                                {arrangement.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={errors.work_arrangement} />
+                            </div>
+                        )}
 
                         <div className="grid gap-2">
                             <Label htmlFor="joined_on">Joined on</Label>

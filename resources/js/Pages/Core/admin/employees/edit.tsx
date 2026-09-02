@@ -18,6 +18,7 @@ interface EmployeeProps {
     exited_on: string | null;
     status: string;
     roles: string[];
+    work_arrangement?: string;
     office_location_id: number | null;
 }
 
@@ -54,6 +55,7 @@ export default function EditEmployee({ employee, ...options }: EmployeeFormOptio
                         joined_on: employee.joined_on ?? '',
                         exited_on: employee.exited_on ?? '',
                         status: employee.status,
+                        work_arrangement: employee.work_arrangement ?? 'office',
                         is_active: employee.is_active,
                         roles: employee.roles,
                     }}

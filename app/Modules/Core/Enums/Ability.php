@@ -30,6 +30,14 @@ enum Ability: string
     case ViewCompanyLogos = 'company_logos.view';
     case ManageCompanyLogos = 'company_logos.manage';
 
+    case ViewCompanyDocuments = 'company_documents.view';
+    case ManageCompanyDocuments = 'company_documents.manage';
+    case ShareCompanyDocuments = 'company_documents.share';
+
+    case ViewContentCalendar = 'content_calendar.view';
+    case ManageContentCalendar = 'content_calendar.manage';
+    case ShareContentCalendar = 'content_calendar.share';
+
     case ViewProjects = 'projects.view';
     case ManageProjects = 'projects.manage';
 
@@ -83,6 +91,12 @@ enum Ability: string
             self::ManageCompanies => 'Create, edit and remove clients',
             self::ViewCompanyLogos => 'View the company logo library',
             self::ManageCompanyLogos => 'Upload and manage company logos',
+            self::ViewCompanyDocuments => 'View the operations document library',
+            self::ManageCompanyDocuments => 'Upload and manage client documents',
+            self::ShareCompanyDocuments => 'Share client documents externally',
+            self::ViewContentCalendar => 'View the client content calendar',
+            self::ManageContentCalendar => 'Create and edit scheduled content',
+            self::ShareContentCalendar => 'Share content calendar links externally',
             self::ViewProjects => 'View projects',
             self::ManageProjects => 'Create, edit and remove projects',
             self::ViewAllTasks => "View everyone's tasks, not just your own",
@@ -108,6 +122,8 @@ enum Ability: string
             self::AccessTasks => 'Module access',
             self::ViewCompanies, self::ManageCompanies => 'Clients',
             self::ViewCompanyLogos, self::ManageCompanyLogos => 'Company logos',
+            self::ViewCompanyDocuments, self::ManageCompanyDocuments, self::ShareCompanyDocuments => 'Operations documents',
+            self::ViewContentCalendar, self::ManageContentCalendar, self::ShareContentCalendar => 'Content calendar',
             self::ViewProjects, self::ManageProjects => 'Projects',
             self::ViewAllTasks, self::ManageTasks, self::AssignTasks => 'Tasks',
             self::ManageCapacity, self::ViewWorkload => 'Capacity',

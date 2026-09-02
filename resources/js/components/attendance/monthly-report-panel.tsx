@@ -10,7 +10,7 @@ import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/compon
 import { formatDuration, formatTimeLabel } from '@/lib/attendance/format';
 import { REPORT_STATUS_STYLES, reportCodeClass } from '@/lib/attendance/report-status';
 import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight, Download, CalendarDays, Clock, Coffee, LogOut, UserCheck, Users, UserX } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, CalendarDays, Clock, Coffee, Home, LogOut, UserCheck, Users, UserX } from 'lucide-react';
 import { useState } from 'react';
 
 interface FilterOption {
@@ -42,6 +42,7 @@ interface MonthlyRow {
     }>;
     totals: {
         present: number;
+        wfh?: number;
         absent: number;
         late: number;
         week_off: number;
@@ -54,6 +55,7 @@ interface MonthlySummary {
     total_employees: number;
     working_days: number;
     present: number;
+    wfh?: number;
     absent: number;
     late: number;
     week_off: number;
@@ -104,6 +106,7 @@ const SUMMARY_ICONS: Record<string, typeof Users> = {
     total_employees: Users,
     working_days: CalendarDays,
     present: UserCheck,
+    wfh: Home,
     absent: UserX,
     late: Clock,
     week_off: Coffee,
@@ -114,6 +117,7 @@ const SUMMARY_TONES: Record<string, KpiTone> = {
     total_employees: 'indigo',
     working_days: 'sky',
     present: 'emerald',
+    wfh: 'sky',
     absent: 'amber',
     late: 'sky',
     week_off: 'teal',
@@ -121,10 +125,11 @@ const SUMMARY_TONES: Record<string, KpiTone> = {
 };
 
 const LEGEND_ITEMS = [
-    { label: 'Present', className: `${REPORT_STATUS_STYLES.P.cell} ${REPORT_STATUS_STYLES.P.text}` },
-    { label: 'Absent', className: `${REPORT_STATUS_STYLES.A.cell} ${REPORT_STATUS_STYLES.A.text}` },
-    { label: 'Late', className: `${REPORT_STATUS_STYLES.L.cell} ${REPORT_STATUS_STYLES.L.text}` },
-    { label: 'Week Off', className: `${REPORT_STATUS_STYLES.OFF.cell} ${REPORT_STATUS_STYLES.OFF.text}` },
+    { label: 'P — Present (Office)', className: `${REPORT_STATUS_STYLES.P.cell} ${REPORT_STATUS_STYLES.P.text}` },
+    { label: 'WFH — Present (Remote)', className: `${REPORT_STATUS_STYLES.WFH.cell} ${REPORT_STATUS_STYLES.WFH.text}` },
+    { label: 'A — Absent', className: `${REPORT_STATUS_STYLES.A.cell} ${REPORT_STATUS_STYLES.A.text}` },
+    { label: 'L — Late', className: `${REPORT_STATUS_STYLES.L.cell} ${REPORT_STATUS_STYLES.L.text}` },
+    { label: 'OFF — Week Off', className: `${REPORT_STATUS_STYLES.OFF.cell} ${REPORT_STATUS_STYLES.OFF.text}` },
 ];
 
 export function MonthYearControls({
@@ -318,11 +323,12 @@ export function MonthlyReportPanel({
                 </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-8">
                 {[
                     ['total_employees', 'Total Employees', report.summary.total_employees],
                     ['working_days', 'Working Days', report.summary.working_days],
-                    ['present', 'Present', report.summary.present],
+                    ['present', 'Present (Office)', report.summary.present],
+                    ['wfh', 'Present (WFH)', report.summary.wfh ?? 0],
                     ['absent', 'Absent', report.summary.absent],
                     ['late', 'Late', report.summary.late],
                     ['week_off', 'Week Off', report.summary.week_off],
@@ -377,6 +383,7 @@ export function MonthlyReportPanel({
                                     </TableHead>
                                 ))}
                                 <TableHead className="min-w-20 text-center">Present</TableHead>
+                                <TableHead className="min-w-16 text-center">WFH</TableHead>
                                 <TableHead className="min-w-20 text-center">Absent</TableHead>
                                 <TableHead className="min-w-16 text-center">Late</TableHead>
                                 <TableHead className="min-w-16 text-center">Off</TableHead>
@@ -386,7 +393,7 @@ export function MonthlyReportPanel({
                             {report.rows.length === 0 && (
                                 <TableRow>
                                     <TableCell
-                                        colSpan={report.days.length + 6}
+                                        colSpan={report.days.length + 7}
                                         className="text-muted-foreground py-10 text-center"
                                     >
                                         No employees match the selected monthly filters.
@@ -429,6 +436,7 @@ export function MonthlyReportPanel({
                                         </TableCell>
                                     ))}
                                     <TableCell className="text-center tabular-nums">{row.totals.present}</TableCell>
+                                    <TableCell className="text-center tabular-nums">{row.totals.wfh ?? 0}</TableCell>
                                     <TableCell className="text-center tabular-nums">{row.totals.absent}</TableCell>
                                     <TableCell className="text-center tabular-nums">{row.totals.late}</TableCell>
                                     <TableCell className="text-center tabular-nums">{row.totals.week_off}</TableCell>

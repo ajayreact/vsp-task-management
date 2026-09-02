@@ -2,7 +2,7 @@ import { AttendanceTableScroll, attendanceTableClassName } from '@/components/at
 import { Badge } from '@/components/ui/badge';
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { formatDuration, formatTimeLabel } from '@/lib/attendance/format';
-import { FILTER_LABELS, RECORD_STATUS_TONE } from '@/lib/attendance/report-status';
+import { FILTER_LABELS, RECORD_STATUS_TONE, WORK_MODE_TONE } from '@/lib/attendance/report-status';
 
 export interface DailyAttendanceRecord {
     id: number;
@@ -12,6 +12,8 @@ export interface DailyAttendanceRecord {
     date: string;
     day: string;
     office: string;
+    work_mode?: string | null;
+    work_mode_label?: string | null;
     status: string;
     status_label: string;
     is_late?: boolean;
@@ -47,6 +49,7 @@ export function DailyAttendanceTable({ records, isToday, activeStatus }: DailyAt
                         <TableHead className="min-w-28">Date</TableHead>
                         <TableHead className="min-w-24">Day</TableHead>
                         <TableHead className="min-w-32">Office</TableHead>
+                        <TableHead className="min-w-28">Work mode</TableHead>
                         <TableHead className="min-w-24">Check in</TableHead>
                         <TableHead className="min-w-24">Check out</TableHead>
                         <TableHead className="min-w-28">Break time</TableHead>
@@ -58,7 +61,7 @@ export function DailyAttendanceTable({ records, isToday, activeStatus }: DailyAt
                 <TableBody>
                     {records.length === 0 && (
                         <TableRow>
-                            <TableCell colSpan={11} className="text-muted-foreground py-10 text-center">
+                            <TableCell colSpan={12} className="text-muted-foreground py-10 text-center">
                                 {emptyMessage}
                             </TableCell>
                         </TableRow>
@@ -71,6 +74,15 @@ export function DailyAttendanceTable({ records, isToday, activeStatus }: DailyAt
                             <TableCell className="tabular-nums">{record.date}</TableCell>
                             <TableCell>{record.day}</TableCell>
                             <TableCell>{record.office}</TableCell>
+                            <TableCell>
+                                {record.work_mode ? (
+                                    <Badge variant={WORK_MODE_TONE[record.work_mode] ?? 'neutral'}>
+                                        {record.work_mode_label ?? record.work_mode}
+                                    </Badge>
+                                ) : (
+                                    '—'
+                                )}
+                            </TableCell>
                             <TableCell className="tabular-nums">
                                 {record.check_in_at ? formatTimeLabel(record.check_in_at) : '—'}
                             </TableCell>

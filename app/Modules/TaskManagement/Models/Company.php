@@ -74,6 +74,22 @@ class Company extends Model implements HasMedia
         return $this->hasOne(CompanyShareLink::class, 'tm_company_id');
     }
 
+    /**
+     * @return HasMany<CompanyDocument, $this>
+     */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(CompanyDocument::class, 'tm_company_id');
+    }
+
+    /**
+     * @return HasMany<ContentCalendarItem, $this>
+     */
+    public function contentCalendarItems(): HasMany
+    {
+        return $this->hasMany(ContentCalendarItem::class, 'tm_company_id');
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('logos');

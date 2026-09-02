@@ -154,6 +154,12 @@ export default function ClientIndex({ clients, statuses, can }: Props) {
                                     <TableCell>
                                         <div className="font-medium">{client.name}</div>
                                         <div className="text-muted-foreground text-xs">{client.code}</div>
+                                        <Link
+                                            href={`/tasks/content-calendar?client=${client.id}`}
+                                            className="text-primary mt-1 inline-block text-xs hover:underline"
+                                        >
+                                            Content calendar
+                                        </Link>
                                     </TableCell>
                                     <TableCell className="text-sm">
                                         {client.primary_contact_name ?? <span className="text-muted-foreground">—</span>}

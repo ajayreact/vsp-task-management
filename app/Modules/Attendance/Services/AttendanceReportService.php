@@ -4,6 +4,7 @@ namespace App\Modules\Attendance\Services;
 
 use App\Modules\Attendance\Enums\AttendanceReportCode;
 use App\Modules\Attendance\Enums\AttendanceStatus;
+use App\Modules\Attendance\Enums\WorkMode;
 use App\Modules\Attendance\Models\AttendanceEntry;
 use App\Modules\Attendance\Models\EmployeeOfficeAssignment;
 use App\Modules\Attendance\Models\OfficeLocation;
@@ -187,6 +188,7 @@ class AttendanceReportService
             'total_employees' => $employees->count(),
             'working_days' => 0,
             'present' => 0,
+            'wfh' => 0,
             'absent' => 0,
             'late' => 0,
             'week_off' => 0,
@@ -206,6 +208,7 @@ class AttendanceReportService
             $dailyCodes = [];
             $rowCounts = [
                 'present' => 0,
+                'wfh' => 0,
                 'absent' => 0,
                 'late' => 0,
                 'week_off' => 0,
@@ -230,7 +233,11 @@ class AttendanceReportService
                 ];
 
                 if ($code->countsTowardPresent()) {
-                    $rowCounts['present']++;
+                    if ($code === AttendanceReportCode::Wfh) {
+                        $rowCounts['wfh']++;
+                    } else {
+                        $rowCounts['present']++;
+                    }
                 } elseif ($code->countsTowardAbsent()) {
                     $rowCounts['absent']++;
                 } elseif ($code->countsTowardLate()) {
@@ -256,6 +263,7 @@ class AttendanceReportService
             }
 
             $summary['present'] += $rowCounts['present'];
+            $summary['wfh'] += $rowCounts['wfh'];
             $summary['absent'] += $rowCounts['absent'];
             $summary['late'] += $rowCounts['late'];
             $summary['week_off'] += $rowCounts['week_off'];
@@ -269,12 +277,16 @@ class AttendanceReportService
                 'days' => $dailyCodes,
                 'totals' => [
                     'present' => $rowCounts['present'],
+                    'wfh' => $rowCounts['wfh'],
                     'absent' => $rowCounts['absent'],
                     'late' => $rowCounts['late'],
                     'week_off' => $rowCounts['week_off'],
                     'net_seconds' => $rowCounts['net_seconds'],
-                    'average_hours' => $rowCounts['present'] + $rowCounts['late'] > 0
-                        ? round($rowCounts['net_seconds'] / 3600 / ($rowCounts['present'] + $rowCounts['late']), 2)
+                    'average_hours' => $rowCounts['present'] + $rowCounts['wfh'] + $rowCounts['late'] > 0
+                        ? round(
+                            $rowCounts['net_seconds'] / 3600 / ($rowCounts['present'] + $rowCounts['wfh'] + $rowCounts['late']),
+                            2,
+                        )
                         : 0.0,
                 ],
             ];
@@ -501,7 +513,9 @@ class AttendanceReportService
             'employee_code' => $entry->employee->employee_code,
             'date' => $date->toDateString(),
             'day' => $date->format('l'),
-            'office' => $entry->officeLocation?->name ?? '—',
+            'office' => $entry->officeLocation?->name ?? ($entry->work_mode === WorkMode::Wfh ? 'Work From Home' : '—'),
+            'work_mode' => $entry->work_mode->value,
+            'work_mode_label' => $entry->work_mode->label(),
             'status' => $entry->status->value,
             'status_label' => $entry->status->label(),
             'is_late' => $entry->status === AttendanceStatus::Late || $workingStatus === AttendanceStatus::Late,
@@ -531,6 +545,10 @@ class AttendanceReportService
 
         if ($entry->status === AttendanceStatus::Late) {
             return AttendanceReportCode::Late;
+        }
+
+        if ($entry->work_mode === WorkMode::Wfh) {
+            return AttendanceReportCode::Wfh;
         }
 
         return $this->resolveWorkingStatusForReport($entry) === AttendanceStatus::Late

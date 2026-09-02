@@ -5,6 +5,7 @@ namespace App\Modules\Attendance\Services;
 use App\Modules\Attendance\Data\LocationVerificationResult;
 use App\Modules\Attendance\Enums\AttendanceAction;
 use App\Modules\Attendance\Enums\AttendanceStatus;
+use App\Modules\Attendance\Enums\WorkMode;
 use App\Modules\Attendance\Exceptions\AttendanceWorkflowException;
 use App\Modules\Attendance\Models\AttendanceEntry;
 use App\Modules\Attendance\Models\OfficeLocation;
@@ -16,6 +17,7 @@ class AttendanceCheckInOutService
         protected AttendanceLocationVerificationService $verification,
         protected AttendanceTimeCalculator $time,
         protected AttendanceBroadcastService $broadcast,
+        protected WfhRequestService $wfhRequests,
     ) {}
 
     public function todayEntry(Employee $employee): ?AttendanceEntry
@@ -34,62 +36,42 @@ class AttendanceCheckInOutService
     {
         $verification = $this->assertLocationVerified($employee, AttendanceAction::CheckIn, $latitude, $longitude, $clientIp);
 
-        $existing = $this->todayEntry($employee);
+        return $this->persistCheckIn(
+            $employee,
+            officeLocationId: $verification->officeId,
+            workMode: WorkMode::Office,
+            latitude: $latitude,
+            longitude: $longitude,
+            status: $this->resolveOfficeCheckInStatus($verification->officeId),
+        );
+    }
 
-        if ($existing !== null && $existing->check_in_at !== null) {
-            throw AttendanceWorkflowException::alreadyCheckedIn();
+    public function checkInWfh(Employee $employee): AttendanceEntry
+    {
+        if (! $this->wfhRequests->isApprovedFor($employee)) {
+            throw AttendanceWorkflowException::wfhNotApproved();
         }
 
-        $now = now();
-        $status = AttendanceStatus::Present;
-
-        if ($verification->officeId !== null) {
-            $office = OfficeLocation::query()->findOrFail($verification->officeId);
-            $status = $office->resolveCheckInStatus($now);
-        }
-
-        if ($existing !== null) {
-            $existing->update([
-                'office_location_id' => $verification->officeId,
-                'status' => $status,
-                'check_in_at' => $now,
-                'check_in_latitude' => $latitude,
-                'check_in_longitude' => $longitude,
-                'total_break_seconds' => 0,
-            ]);
-
-            $this->broadcast->refresh();
-
-            return $this->reloadEntry($existing);
-        }
-
-        $entry = AttendanceEntry::query()->create([
-            'employee_id' => $employee->id,
-            'attendance_date' => today(),
-            'office_location_id' => $verification->officeId,
-            'status' => $status,
-            'check_in_at' => $now,
-            'check_in_latitude' => $latitude,
-            'check_in_longitude' => $longitude,
-            'total_break_seconds' => 0,
-        ])->load([
-            'officeLocation:id,name',
-            'breaks',
-        ]);
-
-        $this->broadcast->refresh();
-
-        return $entry;
+        return $this->persistCheckIn(
+            $employee,
+            officeLocationId: null,
+            workMode: WorkMode::Wfh,
+            latitude: null,
+            longitude: null,
+            status: AttendanceStatus::Present,
+        );
     }
 
     public function checkOut(Employee $employee, float $latitude, float $longitude, ?string $clientIp = null): AttendanceEntry
     {
-        $this->assertLocationVerified($employee, AttendanceAction::CheckOut, $latitude, $longitude, $clientIp);
-
         $entry = $this->todayEntry($employee);
 
         if ($entry === null || $entry->check_in_at === null) {
             throw AttendanceWorkflowException::mustCheckInFirst();
+        }
+
+        if ($entry->work_mode !== WorkMode::Wfh) {
+            $this->assertLocationVerified($employee, AttendanceAction::CheckOut, $latitude, $longitude, $clientIp);
         }
 
         if ($entry->check_out_at !== null || $entry->status === AttendanceStatus::CheckedOut) {
@@ -106,8 +88,8 @@ class AttendanceCheckInOutService
         $entry->update([
             'status' => AttendanceStatus::CheckedOut,
             'check_out_at' => $checkOutAt,
-            'check_out_latitude' => $latitude,
-            'check_out_longitude' => $longitude,
+            'check_out_latitude' => $entry->work_mode === WorkMode::Wfh ? null : $latitude,
+            'check_out_longitude' => $entry->work_mode === WorkMode::Wfh ? null : $longitude,
             'net_working_seconds' => $netWorkingSeconds,
             'total_working_seconds' => $netWorkingSeconds,
         ]);
@@ -115,6 +97,63 @@ class AttendanceCheckInOutService
         $this->broadcast->refresh();
 
         return $this->reloadEntry($entry);
+    }
+
+    protected function persistCheckIn(
+        Employee $employee,
+        ?int $officeLocationId,
+        WorkMode $workMode,
+        ?float $latitude,
+        ?float $longitude,
+        AttendanceStatus $status,
+    ): AttendanceEntry {
+        $existing = $this->todayEntry($employee);
+
+        if ($existing !== null && $existing->check_in_at !== null) {
+            throw AttendanceWorkflowException::alreadyCheckedIn();
+        }
+
+        $now = now();
+        $payload = [
+            'office_location_id' => $officeLocationId,
+            'work_mode' => $workMode,
+            'status' => $status,
+            'check_in_at' => $now,
+            'check_in_latitude' => $latitude,
+            'check_in_longitude' => $longitude,
+            'total_break_seconds' => 0,
+        ];
+
+        if ($existing !== null) {
+            $existing->update($payload);
+            $this->broadcast->refresh();
+
+            return $this->reloadEntry($existing);
+        }
+
+        $entry = AttendanceEntry::query()->create([
+            'employee_id' => $employee->id,
+            'attendance_date' => today(),
+            ...$payload,
+        ])->load([
+            'officeLocation:id,name',
+            'breaks',
+        ]);
+
+        $this->broadcast->refresh();
+
+        return $entry;
+    }
+
+    protected function resolveOfficeCheckInStatus(?int $officeId): AttendanceStatus
+    {
+        if ($officeId === null) {
+            return AttendanceStatus::Present;
+        }
+
+        $office = OfficeLocation::query()->findOrFail($officeId);
+
+        return $office->resolveCheckInStatus(now());
     }
 
     /**
@@ -130,6 +169,9 @@ class AttendanceCheckInOutService
         return [
             'status' => $entry->status->value,
             'status_label' => $entry->status->label(),
+            'work_mode' => $entry->work_mode->value,
+            'work_mode_label' => $entry->work_mode->label(),
+            'is_wfh' => $entry->work_mode === WorkMode::Wfh,
             'check_in_at' => $entry->check_in_at?->toIso8601String(),
             'check_out_at' => $entry->check_out_at?->toIso8601String(),
             'total_break_seconds' => $entry->total_break_seconds,
@@ -171,11 +213,15 @@ class AttendanceCheckInOutService
     public function todaySnapshot(Employee $employee): array
     {
         $entry = $this->todayEntry($employee);
+        $approvedWfh = $this->wfhRequests->approvedFor($employee);
 
         if ($entry === null) {
             return [
                 'status' => 'not_checked_in',
                 'status_label' => 'Not checked in',
+                'work_mode' => null,
+                'work_mode_label' => null,
+                'is_wfh' => false,
                 'check_in_at' => null,
                 'check_out_at' => null,
                 'total_break_seconds' => 0,
@@ -184,13 +230,31 @@ class AttendanceCheckInOutService
                 'break_count' => 0,
                 'office' => null,
                 'can_check_in' => true,
+                'can_check_in_wfh' => $approvedWfh !== null,
                 'can_check_out' => false,
                 'can_start_break' => false,
                 'can_resume_work' => false,
+                'wfh_request' => $approvedWfh ? [
+                    'id' => $approvedWfh->id,
+                    'date' => $approvedWfh->date->toDateString(),
+                    'status' => $approvedWfh->status->value,
+                    'status_label' => $approvedWfh->status->label(),
+                ] : null,
             ];
         }
 
-        return $this->serializeToday($entry);
+        return array_merge(
+            $this->serializeToday($entry),
+            [
+                'can_check_in_wfh' => false,
+                'wfh_request' => $approvedWfh ? [
+                    'id' => $approvedWfh->id,
+                    'date' => $approvedWfh->date->toDateString(),
+                    'status' => $approvedWfh->status->value,
+                    'status_label' => $approvedWfh->status->label(),
+                ] : null,
+            ],
+        );
     }
 
     protected function reloadEntry(AttendanceEntry $entry): AttendanceEntry

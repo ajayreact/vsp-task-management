@@ -4,6 +4,7 @@ namespace App\Modules\Core\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Core\Enums\EmployeeStatus;
+use App\Modules\Core\Enums\WorkArrangement;
 use App\Modules\Core\Enums\SystemRole;
 use App\Modules\Core\Enums\UserType;
 use App\Modules\Core\Http\Requests\Admin\EmployeeRequest;
@@ -134,6 +135,7 @@ class EmployeeController extends Controller
                 'joined_on' => $employee->joined_on?->toDateString(),
                 'exited_on' => $employee->exited_on?->toDateString(),
                 'status' => $employee->status->value,
+                'work_arrangement' => $employee->work_arrangement->value,
                 'roles' => $employee->user->getRoleNames()->all(),
                 'office_location_id' => $this->officeAssignments->officeIdFor($employee->id),
             ],
@@ -262,6 +264,7 @@ class EmployeeController extends Controller
             'joined_on' => $request->validated('joined_on'),
             'exited_on' => $request->validated('exited_on'),
             'status' => $request->validated('status'),
+            'work_arrangement' => $request->validated('work_arrangement'),
         ];
     }
 
@@ -290,6 +293,7 @@ class EmployeeController extends Controller
                     'label' => $manager->user->name.' · '.$manager->employee_code,
                 ]),
             'statuses' => EmployeeStatus::options(),
+            'workArrangements' => WorkArrangement::options(),
             'roles' => Role::query()
                 ->orderBy('name')
                 ->pluck('name')

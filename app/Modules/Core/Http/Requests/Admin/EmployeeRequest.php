@@ -4,6 +4,7 @@ namespace App\Modules\Core\Http\Requests\Admin;
 
 use App\Modules\Core\Enums\EmployeeStatus;
 use App\Modules\Core\Enums\SystemRole;
+use App\Modules\Core\Enums\WorkArrangement;
 use App\Modules\Core\Models\Employee;
 use App\Services\EmployeeOfficeAssignmentService;
 use Illuminate\Database\Query\Builder;
@@ -57,6 +58,7 @@ class EmployeeRequest extends FormRequest
             'joined_on' => ['nullable', 'date'],
             'exited_on' => ['nullable', 'date', 'after_or_equal:joined_on'],
             'status' => ['required', Rule::enum(EmployeeStatus::class)],
+            'work_arrangement' => ['required', Rule::enum(WorkArrangement::class)],
             'is_active' => ['required', 'boolean'],
             'roles' => ['array'],
             'roles.*' => [

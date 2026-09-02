@@ -1,10 +1,15 @@
-export type AttendanceReportCode = 'P' | 'A' | 'L' | 'OFF' | '';
+export type AttendanceReportCode = 'P' | 'WFH' | 'A' | 'L' | 'OFF' | '';
 
 export const REPORT_STATUS_STYLES: Record<string, { cell: string; text: string; label: string }> = {
     P: {
         cell: 'bg-emerald-100',
         text: 'text-emerald-800',
-        label: 'Present',
+        label: 'Present - Office',
+    },
+    WFH: {
+        cell: 'bg-sky-100',
+        text: 'text-sky-800',
+        label: 'Present - Work From Home',
     },
     A: {
         cell: 'bg-red-100',
@@ -30,6 +35,11 @@ export const RECORD_STATUS_TONE: Record<string, 'success' | 'warning' | 'neutral
     checked_out: 'neutral',
     absent: 'danger',
     week_off: 'neutral',
+};
+
+export const WORK_MODE_TONE: Record<string, 'success' | 'info' | 'neutral'> = {
+    office: 'success',
+    wfh: 'info',
 };
 
 export const FILTER_LABELS: Record<string, string> = {

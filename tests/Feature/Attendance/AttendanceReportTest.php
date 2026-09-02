@@ -217,7 +217,7 @@ test('legacy monthly tab query still loads the combined attendance dashboard', f
             ->component('Attendance/dashboard')
             ->has('monthlyReport.rows')
             ->has('dailyTable.records')
-            ->has('snapshot.overview', 6));
+            ->has('snapshot.overview', 8));
 
     Carbon::setTestNow();
 });

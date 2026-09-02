@@ -2,6 +2,8 @@
 
 namespace App\Modules\Attendance\Providers;
 
+use App\Modules\Attendance\Models\WfhRequest;
+use App\Modules\Attendance\Policies\WfhRequestPolicy;
 use App\Modules\Core\Enums\SystemRole;
 use App\Modules\Core\Models\User;
 use Illuminate\Support\Facades\Gate;
@@ -30,6 +32,14 @@ class AttendanceServiceProvider extends ServiceProvider
         Gate::define('markOwnAttendance', function (User $user): bool {
             return $user->employee !== null;
         });
+
+        Gate::define('manageWfhRequests', function (User $user): bool {
+            return $user->hasRole(SystemRole::SuperAdmin->value);
+        });
+
+        Gate::policy(WfhRequest::class, WfhRequestPolicy::class);
+
+        Route::bind('wfhRequest', fn (string $value) => WfhRequest::query()->findOrFail($value));
 
         Route::middleware(['web', 'auth', 'internal'])
             ->prefix('admin')

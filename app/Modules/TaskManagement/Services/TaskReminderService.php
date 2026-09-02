@@ -3,7 +3,9 @@
 namespace App\Modules\TaskManagement\Services;
 
 use App\Modules\Core\Enums\UserType;
+use App\Modules\TaskManagement\Enums\PersonalTodoStatus;
 use App\Modules\TaskManagement\Enums\TaskStatus;
+use App\Modules\TaskManagement\Models\PersonalTodo;
 use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Models\TaskReminder;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +28,20 @@ class TaskReminderService
             ->chunkById(50, function ($reminders) use (&$sent) {
                 foreach ($reminders as $reminder) {
                     if ($this->processReminder($reminder)) {
+                        $sent++;
+                    }
+                }
+            });
+
+        PersonalTodo::query()
+            ->where('status', PersonalTodoStatus::Pending)
+            ->whereNotNull('reminder_at')
+            ->whereNull('reminder_sent_at')
+            ->where('reminder_at', '<=', now())
+            ->orderBy('id')
+            ->chunkById(50, function ($todos) use (&$sent) {
+                foreach ($todos as $todo) {
+                    if ($this->processPersonalTodoReminder($todo)) {
                         $sent++;
                     }
                 }
@@ -61,6 +77,34 @@ class TaskReminderService
 
             $this->notifier->taskReminderDue($task, $locked);
             $locked->update(['sent_at' => now()]);
+
+            return true;
+        });
+    }
+
+    protected function processPersonalTodoReminder(PersonalTodo $todo): bool
+    {
+        return DB::transaction(function () use ($todo) {
+            $locked = PersonalTodo::query()->whereKey($todo->id)->lockForUpdate()->first();
+
+            if ($locked === null || $locked->reminder_sent_at !== null || $locked->status->isCompleted()) {
+                return false;
+            }
+
+            if ($locked->reminder_at === null || $locked->reminder_at->isFuture()) {
+                return false;
+            }
+
+            $recipient = $locked->user;
+
+            if (! $recipient->is_active || $recipient->user_type !== UserType::Internal) {
+                $locked->update(['reminder_sent_at' => now()]);
+
+                return false;
+            }
+
+            $this->notifier->personalTodoReminderDue($locked);
+            $locked->update(['reminder_sent_at' => now()]);
 
             return true;
         });

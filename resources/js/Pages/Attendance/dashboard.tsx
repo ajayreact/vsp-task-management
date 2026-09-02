@@ -12,7 +12,7 @@ import { FILTER_LABELS } from '@/lib/attendance/report-status';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, Clock, Coffee, LogOut, UserCheck, Users, UserX } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, Coffee, Home, LogOut, MapPin, UserCheck, Users, UserX } from 'lucide-react';
 import { type ComponentType, useEffect, useState } from 'react';
 
 interface OverviewStat {
@@ -84,6 +84,8 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Attendance', href: '/admin/atte
 const OVERVIEW_ICONS: Record<string, ComponentType<{ className?: string; strokeWidth?: number }>> = {
     total_employees: Users,
     present_today: UserCheck,
+    office_present: MapPin,
+    wfh_present: Home,
     absent_today: UserX,
     late_today: Clock,
     on_break: Coffee,
@@ -93,6 +95,8 @@ const OVERVIEW_ICONS: Record<string, ComponentType<{ className?: string; strokeW
 const OVERVIEW_TONES: Record<string, KpiTone> = {
     total_employees: 'indigo',
     present_today: 'emerald',
+    office_present: 'teal',
+    wfh_present: 'sky',
     absent_today: 'amber',
     late_today: 'sky',
     on_break: 'teal',
@@ -282,7 +286,7 @@ export default function AttendanceDashboard({
 
                 <section className="min-w-0 max-w-full space-y-4">
                     <SectionHeading title={isToday ? "Today's Overview" : 'Daily Overview'} />
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-8">
                         {snapshot.overview.map((stat) => (
                             <OverviewCard key={stat.key} stat={stat} active={isStatActive(stat, activeStatus)} />
                         ))}

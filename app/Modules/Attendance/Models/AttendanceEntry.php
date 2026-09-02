@@ -3,6 +3,7 @@
 namespace App\Modules\Attendance\Models;
 
 use App\Modules\Attendance\Enums\AttendanceStatus;
+use App\Modules\Attendance\Enums\WorkMode;
 use App\Modules\Core\Models\Employee;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,6 +18,7 @@ class AttendanceEntry extends Model
         'office_location_id',
         'attendance_date',
         'status',
+        'work_mode',
         'check_in_at',
         'check_in_latitude',
         'check_in_longitude',
@@ -36,6 +38,7 @@ class AttendanceEntry extends Model
         return [
             'attendance_date' => 'date',
             'status' => AttendanceStatus::class,
+            'work_mode' => WorkMode::class,
             'check_in_at' => 'datetime',
             'check_out_at' => 'datetime',
             'check_in_latitude' => 'decimal:7',

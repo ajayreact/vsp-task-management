@@ -1,6 +1,8 @@
 <?php
 
+use App\Modules\TaskManagement\Http\Controllers\CompanyDocumentShareController;
 use App\Modules\TaskManagement\Http\Controllers\CompanyShareController;
+use App\Modules\TaskManagement\Http\Controllers\ContentCalendarShareController;
 use App\Modules\TaskManagement\Http\Controllers\DeliverableShareController;
 use Illuminate\Support\Facades\Route;
 
@@ -90,3 +92,93 @@ Route::get('company-share/{token}/files/{mediaUuid}/download', [CompanyShareCont
     ->where('token', '[0-9a-f]{64}')
     ->where('mediaUuid', '[0-9a-fA-F-]{36}')
     ->name('company-share.file.download');
+
+Route::prefix('od')->name('document-share.short.')->group(function () {
+    Route::get('{shortCode}', [CompanyDocumentShareController::class, 'showShort'])
+        ->where('shortCode', '[A-Za-z0-9]{8,10}')
+        ->name('show');
+
+    Route::get('{shortCode}/files/{mediaUuid}', [CompanyDocumentShareController::class, 'fileShort'])
+        ->where('shortCode', '[A-Za-z0-9]{8,10}')
+        ->where('mediaUuid', '[0-9a-fA-F-]{36}')
+        ->name('file');
+
+    Route::get('{shortCode}/files/{mediaUuid}/download', [CompanyDocumentShareController::class, 'downloadFileShort'])
+        ->where('shortCode', '[A-Za-z0-9]{8,10}')
+        ->where('mediaUuid', '[0-9a-fA-F-]{36}')
+        ->name('file.download');
+});
+
+Route::get('document-share/{token}', [CompanyDocumentShareController::class, 'show'])
+    ->where('token', '[0-9a-f]{64}')
+    ->name('document-share.show');
+
+Route::get('document-share/{token}/files/{mediaUuid}', [CompanyDocumentShareController::class, 'file'])
+    ->where('token', '[0-9a-f]{64}')
+    ->where('mediaUuid', '[0-9a-fA-F-]{36}')
+    ->name('document-share.file');
+
+Route::get('document-share/{token}/files/{mediaUuid}/download', [CompanyDocumentShareController::class, 'downloadFile'])
+    ->where('token', '[0-9a-f]{64}')
+    ->where('mediaUuid', '[0-9a-fA-F-]{36}')
+    ->name('document-share.file.download');
+
+Route::prefix('cc')->name('content-share.short.')->group(function () {
+    Route::get('{shortCode}', [ContentCalendarShareController::class, 'showItemShort'])
+        ->where('shortCode', '[A-Za-z0-9]{8,10}')
+        ->name('show');
+
+    Route::get('{shortCode}/files/{mediaUuid}', [ContentCalendarShareController::class, 'fileItemShort'])
+        ->where('shortCode', '[A-Za-z0-9]{8,10}')
+        ->where('mediaUuid', '[0-9a-fA-F-]{36}')
+        ->name('file');
+
+    Route::get('{shortCode}/files/{mediaUuid}/download', [ContentCalendarShareController::class, 'downloadItemFileShort'])
+        ->where('shortCode', '[A-Za-z0-9]{8,10}')
+        ->where('mediaUuid', '[0-9a-fA-F-]{36}')
+        ->name('file.download');
+});
+
+Route::get('content-share/{token}', [ContentCalendarShareController::class, 'showItem'])
+    ->where('token', '[0-9a-f]{64}')
+    ->name('content-share.show');
+
+Route::get('content-share/{token}/files/{mediaUuid}', [ContentCalendarShareController::class, 'fileItem'])
+    ->where('token', '[0-9a-f]{64}')
+    ->where('mediaUuid', '[0-9a-fA-F-]{36}')
+    ->name('content-share.file');
+
+Route::get('content-share/{token}/files/{mediaUuid}/download', [ContentCalendarShareController::class, 'downloadItemFile'])
+    ->where('token', '[0-9a-f]{64}')
+    ->where('mediaUuid', '[0-9a-fA-F-]{36}')
+    ->name('content-share.file.download');
+
+Route::prefix('cs')->name('content-schedule-share.short.')->group(function () {
+    Route::get('{shortCode}', [ContentCalendarShareController::class, 'showScheduleShort'])
+        ->where('shortCode', '[A-Za-z0-9]{8,10}')
+        ->name('show');
+
+    Route::get('{shortCode}/files/{mediaUuid}', [ContentCalendarShareController::class, 'fileScheduleShort'])
+        ->where('shortCode', '[A-Za-z0-9]{8,10}')
+        ->where('mediaUuid', '[0-9a-fA-F-]{36}')
+        ->name('file');
+
+    Route::get('{shortCode}/files/{mediaUuid}/download', [ContentCalendarShareController::class, 'downloadScheduleFileShort'])
+        ->where('shortCode', '[A-Za-z0-9]{8,10}')
+        ->where('mediaUuid', '[0-9a-fA-F-]{36}')
+        ->name('file.download');
+});
+
+Route::get('content-schedule-share/{token}', [ContentCalendarShareController::class, 'showSchedule'])
+    ->where('token', '[0-9a-f]{64}')
+    ->name('content-schedule-share.show');
+
+Route::get('content-schedule-share/{token}/files/{mediaUuid}', [ContentCalendarShareController::class, 'fileSchedule'])
+    ->where('token', '[0-9a-f]{64}')
+    ->where('mediaUuid', '[0-9a-fA-F-]{36}')
+    ->name('content-schedule-share.file');
+
+Route::get('content-schedule-share/{token}/files/{mediaUuid}/download', [ContentCalendarShareController::class, 'downloadScheduleFile'])
+    ->where('token', '[0-9a-f]{64}')
+    ->where('mediaUuid', '[0-9a-fA-F-]{36}')
+    ->name('content-schedule-share.file.download');

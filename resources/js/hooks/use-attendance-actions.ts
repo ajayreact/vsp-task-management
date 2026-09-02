@@ -117,6 +117,45 @@ export function useAttendanceActions(options: UseAttendanceActionsOptions = {}) 
         [resolveCoordinates],
     );
 
+    const performWfh = useCallback(async (action: AttendanceVerificationAction) => {
+        setState({
+            phase: 'submitting',
+            action,
+            error: null,
+        });
+
+        const url = action === 'check_in' ? '/attendance/check-in/wfh' : '/attendance/check-out/wfh';
+
+        try {
+            await new Promise<void>((resolve, reject) => {
+                router.post(
+                    url,
+                    {},
+                    {
+                        preserveScroll: true,
+                        onSuccess: () => resolve(),
+                        onError: () => reject(new Error('Unable to mark WFH attendance.')),
+                        onFinish: () => {
+                            setState({
+                                phase: 'idle',
+                                action: null,
+                                error: null,
+                            });
+                        },
+                    },
+                );
+            });
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unable to mark WFH attendance.';
+            setState({
+                phase: 'idle',
+                action,
+                error: message,
+            });
+            throw error;
+        }
+    }, []);
+
     const reset = useCallback(() => {
         setState(INITIAL_STATE);
     }, []);
@@ -125,6 +164,7 @@ export function useAttendanceActions(options: UseAttendanceActionsOptions = {}) 
         ...state,
         isBusy: state.phase !== 'idle',
         perform,
+        performWfh,
         reset,
     };
 }

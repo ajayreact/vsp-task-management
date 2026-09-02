@@ -2,10 +2,14 @@
 
 use App\Modules\TaskManagement\Http\Controllers\AvailabilityController;
 use App\Modules\TaskManagement\Http\Controllers\CompanyController;
+use App\Modules\TaskManagement\Http\Controllers\CompanyDocumentController;
 use App\Modules\TaskManagement\Http\Controllers\CompanyLogoLibraryController;
+use App\Modules\TaskManagement\Http\Controllers\ContentCalendarController;
 use App\Modules\TaskManagement\Http\Controllers\DeliverableController;
 use App\Modules\TaskManagement\Http\Controllers\NotificationSoundController;
+use App\Modules\TaskManagement\Http\Controllers\MyTodoController;
 use App\Modules\TaskManagement\Http\Controllers\OpenBoardController;
+use App\Modules\TaskManagement\Http\Controllers\PersonalTodoController;
 use App\Modules\TaskManagement\Http\Controllers\ProjectController;
 use App\Modules\TaskManagement\Http\Controllers\SettingsController;
 use App\Modules\TaskManagement\Http\Controllers\TaskAttachmentController;
@@ -86,9 +90,34 @@ Route::get('logo-library/{company}/logos/{media}/download', [CompanyLogoLibraryC
 Route::delete('logo-library/{company}/logos/{media}', [CompanyLogoLibraryController::class, 'destroyLogo'])->name('logo-library.logos.destroy');
 Route::post('logo-library/{company}/share-link', [CompanyLogoLibraryController::class, 'shareLink'])->name('logo-library.share-link');
 
+Route::get('documents', [CompanyDocumentController::class, 'index'])->name('documents.index');
+Route::post('documents', [CompanyDocumentController::class, 'store'])->name('documents.store');
+Route::put('documents/{document}', [CompanyDocumentController::class, 'update'])->name('documents.update');
+Route::delete('documents/{document}', [CompanyDocumentController::class, 'destroy'])->name('documents.destroy');
+Route::get('documents/{document}/preview', [CompanyDocumentController::class, 'preview'])->name('documents.preview');
+Route::get('documents/{document}/download', [CompanyDocumentController::class, 'download'])->name('documents.download');
+Route::post('documents/{document}/share-link', [CompanyDocumentController::class, 'shareLink'])->name('documents.share-link');
+
+Route::get('content-calendar', [ContentCalendarController::class, 'index'])->name('content-calendar.index');
+Route::post('content-calendar', [ContentCalendarController::class, 'store'])->name('content-calendar.store');
+Route::put('content-calendar/{calendarItem}', [ContentCalendarController::class, 'update'])->name('content-calendar.update');
+Route::delete('content-calendar/{calendarItem}', [ContentCalendarController::class, 'destroy'])->name('content-calendar.destroy');
+Route::get('content-calendar/{calendarItem}/attachments/{media}/preview', [ContentCalendarController::class, 'previewAttachment'])->name('content-calendar.attachments.preview');
+Route::get('content-calendar/{calendarItem}/attachments/{media}/download', [ContentCalendarController::class, 'downloadAttachment'])->name('content-calendar.attachments.download');
+Route::post('content-calendar/{calendarItem}/share-link', [ContentCalendarController::class, 'shareItem'])->name('content-calendar.share-item');
+Route::post('content-calendar/share-schedule', [ContentCalendarController::class, 'shareSchedule'])->name('content-calendar.share-schedule');
+
 Route::get('projects/export/excel', [ProjectController::class, 'exportExcel'])->name('projects.export.excel');
 Route::get('projects/export/pdf', [ProjectController::class, 'exportPdf'])->name('projects.export.pdf');
 Route::resource('projects', ProjectController::class);
+
+Route::get('todos', [MyTodoController::class, 'index'])->name('todos.index');
+Route::post('personal-todos', [PersonalTodoController::class, 'store'])->name('personal-todos.store');
+Route::put('personal-todos/{personalTodo}', [PersonalTodoController::class, 'update'])->name('personal-todos.update');
+Route::patch('personal-todos/{personalTodo}/complete', [PersonalTodoController::class, 'complete'])->name('personal-todos.complete');
+Route::patch('personal-todos/{personalTodo}/reopen', [PersonalTodoController::class, 'reopen'])->name('personal-todos.reopen');
+Route::patch('personal-todos/{personalTodo}/move-to-today', [PersonalTodoController::class, 'moveToToday'])->name('personal-todos.move-to-today');
+Route::delete('personal-todos/{personalTodo}', [PersonalTodoController::class, 'destroy'])->name('personal-todos.destroy');
 
 Route::get('/', [TaskController::class, 'index'])->name('index');
 Route::get('export/excel', [TaskController::class, 'exportExcel'])->name('export.excel');

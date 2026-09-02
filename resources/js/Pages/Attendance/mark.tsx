@@ -9,7 +9,7 @@ import AppLayout from '@/layouts/app-layout';
 import { formatDuration, formatTimeLabel } from '@/lib/attendance/format';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
-import { Clock3, Coffee, LoaderCircle, LogIn, LogOut, MapPin, Play } from 'lucide-react';
+import { Clock3, Coffee, Home, LoaderCircle, LogIn, LogOut, MapPin, Play } from 'lucide-react';
 import { useEffect } from 'react';
 
 interface OfficeSummary {
@@ -24,6 +24,9 @@ interface OfficeSummary {
 interface TodaySnapshot {
     status: string;
     status_label: string;
+    work_mode?: string | null;
+    work_mode_label?: string | null;
+    is_wfh?: boolean;
     check_in_at: string | null;
     check_out_at: string | null;
     total_break_seconds: number;
@@ -31,9 +34,16 @@ interface TodaySnapshot {
     active_break_started_at: string | null;
     break_count: number;
     can_check_in: boolean;
+    can_check_in_wfh?: boolean;
     can_check_out: boolean;
     can_start_break: boolean;
     can_resume_work: boolean;
+    wfh_request?: {
+        id: number;
+        date: string;
+        status: string;
+        status_label: string;
+    } | null;
 }
 
 interface Props {
@@ -62,7 +72,7 @@ export default function AttendanceMark({
     today,
 }: Props) {
     const { flash } = usePage<SharedData>().props;
-    const { perform, reset, isBusy: isAttendanceBusy, phase, action, error } = useAttendanceActions({
+    const { perform, performWfh, reset, isBusy: isAttendanceBusy, phase, action, error } = useAttendanceActions({
         locationBypassEnabled: location_bypass_enabled,
         fallbackCoordinates: location_fallback,
     });
@@ -108,6 +118,20 @@ export default function AttendanceMark({
         await performBreak(nextAction);
     };
 
+    const handleWfhAction = async (nextAction: 'check_in' | 'check_out') => {
+        reset();
+        resetBreak();
+
+        try {
+            await performWfh(nextAction);
+        } catch {
+            // Error state is stored in the hook.
+        }
+    };
+
+    const canCheckInOffice =
+        today.can_check_in && (location_bypass_enabled || (office !== null && office.is_active));
+
     const isBusy = isAttendanceBusy || isBreakBusy;
     const busyLabel =
         phase === 'locating'
@@ -137,6 +161,50 @@ export default function AttendanceMark({
                 />
 
                 <div className="grid gap-6 lg:grid-cols-2">
+                    {today.wfh_request && (
+                        <Card className="border-sky-200 bg-gradient-to-br from-white to-sky-50/70 lg:col-span-2">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Home className="size-5 text-sky-700" strokeWidth={1.75} />
+                                    {today.is_wfh ? 'Working From Home' : 'Work From Home'}
+                                </CardTitle>
+                                <CardDescription>
+                                    {today.is_wfh && today.check_in_at
+                                        ? `Checked in at ${formatTimeLabel(today.check_in_at)}`
+                                        : 'You have approved WFH for today. Check in without office GPS verification.'}
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="flex flex-wrap items-center gap-3">
+                                <Badge variant="info">{today.wfh_request.status_label}</Badge>
+                                {today.can_check_in && today.can_check_in_wfh && (
+                                    <Button type="button" disabled={!can_mark_attendance || isBusy} onClick={() => handleWfhAction('check_in')}>
+                                        {isAttendanceBusy && action === 'check_in' ? <LoaderCircle className="animate-spin" /> : <Home />}
+                                        Check In
+                                    </Button>
+                                )}
+                                {today.is_wfh && today.can_check_out && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        disabled={!can_mark_attendance || isBusy}
+                                        onClick={() => handleWfhAction('check_out')}
+                                    >
+                                        {isAttendanceBusy && action === 'check_out' ? <LoaderCircle className="animate-spin" /> : <LogOut />}
+                                        Check Out
+                                    </Button>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {!today.wfh_request && today.can_check_in && !today.can_check_in_wfh && (
+                        <Card className="border-dashed lg:col-span-2">
+                            <CardContent className="text-muted-foreground py-4 text-sm">
+                                Work From Home is not approved for today.
+                            </CardContent>
+                        </Card>
+                    )}
+
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -297,7 +365,7 @@ export default function AttendanceMark({
                             )}
 
                             <div className="flex flex-wrap gap-3">
-                                {today.can_check_in && (
+                                {canCheckInOffice && (
                                     <Button
                                         type="button"
                                         disabled={!can_mark_attendance || isBusy}
@@ -343,7 +411,7 @@ export default function AttendanceMark({
                                     </Button>
                                 )}
 
-                                {today.can_check_out && (
+                                {today.can_check_out && !today.is_wfh && (
                                     <Button
                                         type="button"
                                         variant="outline"

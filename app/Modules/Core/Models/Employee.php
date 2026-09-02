@@ -3,6 +3,7 @@
 namespace App\Modules\Core\Models;
 
 use App\Modules\Core\Enums\EmployeeStatus;
+use App\Modules\Core\Enums\WorkArrangement;
 use Database\Factories\Core\EmployeeFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,6 +31,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property Carbon|null $joined_on
  * @property Carbon|null $exited_on
  * @property EmployeeStatus $status
+ * @property WorkArrangement $work_arrangement
  * @property-read User $user
  * @property-read Department|null $department
  * @property-read Designation|null $designation
@@ -53,6 +55,7 @@ class Employee extends Model implements HasMedia
         'joined_on',
         'exited_on',
         'status',
+        'work_arrangement',
     ];
 
     /**
@@ -64,6 +67,7 @@ class Employee extends Model implements HasMedia
             'joined_on' => 'date',
             'exited_on' => 'date',
             'status' => EmployeeStatus::class,
+            'work_arrangement' => WorkArrangement::class,
         ];
     }
 

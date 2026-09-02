@@ -5,6 +5,7 @@ namespace App\Modules\Attendance\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Attendance\Models\OfficeLocation;
 use App\Modules\Attendance\Services\AttendanceCheckInOutService;
+use App\Modules\Attendance\Services\WfhRequestService;
 use App\Services\EmployeeOfficeAssignmentService;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -14,6 +15,7 @@ class AttendanceMarkController extends Controller
     public function __construct(
         protected EmployeeOfficeAssignmentService $officeAssignments,
         protected AttendanceCheckInOutService $attendance,
+        protected WfhRequestService $wfhRequests,
     ) {}
 
     public function show(): Response
@@ -27,7 +29,8 @@ class AttendanceMarkController extends Controller
         $user = request()->user();
         $office = $this->officeAssignments->assignedOfficeFor($employee);
         $locationBypassEnabled = $user?->isSuperAdmin() ?? false;
-        $canMarkAttendance = $locationBypassEnabled || ($office !== null && $office->is_active);
+        $wfhApprovedToday = $this->wfhRequests->isApprovedFor($employee);
+        $canMarkAttendance = $locationBypassEnabled || $wfhApprovedToday || ($office !== null && $office->is_active);
         $locationFallback = $this->locationFallbackCoordinates($office, $locationBypassEnabled);
 
         return Inertia::render('Attendance/mark', [

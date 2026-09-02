@@ -1,9 +1,11 @@
 import { DashboardPanel, PanelEmpty, PanelRow } from '@/components/admin/dashboard-panel';
 import { KpiStatCard, type KpiTone } from '@/components/admin/kpi-stat-card';
 import { PageHeader } from '@/components/admin/page-header';
+import { MyTodoWidget } from '@/components/todos/my-todo-widget';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useDashboardRealtime } from '@/hooks/use-dashboard-realtime';
+import { type MyTodoSnapshot } from '@/lib/todos';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
@@ -101,6 +103,7 @@ interface Snapshot {
     actions: ActionItem[];
     approvals: ApprovalItem[];
     timer: Timer | null;
+    my_todo: MyTodoSnapshot | null;
     can: {
         create_task: boolean;
         open_board: boolean;
@@ -174,6 +177,15 @@ export default function Dashboard({ snapshot }: { snapshot: Snapshot }) {
 
                 {showTasks && (
                     <>
+                        {snapshot.my_todo && (
+                            <section className="space-y-4">
+                                <SectionHeading title="My productivity" />
+                                <div className="max-w-2xl">
+                                    <MyTodoWidget snapshot={snapshot.my_todo} />
+                                </div>
+                            </section>
+                        )}
+
                         <section className="space-y-4">
                             <SectionHeading title="Task overview" />
                             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">

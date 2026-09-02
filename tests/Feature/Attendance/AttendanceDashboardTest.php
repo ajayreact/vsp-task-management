@@ -16,14 +16,14 @@ test('super admin can open the attendance dashboard', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Attendance/dashboard')
-            ->has('snapshot.overview', 6)
+            ->has('snapshot.overview', 8)
             ->has('snapshot.records')
             ->where('snapshot.overview.0.key', 'total_employees')
             ->where('snapshot.overview.0.count', 3)
             ->where('snapshot.overview.1.key', 'present_today')
             ->where('snapshot.overview.1.count', 0)
-            ->where('snapshot.overview.2.key', 'absent_today')
-            ->where('snapshot.overview.2.count', 3));
+            ->where('snapshot.overview.4.key', 'absent_today')
+            ->where('snapshot.overview.4.count', 3));
 });
 
 test('staff without super admin role cannot open the attendance dashboard', function () {
@@ -72,11 +72,13 @@ test('attendance counts reflect today entries', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->where('snapshot.overview.0.count', 5)
-            ->where('snapshot.overview.1.count', 1)
-            ->where('snapshot.overview.2.count', 1)
-            ->where('snapshot.overview.3.count', 1)
+            ->where('snapshot.overview.1.count', 4)
+            ->where('snapshot.overview.2.count', 4)
+            ->where('snapshot.overview.3.count', 0)
             ->where('snapshot.overview.4.count', 1)
-            ->where('snapshot.overview.5.count', 1));
+            ->where('snapshot.overview.5.count', 1)
+            ->where('snapshot.overview.6.count', 1)
+            ->where('snapshot.overview.7.count', 1));
 });
 
 test('dashboard records can be filtered by status from kpi links', function () {
@@ -174,7 +176,7 @@ test('the dashboard shows attendance records for a previous date', function () {
         ->assertInertia(fn ($page) => $page
             ->where('snapshot.date', $previousDate->toDateString())
             ->where('snapshot.is_today', false)
-            ->where('snapshot.overview.5.count', 1)
+            ->where('snapshot.overview.7.count', 1)
             ->has('snapshot.records', 1)
             ->where('snapshot.records.0.employee_code', 'EMP-PAST')
             ->where('snapshot.records.0.status', 'checked_out'));
@@ -191,10 +193,12 @@ test('the dashboard shows empty records and zero attendance kpis for a previous 
             ->where('snapshot.date', $previousDate->toDateString())
             ->where('snapshot.is_today', false)
             ->where('snapshot.overview.1.count', 0)
-            ->where('snapshot.overview.2.count', 2)
+            ->where('snapshot.overview.2.count', 0)
             ->where('snapshot.overview.3.count', 0)
-            ->where('snapshot.overview.4.count', 0)
+            ->where('snapshot.overview.4.count', 2)
             ->where('snapshot.overview.5.count', 0)
+            ->where('snapshot.overview.6.count', 0)
+            ->where('snapshot.overview.7.count', 0)
             ->has('snapshot.records', 0));
 });
 
@@ -222,7 +226,7 @@ test('status filtering works for a previous date', function () {
         ->assertInertia(fn ($page) => $page
             ->where('snapshot.filter.status', 'late')
             ->where('snapshot.filter.date', $previousDate->toDateString())
-            ->where('snapshot.overview.3.count', 1)
+            ->where('snapshot.overview.5.count', 1)
             ->has('snapshot.records', 1)
             ->where('snapshot.records.0.employee_code', 'EMP-PAST-LATE'));
 });
@@ -244,7 +248,7 @@ test('absent employees are calculated for a previous date', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->where('snapshot.filter.status', 'absent')
-            ->where('snapshot.overview.2.count', 1)
+            ->where('snapshot.overview.4.count', 1)
             ->has('snapshot.records', 1)
             ->where('snapshot.records.0.employee_code', 'EMP-PAST-OUT')
             ->where('snapshot.records.0.status', 'absent'));
