@@ -10,13 +10,17 @@ return new class extends Migration
     {
         Schema::create('tm_content_calendar_item_share_links', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tm_content_calendar_item_id')->unique();
-            $table->string('token', 64)->unique();
-            $table->string('short_code', 10)->nullable()->unique();
+            $table->unsignedBigInteger('tm_content_calendar_item_id');
+            $table->string('token', 64);
+            $table->string('short_code', 10)->nullable();
             $table->timestamp('expires_at')->nullable();
             $table->timestamp('revoked_at')->nullable();
             $table->foreignId('created_by_user_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
+
+            $table->unique('tm_content_calendar_item_id', 'tm_cc_item_share_item_uq');
+            $table->unique('token', 'tm_cc_item_share_token_uq');
+            $table->unique('short_code', 'tm_cc_item_share_short_uq');
 
             $table->foreign('tm_content_calendar_item_id', 'tm_cc_item_share_item_fk')
                 ->references('id')
