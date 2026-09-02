@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('short_code', 10)->nullable();
             $table->timestamp('expires_at')->nullable();
             $table->timestamp('revoked_at')->nullable();
-            $table->foreignId('created_by_user_id')->constrained('users')->cascadeOnDelete();
+            $table->unsignedBigInteger('created_by_user_id');
             $table->timestamps();
 
             $table->unique('tm_content_calendar_item_id', 'tm_cc_item_share_item_uq');
@@ -25,6 +25,11 @@ return new class extends Migration
             $table->foreign('tm_content_calendar_item_id', 'tm_cc_item_share_item_fk')
                 ->references('id')
                 ->on('tm_content_calendar_items')
+                ->cascadeOnDelete();
+
+            $table->foreign('created_by_user_id', 'tm_cc_item_share_user_fk')
+                ->references('id')
+                ->on('users')
                 ->cascadeOnDelete();
         });
     }
