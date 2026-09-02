@@ -513,7 +513,10 @@ class TaskController extends Controller
             ->when($filters['completed'] === 'today', fn (Builder $query) => $query
                 ->where('status', TaskStatus::Completed)
                 ->whereDate('completed_at', today()))
-            ->orderedForList();
+            ->orderedForList(
+                statusFilter: $filters['status'] ?: null,
+                onlyCompleted: $filters['completed'] === 'today',
+            );
     }
 
     /**

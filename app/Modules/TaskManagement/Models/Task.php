@@ -249,20 +249,37 @@ class Task extends Model implements HasMedia
     }
 
     /**
-     * Default ordering for the Tasks list and exports: active work first, completed last.
+     * Default ordering for the Tasks list and exports.
+     *
+     * Combined lists keep completed work at the bottom. Active tasks sort by
+     * newest first (created_at). Completed tasks sort by completion time.
+     * When a status filter is applied, only that segment's ordering applies.
      *
      * @param  Builder<$this>  $query
      */
-    public function scopeOrderedForList(Builder $query): void
+    public function scopeOrderedForList(Builder $query, ?string $statusFilter = null, bool $onlyCompleted = false): void
     {
         $completed = TaskStatus::Completed->value;
 
+        if ($onlyCompleted || $statusFilter === $completed) {
+            $query
+                ->orderByRaw('coalesce(completed_at, updated_at) desc')
+                ->orderByDesc('id');
+
+            return;
+        }
+
+        if ($statusFilter !== null && $statusFilter !== '') {
+            $query
+                ->orderByDesc('created_at')
+                ->orderByDesc('id');
+
+            return;
+        }
+
         $query
             ->orderByRaw('case when status = ? then 1 else 0 end', [$completed])
-            ->orderByRaw("case when status <> ? then field(priority, 'urgent', 'high', 'normal', 'low') end", [$completed])
-            ->orderByRaw('case when status <> ? then due_at is null end', [$completed])
-            ->orderByRaw('case when status <> ? then due_at end', [$completed])
-            ->orderByRaw('case when status <> ? then updated_at end desc', [$completed])
+            ->orderByRaw('case when status <> ? then created_at end desc', [$completed])
             ->orderByRaw('case when status = ? then coalesce(completed_at, updated_at) end desc', [$completed])
             ->orderByDesc('id');
     }

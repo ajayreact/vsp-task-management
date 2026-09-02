@@ -83,7 +83,7 @@ export default function TaskIndex({ tasks, filters, projects, statuses, prioriti
         <TaskLayout breadcrumbs={breadcrumbs}>
             <Head title={pageTitle} />
 
-            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
+            <div className="flex min-w-0 max-w-full flex-1 flex-col gap-6 p-4 md:p-6">
                 <DataTableCard
                     title={pageTitle}
                     description={
@@ -93,7 +93,7 @@ export default function TaskIndex({ tasks, filters, projects, statuses, prioriti
                     }
                     action={
                         can.create ? (
-                            <Button asChild>
+                            <Button asChild className="w-full shrink-0 sm:w-auto">
                                 <Link href="/tasks/create">
                                     <Plus /> New task
                                 </Link>
@@ -101,10 +101,10 @@ export default function TaskIndex({ tasks, filters, projects, statuses, prioriti
                         ) : undefined
                     }
                     toolbar={
-                        <div className="flex w-full min-w-max items-center gap-3">
+                        <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-center">
                             {can.viewAll && (
                                 <Select value={filters.scope} onValueChange={(value) => apply({ scope: value })}>
-                                    <SelectTrigger className="w-44 shrink-0" aria-label="Scope">
+                                    <SelectTrigger className="w-full lg:w-44" aria-label="Scope">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -119,7 +119,7 @@ export default function TaskIndex({ tasks, filters, projects, statuses, prioriti
                                 value={filters.project ? String(filters.project) : ALL}
                                 onValueChange={(value) => apply({ project: value === ALL ? null : value })}
                             >
-                                <SelectTrigger className="w-52 shrink-0" aria-label="Filter by project">
+                                <SelectTrigger className="w-full lg:w-52" aria-label="Filter by project">
                                     <SelectValue placeholder="All projects" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -133,7 +133,7 @@ export default function TaskIndex({ tasks, filters, projects, statuses, prioriti
                             </Select>
 
                             <Select value={filters.status || ALL} onValueChange={(value) => apply({ status: value === ALL ? null : value })}>
-                                <SelectTrigger className="w-48 shrink-0" aria-label="Filter by status">
+                                <SelectTrigger className="w-full lg:w-48" aria-label="Filter by status">
                                     <SelectValue placeholder="Any status" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -147,7 +147,7 @@ export default function TaskIndex({ tasks, filters, projects, statuses, prioriti
                             </Select>
 
                             <Select value={filters.priority || ALL} onValueChange={(value) => apply({ priority: value === ALL ? null : value })}>
-                                <SelectTrigger className="w-40 shrink-0" aria-label="Filter by priority">
+                                <SelectTrigger className="w-full lg:w-40" aria-label="Filter by priority">
                                     <SelectValue placeholder="Any priority" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -165,7 +165,7 @@ export default function TaskIndex({ tasks, filters, projects, statuses, prioriti
                                 onChange={(event) => setSearch(event.target.value)}
                                 placeholder="Search by title"
                                 aria-label="Search tasks"
-                                containerClassName="ml-auto w-56 max-w-none shrink-0"
+                                containerClassName="w-full min-w-0 lg:ml-auto lg:max-w-xs"
                             />
                         </div>
                     }
@@ -184,7 +184,7 @@ export default function TaskIndex({ tasks, filters, projects, statuses, prioriti
                         />
                     }
                 >
-                    <Table>
+                    <Table className="min-w-max">
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Task</TableHead>

@@ -137,26 +137,26 @@ export default function CompanyLogoLibraryShow({ company, variants, can }: Props
         <TaskLayout breadcrumbs={breadcrumbs}>
             <Head title={`${company.name} · Logo Library`} />
 
-            <div className="space-y-6">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">{company.name}</h1>
+            <div className="flex min-w-0 max-w-full flex-1 flex-col gap-6 overflow-x-hidden p-4 md:p-6">
+                <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0">
+                        <h1 className="text-2xl font-semibold tracking-tight break-words">{company.name}</h1>
                         <p className="text-muted-foreground mt-1 text-sm">Company details and approved logo variations.</p>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex w-full min-w-0 flex-wrap gap-2 lg:w-auto lg:justify-end">
                         {can.manage && (
                             <>
-                                <Button variant="outline" onClick={() => setEditOpen(true)}>
+                                <Button className="w-full sm:w-auto" variant="outline" onClick={() => setEditOpen(true)}>
                                     Edit details
                                 </Button>
-                                <Button onClick={() => setUploadOpen(true)}>
+                                <Button className="w-full sm:w-auto" onClick={() => setUploadOpen(true)}>
                                     <Upload className="mr-2 size-4" />
                                     Upload logo
                                 </Button>
                             </>
                         )}
                         {can.share && (
-                            <Button variant="secondary" onClick={createShareLink}>
+                            <Button className="w-full sm:w-auto" variant="secondary" onClick={createShareLink}>
                                 <Link2 className="mr-2 size-4" />
                                 Share
                             </Button>
@@ -164,7 +164,7 @@ export default function CompanyLogoLibraryShow({ company, variants, can }: Props
                     </div>
                 </div>
 
-                <Card>
+                <Card className="min-w-0">
                     <CardHeader>
                         <CardTitle>Company details</CardTitle>
                         <CardDescription>Quick access to contact information.</CardDescription>
@@ -181,14 +181,14 @@ export default function CompanyLogoLibraryShow({ company, variants, can }: Props
                 </Card>
 
                 {shareUrl && (
-                    <Card>
+                    <Card className="min-w-0">
                         <CardHeader>
                             <CardTitle>Share link</CardTitle>
                             <CardDescription>Recipients can view company details and download logos.</CardDescription>
                         </CardHeader>
-                        <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                            <Input readOnly value={shareUrl} />
-                            <Button variant="outline" onClick={() => copyText(shareUrl)}>
+                        <CardContent className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
+                            <Input readOnly value={shareUrl} className="min-w-0 w-full" />
+                            <Button className="w-full shrink-0 sm:w-auto" variant="outline" onClick={() => copyText(shareUrl)}>
                                 <Copy className="mr-2 size-4" />
                                 Copy link
                             </Button>
@@ -196,8 +196,8 @@ export default function CompanyLogoLibraryShow({ company, variants, can }: Props
                     </Card>
                 )}
 
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 space-y-3">
+                    <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
                         <h2 className="text-lg font-semibold">Logo variations</h2>
                         <Badge variant="secondary">{company.logos.length} uploaded</Badge>
                     </div>
@@ -209,9 +209,9 @@ export default function CompanyLogoLibraryShow({ company, variants, can }: Props
                             </CardContent>
                         </Card>
                     ) : (
-                        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                        <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                             {company.logos.map((logo) => (
-                                <Card key={logo.uuid}>
+                                <Card key={logo.uuid} className="min-w-0">
                                     <CardHeader className="pb-3">
                                         <CardTitle className="text-base">{logo.variant_label}</CardTitle>
                                         <CardDescription>
@@ -374,18 +374,23 @@ function DetailRow({
     copyValue?: string | null;
 }) {
     return (
-        <div className="space-y-1">
+        <div className="min-w-0 space-y-1">
             <p className="text-muted-foreground text-xs uppercase tracking-wide">{label}</p>
             {!value ? (
                 <p className="text-muted-foreground text-sm">Not provided</p>
             ) : (
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
                     {href ? (
-                        <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer" className="font-medium hover:underline">
+                        <a
+                            href={href}
+                            target={href.startsWith('http') ? '_blank' : undefined}
+                            rel="noreferrer"
+                            className="min-w-0 break-all font-medium hover:underline sm:break-normal sm:truncate"
+                        >
                             {value}
                         </a>
                     ) : (
-                        <span className="font-medium">{value}</span>
+                        <span className="min-w-0 break-words font-medium">{value}</span>
                     )}
                     {copyValue && (
                         <Button size="icon" variant="ghost" className="size-7" onClick={() => copyText(copyValue)}>

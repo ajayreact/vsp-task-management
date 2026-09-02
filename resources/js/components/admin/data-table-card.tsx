@@ -26,9 +26,9 @@ export function DataTableCard({ title, description, action, toolbar, footer, chi
                 {action && <div className="flex shrink-0 flex-wrap items-center gap-2">{action}</div>}
             </div>
 
-            {toolbar && <div className="flex flex-nowrap items-center gap-3 overflow-x-auto px-6 py-4">{toolbar}</div>}
+            {toolbar && <div className="flex min-w-0 max-w-full flex-wrap items-center gap-3 px-6 py-4">{toolbar}</div>}
 
-            <div className="min-w-0 max-w-full overflow-hidden border-t border-[rgba(120,115,110,0.12)]">{children}</div>
+            <div className="min-w-0 max-w-full overflow-x-auto overscroll-x-contain border-t border-[rgba(120,115,110,0.12)]">{children}</div>
 
             {footer && <div className="border-t border-[rgba(120,115,110,0.12)] px-6 py-4">{footer}</div>}
         </section>

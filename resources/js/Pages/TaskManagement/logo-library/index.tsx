@@ -71,9 +71,9 @@ export default function CompanyLogoLibraryIndex({ companies, filters, can }: Pro
         <TaskLayout breadcrumbs={breadcrumbs}>
             <Head title="Company Logo Library" />
 
-            <div className="space-y-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
+            <div className="flex min-w-0 max-w-full flex-1 flex-col gap-6 overflow-x-hidden p-4 md:p-6">
+                <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="min-w-0">
                         <h1 className="text-2xl font-semibold tracking-tight">Company Logo Library</h1>
                         <p className="text-muted-foreground mt-1 text-sm">
                             Central place for client logos and contact details.
@@ -83,7 +83,7 @@ export default function CompanyLogoLibraryIndex({ companies, filters, can }: Pro
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
                         placeholder="Search company..."
-                        containerClassName="sm:max-w-sm"
+                        containerClassName="w-full min-w-0 sm:max-w-sm"
                     />
                 </div>
 
@@ -94,16 +94,16 @@ export default function CompanyLogoLibraryIndex({ companies, filters, can }: Pro
                         </CardContent>
                     </Card>
                 ) : (
-                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                         {companies.data.map((company) => (
-                            <Card key={company.id} className="flex h-full flex-col">
+                            <Card key={company.id} className="flex h-full min-w-0 flex-col">
                                 <CardHeader className="space-y-3">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div>
-                                            <CardTitle className="text-lg">{company.name}</CardTitle>
+                                    <div className="flex min-w-0 items-start justify-between gap-3">
+                                        <div className="min-w-0 flex-1">
+                                            <CardTitle className="truncate text-lg">{company.name}</CardTitle>
                                             <CardDescription className="mt-1 space-y-1">
                                                 {company.website && (
-                                                    <span className="flex items-center gap-2">
+                                                    <span className="flex min-w-0 items-center gap-2">
                                                         <ExternalLink className="size-3.5 shrink-0" />
                                                         <a
                                                             href={company.website}
@@ -116,20 +116,22 @@ export default function CompanyLogoLibraryIndex({ companies, filters, can }: Pro
                                                     </span>
                                                 )}
                                                 {company.email && (
-                                                    <span className="flex items-center gap-2">
+                                                    <span className="flex min-w-0 items-center gap-2">
                                                         <Mail className="size-3.5 shrink-0" />
                                                         <span className="truncate">{company.email}</span>
                                                     </span>
                                                 )}
                                                 {company.phone && (
-                                                    <span className="flex items-center gap-2">
+                                                    <span className="flex min-w-0 items-center gap-2">
                                                         <Phone className="size-3.5 shrink-0" />
-                                                        <span>{company.phone}</span>
+                                                        <span className="truncate">{company.phone}</span>
                                                     </span>
                                                 )}
                                             </CardDescription>
                                         </div>
-                                        <Badge variant="secondary">{company.logos.length} logos</Badge>
+                                        <Badge className="shrink-0" variant="secondary">
+                                            {company.logos.length} logos
+                                        </Badge>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="mt-auto space-y-4">
