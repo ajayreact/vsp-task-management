@@ -50,6 +50,8 @@ enum Ability: string
     case ApproveTimesheets = 'timesheets.approve';
     case ReviewDeliverables = 'reviews.decide';
 
+    case ManageWfhRequests = 'attendance.wfh.manage';
+
     /**
      * Permission names retired with CRM, Portal, and Lead Management. Seeders
      * detach these from roles before deleting the permission rows.
@@ -106,6 +108,7 @@ enum Ability: string
             self::ViewWorkload => 'See everyone\'s allocated hours against capacity',
             self::ApproveTimesheets => 'Approve or reject submitted timesheets',
             self::ReviewDeliverables => 'Approve, reject or request changes on proofs',
+            self::ManageWfhRequests => 'Assign, approve and manage work from home',
         };
     }
 
@@ -129,6 +132,7 @@ enum Ability: string
             self::ManageCapacity, self::ViewWorkload => 'Capacity',
             self::ApproveTimesheets => 'Timesheets',
             self::ReviewDeliverables => 'Creative review',
+            self::ManageWfhRequests => 'Attendance',
         };
     }
 }

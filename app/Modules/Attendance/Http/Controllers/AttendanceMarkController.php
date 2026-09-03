@@ -28,9 +28,9 @@ class AttendanceMarkController extends Controller
 
         $user = request()->user();
         $office = $this->officeAssignments->assignedOfficeFor($employee);
-        $locationBypassEnabled = $user?->isSuperAdmin() ?? false;
-        $wfhApprovedToday = $this->wfhRequests->isApprovedFor($employee);
-        $canMarkAttendance = $locationBypassEnabled || $wfhApprovedToday || ($office !== null && $office->is_active);
+        $locationBypassEnabled = ($user?->isSuperAdmin() ?? false) || $employee->work_arrangement->bypassesOfficeGps();
+        $wfhAuthorizedToday = $this->wfhRequests->isAuthorizedFor($employee);
+        $canMarkAttendance = $locationBypassEnabled || $wfhAuthorizedToday || ($office !== null && $office->is_active);
         $locationFallback = $this->locationFallbackCoordinates($office, $locationBypassEnabled);
 
         return Inertia::render('Attendance/mark', [

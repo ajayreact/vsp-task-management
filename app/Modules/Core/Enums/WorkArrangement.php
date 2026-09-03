@@ -17,6 +17,11 @@ enum WorkArrangement: string
         };
     }
 
+    public function bypassesOfficeGps(): bool
+    {
+        return $this === self::Remote;
+    }
+
     /**
      * @return array<int, array{value: string, label: string}>
      */

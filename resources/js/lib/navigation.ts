@@ -58,7 +58,7 @@ export const attendanceNavItems: NavItem[] = [
         title: 'WFH Management',
         url: '/admin/attendance/wfh',
         icon: Home,
-        role: 'super-admin',
+        permission: 'attendance.wfh.manage',
     },
     {
         title: 'Attendance',

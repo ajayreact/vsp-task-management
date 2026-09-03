@@ -34,9 +34,11 @@ class WfhRequestController extends Controller
         $employee = $request->user()?->employee;
         abort_if($employee === null, 403);
 
-        $this->wfh->create(
+        $this->wfh->createRequest(
             $employee,
-            Carbon::parse($request->validated('date'))->startOfDay(),
+            $request->user(),
+            Carbon::parse($request->validated('start_date'))->startOfDay(),
+            Carbon::parse($request->validated('end_date'))->startOfDay(),
             $request->validated('reason'),
         );
 

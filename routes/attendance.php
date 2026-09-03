@@ -8,8 +8,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('attendance', [AttendanceDashboardController::class, '__invoke'])->name('attendance.index');
 Route::get('attendance/export/monthly', [AttendanceDashboardController::class, 'exportMonthly'])->name('attendance.export.monthly');
 Route::get('attendance/wfh', [WfhManagementController::class, 'index'])->name('attendance.wfh.index');
+Route::post('attendance/wfh/assign', [WfhManagementController::class, 'assign'])->name('attendance.wfh.assign');
+Route::put('attendance/wfh/{wfhRequest}', [WfhManagementController::class, 'update'])->name('attendance.wfh.update');
 Route::post('attendance/wfh/{wfhRequest}/approve', [WfhManagementController::class, 'approve'])->name('attendance.wfh.approve');
 Route::post('attendance/wfh/{wfhRequest}/reject', [WfhManagementController::class, 'reject'])->name('attendance.wfh.reject');
+Route::post('attendance/wfh/{wfhRequest}/cancel', [WfhManagementController::class, 'cancel'])->name('attendance.wfh.cancel');
 
 Route::prefix('attendance/offices')->name('attendance.offices.')->group(function () {
     Route::get('/', [OfficeLocationController::class, 'index'])->name('index');

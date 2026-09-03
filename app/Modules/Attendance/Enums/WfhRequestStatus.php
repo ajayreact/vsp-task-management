@@ -7,6 +7,8 @@ enum WfhRequestStatus: string
     case Pending = 'pending';
     case Approved = 'approved';
     case Rejected = 'rejected';
+    case Assigned = 'assigned';
+    case Cancelled = 'cancelled';
 
     public function label(): string
     {
@@ -14,7 +16,19 @@ enum WfhRequestStatus: string
             self::Pending => 'Pending',
             self::Approved => 'Approved',
             self::Rejected => 'Rejected',
+            self::Assigned => 'Assigned',
+            self::Cancelled => 'Cancelled',
         };
+    }
+
+    public function isActiveAuthorization(): bool
+    {
+        return in_array($this, [self::Approved, self::Assigned], true);
+    }
+
+    public function blocksOverlap(): bool
+    {
+        return in_array($this, [self::Pending, self::Approved, self::Assigned], true);
     }
 
     /**

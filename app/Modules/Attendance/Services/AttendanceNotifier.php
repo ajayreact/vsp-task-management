@@ -19,7 +19,7 @@ class AttendanceNotifier
         $this->deliver($recipient, [
             'event' => 'attendance.wfh.approved',
             'title' => 'WFH request approved',
-            'body' => 'Your work from home request for '.$request->date->format('M j, Y').' has been approved.',
+            'body' => 'Your work from home request for '.$request->dateRangeLabel().' has been approved.',
             'url' => '/attendance/mark',
             'actor' => $this->actorPayload($approver),
         ]);
@@ -33,9 +33,23 @@ class AttendanceNotifier
         $this->deliver($recipient, [
             'event' => 'attendance.wfh.rejected',
             'title' => 'WFH request rejected',
-            'body' => 'Your work from home request for '.$request->date->format('M j, Y').' was rejected.',
+            'body' => 'Your work from home request for '.$request->dateRangeLabel().' was rejected.',
             'url' => '/attendance/wfh',
             'actor' => $this->actorPayload($approver),
+        ]);
+    }
+
+    public function wfhAssigned(WfhRequest $request, User $assigner): void
+    {
+        $request->loadMissing('employee.user');
+        $recipient = $request->employee->user;
+
+        $this->deliver($recipient, [
+            'event' => 'attendance.wfh.assigned',
+            'title' => 'Work From Home Assigned',
+            'body' => 'You have been assigned work from home for '.$request->dateRangeLabel().'. Reason: '.$request->reason,
+            'url' => '/attendance/mark',
+            'actor' => $this->actorPayload($assigner),
         ]);
     }
 

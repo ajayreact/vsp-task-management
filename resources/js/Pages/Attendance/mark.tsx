@@ -41,6 +41,8 @@ interface TodaySnapshot {
     wfh_request?: {
         id: number;
         date: string;
+        date_range_label?: string;
+        source_label?: string;
         status: string;
         status_label: string;
     } | null;
@@ -171,11 +173,16 @@ export default function AttendanceMark({
                                 <CardDescription>
                                     {today.is_wfh && today.check_in_at
                                         ? `Checked in at ${formatTimeLabel(today.check_in_at)}`
-                                        : 'You have approved WFH for today. Check in without office GPS verification.'}
+                                        : today.wfh_request.source_label
+                                          ? `${today.wfh_request.source_label} for ${today.wfh_request.date_range_label ?? today.wfh_request.date}. Check in without office GPS verification.`
+                                          : 'You have approved WFH for today. Check in without office GPS verification.'}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="flex flex-wrap items-center gap-3">
                                 <Badge variant="info">{today.wfh_request.status_label}</Badge>
+                                {today.wfh_request.source_label && (
+                                    <span className="text-muted-foreground text-sm">{today.wfh_request.source_label}</span>
+                                )}
                                 {today.can_check_in && today.can_check_in_wfh && (
                                     <Button type="button" disabled={!can_mark_attendance || isBusy} onClick={() => handleWfhAction('check_in')}>
                                         {isAttendanceBusy && action === 'check_in' ? <LoaderCircle className="animate-spin" /> : <Home />}

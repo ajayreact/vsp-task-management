@@ -17,8 +17,25 @@ class WfhRequestFormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'date' => ['required', 'date', 'after_or_equal:today'],
+            'start_date' => ['required', 'date', 'after_or_equal:today'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'date' => ['sometimes', 'date', 'after_or_equal:today'],
             'reason' => ['required', 'string', 'max:2000'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('date') && ! $this->filled('start_date')) {
+            $this->merge([
+                'start_date' => $this->input('date'),
+            ]);
+        }
+
+        if (! $this->filled('end_date')) {
+            $this->merge([
+                'end_date' => $this->input('start_date'),
+            ]);
+        }
     }
 }

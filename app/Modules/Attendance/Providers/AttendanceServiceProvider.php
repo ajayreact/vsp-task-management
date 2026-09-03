@@ -4,6 +4,7 @@ namespace App\Modules\Attendance\Providers;
 
 use App\Modules\Attendance\Models\WfhRequest;
 use App\Modules\Attendance\Policies\WfhRequestPolicy;
+use App\Modules\Core\Enums\Ability;
 use App\Modules\Core\Enums\SystemRole;
 use App\Modules\Core\Models\User;
 use Illuminate\Support\Facades\Gate;
@@ -34,7 +35,8 @@ class AttendanceServiceProvider extends ServiceProvider
         });
 
         Gate::define('manageWfhRequests', function (User $user): bool {
-            return $user->hasRole(SystemRole::SuperAdmin->value);
+            return $user->hasRole(SystemRole::SuperAdmin->value)
+                || $user->can(Ability::ManageWfhRequests->value);
         });
 
         Gate::policy(WfhRequest::class, WfhRequestPolicy::class);

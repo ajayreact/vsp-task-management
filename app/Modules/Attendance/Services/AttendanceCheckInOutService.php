@@ -48,7 +48,7 @@ class AttendanceCheckInOutService
 
     public function checkInWfh(Employee $employee): AttendanceEntry
     {
-        if (! $this->wfhRequests->isApprovedFor($employee)) {
+        if (! $this->wfhRequests->isAuthorizedFor($employee)) {
             throw AttendanceWorkflowException::wfhNotApproved();
         }
 
@@ -213,7 +213,8 @@ class AttendanceCheckInOutService
     public function todaySnapshot(Employee $employee): array
     {
         $entry = $this->todayEntry($employee);
-        $approvedWfh = $this->wfhRequests->approvedFor($employee);
+        $authorizedWfh = $this->wfhRequests->authorizedFor($employee);
+        $canCheckInWfh = $this->wfhRequests->isAuthorizedFor($employee);
 
         if ($entry === null) {
             return [
@@ -230,16 +231,11 @@ class AttendanceCheckInOutService
                 'break_count' => 0,
                 'office' => null,
                 'can_check_in' => true,
-                'can_check_in_wfh' => $approvedWfh !== null,
+                'can_check_in_wfh' => $canCheckInWfh,
                 'can_check_out' => false,
                 'can_start_break' => false,
                 'can_resume_work' => false,
-                'wfh_request' => $approvedWfh ? [
-                    'id' => $approvedWfh->id,
-                    'date' => $approvedWfh->date->toDateString(),
-                    'status' => $approvedWfh->status->value,
-                    'status_label' => $approvedWfh->status->label(),
-                ] : null,
+                'wfh_request' => $authorizedWfh ? $this->serializeWfhAuthorization($authorizedWfh) : null,
             ];
         }
 
@@ -247,14 +243,30 @@ class AttendanceCheckInOutService
             $this->serializeToday($entry),
             [
                 'can_check_in_wfh' => false,
-                'wfh_request' => $approvedWfh ? [
-                    'id' => $approvedWfh->id,
-                    'date' => $approvedWfh->date->toDateString(),
-                    'status' => $approvedWfh->status->value,
-                    'status_label' => $approvedWfh->status->label(),
-                ] : null,
+                'wfh_request' => $authorizedWfh ? $this->serializeWfhAuthorization($authorizedWfh) : null,
             ],
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function serializeWfhAuthorization(\App\Modules\Attendance\Models\WfhRequest $request): array
+    {
+        return [
+            'id' => $request->id,
+            'type' => $request->type->value,
+            'type_label' => $request->type->label(),
+            'source_label' => $request->type === \App\Modules\Attendance\Enums\WfhRequestType::Assignment
+                ? 'Assigned by Operations'
+                : 'Approved request',
+            'start_date' => $request->start_date->toDateString(),
+            'end_date' => $request->end_date->toDateString(),
+            'date' => $request->start_date->toDateString(),
+            'date_range_label' => $request->dateRangeLabel(),
+            'status' => $request->status->value,
+            'status_label' => $request->status->label(),
+        ];
     }
 
     protected function reloadEntry(AttendanceEntry $entry): AttendanceEntry
