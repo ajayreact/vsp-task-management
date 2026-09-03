@@ -123,6 +123,22 @@ test('multiple logo variants can be uploaded and listed', function () {
             ->has('company.logos', 2));
 });
 
+test('logos can be previewed by media uuid', function () {
+    Storage::fake('public');
+
+    $company = Company::factory()->create();
+    $viewer = crtEmployee();
+
+    $media = $company->addMedia(UploadedFile::fake()->image('brand.png'))
+        ->withCustomProperties(['variant' => CompanyLogoVariant::Original->value])
+        ->toMediaCollection('logos');
+
+    $this->actingAs($viewer->user)
+        ->get(route('tasks.logo-library.logos.preview', ['company' => $company, 'media' => $media->uuid]))
+        ->assertOk()
+        ->assertHeader('content-disposition', 'inline; filename="brand.png"');
+});
+
 test('logos can be downloaded with attachment disposition', function () {
     Storage::fake('public');
 
@@ -137,7 +153,7 @@ test('logos can be downloaded with attachment disposition', function () {
     $this->actingAs($viewer->user)
         ->get(route('tasks.logo-library.logos.download', ['company' => $company, 'media' => $media->uuid]))
         ->assertOk()
-        ->assertHeader('content-disposition', 'attachment; filename=brand.png');
+        ->assertHeader('content-disposition', 'attachment; filename="brand.png"');
 });
 
 test('logo managers can delete logos', function () {
@@ -152,7 +168,7 @@ test('logo managers can delete logos', function () {
 
     $this->actingAs($manager->user)
         ->delete("/tasks/logo-library/{$company->id}/logos/{$media->uuid}")
-        ->assertRedirect();
+        ->assertRedirect(route('tasks.logo-library.show', $company));
 
     expect($company->fresh()->getMedia('logos'))->toHaveCount(0);
 });

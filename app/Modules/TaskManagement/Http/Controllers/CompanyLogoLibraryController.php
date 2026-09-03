@@ -12,6 +12,7 @@ use App\Modules\TaskManagement\Services\CompanyShareLinkService;
 use App\Support\Pagination;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -106,17 +107,16 @@ class CompanyLogoLibraryController extends Controller
 
         $media->delete();
 
-        return back()->with('success', 'Logo removed.');
+        return redirect()
+            ->route('tasks.logo-library.show', $company)
+            ->with('success', 'Logo removed.');
     }
 
     public function previewLogo(Request $request, Company $company, Media $media): SymfonyResponse
     {
         $this->assertLogoMedia($company, $media);
         $this->authorize('viewLogo', $company);
-
-        if (! is_file($media->getPath())) {
-            abort(404);
-        }
+        $this->assertLogoFileExists($media);
 
         return $media->toInlineResponse($request);
     }
@@ -125,14 +125,9 @@ class CompanyLogoLibraryController extends Controller
     {
         $this->assertLogoMedia($company, $media);
         $this->authorize('viewLogo', $company);
+        $this->assertLogoFileExists($media);
 
-        if (! is_file($media->getPath())) {
-            abort(404);
-        }
-
-        return response()->download($media->getPath(), $media->file_name, [
-            'Content-Type' => $media->mime_type,
-        ]);
+        return $media->toResponse($request);
     }
 
     public function shareLink(Request $request, Company $company): RedirectResponse
@@ -223,5 +218,12 @@ class CompanyLogoLibraryController extends Controller
                 && (int) $media->model_id === (int) $company->id,
             404,
         );
+    }
+
+    protected function assertLogoFileExists(Media $media): void
+    {
+        if (! Storage::disk($media->disk)->exists($media->getPathRelativeToRoot())) {
+            abort(404);
+        }
     }
 }

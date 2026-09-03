@@ -124,6 +124,7 @@ export default function CompanyLogoLibraryShow({ company, variants, can }: Props
 
         router.delete(`/tasks/logo-library/${company.id}/logos/${logo.uuid}`, {
             preserveScroll: true,
+            preserveUrl: true,
         });
     };
 
@@ -228,11 +229,19 @@ export default function CompanyLogoLibraryShow({ company, variants, can }: Props
                                                 src={logo.preview_url}
                                                 alt={logo.variant_label}
                                                 className="max-h-full max-w-full object-contain p-4"
+                                                loading="lazy"
+                                                onError={(event) => {
+                                                    event.currentTarget.classList.add('hidden');
+                                                    event.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                                }}
                                             />
+                                            <span className="text-muted-foreground hidden px-4 text-center text-sm">
+                                                Preview unavailable. Try downloading the file or re-uploading the logo.
+                                            </span>
                                         </button>
                                         <div className="flex flex-wrap gap-2">
                                             <Button asChild size="sm" variant="outline">
-                                                <a href={logo.download_url} download={logo.name}>
+                                                <a href={logo.download_url}>
                                                     <Download className="mr-2 size-4" />
                                                     Download
                                                 </a>

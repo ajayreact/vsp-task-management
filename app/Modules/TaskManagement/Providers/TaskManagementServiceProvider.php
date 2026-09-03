@@ -36,6 +36,7 @@ use App\Modules\TaskManagement\Policies\TimesheetPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * Internal task management: companies, projects, tasks, assignment and
@@ -77,6 +78,13 @@ class TaskManagementServiceProvider extends ServiceProvider
         Route::bind('document', fn (string $value) => CompanyDocument::query()->findOrFail($value));
         Route::bind('calendarItem', fn (string $value) => ContentCalendarItem::query()->findOrFail($value));
         Route::bind('personalTodo', fn (string $value) => PersonalTodo::query()->findOrFail($value));
+        Route::bind('media', function (string $value): Media {
+            if (ctype_digit($value)) {
+                return Media::query()->findOrFail((int) $value);
+            }
+
+            return Media::query()->where('uuid', $value)->firstOrFail();
+        });
 
         Route::middleware(['web', 'auth', 'internal', 'permission:'.Ability::AccessTasks->value])
             ->prefix('tasks')
