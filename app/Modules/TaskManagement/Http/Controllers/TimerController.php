@@ -15,7 +15,7 @@ class TimerController extends Controller
 
     public function start(Request $request, Task $task): RedirectResponse
     {
-        $this->authorize('logTime', $task);
+        $this->authorize('startTimer', $task);
         $employee = $request->user()->employee;
         abort_if($employee === null, 403);
 
@@ -27,7 +27,7 @@ class TimerController extends Controller
 
     public function pause(Request $request, Task $task): RedirectResponse
     {
-        $this->authorize('logTime', $task);
+        $this->authorize('startTimer', $task);
         $employee = $request->user()->employee;
         abort_if($employee === null, 403);
 
@@ -39,7 +39,7 @@ class TimerController extends Controller
 
     public function stop(Request $request, Task $task): RedirectResponse
     {
-        $this->authorize('logTime', $task);
+        $this->authorize('startTimer', $task);
         $employee = $request->user()->employee;
         abort_if($employee === null, 403);
 

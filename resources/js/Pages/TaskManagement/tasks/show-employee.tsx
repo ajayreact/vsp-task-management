@@ -57,6 +57,8 @@ interface Props {
         can_decline: boolean;
         can_claim: boolean;
         logTime: boolean;
+        startTimer: boolean;
+        logManualTime: boolean;
         attachFiles: boolean;
         comment: boolean;
         completeChecklist: boolean;
@@ -276,7 +278,13 @@ export default function EmployeeTaskShow({
                                 <CardDescription>Track time on this task with the timer or manual entries.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                <TaskTimer taskId={task.id} timer={timer} canLog={can.logTime} embedded />
+                                <TaskTimer
+                                    taskId={task.id}
+                                    timer={timer}
+                                    canStartTimer={can.startTimer}
+                                    canLogManualTime={can.logManualTime}
+                                    embedded
+                                />
 
                                 {timeEntries.length > 0 && (
                                     <>

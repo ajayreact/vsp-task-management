@@ -118,16 +118,43 @@ class TaskPolicy
     }
 
     /**
-     * The assignee logs time on their own work. A manager with view-all can
-     * also log on someone else's task when covering.
+     * Only the assignee may start, pause, or stop the live working timer.
      */
-    public function logTime(User $user, Task $task): bool
+    public function startTimer(User $user, Task $task): bool
     {
         if (! $task->status->isWorkable() || $user->employee === null) {
             return false;
         }
 
-        return $this->isAssignee($user, $task) || $user->can(Ability::ViewAllTasks->value);
+        return $this->isAssignee($user, $task);
+    }
+
+    /**
+     * The assignee logs manual intervals on their own work. A manager with
+     * view-all may add manual time on behalf of the assignee, but cannot
+     * operate the live timer controls.
+     */
+    public function logManualTime(User $user, Task $task): bool
+    {
+        if (! $task->status->isWorkable() || $user->employee === null) {
+            return false;
+        }
+
+        if ($this->isAssignee($user, $task)) {
+            return true;
+        }
+
+        return $user->can(Ability::ViewAllTasks->value)
+            && $task->assigned_employee_id !== null;
+    }
+
+    /**
+     * @deprecated Prefer startTimer or logManualTime. Kept for callers that
+     *             only need to know whether any time action is available.
+     */
+    public function logTime(User $user, Task $task): bool
+    {
+        return $this->startTimer($user, $task) || $this->logManualTime($user, $task);
     }
 
     public function submitProof(User $user, Task $task): bool

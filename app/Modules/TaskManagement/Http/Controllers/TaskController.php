@@ -266,6 +266,8 @@ class TaskController extends Controller
             'can' => [
                 ...$this->workflowActionPayload($task, $user),
                 'logTime' => $user->can('logTime', $task),
+                'startTimer' => $user->can('startTimer', $task),
+                'logManualTime' => $user->can('logManualTime', $task),
                 'attachFiles' => $user->can('attachFiles', $task),
                 'comment' => $user->can('comment', $task),
                 'completeChecklist' => $user->can('completeChecklist', $task),
@@ -405,6 +407,8 @@ class TaskController extends Controller
                 'delete' => $user->can('delete', $task),
                 ...$this->workflowActionPayload($task, $user),
                 'logTime' => $user->can('logTime', $task),
+                'startTimer' => $user->can('startTimer', $task),
+                'logManualTime' => $user->can('logManualTime', $task),
                 'attachFiles' => $user->can('attachFiles', $task),
                 'comment' => $user->can('comment', $task),
                 'manageChecklist' => $user->can('manageChecklist', $task),
@@ -751,16 +755,21 @@ class TaskController extends Controller
     }
 
     /**
-     * @return array{running: bool, started_at: string|null, yours: bool}
+     * @return array{running: bool, started_at: string|null, yours: bool, running_employee_name: string|null}
      */
     protected function timerPayload(Task $task, ?int $employeeId): array
     {
-        $running = $task->timeEntries()->where('is_running', true)->latest('id')->first();
+        $running = $task->timeEntries()
+            ->where('is_running', true)
+            ->with('employee.user:id,name')
+            ->latest('id')
+            ->first();
 
         return [
             'running' => $running !== null,
             'started_at' => $running?->started_at->toIso8601String(),
             'yours' => $running !== null && $running->employee_id === $employeeId,
+            'running_employee_name' => $running?->employee?->user?->name,
         ];
     }
 

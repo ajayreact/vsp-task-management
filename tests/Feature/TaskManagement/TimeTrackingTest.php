@@ -111,3 +111,55 @@ test('a bystander cannot start someone elses timer', function () {
         ->post("/tasks/{$task->id}/timer/start")
         ->assertForbidden();
 });
+
+test('a manager with view all cannot start the assignees live timer', function () {
+    $assignee = employeeWith(Ability::AccessTasks);
+    $manager = employeeWith(Ability::AccessTasks, Ability::ViewAllTasks);
+    $task = Task::factory()->acceptedBy($assignee)->create(['status' => TaskStatus::InProgress]);
+
+    $this->actingAs($manager->user)
+        ->post("/tasks/{$task->id}/timer/start")
+        ->assertForbidden();
+
+    expect(TimeEntry::query()->where('is_running', true)->count())->toBe(0);
+});
+
+test('a manager with view all can add manual time for the assignee', function () {
+    $assignee = employeeWith(Ability::AccessTasks);
+    $manager = employeeWith(Ability::AccessTasks, Ability::ViewAllTasks);
+    $task = Task::factory()->acceptedBy($assignee)->create(['status' => TaskStatus::InProgress]);
+
+    $this->actingAs($manager->user)
+        ->post("/tasks/{$task->id}/time-entries", [
+            'started_at' => now()->subHours(2)->toDateTimeString(),
+            'ended_at' => now()->subHour()->toDateTimeString(),
+            'note' => 'Coverage while assignee was out',
+        ])
+        ->assertRedirect();
+
+    $entry = TimeEntry::query()->sole();
+
+    expect($entry->employee_id)->toBe($assignee->id)
+        ->and($entry->source)->toBe(TimeSource::Manual)
+        ->and($entry->note)->toBe('Coverage while assignee was out');
+});
+
+test('task detail exposes timer controls only for the assignee', function () {
+    $assignee = employeeWith(Ability::AccessTasks);
+    $manager = employeeWith(Ability::AccessTasks, Ability::ViewAllTasks);
+    $task = Task::factory()->acceptedBy($assignee)->create(['status' => TaskStatus::InProgress]);
+
+    $this->actingAs($assignee->user)
+        ->get("/tasks/{$task->id}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('can.startTimer', true)
+            ->where('can.logManualTime', true));
+
+    $this->actingAs($manager->user)
+        ->get("/tasks/{$task->id}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('can.startTimer', false)
+            ->where('can.logManualTime', true));
+});

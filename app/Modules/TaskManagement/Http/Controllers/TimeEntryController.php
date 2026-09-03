@@ -3,6 +3,7 @@
 namespace App\Modules\TaskManagement\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Core\Models\Employee;
 use App\Modules\TaskManagement\Exceptions\ProductivityException;
 use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Models\TimeEntry;
@@ -16,7 +17,7 @@ class TimeEntryController extends Controller
 
     public function store(Request $request, Task $task): RedirectResponse
     {
-        $this->authorize('logTime', $task);
+        $this->authorize('logManualTime', $task);
 
         $validated = $request->validate([
             'started_at' => ['required', 'date'],
@@ -25,7 +26,7 @@ class TimeEntryController extends Controller
             'is_billable' => ['sometimes', 'boolean'],
         ]);
 
-        $employee = $request->user()->employee;
+        $employee = $this->resolveManualTimeEmployee($request, $task);
         abort_if($employee === null, 403);
 
         try {
@@ -35,6 +36,21 @@ class TimeEntryController extends Controller
         }
 
         return back()->with('success', 'Time logged.');
+    }
+
+    protected function resolveManualTimeEmployee(Request $request, Task $task): ?Employee
+    {
+        $user = $request->user();
+
+        if ($user->can('startTimer', $task)) {
+            return $user->employee;
+        }
+
+        if ($user->can('logManualTime', $task)) {
+            return $task->assignee;
+        }
+
+        return null;
     }
 
     public function destroy(TimeEntry $entry): RedirectResponse

@@ -27,6 +27,31 @@ function formatted(value: string | null): string {
     return new Date(value).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 }
 
+const LONG_COMMENT_CHARS = 480;
+
+function CommentBody({ body }: { body: string }) {
+    const [expanded, setExpanded] = useState(false);
+    const isLong = body.length > LONG_COMMENT_CHARS;
+    const preview = isLong ? `${body.slice(0, LONG_COMMENT_CHARS).trimEnd()}…` : body;
+
+    return (
+        <div className="mt-1">
+            <p className="text-sm whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{expanded || !isLong ? body : preview}</p>
+            {isLong && (
+                <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    className="text-primary h-auto px-0 pt-1 text-xs"
+                    onClick={() => setExpanded((value) => !value)}
+                >
+                    {expanded ? 'Show less' : 'Show more'}
+                </Button>
+            )}
+        </div>
+    );
+}
+
 export function TaskComments({ taskId, comments, canComment }: { taskId: number; comments: TaskCommentRow[]; canComment: boolean }) {
     const initials = useInitials();
     const form = useForm<{ body: string }>({ body: '' });
@@ -140,7 +165,7 @@ function CommentRow({
                         </div>
                     </form>
                 ) : (
-                    <p className="mt-1 text-sm whitespace-pre-wrap">{comment.body}</p>
+                    <CommentBody body={comment.body} />
                 )}
 
                 {!editing && (comment.can_edit || comment.can_delete) && (
