@@ -120,7 +120,15 @@ class PersonalTodo extends Model
 
     public function isDueToday(): bool
     {
-        return $this->due_date !== null && $this->due_date->isToday();
+        if ($this->status->isCompleted() || $this->due_date === null) {
+            return false;
+        }
+
+        if (! $this->due_date->isToday()) {
+            return false;
+        }
+
+        return ! $this->isOverdue();
     }
 
     public function isUpcoming(int $days = 7): bool

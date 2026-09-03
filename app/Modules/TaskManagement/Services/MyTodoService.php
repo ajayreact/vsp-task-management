@@ -33,15 +33,14 @@ class MyTodoService
         $items = $this->collectItems($user, $employee);
         $grouped = $this->groupItems($items);
 
-        $todayActive = $grouped['today']['items']->filter(fn (array $item) => ! $item['is_completed']);
-        $todayCompleted = $grouped['today']['items']->filter(fn (array $item) => $item['is_completed']);
-        $todayTotal = $todayActive->count() + $todayCompleted->count();
-        $todayDone = $todayCompleted->count();
+        $todayActiveCount = $grouped['today']['count'];
+        $completedTodayCount = $grouped['completed_today']['count'];
+        $todayProgressTotal = $todayActiveCount + $completedTodayCount;
 
         return [
             'greeting' => $this->greeting($user),
             'today' => [
-                'count' => $grouped['today']['count'],
+                'count' => $todayActiveCount,
                 'items' => $grouped['today']['items']->take(5)->values()->all(),
             ],
             'overdue' => [
@@ -61,15 +60,15 @@ class MyTodoService
                     ->all(),
             ],
             'completed_today' => [
-                'count' => $grouped['completed_today']['count'],
+                'count' => $completedTodayCount,
                 'items' => $grouped['completed_today']['items']->take(3)->values()->all(),
             ],
             'progress' => [
-                'completed' => $todayDone,
-                'total' => max($todayTotal, 1),
+                'completed' => $completedTodayCount,
+                'total' => $todayProgressTotal,
                 'overdue_count' => $grouped['overdue']['count'],
-                'due_today_count' => $grouped['today']['count'],
-                'completed_today_count' => $grouped['completed_today']['count'],
+                'due_today_count' => $todayActiveCount,
+                'completed_today_count' => $completedTodayCount,
             ],
             'href' => '/tasks/todos',
             'priorities' => TaskPriority::options(),
@@ -212,7 +211,7 @@ class MyTodoService
                 'due_date' => $dueAt?->toDateString(),
                 'due_time' => $dueAt?->format('H:i'),
                 'is_overdue' => ! $isCompleted && $dueAt !== null && $dueAt->isPast(),
-                'is_due_today' => $dueAt !== null && $dueAt->isToday(),
+                'is_due_today' => ! $isCompleted && $dueAt !== null && $dueAt->isToday() && ! $dueAt->isPast(),
                 'is_completed' => $isCompleted,
                 'completed_at' => $task->completed_at?->toIso8601String(),
                 'href' => "/tasks/{$task->id}",
@@ -306,10 +305,8 @@ class MyTodoService
 
         return [
             'today' => [
-                'count' => $today->count() + $completedToday->filter(fn (array $item) => $item['is_due_today'] || ($item['due_date'] !== null && Carbon::parse($item['due_date'])->isToday()))->count(),
-                'items' => $this->sortItems(
-                    $today->concat($completedToday->filter(fn (array $item) => $item['due_date'] !== null && Carbon::parse($item['due_date'])->isToday()))
-                ),
+                'count' => $today->count(),
+                'items' => $this->sortItems($today),
             ],
             'overdue' => [
                 'count' => $overdue->count(),
@@ -402,7 +399,7 @@ class MyTodoService
         $tab = $filters['tab'] ?? 'all';
 
         $filtered = match ($tab) {
-            'today' => $items->filter(fn (array $item) => ($item['is_due_today'] || ($item['due_date'] !== null && Carbon::parse($item['due_date'])->isToday())) && ! $item['is_overdue']),
+            'today' => $items->filter(fn (array $item) => ! $item['is_completed'] && $item['is_due_today']),
             'overdue' => $items->filter(fn (array $item) => $item['is_overdue'] && ! $item['is_completed']),
             'upcoming' => $items->filter(function (array $item) {
                 if ($item['is_completed'] || $item['due_date'] === null || $item['is_overdue'] || $item['is_due_today']) {

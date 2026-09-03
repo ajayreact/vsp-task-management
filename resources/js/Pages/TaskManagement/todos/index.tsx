@@ -92,7 +92,7 @@ export default function MyTodosIndex({ greeting, filters, sections, items, count
         completed_today: sections.completed_today,
         progress: {
             completed: sections.completed_today.count,
-            total: Math.max(sections.today.count, 1),
+            total: sections.today.count + sections.completed_today.count,
             overdue_count: sections.overdue.count,
             due_today_count: sections.today.count,
             completed_today_count: sections.completed_today.count,

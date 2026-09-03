@@ -17,9 +17,7 @@ export function MyTodoWidget({ snapshot }: MyTodoWidgetProps) {
         ? Math.round((snapshot.progress.completed / snapshot.progress.total) * 100)
         : 0;
 
-    const visibleItems = snapshot.today.items.length > 0
-        ? snapshot.today.items
-        : snapshot.overdue.items.slice(0, 3);
+    const todayItems = snapshot.today.items.filter((item) => ! item.is_completed);
 
     return (
         <>
@@ -61,10 +59,10 @@ export function MyTodoWidget({ snapshot }: MyTodoWidgetProps) {
                         <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
                             {snapshot.today.count > 0 ? `${snapshot.today.count} items today` : 'Nothing scheduled for today'}
                         </p>
-                        {visibleItems.length === 0 ? (
+                        {todayItems.length === 0 ? (
                             <p className="text-muted-foreground py-4 text-sm">Add a quick todo or check upcoming work below.</p>
                         ) : (
-                            visibleItems.map((item) => <TodoItemRow key={item.key} item={item} compact showKind />)
+                            todayItems.map((item) => <TodoItemRow key={item.key} item={item} compact showKind />)
                         )}
                     </div>
 
@@ -74,6 +72,17 @@ export function MyTodoWidget({ snapshot }: MyTodoWidgetProps) {
                                 Overdue · {snapshot.overdue.count}
                             </p>
                             {snapshot.overdue.items.map((item) => (
+                                <TodoItemRow key={item.key} item={item} compact showKind={false} />
+                            ))}
+                        </div>
+                    )}
+
+                    {snapshot.completed_today.count > 0 && (
+                        <div className="space-y-1 border-t pt-3">
+                            <p className="text-emerald-700 dark:text-emerald-400 text-xs font-medium tracking-wide uppercase">
+                                Completed today · {snapshot.completed_today.count}
+                            </p>
+                            {snapshot.completed_today.items.map((item) => (
                                 <TodoItemRow key={item.key} item={item} compact showKind={false} />
                             ))}
                         </div>

@@ -155,8 +155,111 @@ test('overdue personal todos are grouped as overdue', function () {
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->where('sections.overdue.count', 1)
+            ->where('sections.today.count', 0)
             ->where('items.0.title', 'Missed call')
             ->where('items.0.is_overdue', true));
+});
+
+test('dashboard my todo snapshot keeps overdue items out of today section', function () {
+    $employee = employeeWith(Ability::AccessTasks);
+
+    PersonalTodo::factory()->create([
+        'user_id' => $employee->user_id,
+        'title' => 'Send the agreement to sagar sir',
+        'due_date' => today()->subDay(),
+        'due_time' => '18:06',
+        'priority' => TaskPriority::High,
+    ]);
+
+    $this->actingAs($employee->user)
+        ->get('/dashboard')
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('snapshot.my_todo.today.count', 0)
+            ->where('snapshot.my_todo.today.items', [])
+            ->where('snapshot.my_todo.overdue.count', 1)
+            ->where('snapshot.my_todo.overdue.items.0.title', 'Send the agreement to sagar sir')
+            ->where('snapshot.my_todo.progress.due_today_count', 0)
+            ->where('snapshot.my_todo.progress.overdue_count', 1)
+            ->where('snapshot.my_todo.progress.total', 0));
+});
+
+test('dashboard my todo snapshot categorizes todos into mutually exclusive sections', function () {
+    $employee = employeeWith(Ability::AccessTasks);
+
+    PersonalTodo::factory()->create([
+        'user_id' => $employee->user_id,
+        'title' => 'Overdue item',
+        'due_date' => today()->subDay(),
+    ]);
+
+    PersonalTodo::factory()->create([
+        'user_id' => $employee->user_id,
+        'title' => 'Due today item',
+        'due_date' => today(),
+        'due_time' => now()->addHours(2)->format('H:i'),
+    ]);
+
+    PersonalTodo::factory()->create([
+        'user_id' => $employee->user_id,
+        'title' => 'Future item',
+        'due_date' => today()->addDays(2),
+    ]);
+
+    PersonalTodo::factory()->completed()->create([
+        'user_id' => $employee->user_id,
+        'title' => 'Completed today item',
+        'due_date' => today(),
+        'completed_at' => now(),
+    ]);
+
+    PersonalTodo::factory()->create([
+        'user_id' => $employee->user_id,
+        'title' => 'No due date item',
+        'due_date' => null,
+    ]);
+
+    $this->actingAs($employee->user)
+        ->get('/dashboard')
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('snapshot.my_todo.today.count', 1)
+            ->where('snapshot.my_todo.today.items.0.title', 'Due today item')
+            ->where('snapshot.my_todo.overdue.count', 1)
+            ->where('snapshot.my_todo.overdue.items.0.title', 'Overdue item')
+            ->where('snapshot.my_todo.upcoming.count', 1)
+            ->where('snapshot.my_todo.completed_today.count', 1)
+            ->where('snapshot.my_todo.completed_today.items.0.title', 'Completed today item')
+            ->where('snapshot.my_todo.progress.due_today_count', 1)
+            ->where('snapshot.my_todo.progress.overdue_count', 1)
+            ->where('snapshot.my_todo.progress.completed_today_count', 1)
+            ->where('snapshot.my_todo.progress.total', 2)
+            ->where('snapshot.my_todo.today.items', fn ($items) => collect($items)->pluck('title')->doesntContain('Overdue item'))
+            ->where('snapshot.my_todo.overdue.items', fn ($items) => collect($items)->pluck('title')->doesntContain('Due today item')));
+});
+
+test('personal todo due today becomes overdue after due time passes', function () {
+    $employee = employeeWith(Ability::AccessTasks);
+
+    $this->travelTo(today()->setTime(19, 0));
+
+    $todo = PersonalTodo::factory()->create([
+        'user_id' => $employee->user_id,
+        'title' => 'Timed item',
+        'due_date' => today(),
+        'due_time' => '18:06',
+    ]);
+
+    expect($todo->isOverdue())->toBeTrue()
+        ->and($todo->isDueToday())->toBeFalse();
+
+    $this->actingAs($employee->user)
+        ->get('/dashboard')
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('snapshot.my_todo.today.count', 0)
+            ->where('snapshot.my_todo.overdue.count', 1)
+            ->where('snapshot.my_todo.overdue.items.0.title', 'Timed item'));
 });
 
 test('upcoming personal todos appear in the upcoming tab', function () {
