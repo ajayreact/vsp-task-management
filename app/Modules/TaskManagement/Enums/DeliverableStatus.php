@@ -9,6 +9,7 @@ enum DeliverableStatus: string
     case ChangesRequested = 'changes_requested';
     case Approved = 'approved';
     case Rejected = 'rejected';
+    case Superseded = 'superseded';
 
     public function label(): string
     {
@@ -18,6 +19,7 @@ enum DeliverableStatus: string
             self::ChangesRequested => 'Changes requested',
             self::Approved => 'Approved',
             self::Rejected => 'Rejected',
+            self::Superseded => 'Superseded',
         };
     }
 

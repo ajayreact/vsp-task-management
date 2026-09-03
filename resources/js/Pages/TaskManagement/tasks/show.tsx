@@ -163,6 +163,8 @@ export default function TaskShow({
         [attachments.length, checklist.completed, checklist.total, deliverables.length, subtasks.completed, subtasks.total, timeEntries],
     );
 
+    const heroMetaBadgeClass = 'border-white/20 bg-white/10 text-white hover:bg-white/10';
+
     return (
         <TaskLayout breadcrumbs={breadcrumbs}>
             <Head title={task.title} />
@@ -179,8 +181,8 @@ export default function TaskShow({
                                     <Sparkles className="size-3" />
                                     Task #{task.id}
                                 </Badge>
-                                <StatusBadge status={task.status} label={task.status_label} />
-                                <PriorityBadge priority={task.priority} label={task.priority_label} />
+                                <Badge className={heroMetaBadgeClass}>{task.status_label}</Badge>
+                                <Badge className={heroMetaBadgeClass}>{task.priority_label}</Badge>
                             </div>
 
                             <div className="space-y-2">
@@ -302,7 +304,14 @@ export default function TaskShow({
 
                         <TaskAttachments taskId={task.id} attachments={attachments} canUpload={can.attachFiles} />
 
-                        <TaskReview taskId={task.id} deliverables={deliverables} canSubmit={can.submitProof} canReview={can.reviewProof} />
+                        <TaskReview
+                            taskId={task.id}
+                            taskTitle={task.title}
+                            taskDescription={task.description}
+                            deliverables={deliverables}
+                            canSubmit={false}
+                            canReview={can.reviewProof}
+                        />
                     </div>
 
                     <aside className="min-w-0 space-y-5">

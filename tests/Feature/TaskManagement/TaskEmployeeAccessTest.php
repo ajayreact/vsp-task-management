@@ -16,7 +16,10 @@ beforeEach(function () {
 
 test('an assignee sees the employee task detail page', function () {
     $employee = employeeWith(Ability::AccessTasks);
-    $task = Task::factory()->acceptedBy($employee)->create();
+    $task = Task::factory()->create([
+        'status' => TaskStatus::Assigned,
+        'assigned_employee_id' => $employee->id,
+    ]);
 
     $this->actingAs($employee->user)
         ->get("/tasks/{$task->id}")
@@ -29,7 +32,7 @@ test('an assignee sees the employee task detail page', function () {
             ->missing('recurrence')
             ->where('can.submitProof', false)
             ->where('submitReview.can_submit', false)
-            ->where('submitReview.blocked_reason', 'Move this task to In Progress before submitting deliverables for review.'));
+            ->where('submitReview.blocked_reason', 'Accept this task before you can submit deliverables for review.'));
 });
 
 test('an assignee can submit deliverables when the task is in progress', function () {

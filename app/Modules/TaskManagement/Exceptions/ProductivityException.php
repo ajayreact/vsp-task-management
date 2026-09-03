@@ -52,7 +52,7 @@ class ProductivityException extends RuntimeException
 
     public static function cannotSubmitProof(): self
     {
-        return new self('A proof can only be submitted while the task is in progress or in revision.');
+        return new self('A proof can only be submitted while the task is in progress, under review, or in revision.');
     }
 
     public static function clientReviewUnavailable(): self

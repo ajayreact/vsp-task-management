@@ -4,17 +4,39 @@ namespace App\Modules\TaskManagement\Policies;
 
 use App\Modules\Core\Enums\Ability;
 use App\Modules\Core\Models\User;
+use App\Modules\TaskManagement\Enums\DeliverableStatus;
 use App\Modules\TaskManagement\Models\Deliverable;
 
 class DeliverablePolicy
 {
     /**
      * Issuing or copying the public client share link. Super Admin is granted
-     * through Gate::before; staff need tasks.view_all.
+     * through Gate::before; managers need tasks.view_all. The assignee may
+     * share versions they have submitted on their task.
      */
     public function share(User $user, Deliverable $deliverable): bool
     {
-        return $user->can(Ability::ViewAllTasks->value);
+        if ($user->can(Ability::ViewAllTasks->value)) {
+            return true;
+        }
+
+        $employee = $user->employee;
+
+        if ($employee === null) {
+            return false;
+        }
+
+        $task = $deliverable->task;
+
+        if ($task->assigned_employee_id !== $employee->id) {
+            return false;
+        }
+
+        return in_array($deliverable->status, [
+            DeliverableStatus::Submitted,
+            DeliverableStatus::InReview,
+            DeliverableStatus::Approved,
+        ], true);
     }
 
     /**

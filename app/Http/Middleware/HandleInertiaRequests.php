@@ -70,6 +70,7 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
                 'share_url' => $request->session()->get('share_url'),
+                'share_message' => $request->session()->get('share_message'),
             ],
             'notifications' => NotificationPresenter::forUser($user),
             'notificationSound' => self::notificationSoundConfig($user),

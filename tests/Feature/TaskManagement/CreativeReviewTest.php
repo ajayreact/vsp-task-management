@@ -3,6 +3,7 @@
 use App\Modules\Core\Enums\Ability;
 use App\Modules\TaskManagement\Enums\DeliverableStatus;
 use App\Modules\TaskManagement\Enums\TaskStatus;
+use App\Modules\TaskManagement\Http\Controllers\DeliverableController;
 use App\Modules\TaskManagement\Models\Deliverable;
 use App\Modules\TaskManagement\Models\Task;
 use Illuminate\Http\UploadedFile;
@@ -116,4 +117,100 @@ test('a proof cannot be submitted from a draft', function () {
             'files' => [UploadedFile::fake()->image('hero.jpg')],
         ])
         ->assertForbidden();
+});
+
+test('the assignee can upload a corrected version while the task is in review', function () {
+    Storage::fake('public');
+
+    $employee = employeeWith(Ability::AccessTasks);
+    $task = Task::factory()->create([
+        'status' => TaskStatus::InProgress,
+        'assigned_employee_id' => $employee->id,
+    ]);
+
+    $this->actingAs($employee->user)->post("/tasks/{$task->id}/deliverables", [
+        'files' => [UploadedFile::fake()->image('v1.jpg')],
+    ]);
+
+    expect($task->refresh()->status)->toBe(TaskStatus::InReview);
+
+    $first = Deliverable::query()->where('tm_task_id', $task->id)->where('version', 1)->sole();
+
+    $this->actingAs($employee->user)
+        ->post("/tasks/{$task->id}/deliverables", [
+            'notes' => 'Fixed typo',
+            'files' => [UploadedFile::fake()->image('v2.jpg')],
+        ])
+        ->assertRedirect();
+
+    $second = Deliverable::query()->where('tm_task_id', $task->id)->where('version', 2)->sole();
+
+    expect(Deliverable::query()->where('tm_task_id', $task->id)->count())->toBe(2)
+        ->and($first->refresh()->status)->toBe(DeliverableStatus::Superseded)
+        ->and($second->status)->toBe(DeliverableStatus::InReview)
+        ->and($task->refresh()->status)->toBe(TaskStatus::InReview)
+        ->and($second->shareLink)->not->toBeNull();
+});
+
+test('a reviewer can only decide the latest open deliverable version', function () {
+    Storage::fake('public');
+
+    $employee = employeeWith(Ability::AccessTasks);
+    $reviewer = employeeWith(Ability::AccessTasks, Ability::ReviewDeliverables);
+    $task = Task::factory()->create([
+        'status' => TaskStatus::InProgress,
+        'assigned_employee_id' => $employee->id,
+    ]);
+
+    $this->actingAs($employee->user)->post("/tasks/{$task->id}/deliverables", [
+        'files' => [UploadedFile::fake()->image('v1.jpg')],
+    ]);
+
+    $first = Deliverable::query()->where('version', 1)->sole();
+
+    $this->actingAs($employee->user)->post("/tasks/{$task->id}/deliverables", [
+        'files' => [UploadedFile::fake()->image('v2.jpg')],
+    ]);
+
+    $this->actingAs($reviewer->user)
+        ->post("/tasks/deliverables/{$first->id}/review", ['decision' => 'approve'])
+        ->assertRedirect()
+        ->assertSessionHas('error');
+});
+
+test('submitting a proof creates a share link the assignee can copy', function () {
+    Storage::fake('public');
+
+    $employee = employeeWith(Ability::AccessTasks);
+    $task = Task::factory()->create([
+        'status' => TaskStatus::InProgress,
+        'assigned_employee_id' => $employee->id,
+        'title' => 'Need To Create a Course Flyer',
+        'description' => 'Using the 3 courses, create an attractive flyer.',
+    ]);
+
+    $this->actingAs($employee->user)->post("/tasks/{$task->id}/deliverables", [
+        'files' => [UploadedFile::fake()->image('flyer.jpg')],
+    ]);
+
+    $deliverable = Deliverable::query()->sole();
+
+    expect($deliverable->shareLink)->not->toBeNull();
+
+    $this->actingAs($employee->user)
+        ->post(route('tasks.deliverables.share-link', $deliverable))
+        ->assertRedirect()
+        ->assertSessionHas('share_url')
+        ->assertSessionHas('share_message', DeliverableController::buildShareMessage($task, $deliverable->shareLink->publicUrl()));
+});
+
+test('the share message includes the task title description and review link', function () {
+    $task = Task::factory()->create([
+        'title' => 'Need To Create a Course Flyer',
+        'description' => 'Using the 3 courses, create an attractive flyer.',
+    ]);
+
+    $message = DeliverableController::buildShareMessage($task, 'https://app.vspcrm.in/d/Ab12Cd34');
+
+    expect($message)->toBe("Need To Create a Course Flyer\n\nUsing the 3 courses, create an attractive flyer.\n\nReview Link:\nhttps://app.vspcrm.in/d/Ab12Cd34");
 });

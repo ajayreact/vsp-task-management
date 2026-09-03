@@ -27,9 +27,13 @@ class CreativeReview
     public function submit(Task $task, Employee $employee, User $actor, array $files, ?string $notes = null): Deliverable
     {
         $deliverable = DB::transaction(function () use ($task, $employee, $actor, $files, $notes) {
-            if (! in_array($task->status, [TaskStatus::InProgress, TaskStatus::Revision], true)) {
+            if (! in_array($task->status, [TaskStatus::InProgress, TaskStatus::Revision, TaskStatus::InReview], true)) {
                 throw ProductivityException::cannotSubmitProof();
             }
+
+            $task->deliverables()
+                ->whereIn('status', [DeliverableStatus::Submitted, DeliverableStatus::InReview])
+                ->update(['status' => DeliverableStatus::Superseded]);
 
             $version = (int) $task->deliverables()->max('version') + 1;
 
@@ -47,20 +51,33 @@ class CreativeReview
                 $deliverable->addMedia($file)->toMediaCollection('proofs');
             }
 
-            $this->workflow->transition($task, TaskStatus::InReview, $actor);
+            if ($task->status !== TaskStatus::InReview) {
+                $this->workflow->transition($task, TaskStatus::InReview, $actor);
+            }
 
             return $deliverable->refresh();
         });
 
+        $this->shareLinks->getOrCreate($deliverable->loadMissing('task'), $actor);
+
         $this->notifier->proofSubmitted($task->refresh(), $actor);
 
-        return $deliverable;
+        return $deliverable->refresh();
     }
 
     public function decide(Deliverable $deliverable, User $reviewer, ReviewDecision $decision, ?string $comments = null): Deliverable
     {
         $deliverable = DB::transaction(function () use ($deliverable, $reviewer, $decision, $comments) {
             if (! $deliverable->status->isOpen()) {
+                throw ProductivityException::deliverableNotOpen();
+            }
+
+            $latestOpen = $deliverable->task->deliverables()
+                ->whereIn('status', [DeliverableStatus::Submitted, DeliverableStatus::InReview])
+                ->orderByDesc('version')
+                ->first();
+
+            if ($latestOpen === null || $latestOpen->id !== $deliverable->id) {
                 throw ProductivityException::deliverableNotOpen();
             }
 

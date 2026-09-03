@@ -257,6 +257,8 @@ export default function EmployeeTaskShow({
                                 <Separator />
                                 <TaskReview
                                     taskId={task.id}
+                                    taskTitle={task.title}
+                                    taskDescription={task.description}
                                     deliverables={deliverables}
                                     canSubmit={can.submitProof}
                                     canReview={false}

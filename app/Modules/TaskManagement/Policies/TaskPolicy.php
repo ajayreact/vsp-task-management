@@ -160,7 +160,7 @@ class TaskPolicy
     public function submitProof(User $user, Task $task): bool
     {
         return $this->isAssignee($user, $task)
-            && in_array($task->status, [TaskStatus::InProgress, TaskStatus::Revision], true);
+            && in_array($task->status, [TaskStatus::InProgress, TaskStatus::Revision, TaskStatus::InReview], true);
     }
 
     public function reviewProof(User $user, Task $task): bool

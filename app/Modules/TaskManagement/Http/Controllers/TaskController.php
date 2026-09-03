@@ -586,6 +586,8 @@ class TaskController extends Controller
      */
     protected function deliverablePayload(Task $task, User $user): array
     {
+        $latestVersion = (int) $task->deliverables()->max('version');
+
         return $task->deliverables()
             ->with(['submitter.user:id,name', 'reviews.reviewer:id,name', 'media', 'shareLink'])
             ->orderByDesc('version')
@@ -593,6 +595,7 @@ class TaskController extends Controller
             ->map(fn (Deliverable $deliverable) => [
                 'id' => $deliverable->id,
                 'version' => $deliverable->version,
+                'is_latest' => $deliverable->version === $latestVersion,
                 'status' => $deliverable->status->value,
                 'status_label' => $deliverable->status->label(),
                 'notes' => $deliverable->notes,
@@ -601,10 +604,14 @@ class TaskController extends Controller
                 'submitted_at' => $deliverable->submitted_at->toIso8601String(),
                 'can_share' => $user->can('share', $deliverable),
                 'share_url' => $deliverable->shareLink?->publicUrl(),
+                'share_message' => $deliverable->shareLink !== null
+                    ? DeliverableController::buildShareMessage($task, $deliverable->shareLink->publicUrl())
+                    : null,
                 'files' => $deliverable->getMedia('proofs')->map(fn (Media $media) => [
                     'id' => $media->id,
                     'name' => $media->file_name,
                     'url' => $media->getUrl(),
+                    'download_url' => $media->getUrl(),
                     'mime' => $media->mime_type,
                 ])->all(),
                 'reviews' => $deliverable->reviews->map(fn (DeliverableReview $review) => [
@@ -680,9 +687,8 @@ class TaskController extends Controller
         if ($isAssignee && ! $canSubmit) {
             $blockedReason = match ($task->status) {
                 TaskStatus::Assigned => 'Accept this task before you can submit deliverables for review.',
-                TaskStatus::InReview => 'Your submission is awaiting review. You can upload a revised version once changes are requested.',
                 TaskStatus::Completed => 'This task has already been completed.',
-                default => 'Deliverables can only be submitted while the task is in progress or after changes have been requested.',
+                default => 'Deliverables can only be submitted while the task is in progress, under review, or after changes have been requested.',
             };
         }
 

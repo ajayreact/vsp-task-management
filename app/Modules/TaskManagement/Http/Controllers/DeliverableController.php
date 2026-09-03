@@ -72,8 +72,29 @@ class DeliverableController extends Controller
         $user = $request->user();
         abort_if($user === null, 403);
 
-        $links->getOrCreate($deliverable, $user);
+        $deliverable->loadMissing('task');
+        $link = $links->getOrCreate($deliverable, $user);
+        $shareUrl = $link->publicUrl();
 
-        return back();
+        return back()->with([
+            'share_url' => $shareUrl,
+            'share_message' => self::buildShareMessage($deliverable->task, $shareUrl),
+        ]);
+    }
+
+    public static function buildShareMessage(Task $task, string $shareUrl): string
+    {
+        $lines = [trim($task->title)];
+
+        if ($task->description !== null && trim($task->description) !== '') {
+            $lines[] = '';
+            $lines[] = trim($task->description);
+        }
+
+        $lines[] = '';
+        $lines[] = 'Review Link:';
+        $lines[] = $shareUrl;
+
+        return implode("\n", $lines);
     }
 }

@@ -104,7 +104,7 @@ test('an unauthorized employee cannot generate a share link', function () {
     $this->assertDatabaseCount('tm_deliverable_share_links', 0);
 });
 
-test('the deliverable submitter cannot generate a share link', function () {
+test('the deliverable submitter cannot generate a share link when they are not the assignee', function () {
     $assignee = employeeWith(Ability::AccessTasks);
     $submitter = employeeWith(Ability::AccessTasks);
     $task = Task::factory()->create(['assigned_employee_id' => $assignee->id]);
@@ -120,20 +120,21 @@ test('the deliverable submitter cannot generate a share link', function () {
     $this->assertDatabaseCount('tm_deliverable_share_links', 0);
 });
 
-test('the current assignee cannot generate a share link', function () {
+test('the current assignee can generate a share link for their deliverable', function () {
     $assignee = employeeWith(Ability::AccessTasks);
-    $submitter = employeeWith(Ability::AccessTasks);
     $task = Task::factory()->create(['assigned_employee_id' => $assignee->id]);
     $deliverable = Deliverable::factory()->create([
         'tm_task_id' => $task->id,
-        'submitted_by_employee_id' => $submitter->id,
+        'submitted_by_employee_id' => $assignee->id,
     ]);
 
     $this->actingAs($assignee->user)
         ->post(route('tasks.deliverables.share-link', $deliverable))
-        ->assertForbidden();
+        ->assertRedirect()
+        ->assertSessionHas('share_url')
+        ->assertSessionHas('share_message');
 
-    $this->assertDatabaseCount('tm_deliverable_share_links', 0);
+    $this->assertDatabaseCount('tm_deliverable_share_links', 1);
 });
 
 test('a user with tasks.view_all can generate a share link', function () {
