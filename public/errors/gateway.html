@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Temporarily Unavailable - VSP CRM</title>
+    <style>
+        body { font-family: Inter, system-ui, sans-serif; background: #f4f4f5; color: #18181b; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+        .card { background: #fff; border: 1px solid rgba(120,115,110,.12); border-radius: 12px; max-width: 480px; width: 100%; padding: 32px; text-align: center; }
+        h1 { font-size: 1.25rem; margin: 0 0 8px; }
+        p { color: #71717a; line-height: 1.5; margin: 0 0 20px; }
+        .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        a, button { font: inherit; border-radius: 8px; padding: 10px 16px; text-decoration: none; cursor: pointer; }
+        .primary { background: #4f46e5; color: #fff; border: 0; }
+        .secondary { background: #fff; color: #18181b; border: 1px solid rgba(120,115,110,.2); }
+        .code { margin-top: 16px; font-size: 12px; color: #a1a1aa; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1 id="title">Something went wrong</h1>
+        <p id="message">The application is temporarily unavailable. Please try again in a moment.</p>
+        <div class="actions">
+            <button class="primary" type="button" onclick="window.location.reload()">Refresh page</button>
+            <a class="secondary" href="/dashboard">Go to dashboard</a>
+        </div>
+        <div class="code" id="code">Error 502</div>
+    </div>
+</body>
+</html>

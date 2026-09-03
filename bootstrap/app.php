@@ -9,7 +9,6 @@ use App\Support\InertiaErrorPresenter;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Spatie\Permission\Middleware\PermissionMiddleware;
@@ -24,9 +23,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Do not append AddLinkHeadersForPreloadedAssets here. It emits many Link:
+        // preload headers on full Inertia document loads (e.g. /tasks/8 refresh),
+        // which can exceed Nginx fastcgi_buffer_size and produce 502 Bad Gateway.
         $middleware->web(append: [
             HandleInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
         ]);
 
         $middleware->redirectGuestsTo(fn () => route('login'));
