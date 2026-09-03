@@ -1,9 +1,9 @@
-import { ConfirmDelete } from '@/components/admin/confirm-delete';
 import { DataTableCard } from '@/components/admin/data-table-card';
+import { KpiStatCard } from '@/components/admin/kpi-stat-card';
 import { RowActions, type RowActionItem } from '@/components/admin/row-actions';
 import { SearchInput } from '@/components/admin/search-input';
 import InputError from '@/components/input-error';
-import { Badge } from '@/components/ui/badge';
+import { Badge, type BadgeProps } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -11,11 +11,30 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import TaskLayout from '@/layouts/task-layout';
 import { type BreadcrumbItem, type Option } from '@/types';
-import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, Copy, Eye, Plus, Share2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
+import {
+    Building2,
+    CalendarDays,
+    CalendarOff,
+    CalendarRange,
+    CheckCircle2,
+    ChevronLeft,
+    ChevronRight,
+    Clapperboard,
+    Copy,
+    Eye,
+    FileText,
+    Image,
+    Layers,
+    Plus,
+    Share2,
+    Sparkles,
+    Video,
+} from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface AttachmentRow {
     uuid: string;
@@ -92,6 +111,63 @@ const truncate = (value: string | null, length = 80) => {
     }
 
     return value.length > length ? `${value.slice(0, length)}…` : value;
+};
+
+const formatShortDate = (value: string) => {
+    const date = new Date(`${value}T00:00:00`);
+
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+};
+
+const statusVariant = (status: string): BadgeProps['variant'] => {
+    switch (status) {
+        case 'published':
+        case 'approved':
+        case 'ready':
+            return 'success';
+        case 'in_progress':
+        case 'under_review':
+            return 'warning';
+        case 'changes_requested':
+            return 'danger';
+        case 'draft':
+        default:
+            return 'neutral';
+    }
+};
+
+const platformTone = (platform: string) => {
+    switch (platform) {
+        case 'instagram':
+            return 'border-fuchsia-200 bg-gradient-to-r from-fuchsia-50 to-pink-50 text-fuchsia-700 dark:border-fuchsia-900/40 dark:from-fuchsia-950/40 dark:to-pink-950/40 dark:text-fuchsia-300';
+        case 'facebook':
+            return 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/40 dark:bg-blue-950/40 dark:text-blue-300';
+        case 'linkedin':
+            return 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900/40 dark:bg-sky-950/40 dark:text-sky-300';
+        case 'youtube':
+            return 'border-red-200 bg-red-50 text-red-700 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-300';
+        case 'whatsapp':
+            return 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300';
+        default:
+            return 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300';
+    }
+};
+
+const contentTypeIcon = (type: string) => {
+    switch (type) {
+        case 'reel':
+            return Clapperboard;
+        case 'video':
+            return Video;
+        case 'carousel':
+            return Layers;
+        case 'article':
+            return FileText;
+        case 'poster':
+            return Image;
+        default:
+            return Sparkles;
+    }
 };
 
 export default function ContentCalendarIndex({ items, clients, contentTypes, platforms, statuses, period, filters, can }: Props) {
@@ -223,69 +299,122 @@ export default function ContentCalendarIndex({ items, clients, contentTypes, pla
 
     const selectedClient = clients.find((client) => client.id === filters.client);
 
+    const stats = useMemo(
+        () => ({
+            total: items.length,
+            ready: items.filter((item) => ['ready', 'approved'].includes(item.status)).length,
+            published: items.filter((item) => item.status === 'published').length,
+            inProgress: items.filter((item) => ['in_progress', 'under_review'].includes(item.status)).length,
+        }),
+        [items],
+    );
+
     return (
         <TaskLayout breadcrumbs={breadcrumbs}>
             <Head title="Content Calendar" />
 
             <div className="flex min-w-0 flex-1 flex-col gap-6 p-4 md:p-6">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                    <div className="min-w-0 space-y-2">
-                        <h1 className="text-foreground text-xl font-semibold tracking-tight">Content Calendar</h1>
-                        <p className="text-muted-foreground text-sm">Plan and share upcoming social content client by client.</p>
+                <section className="relative overflow-hidden rounded-[1.25rem] border border-indigo-500/20 bg-gradient-to-br from-violet-600 via-indigo-600 to-fuchsia-600 px-6 py-8 text-white shadow-lg">
+                    <div className="pointer-events-none absolute -right-8 -top-10 size-40 rounded-full bg-white/10 blur-2xl" />
+                    <div className="pointer-events-none absolute -bottom-12 left-1/3 size-52 rounded-full bg-fuchsia-400/20 blur-3xl" />
+
+                    <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                        <div className="min-w-0 space-y-3">
+                            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium tracking-wide uppercase">
+                                <CalendarDays className="size-3.5" />
+                                Social planning
+                            </div>
+                            <div className="space-y-2">
+                                <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Content Calendar</h1>
+                                <p className="max-w-2xl text-sm leading-relaxed text-indigo-100">
+                                    Plan, review, and share upcoming social content client by client across a rolling 15-day schedule.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                            {can.manage && (
+                                <Button
+                                    onClick={() => start(null)}
+                                    className="border-0 bg-white text-indigo-700 shadow-sm hover:bg-white/90"
+                                >
+                                    <Plus /> Add content
+                                </Button>
+                            )}
+                            {can.share && filters.client && (
+                                <Button
+                                    variant="outline"
+                                    className="border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+                                    onClick={() =>
+                                        router.post(
+                                            '/tasks/content-calendar/share-schedule',
+                                            { client: filters.client, period_start: period.start },
+                                            { preserveScroll: true },
+                                        )
+                                    }
+                                >
+                                    <Share2 /> Share 15-day schedule
+                                </Button>
+                            )}
+                        </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                        {can.manage && (
-                            <Button onClick={() => start(null)}>
-                                <Plus /> Add content
-                            </Button>
-                        )}
-                        {can.share && filters.client && (
-                            <Button
-                                variant="outline"
-                                onClick={() =>
-                                    router.post(
-                                        '/tasks/content-calendar/share-schedule',
-                                        { client: filters.client, period_start: period.start },
-                                        { preserveScroll: true },
-                                    )
-                                }
+                </section>
+
+                {filters.client && (
+                    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                        <KpiStatCard tone="indigo" label="Scheduled in period" value={stats.total} icon={CalendarRange} />
+                        <KpiStatCard tone="emerald" label="Ready / approved" value={stats.ready} icon={CheckCircle2} />
+                        <KpiStatCard tone="sky" label="Published" value={stats.published} icon={Sparkles} />
+                        <KpiStatCard tone="amber" label="In progress" value={stats.inProgress} icon={Clapperboard} />
+                    </div>
+                )}
+
+                <section className="vsp-card mb-0 space-y-4 bg-white p-4 md:p-5">
+                    <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                        <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
+                            <div className="flex items-center gap-2 text-sm font-medium text-indigo-700">
+                                <span className="flex size-8 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
+                                    <Building2 className="size-4" />
+                                </span>
+                                Client
+                            </div>
+                            <Select
+                                value={filters.client ? String(filters.client) : 'none'}
+                                onValueChange={(value) => apply({ client: value === 'none' ? null : Number(value) })}
                             >
-                                <Share2 /> Share 15-day schedule
+                                <SelectTrigger className="w-full sm:w-64">
+                                    <SelectValue placeholder="Select client" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {clients.map((client) => (
+                                        <SelectItem key={client.id} value={String(client.id)}>
+                                            {client.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50/80 via-white to-fuchsia-50/80 px-3 py-2">
+                            <Button variant="outline" size="sm" className="bg-white/80" onClick={() => apply({ period_start: period.previous_start })}>
+                                <ChevronLeft className="size-4" /> Previous
                             </Button>
-                        )}
+                            <div className="min-w-0 px-2 text-center">
+                                <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">Current period</p>
+                                <p className="truncate text-sm font-semibold text-indigo-950">
+                                    {selectedClient ? `${selectedClient.name} · ` : ''}
+                                    {period.label}
+                                </p>
+                            </div>
+                            <Button variant="outline" size="sm" className="bg-white/80" onClick={() => apply({ period_start: period.next_start })}>
+                                Next <ChevronRight className="size-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => apply({ period_start: null })}>
+                                Today
+                            </Button>
+                        </div>
                     </div>
-                </div>
-
-                <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center">
-                    <Select
-                        value={filters.client ? String(filters.client) : 'none'}
-                        onValueChange={(value) => apply({ client: value === 'none' ? null : Number(value) })}
-                    >
-                        <SelectTrigger className="w-full lg:w-56">
-                            <SelectValue placeholder="Select client" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {clients.map((client) => (
-                                <SelectItem key={client.id} value={String(client.id)}>
-                                    {client.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={() => apply({ period_start: period.previous_start })}>
-                            <ChevronLeft className="size-4" /> Previous 15 days
-                        </Button>
-                        <span className="text-sm font-medium">{selectedClient ? `${selectedClient.name} · ` : ''}{period.label}</span>
-                        <Button variant="outline" size="sm" onClick={() => apply({ period_start: period.next_start })}>
-                            Next 15 days <ChevronRight className="size-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => apply({ period_start: null })}>
-                            Today
-                        </Button>
-                    </div>
-                </div>
+                </section>
 
                 <DataTableCard
                     title={selectedClient?.name ?? 'Client content'}
@@ -343,9 +472,8 @@ export default function ContentCalendarIndex({ items, clients, contentTypes, pla
                     <div className="overflow-x-auto">
                         <Table className="min-w-max">
                             <TableHeader>
-                                <TableRow>
+                                <TableRow className="bg-muted/30 hover:bg-muted/30">
                                     <TableHead>Date</TableHead>
-                                    <TableHead>Day</TableHead>
                                     <TableHead>Type</TableHead>
                                     <TableHead>Platform</TableHead>
                                     <TableHead>Description</TableHead>
@@ -357,59 +485,97 @@ export default function ContentCalendarIndex({ items, clients, contentTypes, pla
                             </TableHeader>
                             <TableBody>
                                 {items.length === 0 && (
-                                    <TableRow>
-                                        <TableCell colSpan={9} className="text-muted-foreground py-10 text-center">
-                                            No content scheduled in this period.
+                                    <TableRow className="hover:bg-transparent">
+                                        <TableCell colSpan={8} className="py-16">
+                                            <div className="mx-auto flex max-w-md flex-col items-center gap-4 text-center">
+                                                <span className="flex size-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                                                    <CalendarOff className="size-8" strokeWidth={1.5} />
+                                                </span>
+                                                <div className="space-y-2">
+                                                    <p className="text-foreground text-base font-semibold">No content scheduled in this period</p>
+                                                    <p className="text-muted-foreground text-sm">
+                                                        {filters.client
+                                                            ? 'Start planning by adding the first post for this client and date range.'
+                                                            : 'Select a client above to view and manage their content calendar.'}
+                                                    </p>
+                                                </div>
+                                                {can.manage && filters.client && (
+                                                    <Button onClick={() => start(null)}>
+                                                        <Plus /> Add first content
+                                                    </Button>
+                                                )}
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 )}
 
-                                {items.map((item) => (
-                                    <TableRow key={item.id}>
-                                        <TableCell className="whitespace-nowrap">{item.scheduled_date}</TableCell>
-                                        <TableCell>{item.scheduled_day}</TableCell>
-                                        <TableCell>{item.content_type_label}</TableCell>
-                                        <TableCell>{item.platform_label}</TableCell>
-                                        <TableCell className="max-w-xs">
-                                            <button type="button" className="text-left hover:underline" onClick={() => setViewItem(item)}>
-                                                {truncate(item.description)}
-                                            </button>
-                                        </TableCell>
-                                        <TableCell>
-                                            {item.attachments[0] ? (
-                                                <Button
-                                                    variant="link"
-                                                    className="h-auto p-0"
-                                                    onClick={() =>
-                                                        item.attachments[0].can_preview
-                                                            ? setPreviewUrl(item.attachments[0].preview_url)
-                                                            : window.location.assign(item.attachments[0].download_url)
-                                                    }
+                                {items.map((item) => {
+                                    const TypeIcon = contentTypeIcon(item.content_type);
+
+                                    return (
+                                        <TableRow key={item.id} className="hover:bg-indigo-50/40">
+                                            <TableCell className="whitespace-nowrap">
+                                                <div>
+                                                    <p className="font-semibold tabular-nums">{formatShortDate(item.scheduled_date)}</p>
+                                                    <p className="text-muted-foreground text-xs">{item.scheduled_day}</p>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700">
+                                                    <TypeIcon className="size-3.5" />
+                                                    {item.content_type_label}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell>
+                                                <span className={cn('inline-flex rounded-full border px-2.5 py-1 text-xs font-medium', platformTone(item.platform))}>
+                                                    {item.platform_label}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell className="max-w-xs">
+                                                <button
+                                                    type="button"
+                                                    className="text-left leading-snug transition-colors hover:text-indigo-700 hover:underline"
+                                                    onClick={() => setViewItem(item)}
                                                 >
-                                                    <Eye className="mr-1 size-4" /> View
-                                                </Button>
-                                            ) : (
-                                                <span className="text-muted-foreground">—</span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant="neutral">{item.status_label}</Badge>
-                                        </TableCell>
-                                        <TableCell>{item.uploaded_by}</TableCell>
-                                        <TableCell className="text-right">
-                                            <RowActions label={`Actions for ${item.scheduled_date}`} items={rowActions(item)} />
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                                    {truncate(item.description)}
+                                                </button>
+                                            </TableCell>
+                                            <TableCell>
+                                                {item.attachments[0] ? (
+                                                    <Button
+                                                        variant="link"
+                                                        className="h-auto p-0 text-indigo-700"
+                                                        onClick={() =>
+                                                            item.attachments[0].can_preview
+                                                                ? setPreviewUrl(item.attachments[0].preview_url)
+                                                                : window.location.assign(item.attachments[0].download_url)
+                                                        }
+                                                    >
+                                                        <Eye className="mr-1 size-4" /> View
+                                                    </Button>
+                                                ) : (
+                                                    <span className="text-muted-foreground">—</span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge variant={statusVariant(item.status)}>{item.status_label}</Badge>
+                                            </TableCell>
+                                            <TableCell className="text-sm">{item.uploaded_by}</TableCell>
+                                            <TableCell className="text-right">
+                                                <RowActions label={`Actions for ${item.scheduled_date}`} items={rowActions(item)} />
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
                             </TableBody>
                         </Table>
                     </div>
                 </DataTableCard>
 
                 {flash.share_url && (
-                    <div className="bg-muted/50 flex flex-col gap-2 rounded-lg border p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
-                        <span className="break-all">Share link copied: {flash.share_url}</span>
-                        <Button variant="outline" size="sm" onClick={() => void navigator.clipboard.writeText(flash.share_url!)}>
+                    <div className="flex flex-col gap-2 rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+                        <span className="break-all text-emerald-900">Share link copied: {flash.share_url}</span>
+                        <Button variant="outline" size="sm" className="border-emerald-300 bg-white" onClick={() => void navigator.clipboard.writeText(flash.share_url!)}>
                             <Copy className="size-4" /> Copy again
                         </Button>
                     </div>
