@@ -34,6 +34,29 @@ export interface TaskFormOptions {
 
 const NONE = 'none';
 
+/** Sentinel value for the assignee dropdown — published to the open board on create. */
+export const ASSIGNMENT_OPEN_BOARD = 'open_board';
+
+function assigneeSelectValue(assignedEmployeeId: string): string {
+    if (assignedEmployeeId === ASSIGNMENT_OPEN_BOARD) {
+        return ASSIGNMENT_OPEN_BOARD;
+    }
+
+    return assignedEmployeeId || NONE;
+}
+
+function assigneeHint(assignedEmployeeId: string): string {
+    if (assignedEmployeeId === ASSIGNMENT_OPEN_BOARD) {
+        return 'Eligible employees can claim this from the open board. No one is assigned yet.';
+    }
+
+    if (assignedEmployeeId === '') {
+        return 'Save as a draft. Assign someone or publish to the open board later from the task page.';
+    }
+
+    return 'They will receive a notification and must accept before work begins.';
+}
+
 type TaskFormControlProps = {
     data: TaskFormValues;
     setData: (key: keyof TaskFormValues, value: string) => void;
@@ -170,13 +193,22 @@ export function TaskDetailsCard({
                     <div className="grid gap-2 sm:col-span-2">
                         <Label htmlFor="assigned_employee_id">Assign to</Label>
                         <Select
-                            value={data.assigned_employee_id || NONE}
-                            onValueChange={(value) => setData('assigned_employee_id', value === NONE ? '' : value)}
+                            value={assigneeSelectValue(data.assigned_employee_id)}
+                            onValueChange={(value) => {
+                                if (value === NONE) {
+                                    setData('assigned_employee_id', '');
+                                } else if (value === ASSIGNMENT_OPEN_BOARD) {
+                                    setData('assigned_employee_id', ASSIGNMENT_OPEN_BOARD);
+                                } else {
+                                    setData('assigned_employee_id', value);
+                                }
+                            }}
                         >
                             <SelectTrigger id="assigned_employee_id">
-                                <SelectValue placeholder="Assign later on the task page" />
+                                <SelectValue placeholder="Choose how to assign" />
                             </SelectTrigger>
                             <SelectContent>
+                                <SelectItem value={ASSIGNMENT_OPEN_BOARD}>Open Board</SelectItem>
                                 <SelectItem value={NONE}>Assign later</SelectItem>
                                 {options.assignableEmployees?.map((employee) => (
                                     <SelectItem key={employee.id} value={String(employee.id)}>
@@ -185,6 +217,7 @@ export function TaskDetailsCard({
                                 ))}
                             </SelectContent>
                         </Select>
+                        <p className="text-sm text-muted-foreground">{assigneeHint(data.assigned_employee_id)}</p>
                         <InputError message={errors.assigned_employee_id} />
                     </div>
                 )}

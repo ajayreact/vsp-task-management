@@ -82,10 +82,10 @@ export const taskNavItems: NavItem[] = [
         permission: 'companies.view',
     },
     {
-        title: 'Company Logo Library',
-        url: '/tasks/logo-library',
+        title: 'Brand Kit',
+        url: '/tasks/brand-kit',
         icon: Image,
-        capability: 'logo_library',
+        capability: 'brand_kit',
     },
     {
         title: 'Operations Documents',

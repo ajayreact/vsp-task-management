@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { toLocalDateTimeInputValue } from '@/lib/datetime';
 import { useForm } from '@inertiajs/react';
 import { Bell, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
@@ -27,12 +28,6 @@ function formatted(value: string | null): string {
     }
 
     return new Date(value).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
-}
-
-function toLocalInputValue(date: Date): string {
-    const pad = (value: number) => String(value).padStart(2, '0');
-
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 export function TaskReminders({
@@ -71,7 +66,7 @@ export function TaskReminders({
             return;
         }
 
-        form.setData('remind_at', toLocalInputValue(remindAt));
+        form.setData('remind_at', toLocalDateTimeInputValue(remindAt));
     };
 
     if (!canManage && reminders.length === 0) {

@@ -3,7 +3,8 @@
 use App\Modules\TaskManagement\Http\Controllers\AvailabilityController;
 use App\Modules\TaskManagement\Http\Controllers\CompanyController;
 use App\Modules\TaskManagement\Http\Controllers\CompanyDocumentController;
-use App\Modules\TaskManagement\Http\Controllers\CompanyLogoLibraryController;
+use App\Modules\TaskManagement\Http\Controllers\BrandKitController;
+use App\Modules\TaskManagement\Models\Company;
 use App\Modules\TaskManagement\Http\Controllers\ContentCalendarController;
 use App\Modules\TaskManagement\Http\Controllers\DeliverableController;
 use App\Modules\TaskManagement\Http\Controllers\NotificationSoundController;
@@ -81,14 +82,21 @@ Route::resource('clients', CompanyController::class)
     ->parameters(['clients' => 'company'])
     ->only(['index', 'store', 'update', 'destroy']);
 
-Route::get('logo-library', [CompanyLogoLibraryController::class, 'index'])->name('logo-library.index');
-Route::get('logo-library/{company}', [CompanyLogoLibraryController::class, 'show'])->name('logo-library.show');
-Route::put('logo-library/{company}', [CompanyLogoLibraryController::class, 'update'])->name('logo-library.update');
-Route::post('logo-library/{company}/logos', [CompanyLogoLibraryController::class, 'storeLogo'])->name('logo-library.logos.store');
-Route::get('logo-library/{company}/logos/{media}/preview', [CompanyLogoLibraryController::class, 'previewLogo'])->name('logo-library.logos.preview');
-Route::get('logo-library/{company}/logos/{media}/download', [CompanyLogoLibraryController::class, 'downloadLogo'])->name('logo-library.logos.download');
-Route::delete('logo-library/{company}/logos/{media}', [CompanyLogoLibraryController::class, 'destroyLogo'])->name('logo-library.logos.destroy');
-Route::post('logo-library/{company}/share-link', [CompanyLogoLibraryController::class, 'shareLink'])->name('logo-library.share-link');
+Route::get('brand-kit', [BrandKitController::class, 'index'])->name('brand-kit.index');
+Route::get('brand-kit/{company}', [BrandKitController::class, 'show'])->name('brand-kit.show');
+Route::put('brand-kit/{company}', [BrandKitController::class, 'update'])->name('brand-kit.update');
+Route::post('brand-kit/{company}/logos', [BrandKitController::class, 'storeLogo'])->name('brand-kit.logos.store');
+Route::get('brand-kit/{company}/logos/{media}/preview', [BrandKitController::class, 'previewLogo'])->name('brand-kit.logos.preview');
+Route::get('brand-kit/{company}/logos/{media}/download', [BrandKitController::class, 'downloadLogo'])->name('brand-kit.logos.download');
+Route::delete('brand-kit/{company}/logos/{media}', [BrandKitController::class, 'destroyLogo'])->name('brand-kit.logos.destroy');
+Route::post('brand-kit/{company}/assets', [BrandKitController::class, 'storeAsset'])->name('brand-kit.assets.store');
+Route::delete('brand-kit/{company}/assets/{asset}', [BrandKitController::class, 'destroyAsset'])->name('brand-kit.assets.destroy');
+Route::get('brand-kit/{company}/assets/{media}/preview', [BrandKitController::class, 'previewAsset'])->name('brand-kit.assets.preview');
+Route::get('brand-kit/{company}/assets/{media}/download', [BrandKitController::class, 'downloadAsset'])->name('brand-kit.assets.download');
+Route::post('brand-kit/{company}/share-link', [BrandKitController::class, 'shareLink'])->name('brand-kit.share-link');
+
+Route::get('logo-library', fn () => redirect()->route('tasks.brand-kit.index'))->name('logo-library.index');
+Route::get('logo-library/{company}', fn (Company $company) => redirect()->route('tasks.brand-kit.show', $company))->name('logo-library.show');
 
 Route::get('documents', [CompanyDocumentController::class, 'index'])->name('documents.index');
 Route::post('documents', [CompanyDocumentController::class, 'store'])->name('documents.store');

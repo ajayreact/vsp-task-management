@@ -5,6 +5,7 @@ export interface Auth {
     permissions: string[];
     roles: string[];
     capabilities?: {
+        brand_kit?: boolean;
         logo_library?: boolean;
         document_library?: boolean;
         content_calendar?: boolean;

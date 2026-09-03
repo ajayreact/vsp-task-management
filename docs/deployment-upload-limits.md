@@ -10,7 +10,7 @@ The application validates uploads in Laravel, but PHP and the web server can sti
 |---|---|
 | Task working files | **600 MB** |
 | Creative review / proof files | **600 MB** |
-| Company logo library | **600 MB** |
+| Brand Kit | **600 MB** |
 | Operations documents | **600 MB** |
 | Content calendar attachments | **600 MB** |
 | Task attachments on create | **600 MB** |

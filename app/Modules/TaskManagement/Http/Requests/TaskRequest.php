@@ -69,6 +69,7 @@ class TaskRequest extends FormRequest
 
         if ($this->isMethod('post') && $this->routeIs('tasks.store')) {
             $rules['assigned_employee_id'] = ['nullable', 'integer', Rule::exists('employees', 'id')];
+            $rules['publish_to_open_board'] = ['sometimes', 'boolean'];
             $rules['checklist'] = ['nullable', 'array'];
             $rules['checklist.*.title'] = ['required', 'string', 'max:500'];
             $rules['subtasks'] = ['nullable', 'array'];
@@ -94,6 +95,13 @@ class TaskRequest extends FormRequest
         }
 
         $validator->after(function (Validator $validator): void {
+            if ($this->boolean('publish_to_open_board') && $this->filled('assigned_employee_id')) {
+                $validator->errors()->add(
+                    'assigned_employee_id',
+                    'Choose either a direct assignee or the open board, not both.',
+                );
+            }
+
             /** @var list<UploadedFile>|null $files */
             $files = $this->file('files');
 

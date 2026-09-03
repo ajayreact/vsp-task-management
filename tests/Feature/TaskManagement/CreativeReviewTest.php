@@ -204,13 +204,13 @@ test('submitting a proof creates a share link the assignee can copy', function (
         ->assertSessionHas('share_message', DeliverableController::buildShareMessage($task, $deliverable->shareLink->publicUrl()));
 });
 
-test('the share message includes the task title description and review link', function () {
+test('the share message includes only the task title and review link', function () {
     $task = Task::factory()->create([
-        'title' => 'Need To Create a Course Flyer',
-        'description' => 'Using the 3 courses, create an attractive flyer.',
+        'title' => 'Create a Krishna Janmashtami Poster',
+        'description' => 'Using brand colors, create an attractive poster.',
     ]);
 
-    $message = DeliverableController::buildShareMessage($task, 'https://app.vspcrm.in/d/Ab12Cd34');
+    $message = DeliverableController::buildShareMessage($task, 'https://app.vspcrm.in/d/8KJujQ6M');
 
-    expect($message)->toBe("Need To Create a Course Flyer\n\nUsing the 3 courses, create an attractive flyer.\n\nReview Link:\nhttps://app.vspcrm.in/d/Ab12Cd34");
+    expect($message)->toBe("Create a Krishna Janmashtami Poster\nhttps://app.vspcrm.in/d/8KJujQ6M");
 });

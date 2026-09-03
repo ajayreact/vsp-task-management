@@ -14,13 +14,14 @@ import {
     sanitizeSubtasks,
     type DraftSubtask,
 } from '@/components/tasks/task-create-subtasks';
-import { TaskDetailsCard, TaskRequirementCard, type TaskFormOptions, type TaskFormValues } from '@/components/tasks/task-form';
+import { TaskDetailsCard, TaskRequirementCard, ASSIGNMENT_OPEN_BOARD, type TaskFormOptions, type TaskFormValues } from '@/components/tasks/task-form';
 import { Button } from '@/components/ui/button';
 import { Link, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 
 type TaskCreateFormData = TaskFormValues & {
+    publish_to_open_board: boolean;
     checklist: { title: string }[];
     subtasks: ReturnType<typeof sanitizeSubtasks>;
     files: File[];
@@ -51,6 +52,7 @@ export function TaskCreateForm({
 
     const form = useForm<TaskCreateFormData>({
         ...initial,
+        publish_to_open_board: false,
         checklist: [],
         subtasks: [],
         files: [],
@@ -59,8 +61,14 @@ export function TaskCreateForm({
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
+        const publishToOpenBoard = form.data.assigned_employee_id === ASSIGNMENT_OPEN_BOARD;
+        const assignedEmployeeId =
+            publishToOpenBoard || form.data.assigned_employee_id === '' ? '' : form.data.assigned_employee_id;
+
         const payload: TaskCreateFormData = {
             ...form.data,
+            assigned_employee_id: assignedEmployeeId,
+            publish_to_open_board: publishToOpenBoard,
             checklist: canManageChecklist ? sanitizeChecklistItems(checklistItems) : [],
             subtasks: canManageSubtasks ? sanitizeSubtasks(subtaskItems) : [],
             files: canAttachFiles ? attachmentFiles(attachmentItems) : [],
@@ -83,7 +91,7 @@ export function TaskCreateForm({
                 showAssignee={showAssignee}
                 cardDescription={
                     showAssignee
-                        ? 'Describe the work and optionally assign someone now. They will receive a notification when assigned.'
+                        ? 'Describe the work and choose Open Board, assign someone directly, or save as a draft for later.'
                         : 'Describe the work. The task starts as a draft until it is assigned or published.'
                 }
             />

@@ -31,6 +31,10 @@ class DepartmentsAndDesignationsSeeder extends Seeder
             ['code' => 'GRAPHIC-DESIGNER', 'name' => 'Graphic Designer'],
             ['code' => 'CONTENT-WRITER', 'name' => 'Content Writer'],
             ['code' => 'SEO-SPECIALIST', 'name' => 'SEO Specialist'],
+            ['code' => 'SOFTWARE-DEVELOPER', 'name' => 'Software Developer'],
+            ['code' => 'SENIOR-SOFTWARE-DEVELOPER', 'name' => 'Senior Software Developer'],
+            ['code' => 'SALES-MANAGER', 'name' => 'Sales Manager'],
+            ['code' => 'ONBOARDING-TEAM-LEAD', 'name' => 'Onboarding Team Lead'],
         ] as $designation) {
             Designation::query()->firstOrCreate(
                 ['code' => $designation['code']],

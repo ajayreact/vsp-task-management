@@ -5,15 +5,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import TaskLayout from '@/layouts/task-layout';
 import { type BreadcrumbItem, type Paginated } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { Copy, Download, ExternalLink, Mail, Phone } from 'lucide-react';
+import { Copy, ExternalLink, FileImage, Mail, Palette, Phone } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-interface LogoSummary {
+interface PreviewAsset {
     uuid: string;
     name: string;
-    variant_label: string;
     preview_url: string;
     download_url: string;
+    is_image: boolean;
+}
+
+interface PhoneRow {
+    id: number | null;
+    label: string | null;
+    phone: string;
+    is_primary: boolean;
 }
 
 interface CompanySummary {
@@ -22,7 +29,9 @@ interface CompanySummary {
     website: string | null;
     email: string | null;
     phone: string | null;
-    logos: LogoSummary[];
+    phones: PhoneRow[];
+    asset_count: number;
+    preview_assets: PreviewAsset[];
     can: {
         manage: boolean;
         share: boolean;
@@ -37,14 +46,14 @@ interface Props {
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Tasks', href: '/tasks' },
-    { title: 'Company Logo Library', href: '/tasks/logo-library' },
+    { title: 'Brand Kit', href: '/tasks/brand-kit' },
 ];
 
 function copyText(value: string) {
     void navigator.clipboard.writeText(value);
 }
 
-export default function CompanyLogoLibraryIndex({ companies, filters, can }: Props) {
+export default function BrandKitIndex({ companies, filters, can }: Props) {
     const [search, setSearch] = useState(filters.search ?? '');
 
     useEffect(() => {
@@ -54,7 +63,7 @@ export default function CompanyLogoLibraryIndex({ companies, filters, can }: Pro
     useEffect(() => {
         const timeout = window.setTimeout(() => {
             router.get(
-                '/tasks/logo-library',
+                '/tasks/brand-kit',
                 {
                     search: search.trim() === '' ? undefined : search.trim(),
                     page: 1,
@@ -69,20 +78,24 @@ export default function CompanyLogoLibraryIndex({ companies, filters, can }: Pro
 
     return (
         <TaskLayout breadcrumbs={breadcrumbs}>
-            <Head title="Company Logo Library" />
+            <Head title="Brand Kit" />
 
             <div className="flex min-w-0 max-w-full flex-1 flex-col gap-6 overflow-x-hidden p-4 md:p-6">
                 <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div className="min-w-0">
-                        <h1 className="text-2xl font-semibold tracking-tight">Company Logo Library</h1>
+                        <div className="mb-2 inline-flex items-center gap-2 rounded-full border bg-muted/40 px-3 py-1 text-xs font-medium text-muted-foreground">
+                            <Palette className="size-3.5" />
+                            Centralized brand assets
+                        </div>
+                        <h1 className="text-2xl font-semibold tracking-tight">Brand Kit</h1>
                         <p className="text-muted-foreground mt-1 text-sm">
-                            Central place for client logos and contact details.
+                            Store logos, letterheads, business cards, email signatures, guidelines, and other client brand assets.
                         </p>
                     </div>
                     <SearchInput
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
-                        placeholder="Search company..."
+                        placeholder="Search companies or contacts..."
                         containerClassName="w-full min-w-0 sm:max-w-sm"
                     />
                 </div>
@@ -101,7 +114,7 @@ export default function CompanyLogoLibraryIndex({ companies, filters, can }: Pro
                                     <div className="flex min-w-0 items-start justify-between gap-3">
                                         <div className="min-w-0 flex-1">
                                             <CardTitle className="truncate text-lg">{company.name}</CardTitle>
-                                            <CardDescription className="mt-1 space-y-1">
+                                            <CardDescription className="mt-2 space-y-1.5">
                                                 {company.website && (
                                                     <span className="flex min-w-0 items-center gap-2">
                                                         <ExternalLink className="size-3.5 shrink-0" />
@@ -121,49 +134,51 @@ export default function CompanyLogoLibraryIndex({ companies, filters, can }: Pro
                                                         <span className="truncate">{company.email}</span>
                                                     </span>
                                                 )}
-                                                {company.phone && (
-                                                    <span className="flex min-w-0 items-center gap-2">
-                                                        <Phone className="size-3.5 shrink-0" />
-                                                        <span className="truncate">{company.phone}</span>
-                                                    </span>
+                                                {(company.phones.length > 0 ? company.phones : company.phone ? [{ phone: company.phone, label: null }] : []).map(
+                                                    (phoneRow, index) => (
+                                                        <span key={`${company.id}-phone-${index}`} className="flex min-w-0 items-center gap-2">
+                                                            <Phone className="size-3.5 shrink-0" />
+                                                            <span className="truncate">
+                                                                {phoneRow.label ? `${phoneRow.label}: ` : ''}
+                                                                {phoneRow.phone}
+                                                            </span>
+                                                        </span>
+                                                    ),
                                                 )}
                                             </CardDescription>
                                         </div>
                                         <Badge className="shrink-0" variant="secondary">
-                                            {company.logos.length} logos
+                                            {company.asset_count} assets
                                         </Badge>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="mt-auto space-y-4">
-                                    {company.logos.length > 0 ? (
+                                    {company.preview_assets.length > 0 ? (
                                         <div className="grid grid-cols-2 gap-3">
-                                            {company.logos.slice(0, 4).map((logo) => (
-                                                <div key={logo.uuid} className="space-y-2 rounded-lg border p-2">
+                                            {company.preview_assets.slice(0, 4).map((asset) => (
+                                                <div key={asset.uuid} className="space-y-2 rounded-lg border p-2">
                                                     <div className="bg-muted/40 flex aspect-[4/3] items-center justify-center overflow-hidden rounded-md">
-                                                        <img
-                                                            src={logo.preview_url}
-                                                            alt={logo.variant_label}
-                                                            className="max-h-full max-w-full object-contain p-2"
-                                                        />
+                                                        {asset.is_image ? (
+                                                            <img
+                                                                src={asset.preview_url}
+                                                                alt={asset.name}
+                                                                className="max-h-full max-w-full object-contain p-2"
+                                                            />
+                                                        ) : (
+                                                            <FileImage className="text-muted-foreground size-8" />
+                                                        )}
                                                     </div>
-                                                    <div className="flex items-center justify-between gap-2">
-                                                        <span className="truncate text-xs font-medium">{logo.variant_label}</span>
-                                                        <Button asChild size="icon" variant="ghost" className="size-7 shrink-0">
-                                                            <a href={logo.download_url} download={logo.name}>
-                                                                <Download className="size-4" />
-                                                            </a>
-                                                        </Button>
-                                                    </div>
+                                                    <p className="truncate text-xs font-medium">{asset.name}</p>
                                                 </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <p className="text-muted-foreground text-sm">No logos uploaded yet.</p>
+                                        <p className="text-muted-foreground text-sm">No brand assets uploaded yet.</p>
                                     )}
 
                                     <div className="flex flex-wrap gap-2">
-                                        <Button asChild size="sm" variant="outline">
-                                            <Link href={`/tasks/logo-library/${company.id}`}>View</Link>
+                                        <Button asChild size="sm">
+                                            <Link href={`/tasks/brand-kit/${company.id}`}>View Brand Kit</Link>
                                         </Button>
                                         {company.email && (
                                             <Button size="sm" variant="ghost" onClick={() => copyText(company.email!)}>
@@ -204,7 +219,7 @@ export default function CompanyLogoLibraryIndex({ companies, filters, can }: Pro
 
                 {can.manage && (
                     <p className="text-muted-foreground text-xs">
-                        Manage logos and share links from each company detail page.
+                        Manage brand assets, contact numbers, and share links from each company Brand Kit page.
                     </p>
                 )}
             </div>

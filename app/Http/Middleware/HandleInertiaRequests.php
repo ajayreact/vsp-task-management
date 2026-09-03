@@ -61,6 +61,7 @@ class HandleInertiaRequests extends Middleware
                 'permissions' => $user?->effectivePermissions() ?? [],
                 'roles' => $user?->getRoleNames()->values() ?? [],
                 'capabilities' => [
+                    'brand_kit' => $user ? Gate::allows('viewLogoLibrary', Company::class) : false,
                     'logo_library' => $user ? Gate::allows('viewLogoLibrary', Company::class) : false,
                     'document_library' => $user ? Gate::allows('viewAny', CompanyDocument::class) : false,
                     'content_calendar' => $user ? Gate::allows('viewAny', ContentCalendarItem::class) : false,

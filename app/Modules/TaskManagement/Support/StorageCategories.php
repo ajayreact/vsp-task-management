@@ -40,6 +40,7 @@ final class StorageCategories
             [(new Task)->getMorphClass(), 'attachments'] => StorageCategory::TaskWorkingFiles,
             [(new Deliverable)->getMorphClass(), 'proofs'] => StorageCategory::CreativeReviewFiles,
             [(new Company)->getMorphClass(), 'logos'] => StorageCategory::CompanyLogoLibrary,
+            [(new Company)->getMorphClass(), 'brand_assets'] => StorageCategory::CompanyLogoLibrary,
             [(new CompanyDocument)->getMorphClass(), 'file'] => StorageCategory::OperationsDocuments,
             [(new ContentCalendarItem)->getMorphClass(), 'attachments'] => StorageCategory::ContentCalendar,
             default => null,

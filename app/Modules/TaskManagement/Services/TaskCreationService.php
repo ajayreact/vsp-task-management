@@ -27,11 +27,12 @@ class TaskCreationService
         User $user,
         array $taskAttributes,
         ?int $assigneeId,
+        bool $publishToOpenBoard,
         array $checklistItems,
         array $subtasks,
         array $files,
     ): Task {
-        return DB::transaction(function () use ($user, $taskAttributes, $assigneeId, $checklistItems, $subtasks, $files) {
+        return DB::transaction(function () use ($user, $taskAttributes, $assigneeId, $publishToOpenBoard, $checklistItems, $subtasks, $files) {
             $task = Task::create([
                 ...$taskAttributes,
                 'status' => TaskStatus::Draft,
@@ -81,6 +82,8 @@ class TaskCreationService
             if ($assigneeId !== null) {
                 $employee = Employee::query()->findOrFail($assigneeId);
                 $this->workflow->assign($task, $employee, $user);
+            } elseif ($publishToOpenBoard) {
+                $this->workflow->publishToBoard($task, $user);
             }
 
             return $task->fresh();

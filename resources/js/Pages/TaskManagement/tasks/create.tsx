@@ -1,6 +1,7 @@
 import { PageHeader } from '@/components/admin/page-header';
 import { TaskCreateForm } from '@/components/tasks/task-create-form';
-import { type TaskFormOptions } from '@/components/tasks/task-form';
+import { type TaskFormOptions, ASSIGNMENT_OPEN_BOARD } from '@/components/tasks/task-form';
+import { defaultTaskDueAtInputValue } from '@/lib/datetime';
 import TaskLayout from '@/layouts/task-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
@@ -57,8 +58,8 @@ export default function CreateTask({
                         type: 'design',
                         priority: 'normal',
                         estimated_hours: '',
-                        due_at: '',
-                        assigned_employee_id: '',
+                        due_at: defaultTaskDueAtInputValue(),
+                        assigned_employee_id: ASSIGNMENT_OPEN_BOARD,
                     }}
                 />
             </div>

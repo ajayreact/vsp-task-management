@@ -35,16 +35,8 @@ export interface SubmitReviewContext {
     status_label: string;
 }
 
-function buildShareMessage(title: string, description: string | null, url: string): string {
-    const lines = [title.trim()];
-
-    if (description?.trim()) {
-        lines.push('', description.trim());
-    }
-
-    lines.push('', 'Review Link:', url);
-
-    return lines.join('\n');
+function buildShareMessage(title: string, url: string): string {
+    return `${title.trim()}\n${url}`;
 }
 
 function formattedUpload(value: string): string {
@@ -100,7 +92,7 @@ export function TaskReview({
     }, [flash.share_message]);
 
     const resolveShareMessage = (deliverable: DeliverableRow, url: string) =>
-        deliverable.share_message ?? buildShareMessage(taskTitle, taskDescription, url);
+        deliverable.share_message ?? buildShareMessage(taskTitle, url);
 
     const copyShareMessage = (deliverable: DeliverableRow) => {
         if (deliverable.share_url) {
@@ -429,7 +421,7 @@ export function TaskReview({
                                             onClick={() => copyShareMessage(deliverable)}
                                         >
                                             <Link2 className="size-3.5" />
-                                            Copy link + description
+                                            Copy task name + link
                                         </Button>
                                     </>
                                 ) : (
@@ -442,7 +434,7 @@ export function TaskReview({
                                             onClick={() => copyShareMessage(deliverable)}
                                         >
                                             <Link2 className="size-3.5" />
-                                            Copy link + description
+                                            Copy task name + link
                                         </Button>
                                         {deliverable.share_url ? (
                                             <Button

@@ -195,5 +195,6 @@ test('departments and designations seeder is idempotent', function () {
     expect(Department::query()->whereIn('code', ['OPS', 'CRT', 'CONTENT', 'SEO'])->count())->toBe(4)
         ->and(Designation::query()->whereIn('code', [
             'OPS-HEAD', 'TEAM-LEAD', 'GRAPHIC-DESIGNER', 'CONTENT-WRITER', 'SEO-SPECIALIST',
-        ])->count())->toBe(5);
+            'SOFTWARE-DEVELOPER', 'SENIOR-SOFTWARE-DEVELOPER', 'SALES-MANAGER', 'ONBOARDING-TEAM-LEAD',
+        ])->count())->toBe(9);
 });

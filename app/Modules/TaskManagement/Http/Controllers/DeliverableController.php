@@ -84,17 +84,6 @@ class DeliverableController extends Controller
 
     public static function buildShareMessage(Task $task, string $shareUrl): string
     {
-        $lines = [trim($task->title)];
-
-        if ($task->description !== null && trim($task->description) !== '') {
-            $lines[] = '';
-            $lines[] = trim($task->description);
-        }
-
-        $lines[] = '';
-        $lines[] = 'Review Link:';
-        $lines[] = $shareUrl;
-
-        return implode("\n", $lines);
+        return trim($task->title)."\n".$shareUrl;
     }
 }

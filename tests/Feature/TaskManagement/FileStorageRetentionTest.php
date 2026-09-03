@@ -86,7 +86,7 @@ test('thirty day retention only deletes files older than thirty days', function 
         ->and(Media::query()->find($inside->id))->not->toBeNull();
 });
 
-test('company logo library files are never deleted by automatic cleanup', function () {
+test('brand kit files are never deleted by automatic cleanup', function () {
     retention()->writePolicy(true, 7);
 
     $company = Company::factory()->create();

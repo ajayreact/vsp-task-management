@@ -117,12 +117,14 @@ class TaskController extends Controller
 
         $validated = $request->validated();
         $assigneeId = $validated['assigned_employee_id'] ?? null;
+        $publishToOpenBoard = (bool) ($validated['publish_to_open_board'] ?? false);
         $checklist = $validated['checklist'] ?? [];
         $subtasks = $validated['subtasks'] ?? [];
         $files = $request->file('files', []) ?? [];
 
         unset(
             $validated['assigned_employee_id'],
+            $validated['publish_to_open_board'],
             $validated['checklist'],
             $validated['subtasks'],
             $validated['files'],
@@ -144,14 +146,18 @@ class TaskController extends Controller
             );
         }
 
-        if ($assigneeId !== null) {
+        if ($assigneeId !== null || $publishToOpenBoard) {
             abort_unless($user->can(Ability::AssignTasks->value), 403);
         }
 
-        $task = $creation->create($user, $validated, $assigneeId, $checklist, $subtasks, $files);
+        $task = $creation->create($user, $validated, $assigneeId, $publishToOpenBoard, $checklist, $subtasks, $files);
 
         if ($assigneeId !== null) {
             return to_route('tasks.show', $task)->with('success', 'Task created and assigned.');
+        }
+
+        if ($publishToOpenBoard) {
+            return to_route('tasks.show', $task)->with('success', 'Task published to the open board.');
         }
 
         return to_route('tasks.show', $task)->with('success', 'Task created as a draft.');

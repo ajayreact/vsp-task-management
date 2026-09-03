@@ -23,7 +23,7 @@ enum StorageCategory: string
         return match ($this) {
             self::TaskWorkingFiles => 'Working Files',
             self::CreativeReviewFiles => 'Creative Review / Proof Files',
-            self::CompanyLogoLibrary => 'Company Logo Library',
+            self::CompanyLogoLibrary => 'Brand Kit',
             self::OperationsDocuments => 'Operations Documents',
             self::ContentCalendar => 'Content Calendar',
         };

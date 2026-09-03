@@ -143,7 +143,7 @@ export default function TaskManagementSettings({ retention, notificationSound }:
                             <Alert>
                                 <AlertTitle>Cleanup scope</AlertTitle>
                                 <AlertDescription>
-                                    Automatic cleanup applies only to Working Files and Creative Review files. Company Logo Library,
+                                    Automatic cleanup applies only to Working Files and Creative Review files. Brand Kit,
                                     Operations Documents, and Content Calendar files are stored permanently until manually deleted.
                                 </AlertDescription>
                             </Alert>

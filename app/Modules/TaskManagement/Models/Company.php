@@ -83,6 +83,14 @@ class Company extends Model implements HasMedia
     }
 
     /**
+     * @return HasMany<CompanyPhoneNumber, $this>
+     */
+    public function phoneNumbers(): HasMany
+    {
+        return $this->hasMany(CompanyPhoneNumber::class, 'tm_company_id')->orderBy('sort_order');
+    }
+
+    /**
      * @return HasMany<ContentCalendarItem, $this>
      */
     public function contentCalendarItems(): HasMany
@@ -93,6 +101,7 @@ class Company extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('logos');
+        $this->addMediaCollection('brand_assets');
     }
 
     public function getActivitylogOptions(): LogOptions
