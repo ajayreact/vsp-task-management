@@ -61,10 +61,9 @@ export default function TaskManagementSettings({ retention, notificationSound }:
                 <form onSubmit={submit} className="max-w-2xl space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Proof File Retention</CardTitle>
+                            <CardTitle>Storage &amp; Retention</CardTitle>
                             <CardDescription>
-                                Configure how long completed creative proof files are kept before automatic cleanup.
-                                Automatic cleanup deletes only creative proof files on Task Management deliverables.
+                                Configure how long Working Files and Creative Review / proof files are kept before automatic cleanup.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
@@ -83,11 +82,11 @@ export default function TaskManagementSettings({ retention, notificationSound }:
                                     }}
                                 />
                                 <Label htmlFor="retention_enabled" className="font-normal">
-                                    Enable automatic proof cleanup
+                                    Enable automatic temporary file cleanup
                                 </Label>
                             </div>
 
-                            {!data.enabled && <p className="text-sm font-medium">Keep proof files forever</p>}
+                            {!data.enabled && <p className="text-sm font-medium">Keep temporary files forever</p>}
 
                             {data.enabled && (
                                 <div className="space-y-4">
@@ -136,7 +135,7 @@ export default function TaskManagementSettings({ retention, notificationSound }:
                                     {!usingCustom && <InputError message={errors.days} />}
 
                                     <p className="text-muted-foreground text-sm">
-                                        Proof files will be automatically deleted after the selected retention period.
+                                        Working Files and Creative Review files will be automatically deleted after the selected retention period.
                                     </p>
                                 </div>
                             )}
@@ -144,8 +143,15 @@ export default function TaskManagementSettings({ retention, notificationSound }:
                             <Alert>
                                 <AlertTitle>Cleanup scope</AlertTitle>
                                 <AlertDescription>
-                                    Automatic cleanup deletes only creative proof files. Tasks, projects, clients, review
-                                    history, working files, and CRM files will not be deleted.
+                                    Automatic cleanup applies only to Working Files and Creative Review files. Company Logo Library,
+                                    Operations Documents, and Content Calendar files are stored permanently until manually deleted.
+                                </AlertDescription>
+                            </Alert>
+
+                            <Alert>
+                                <AlertTitle>Upload limit</AlertTitle>
+                                <AlertDescription>
+                                    The maximum file size for uploads across Task Management is 600 MB per file.
                                 </AlertDescription>
                             </Alert>
                         </CardContent>

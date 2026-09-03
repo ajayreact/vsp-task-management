@@ -6,22 +6,22 @@ use Illuminate\Http\UploadedFile;
 
 class UploadLimits
 {
-    public const IMAGE_MAX_KILOBYTES = 20 * 1024;
+    public const MAX_FILE_KILOBYTES = 600 * 1024;
 
-    public const VIDEO_MAX_KILOBYTES = 100 * 1024;
+    public const MAX_FILE_BYTES = 600 * 1024 * 1024;
 
-    public const DOCUMENT_MAX_KILOBYTES = 50 * 1024;
-
-    public const TASK_ATTACHMENT_MAX_KILOBYTES = 50 * 1024;
+    public const TASK_ATTACHMENT_MAX_KILOBYTES = self::MAX_FILE_KILOBYTES;
 
     public const TASK_ATTACHMENT_MAX_FILES = 10;
 
-    public const NOTIFICATION_SOUND_MAX_KILOBYTES = 5120;
+    public const NOTIFICATION_SOUND_MAX_KILOBYTES = self::MAX_FILE_KILOBYTES;
 
     /** Documented production POST body limit used for multi-file validation. */
-    public const DOCUMENTED_POST_MAX_BYTES = 150 * 1024 * 1024;
+    public const DOCUMENTED_POST_MAX_BYTES = self::MAX_FILE_BYTES;
 
-    public const SPATIE_MAX_BYTES = 100 * 1024 * 1024;
+    public const SPATIE_MAX_BYTES = self::MAX_FILE_BYTES;
+
+    public const MAX_FILE_MESSAGE = 'File size cannot exceed 600 MB.';
 
     /**
      * @return list<string>
@@ -59,23 +59,20 @@ class UploadLimits
         )));
     }
 
+    public static function maxKilobytesForUploadedFile(): int
+    {
+        return self::MAX_FILE_KILOBYTES;
+    }
+
     public static function maxKilobytesForProofExtension(string $extension): ?int
     {
         $extension = strtolower(ltrim($extension, '.'));
 
-        if (in_array($extension, self::imageExtensions(), true)) {
-            return self::IMAGE_MAX_KILOBYTES;
+        if (! in_array($extension, self::proofExtensions(), true)) {
+            return null;
         }
 
-        if (in_array($extension, self::videoExtensions(), true)) {
-            return self::VIDEO_MAX_KILOBYTES;
-        }
-
-        if (in_array($extension, self::documentExtensions(), true)) {
-            return self::DOCUMENT_MAX_KILOBYTES;
-        }
-
-        return null;
+        return self::MAX_FILE_KILOBYTES;
     }
 
     public static function proofCategoryLabel(string $extension): string
@@ -97,21 +94,18 @@ class UploadLimits
         return 'file';
     }
 
-    public static function sizeExceededMessage(string $filename, int $maxKilobytes): string
+    public static function sizeExceededMessage(?string $filename = null): string
     {
-        return sprintf(
-            '%s exceeds the maximum size of %d MB.',
-            $filename,
-            (int) round($maxKilobytes / 1024),
-        );
+        if ($filename === null || $filename === '') {
+            return self::MAX_FILE_MESSAGE;
+        }
+
+        return self::MAX_FILE_MESSAGE;
     }
 
     public static function combinedRequestExceededMessage(): string
     {
-        return sprintf(
-            'The combined upload size exceeds the maximum request limit of %d MB.',
-            (int) round(self::DOCUMENTED_POST_MAX_BYTES / (1024 * 1024)),
-        );
+        return self::MAX_FILE_MESSAGE;
     }
 
     /**
@@ -128,17 +122,21 @@ class UploadLimits
         return $total;
     }
 
+    public static function fileExceedsLimit(UploadedFile $file): bool
+    {
+        return $file->getSize() > self::MAX_FILE_BYTES;
+    }
+
     public static function validateProofFile(UploadedFile $file): ?string
     {
         $extension = strtolower($file->getClientOriginalExtension());
-        $maxKilobytes = self::maxKilobytesForProofExtension($extension);
 
-        if ($maxKilobytes === null) {
+        if (! in_array($extension, self::proofExtensions(), true)) {
             return sprintf('"%s" is not an allowed proof file type.', $file->getClientOriginalName());
         }
 
-        if ($file->getSize() > ($maxKilobytes * 1024)) {
-            return self::sizeExceededMessage($file->getClientOriginalName(), $maxKilobytes);
+        if (self::fileExceedsLimit($file)) {
+            return self::sizeExceededMessage($file->getClientOriginalName());
         }
 
         return null;
@@ -152,8 +150,8 @@ class UploadLimits
             return sprintf('"%s" is not an allowed logo file type.', $file->getClientOriginalName());
         }
 
-        if ($file->getSize() > (self::IMAGE_MAX_KILOBYTES * 1024)) {
-            return self::sizeExceededMessage($file->getClientOriginalName(), self::IMAGE_MAX_KILOBYTES);
+        if (self::fileExceedsLimit($file)) {
+            return self::sizeExceededMessage($file->getClientOriginalName());
         }
 
         return null;
@@ -167,8 +165,8 @@ class UploadLimits
             return sprintf('"%s" is not an allowed document file type.', $file->getClientOriginalName());
         }
 
-        if ($file->getSize() > (self::DOCUMENT_MAX_KILOBYTES * 1024)) {
-            return self::sizeExceededMessage($file->getClientOriginalName(), self::DOCUMENT_MAX_KILOBYTES);
+        if (self::fileExceedsLimit($file)) {
+            return self::sizeExceededMessage($file->getClientOriginalName());
         }
 
         return null;
@@ -177,5 +175,24 @@ class UploadLimits
     public static function validateContentAttachmentFile(UploadedFile $file): ?string
     {
         return self::validateProofFile($file);
+    }
+
+    public static function validateTaskAttachmentFile(UploadedFile $file): ?string
+    {
+        $extension = strtolower($file->getClientOriginalExtension());
+        $allowed = array_merge(
+            self::imageExtensions(),
+            ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'ppt', 'pptx', 'zip', 'txt', 'rtf'],
+        );
+
+        if (! in_array($extension, $allowed, true)) {
+            return sprintf('"%s" is not an allowed working file type.', $file->getClientOriginalName());
+        }
+
+        if (self::fileExceedsLimit($file)) {
+            return self::sizeExceededMessage($file->getClientOriginalName());
+        }
+
+        return null;
     }
 }

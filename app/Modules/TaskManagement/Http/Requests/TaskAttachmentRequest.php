@@ -43,6 +43,14 @@ class TaskAttachmentRequest extends FormRequest
             if (UploadLimits::combinedUploadBytes($files) > UploadLimits::DOCUMENTED_POST_MAX_BYTES) {
                 $validator->errors()->add('files', UploadLimits::combinedRequestExceededMessage());
             }
+
+            foreach ($files as $index => $file) {
+                $message = UploadLimits::validateTaskAttachmentFile($file);
+
+                if ($message !== null) {
+                    $validator->errors()->add("files.{$index}", $message);
+                }
+            }
         });
     }
 

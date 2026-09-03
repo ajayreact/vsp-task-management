@@ -9,6 +9,7 @@ use App\Modules\TaskManagement\Http\Requests\CompanyDocumentRequest;
 use App\Modules\TaskManagement\Models\Company;
 use App\Modules\TaskManagement\Models\CompanyDocument;
 use App\Modules\TaskManagement\Services\CompanyDocumentShareLinkService;
+use App\Modules\TaskManagement\Services\MediaStorageService;
 use App\Support\Pagination;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,7 +20,10 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class CompanyDocumentController extends Controller
 {
-    public function __construct(protected CompanyDocumentShareLinkService $shareLinks) {}
+    public function __construct(
+        protected CompanyDocumentShareLinkService $shareLinks,
+        protected MediaStorageService $mediaStorage,
+    ) {}
 
     public function index(Request $request): Response
     {
@@ -110,6 +114,10 @@ class CompanyDocumentController extends Controller
     public function destroy(CompanyDocument $document): RedirectResponse
     {
         $this->authorize('delete', $document);
+
+        foreach ($document->getMedia('file') as $media) {
+            $this->mediaStorage->deleteMedia($media, 'manual_document_delete', allowPermanent: true);
+        }
 
         $document->delete();
 

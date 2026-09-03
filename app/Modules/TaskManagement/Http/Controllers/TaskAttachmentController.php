@@ -5,12 +5,14 @@ namespace App\Modules\TaskManagement\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\TaskManagement\Http\Requests\TaskAttachmentRequest;
 use App\Modules\TaskManagement\Models\Task;
+use App\Modules\TaskManagement\Services\MediaStorageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class TaskAttachmentController extends Controller
 {
+    public function __construct(protected MediaStorageService $mediaStorage) {}
     public function store(TaskAttachmentRequest $request, Task $task): RedirectResponse
     {
         $this->authorize('attachFiles', $task);
@@ -37,7 +39,7 @@ class TaskAttachmentController extends Controller
 
         $this->authorize('deleteAttachment', [$task, $media]);
 
-        $media->delete();
+        $this->mediaStorage->deleteMedia($media, 'manual_task_attachment_delete');
 
         return back()->with('success', 'Attachment removed.');
     }

@@ -5,6 +5,7 @@ use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Services\TaskManagementRetentionService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 beforeEach(function () {
     Storage::fake('public');
@@ -13,52 +14,64 @@ beforeEach(function () {
 test('the scheduled cleanup command does nothing when retention is disabled', function () {
     app(TaskManagementRetentionService::class)->writePolicy(false, 7);
 
-    $deliverable = Deliverable::factory()->create(['submitted_at' => now()->subDays(40)]);
-    $deliverable->addMedia(UploadedFile::fake()->image('hero.jpg'))->toMediaCollection('proofs');
+    $deliverable = Deliverable::factory()->create();
+    $proof = $deliverable->addMedia(UploadedFile::fake()->image('hero.jpg'))->toMediaCollection('proofs');
+    ageMedia($proof, 40);
 
-    $this->artisan('tasks:cleanup-expired-proofs')
-        ->expectsOutput('Automatic proof retention is disabled. No files were deleted.')
+    $this->artisan('files:cleanup')
+        ->expectsOutput('Automatic file retention is disabled. No temporary files were deleted.')
         ->assertSuccessful();
 
     expect($deliverable->fresh()->getMedia('proofs'))->toHaveCount(1)
         ->and(Deliverable::query()->whereKey($deliverable->id)->exists())->toBeTrue();
 });
 
-test('the scheduled cleanup command deletes expired proofs and preserves newer ones', function () {
+test('the scheduled cleanup command deletes expired temporary files and preserves newer ones', function () {
     app(TaskManagementRetentionService::class)->writePolicy(true, 7);
 
-    $expired = Deliverable::factory()->create(['submitted_at' => now()->subDays(10)]);
-    $expired->addMedia(UploadedFile::fake()->image('old.jpg'))->toMediaCollection('proofs');
+    $expiredDeliverable = Deliverable::factory()->create();
+    $expiredProof = $expiredDeliverable->addMedia(UploadedFile::fake()->image('old.jpg'))->toMediaCollection('proofs');
+    ageMedia($expiredProof, 10);
 
-    $fresh = Deliverable::factory()->create(['submitted_at' => now()->subDays(2)]);
-    $fresh->addMedia(UploadedFile::fake()->image('new.jpg'))->toMediaCollection('proofs');
+    $freshDeliverable = Deliverable::factory()->create();
+    $freshDeliverable->addMedia(UploadedFile::fake()->image('new.jpg'))->toMediaCollection('proofs');
 
-    $this->artisan('tasks:cleanup-expired-proofs')->assertSuccessful();
+    $this->artisan('files:cleanup')->assertSuccessful();
 
-    expect($expired->fresh()->getMedia('proofs'))->toHaveCount(0)
-        ->and($fresh->fresh()->getMedia('proofs'))->toHaveCount(1)
-        ->and(Deliverable::query()->whereKey($expired->id)->exists())->toBeTrue()
-        ->and(Deliverable::query()->whereKey($fresh->id)->exists())->toBeTrue();
+    expect($expiredDeliverable->fresh()->getMedia('proofs'))->toHaveCount(0)
+        ->and($freshDeliverable->fresh()->getMedia('proofs'))->toHaveCount(1)
+        ->and(Deliverable::query()->whereKey($expiredDeliverable->id)->exists())->toBeTrue()
+        ->and(Deliverable::query()->whereKey($freshDeliverable->id)->exists())->toBeTrue();
 });
 
-test('the scheduled cleanup command does not delete task attachments', function () {
+test('the scheduled cleanup command deletes expired working files', function () {
     app(TaskManagementRetentionService::class)->writePolicy(true, 7);
 
-    $deliverable = Deliverable::factory()->create(['submitted_at' => now()->subDays(12)]);
-    $deliverable->addMedia(UploadedFile::fake()->image('hero.jpg'))->toMediaCollection('proofs');
+    $deliverable = Deliverable::factory()->create();
+    $proof = $deliverable->addMedia(UploadedFile::fake()->image('hero.jpg'))->toMediaCollection('proofs');
+    ageMedia($proof, 12);
 
     $task = $deliverable->task;
-    $task->addMedia(UploadedFile::fake()->create('brief.pdf', 20, 'application/pdf'))->toMediaCollection('attachments');
+    $attachment = $task->addMedia(UploadedFile::fake()->create('brief.pdf', 20, 'application/pdf'))->toMediaCollection('attachments');
+    ageMedia($attachment, 12);
 
-    $this->artisan('tasks:cleanup-expired-proofs')->assertSuccessful();
+    $this->artisan('files:cleanup')->assertSuccessful();
 
     expect($deliverable->fresh()->getMedia('proofs'))->toHaveCount(0)
-        ->and($task->fresh()->getMedia('attachments'))->toHaveCount(1)
+        ->and($task->fresh()->getMedia('attachments'))->toHaveCount(0)
         ->and(Task::query()->whereKey($task->id)->exists())->toBeTrue();
 });
 
-test('the proof cleanup command is scheduled to run daily', function () {
+test('the legacy proof cleanup command delegates to files cleanup', function () {
+    app(TaskManagementRetentionService::class)->writePolicy(false, 7);
+
+    $this->artisan('tasks:cleanup-expired-proofs')
+        ->expectsOutput('Automatic file retention is disabled. No temporary files were deleted.')
+        ->assertSuccessful();
+});
+
+test('the file cleanup command is scheduled to run daily', function () {
     $this->artisan('schedule:list')
-        ->expectsOutputToContain('tasks:cleanup-expired-proofs')
+        ->expectsOutputToContain('files:cleanup')
         ->assertSuccessful();
 });

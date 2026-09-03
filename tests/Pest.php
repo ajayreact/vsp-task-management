@@ -38,6 +38,8 @@ pest()->extend(TestCase::class)
             'created_at' => $now,
             'updated_at' => $now,
         ], Ability::cases()));
+
+        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
     })
     ->in('Feature');
 
@@ -137,4 +139,46 @@ function configureReverbForChannelAuth(): void
     \Illuminate\Support\Facades\Broadcast::swap(new \Illuminate\Broadcasting\BroadcastManager(app()));
 
     require base_path('routes/channels.php');
+}
+
+function retention(): \App\Modules\TaskManagement\Services\TaskManagementRetentionService
+{
+    return app(\App\Modules\TaskManagement\Services\TaskManagementRetentionService::class);
+}
+
+function ageMedia(\Spatie\MediaLibrary\MediaCollections\Models\Media $media, int $days): \Spatie\MediaLibrary\MediaCollections\Models\Media
+{
+    $media->forceFill([
+        'created_at' => now()->subDays($days),
+        'updated_at' => now()->subDays($days),
+    ])->save();
+
+    return $media->fresh();
+}
+
+/**
+ * Build a small on-disk upload stub that reports a custom byte size for limit tests.
+ */
+function uploadedFileReportingSize(string $name, int $bytes, string $mime = 'application/octet-stream'): \Illuminate\Http\UploadedFile
+{
+    $stub = \Illuminate\Http\UploadedFile::fake()->create($name, 1, $mime);
+
+    return new class($stub->getPathname(), $name, $mime, null, true, $bytes) extends \Illuminate\Http\UploadedFile
+    {
+        public function __construct(
+            string $path,
+            string $originalName,
+            string $mimeType,
+            ?int $error,
+            bool $test,
+            private int $reportedSize,
+        ) {
+            parent::__construct($path, $originalName, $mimeType, $error, $test);
+        }
+
+        public function getSize(): int|false
+        {
+            return $this->reportedSize;
+        }
+    };
 }

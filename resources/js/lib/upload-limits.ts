@@ -1,18 +1,30 @@
-export const TASK_ATTACHMENT_MAX_BYTES = 50 * 1024 * 1024;
+export const MAX_FILE_BYTES = 600 * 1024 * 1024;
+export const MAX_FILE_MESSAGE = 'File size cannot exceed 600 MB.';
+
+export const TASK_ATTACHMENT_MAX_BYTES = MAX_FILE_BYTES;
 export const TASK_ATTACHMENT_MAX_FILES = 10;
 export const TASK_ATTACHMENT_ACCEPT =
     '.jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.zip,.txt,.rtf';
 
-export const PROOF_IMAGE_MAX_BYTES = 20 * 1024 * 1024;
-export const PROOF_VIDEO_MAX_BYTES = 100 * 1024 * 1024;
-export const PROOF_DOCUMENT_MAX_BYTES = 50 * 1024 * 1024;
+export const PROOF_IMAGE_MAX_BYTES = MAX_FILE_BYTES;
+export const PROOF_VIDEO_MAX_BYTES = MAX_FILE_BYTES;
+export const PROOF_DOCUMENT_MAX_BYTES = MAX_FILE_BYTES;
 export const PROOF_ACCEPT =
     '.jpg,.jpeg,.png,.gif,.webp,.mp4,.mov,.webm,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.ai,.psd';
 
-export const NOTIFICATION_SOUND_MAX_BYTES = 5 * 1024 * 1024;
+export const LOGO_MAX_BYTES = MAX_FILE_BYTES;
+export const LOGO_ACCEPT = '.jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp';
+
+export const DOCUMENT_MAX_BYTES = MAX_FILE_BYTES;
+export const DOCUMENT_ACCEPT = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.ai,.psd';
+
+export const CONTENT_ATTACHMENT_MAX_BYTES = MAX_FILE_BYTES;
+export const CONTENT_ATTACHMENT_ACCEPT = PROOF_ACCEPT;
+
+export const NOTIFICATION_SOUND_MAX_BYTES = MAX_FILE_BYTES;
 export const NOTIFICATION_SOUND_ACCEPT = '.mp3,.wav,.ogg,audio/mpeg,audio/wav,audio/ogg';
 
-export const DOCUMENTED_POST_MAX_BYTES = 150 * 1024 * 1024;
+export const DOCUMENTED_POST_MAX_BYTES = MAX_FILE_BYTES;
 
 const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 const VIDEO_EXTENSIONS = ['mp4', 'mov', 'webm'];
@@ -38,28 +50,16 @@ export function fileExtension(filename: string): string {
     return parts.length > 1 ? (parts.at(-1) ?? '') : '';
 }
 
-export function sizeExceededMessage(filename: string, maxBytes: number): string {
-    return `${filename} exceeds the maximum size of ${Math.round(maxBytes / (1024 * 1024))} MB.`;
+export function sizeExceededMessage(_filename?: string): string {
+    return MAX_FILE_MESSAGE;
 }
 
 export function combinedRequestExceededMessage(): string {
-    return `The combined upload size exceeds the maximum request limit of ${Math.round(DOCUMENTED_POST_MAX_BYTES / (1024 * 1024))} MB.`;
+    return MAX_FILE_MESSAGE;
 }
 
-function maxBytesForProofExtension(extension: string): number | null {
-    if (IMAGE_EXTENSIONS.includes(extension)) {
-        return PROOF_IMAGE_MAX_BYTES;
-    }
-
-    if (VIDEO_EXTENSIONS.includes(extension)) {
-        return PROOF_VIDEO_MAX_BYTES;
-    }
-
-    if (DOCUMENT_EXTENSIONS.includes(extension)) {
-        return PROOF_DOCUMENT_MAX_BYTES;
-    }
-
-    return null;
+function fileTooLarge(file: File): boolean {
+    return file.size > MAX_FILE_BYTES;
 }
 
 export function validateTaskAttachments(files: File[]): string | null {
@@ -80,8 +80,8 @@ export function validateTaskAttachments(files: File[]): string | null {
             return `"${file.name}" is not an allowed working file type.`;
         }
 
-        if (file.size > TASK_ATTACHMENT_MAX_BYTES) {
-            return sizeExceededMessage(file.name, TASK_ATTACHMENT_MAX_BYTES);
+        if (fileTooLarge(file)) {
+            return sizeExceededMessage(file.name);
         }
 
         totalBytes += file.size;
@@ -103,14 +103,14 @@ export function validateProofFiles(files: File[]): string | null {
 
     for (const file of files) {
         const extension = fileExtension(file.name);
-        const maxBytes = maxBytesForProofExtension(extension);
+        const allowed = [...IMAGE_EXTENSIONS, ...VIDEO_EXTENSIONS, ...DOCUMENT_EXTENSIONS];
 
-        if (maxBytes === null) {
+        if (!allowed.includes(extension)) {
             return `"${file.name}" is not an allowed proof file type.`;
         }
 
-        if (file.size > maxBytes) {
-            return sizeExceededMessage(file.name, maxBytes);
+        if (fileTooLarge(file)) {
+            return sizeExceededMessage(file.name);
         }
 
         totalBytes += file.size;
@@ -123,6 +123,38 @@ export function validateProofFiles(files: File[]): string | null {
     return null;
 }
 
+export function validateLogoFile(file: File): string | null {
+    const extension = fileExtension(file.name);
+
+    if (!IMAGE_EXTENSIONS.includes(extension)) {
+        return `"${file.name}" is not an allowed logo file type.`;
+    }
+
+    if (fileTooLarge(file)) {
+        return sizeExceededMessage(file.name);
+    }
+
+    return null;
+}
+
+export function validateDocumentFile(file: File): string | null {
+    const extension = fileExtension(file.name);
+
+    if (!DOCUMENT_EXTENSIONS.includes(extension)) {
+        return `"${file.name}" is not an allowed document file type.`;
+    }
+
+    if (fileTooLarge(file)) {
+        return sizeExceededMessage(file.name);
+    }
+
+    return null;
+}
+
+export function validateContentAttachments(files: File[]): string | null {
+    return validateProofFiles(files);
+}
+
 export function validateNotificationSound(file: File): string | null {
     const extension = fileExtension(file.name);
 
@@ -130,8 +162,8 @@ export function validateNotificationSound(file: File): string | null {
         return `"${file.name}" is not an allowed notification sound type.`;
     }
 
-    if (file.size > NOTIFICATION_SOUND_MAX_BYTES) {
-        return sizeExceededMessage(file.name, NOTIFICATION_SOUND_MAX_BYTES);
+    if (fileTooLarge(file)) {
+        return sizeExceededMessage(file.name);
     }
 
     return null;

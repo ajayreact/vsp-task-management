@@ -6,9 +6,11 @@ use App\Modules\TaskManagement\Exceptions\DeliverableShareException;
 use App\Modules\TaskManagement\Services\DeliverableShareLogger;
 use App\Modules\TaskManagement\Services\DeliverableShareResponder;
 use App\Support\InertiaErrorPresenter;
+use App\Modules\TaskManagement\Support\UploadLimits;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\PostTooLargeException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Spatie\Permission\Middleware\PermissionMiddleware;
@@ -41,6 +43,20 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
+        $exceptions->render(function (PostTooLargeException $exception, Request $request) {
+            if ($request->expectsJson() || $request->header('X-Inertia')) {
+                return back()->withErrors([
+                    'files' => UploadLimits::MAX_FILE_MESSAGE,
+                    'file' => UploadLimits::MAX_FILE_MESSAGE,
+                ]);
+            }
+
+            return redirect()->back()->withErrors([
+                'files' => UploadLimits::MAX_FILE_MESSAGE,
+                'file' => UploadLimits::MAX_FILE_MESSAGE,
+            ]);
+        });
+
         $exceptions->render(function (DeliverableShareException $exception, Request $request) {
             if (! $request->is('d/*', 'share/*')) {
                 return null;

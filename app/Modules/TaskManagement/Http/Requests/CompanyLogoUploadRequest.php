@@ -22,7 +22,7 @@ class CompanyLogoUploadRequest extends FormRequest
     {
         return [
             'variant' => ['required', Rule::enum(CompanyLogoVariant::class)],
-            'file' => ['required', 'file', 'max:'.UploadLimits::IMAGE_MAX_KILOBYTES],
+            'file' => ['required', 'file', 'max:'.UploadLimits::MAX_FILE_KILOBYTES],
         ];
     }
 

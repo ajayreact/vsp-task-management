@@ -12,6 +12,7 @@ use App\Modules\TaskManagement\Models\Company;
 use App\Modules\TaskManagement\Models\ContentCalendarItem;
 use App\Modules\TaskManagement\Services\ContentCalendarItemShareLinkService;
 use App\Modules\TaskManagement\Services\ContentCalendarScheduleShareLinkService;
+use App\Modules\TaskManagement\Services\MediaStorageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -25,6 +26,7 @@ class ContentCalendarController extends Controller
     public function __construct(
         protected ContentCalendarItemShareLinkService $itemShareLinks,
         protected ContentCalendarScheduleShareLinkService $scheduleShareLinks,
+        protected MediaStorageService $mediaStorage,
     ) {}
 
     public function index(Request $request): Response
@@ -124,6 +126,10 @@ class ContentCalendarController extends Controller
     public function destroy(ContentCalendarItem $calendarItem): RedirectResponse
     {
         $this->authorize('delete', $calendarItem);
+
+        foreach ($calendarItem->getMedia('attachments') as $media) {
+            $this->mediaStorage->deleteMedia($media, 'manual_content_calendar_delete', allowPermanent: true);
+        }
 
         $calendarItem->delete();
 

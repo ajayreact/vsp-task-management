@@ -8,6 +8,7 @@ use App\Modules\TaskManagement\Models\Deliverable;
 use App\Modules\TaskManagement\Models\NotificationSoundAsset;
 use App\Modules\TaskManagement\Services\TaskManagementNotificationSoundService;
 use App\Modules\TaskManagement\Services\TaskManagementRetentionService;
+use App\Modules\TaskManagement\Support\UploadLimits;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -161,7 +162,7 @@ test('an oversized custom notification sound is rejected', function () {
     $this->actingAs(superAdmin())
         ->from('/tasks/settings')
         ->post('/tasks/settings/notification-sound/custom', [
-            'sound' => UploadedFile::fake()->create('alert.mp3', 6000, 'audio/mpeg'),
+            'sound' => uploadedFileReportingSize('alert.mp3', UploadLimits::MAX_FILE_BYTES + 1, 'audio/mpeg'),
         ])
         ->assertRedirect('/tasks/settings')
         ->assertSessionHasErrors('sound');

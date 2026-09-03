@@ -3,10 +3,11 @@
 use App\Modules\Core\Enums\Ability;
 use App\Modules\TaskManagement\Enums\TaskStatus;
 use App\Modules\TaskManagement\Models\Task;
+use App\Modules\TaskManagement\Support\UploadLimits;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
-test('a working file below 50 mb is accepted', function () {
+test('a working file below 600 mb is accepted', function () {
     Storage::fake('public');
 
     $employee = employeeWith(Ability::AccessTasks);
@@ -17,14 +18,14 @@ test('a working file below 50 mb is accepted', function () {
 
     $this->actingAs($employee->user)
         ->post("/tasks/{$task->id}/attachments", [
-            'files' => [UploadedFile::fake()->create('brief.pdf', 40 * 1024, 'application/pdf')],
+            'files' => [UploadedFile::fake()->create('brief.pdf', 100, 'application/pdf')],
         ])
         ->assertRedirect();
 
     expect($task->fresh()->getMedia('attachments'))->toHaveCount(1);
 });
 
-test('a working file above 50 mb is rejected', function () {
+test('a working file above 600 mb is rejected', function () {
     Storage::fake('public');
 
     $employee = employeeWith(Ability::AccessTasks);
@@ -35,14 +36,15 @@ test('a working file above 50 mb is rejected', function () {
 
     $this->actingAs($employee->user)
         ->post("/tasks/{$task->id}/attachments", [
-            'files' => [UploadedFile::fake()->create('large.pdf', 51 * 1024, 'application/pdf')],
+            'files' => [uploadedFileReportingSize('large.pdf', UploadLimits::MAX_FILE_BYTES + 1, 'application/pdf')],
         ])
         ->assertSessionHasErrors('files.0');
 
-    expect($task->fresh()->getMedia('attachments'))->toHaveCount(0);
+    expect($task->fresh()->getMedia('attachments'))->toHaveCount(0)
+        ->and(session('errors')->get('files.0')[0])->toBe(UploadLimits::MAX_FILE_MESSAGE);
 });
 
-test('a proof image below 20 mb is accepted', function () {
+test('a proof file below 600 mb is accepted', function () {
     Storage::fake('public');
 
     $employee = employeeWith(Ability::AccessTasks);
@@ -53,14 +55,14 @@ test('a proof image below 20 mb is accepted', function () {
 
     $this->actingAs($employee->user)
         ->post("/tasks/{$task->id}/deliverables", [
-            'files' => [UploadedFile::fake()->create('poster.jpg', 15 * 1024, 'image/jpeg')],
+            'files' => [UploadedFile::fake()->create('poster.jpg', 100, 'image/jpeg')],
         ])
         ->assertRedirect();
 
     expect($task->fresh()->deliverables()->sole()->getMedia('proofs'))->toHaveCount(1);
 });
 
-test('a proof image above 20 mb is rejected', function () {
+test('a proof file above 600 mb is rejected', function () {
     Storage::fake('public');
 
     $employee = employeeWith(Ability::AccessTasks);
@@ -71,83 +73,11 @@ test('a proof image above 20 mb is rejected', function () {
 
     $this->actingAs($employee->user)
         ->post("/tasks/{$task->id}/deliverables", [
-            'files' => [UploadedFile::fake()->create('poster.jpg', 21 * 1024, 'image/jpeg')],
-        ])
-        ->assertSessionHasErrors('files.0');
-
-    expect($task->fresh()->deliverables()->count())->toBe(0);
-});
-
-test('a proof video below 100 mb is accepted', function () {
-    Storage::fake('public');
-
-    $employee = employeeWith(Ability::AccessTasks);
-    $task = Task::factory()->create([
-        'status' => TaskStatus::InProgress,
-        'assigned_employee_id' => $employee->id,
-    ]);
-
-    $this->actingAs($employee->user)
-        ->post("/tasks/{$task->id}/deliverables", [
-            'files' => [UploadedFile::fake()->create('reel.mp4', 80 * 1024, 'video/mp4')],
-        ])
-        ->assertRedirect();
-
-    expect($task->fresh()->deliverables()->sole()->getMedia('proofs'))->toHaveCount(1);
-});
-
-test('a proof video above 100 mb is rejected', function () {
-    Storage::fake('public');
-
-    $employee = employeeWith(Ability::AccessTasks);
-    $task = Task::factory()->create([
-        'status' => TaskStatus::InProgress,
-        'assigned_employee_id' => $employee->id,
-    ]);
-
-    $this->actingAs($employee->user)
-        ->post("/tasks/{$task->id}/deliverables", [
-            'files' => [UploadedFile::fake()->create('reel.mp4', 101 * 1024, 'video/mp4')],
+            'files' => [uploadedFileReportingSize('reel.mp4', UploadLimits::MAX_FILE_BYTES + 1, 'video/mp4')],
         ])
         ->assertSessionHasErrors('files.0');
 
     expect($task->fresh()->deliverables()->count())->toBe(0);
-});
-
-test('a proof document below 50 mb is accepted', function () {
-    Storage::fake('public');
-
-    $employee = employeeWith(Ability::AccessTasks);
-    $task = Task::factory()->create([
-        'status' => TaskStatus::InProgress,
-        'assigned_employee_id' => $employee->id,
-    ]);
-
-    $this->actingAs($employee->user)
-        ->post("/tasks/{$task->id}/deliverables", [
-            'files' => [UploadedFile::fake()->create('layout.psd', 40 * 1024, 'application/octet-stream')],
-        ])
-        ->assertRedirect();
-
-    expect($task->fresh()->deliverables()->sole()->getMedia('proofs'))->toHaveCount(1);
-});
-
-test('a proof spreadsheet below 50 mb is accepted', function () {
-    Storage::fake('public');
-
-    $employee = employeeWith(Ability::AccessTasks);
-    $task = Task::factory()->create([
-        'status' => TaskStatus::InProgress,
-        'assigned_employee_id' => $employee->id,
-    ]);
-
-    $this->actingAs($employee->user)
-        ->post("/tasks/{$task->id}/deliverables", [
-            'files' => [UploadedFile::fake()->create('caption.xlsx', 100, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')],
-        ])
-        ->assertRedirect();
-
-    expect($task->fresh()->deliverables()->sole()->getMedia('proofs'))->toHaveCount(1);
 });
 
 test('unsupported proof file types are rejected', function () {

@@ -9,6 +9,7 @@ use App\Modules\TaskManagement\Http\Requests\CompanyLogoLibraryRequest;
 use App\Modules\TaskManagement\Http\Requests\CompanyLogoUploadRequest;
 use App\Modules\TaskManagement\Models\Company;
 use App\Modules\TaskManagement\Services\CompanyShareLinkService;
+use App\Modules\TaskManagement\Services\MediaStorageService;
 use App\Support\Pagination;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +21,10 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class CompanyLogoLibraryController extends Controller
 {
-    public function __construct(protected CompanyShareLinkService $shareLinks) {}
+    public function __construct(
+        protected CompanyShareLinkService $shareLinks,
+        protected MediaStorageService $mediaStorage,
+    ) {}
 
     public function index(Request $request): Response
     {
@@ -88,7 +92,7 @@ class CompanyLogoLibraryController extends Controller
 
         $company->getMedia('logos')
             ->filter(fn (Media $media) => ($media->getCustomProperty('variant') ?? null) === $variant->value)
-            ->each->delete();
+            ->each(fn (Media $media) => $this->mediaStorage->deleteMedia($media, 'manual_logo_replace', allowPermanent: true));
 
         $company->addMedia($file)
             ->withCustomProperties([
@@ -105,7 +109,7 @@ class CompanyLogoLibraryController extends Controller
         $this->assertLogoMedia($company, $media);
         $this->authorize('manageLogos', $company);
 
-        $media->delete();
+        $this->mediaStorage->deleteMedia($media, 'manual_logo_delete', allowPermanent: true);
 
         return redirect()
             ->route('tasks.logo-library.show', $company)

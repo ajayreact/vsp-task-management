@@ -28,11 +28,11 @@ class CompanyDocumentRequest extends FormRequest
         ];
 
         if ($this->isMethod('post')) {
-            $rules['file'] = ['required', 'file', 'max:'.UploadLimits::DOCUMENT_MAX_KILOBYTES];
+            $rules['file'] = ['required', 'file', 'max:'.UploadLimits::MAX_FILE_KILOBYTES];
         }
 
         if ($this->isMethod('put') || $this->isMethod('patch')) {
-            $rules['file'] = ['nullable', 'file', 'max:'.UploadLimits::DOCUMENT_MAX_KILOBYTES];
+            $rules['file'] = ['nullable', 'file', 'max:'.UploadLimits::MAX_FILE_KILOBYTES];
         }
 
         return $rules;

@@ -33,7 +33,7 @@ class ContentCalendarItemRequest extends FormRequest
             'status' => ['required', Rule::enum(ContentCalendarStatus::class)],
             'internal_notes' => ['nullable', 'string', 'max:5000'],
             'files' => ['nullable', 'array', 'max:'.UploadLimits::TASK_ATTACHMENT_MAX_FILES],
-            'files.*' => ['required', 'file', 'max:'.UploadLimits::VIDEO_MAX_KILOBYTES],
+            'files.*' => ['required', 'file', 'max:'.UploadLimits::MAX_FILE_KILOBYTES],
         ];
     }
 

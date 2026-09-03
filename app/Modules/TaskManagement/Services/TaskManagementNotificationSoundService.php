@@ -5,6 +5,7 @@ namespace App\Modules\TaskManagement\Services;
 use App\Modules\Core\Models\AppSetting;
 use App\Modules\TaskManagement\Enums\NotificationSystemSound;
 use App\Modules\TaskManagement\Models\NotificationSoundAsset;
+use App\Modules\TaskManagement\Support\UploadLimits;
 use Illuminate\Http\UploadedFile;
 use InvalidArgumentException;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -15,7 +16,7 @@ class TaskManagementNotificationSoundService
 
     public const SETTINGS_KEY = 'notification_sound';
 
-    public const MAX_UPLOAD_KILOBYTES = 5120;
+    public const MAX_UPLOAD_KILOBYTES = UploadLimits::MAX_FILE_KILOBYTES;
 
     /**
      * @return array{
