@@ -14,7 +14,7 @@ return [
 
     'number_prefix' => env('CONTRACT_NUMBER_PREFIX', 'VSP-CONTRACT'),
 
-    'default_logo' => env('CONTRACT_DEFAULT_LOGO', 'images/branding/vsp-crm-logo.png'),
+    'default_logo' => env('CONTRACT_DEFAULT_LOGO', 'images/branding/logo.png'),
 
     'pdf' => [
         'background' => '#FFFDF5',

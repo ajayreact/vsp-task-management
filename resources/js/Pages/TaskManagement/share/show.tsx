@@ -85,7 +85,19 @@ function ProofFile({ file }: { file: SharedFile }) {
                 <img src={file.url} alt={file.name} className="bg-muted max-h-[32rem] w-full rounded object-contain" />
             )}
 
-            {kind === 'video' && <video controls className="bg-muted w-full rounded" src={file.url} />}
+            {kind === 'video' && (
+                <div className="flex justify-center">
+                    <video
+                        controls
+                        playsInline
+                        preload="metadata"
+                        className="bg-muted h-auto w-full max-w-[800px] rounded-lg"
+                        src={file.url}
+                    >
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            )}
 
             {kind === 'pdf' && (
                 <iframe title={file.name} src={file.url} className="h-[32rem] w-full rounded border" />

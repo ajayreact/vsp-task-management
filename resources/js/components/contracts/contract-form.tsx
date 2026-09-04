@@ -393,7 +393,7 @@ export function ContractForm({
                         <Label htmlFor="document_logo">Document logo (PDF header)</Label>
                         <div className="flex flex-wrap items-start gap-4 rounded-lg border border-dashed p-4">
                             <img
-                                src={data.document_logo || initial.logo_url || '/images/branding/vsp-crm-logo.png'}
+                                src={data.document_logo || initial.logo_url || '/images/branding/logo.png'}
                                 alt="Contract logo preview"
                                 className="max-h-20 max-w-[160px] object-contain"
                             />

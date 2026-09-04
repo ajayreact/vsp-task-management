@@ -313,7 +313,7 @@ class ContractController extends Controller
             ]);
         }
 
-        $defaultLogoPath = public_path((string) config('contracts.default_logo', 'images/branding/vsp-crm-logo.png'));
+        $defaultLogoPath = public_path((string) config('contracts.default_logo', 'images/branding/logo.png'));
 
         if (is_file($defaultLogoPath)) {
             return response()->file($defaultLogoPath, [

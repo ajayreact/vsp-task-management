@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 
-export const BRAND_LOGO_SRC = '/images/branding/vsp-crm-logo.png';
+export const BRAND_LOGO_SRC = '/images/branding/logo.png';
 export const BRAND_FAVICON_SRC = '/favicon.png';
 
 const variantClasses = {
