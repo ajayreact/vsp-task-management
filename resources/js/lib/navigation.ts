@@ -18,6 +18,7 @@ import {
     UserCheck,
     UsersRound,
     SlidersHorizontal,
+    ScrollText,
 } from 'lucide-react';
 
 /**
@@ -92,6 +93,12 @@ export const taskNavItems: NavItem[] = [
         url: '/tasks/documents',
         icon: FileText,
         capability: 'document_library',
+    },
+    {
+        title: 'Contracts',
+        url: '/tasks/contracts',
+        icon: ScrollText,
+        capability: 'contracts',
     },
     {
         title: 'Content Calendar',

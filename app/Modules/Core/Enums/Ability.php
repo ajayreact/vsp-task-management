@@ -34,6 +34,10 @@ enum Ability: string
     case ManageCompanyDocuments = 'company_documents.manage';
     case ShareCompanyDocuments = 'company_documents.share';
 
+    case ViewContracts = 'contracts.view';
+    case ManageContracts = 'contracts.manage';
+    case ShareContracts = 'contracts.share';
+
     case ViewContentCalendar = 'content_calendar.view';
     case ManageContentCalendar = 'content_calendar.manage';
     case ShareContentCalendar = 'content_calendar.share';
@@ -96,6 +100,9 @@ enum Ability: string
             self::ViewCompanyDocuments => 'View the operations document library',
             self::ManageCompanyDocuments => 'Upload and manage client documents',
             self::ShareCompanyDocuments => 'Share client documents externally',
+            self::ViewContracts => 'View contracts',
+            self::ManageContracts => 'Create, edit and generate contracts',
+            self::ShareContracts => 'Share contracts and signing links externally',
             self::ViewContentCalendar => 'View the client content calendar',
             self::ManageContentCalendar => 'Create and edit scheduled content',
             self::ShareContentCalendar => 'Share content calendar links externally',
@@ -126,6 +133,7 @@ enum Ability: string
             self::ViewCompanies, self::ManageCompanies => 'Clients',
             self::ViewCompanyLogos, self::ManageCompanyLogos => 'Brand Kit',
             self::ViewCompanyDocuments, self::ManageCompanyDocuments, self::ShareCompanyDocuments => 'Operations documents',
+            self::ViewContracts, self::ManageContracts, self::ShareContracts => 'Contracts',
             self::ViewContentCalendar, self::ManageContentCalendar, self::ShareContentCalendar => 'Content calendar',
             self::ViewProjects, self::ManageProjects => 'Projects',
             self::ViewAllTasks, self::ManageTasks, self::AssignTasks => 'Tasks',

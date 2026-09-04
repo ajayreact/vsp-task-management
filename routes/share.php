@@ -3,6 +3,7 @@
 use App\Modules\TaskManagement\Http\Controllers\CompanyDocumentShareController;
 use App\Modules\TaskManagement\Http\Controllers\CompanyShareController;
 use App\Modules\TaskManagement\Http\Controllers\ContentCalendarShareController;
+use App\Modules\TaskManagement\Http\Controllers\ContractShareController;
 use App\Modules\TaskManagement\Http\Controllers\DeliverableShareController;
 use Illuminate\Support\Facades\Route;
 
@@ -182,3 +183,29 @@ Route::get('content-schedule-share/{token}/files/{mediaUuid}/download', [Content
     ->where('token', '[0-9a-f]{64}')
     ->where('mediaUuid', '[0-9a-fA-F-]{36}')
     ->name('content-schedule-share.file.download');
+
+Route::prefix('ct')->name('contract-share.short.')->group(function () {
+    Route::get('{shortCode}', [ContractShareController::class, 'showShort'])
+        ->where('shortCode', '[A-Za-z0-9]{8,10}')
+        ->name('show');
+
+    Route::post('{shortCode}/sign', [ContractShareController::class, 'signShort'])
+        ->where('shortCode', '[A-Za-z0-9]{8,10}')
+        ->name('sign');
+
+    Route::get('{shortCode}/pdf', [ContractShareController::class, 'pdfShort'])
+        ->where('shortCode', '[A-Za-z0-9]{8,10}')
+        ->name('pdf');
+});
+
+Route::get('contract-share/{token}', [ContractShareController::class, 'show'])
+    ->where('token', '[0-9a-f]{64}')
+    ->name('contract-share.show');
+
+Route::post('contract-share/{token}/sign', [ContractShareController::class, 'sign'])
+    ->where('token', '[0-9a-f]{64}')
+    ->name('contract-share.sign');
+
+Route::get('contract-share/{token}/pdf', [ContractShareController::class, 'pdf'])
+    ->where('token', '[0-9a-f]{64}')
+    ->name('contract-share.pdf');

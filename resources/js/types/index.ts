@@ -9,6 +9,7 @@ export interface Auth {
         logo_library?: boolean;
         document_library?: boolean;
         content_calendar?: boolean;
+        contracts?: boolean;
     };
 }
 

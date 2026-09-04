@@ -3,6 +3,7 @@
 use App\Modules\TaskManagement\Http\Controllers\AvailabilityController;
 use App\Modules\TaskManagement\Http\Controllers\CompanyController;
 use App\Modules\TaskManagement\Http\Controllers\CompanyDocumentController;
+use App\Modules\TaskManagement\Http\Controllers\ContractController;
 use App\Modules\TaskManagement\Http\Controllers\BrandKitController;
 use App\Modules\TaskManagement\Models\Company;
 use App\Modules\TaskManagement\Http\Controllers\ContentCalendarController;
@@ -105,6 +106,20 @@ Route::delete('documents/{document}', [CompanyDocumentController::class, 'destro
 Route::get('documents/{document}/preview', [CompanyDocumentController::class, 'preview'])->name('documents.preview');
 Route::get('documents/{document}/download', [CompanyDocumentController::class, 'download'])->name('documents.download');
 Route::post('documents/{document}/share-link', [CompanyDocumentController::class, 'shareLink'])->name('documents.share-link');
+
+Route::get('contracts', [ContractController::class, 'index'])->name('contracts.index');
+Route::get('contracts/create', [ContractController::class, 'create'])->name('contracts.create');
+Route::post('contracts', [ContractController::class, 'store'])->name('contracts.store');
+Route::get('contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
+Route::get('contracts/{contract}/edit', [ContractController::class, 'edit'])->name('contracts.edit');
+Route::put('contracts/{contract}', [ContractController::class, 'update'])->name('contracts.update');
+Route::get('contracts/{contract}/preview', [ContractController::class, 'preview'])->name('contracts.preview');
+Route::get('contracts/{contract}/pdf', [ContractController::class, 'inlinePdf'])->name('contracts.pdf');
+Route::get('contracts/{contract}/download', [ContractController::class, 'downloadPdf'])->name('contracts.download');
+Route::post('contracts/{contract}/generate-pdf', [ContractController::class, 'generatePdf'])->name('contracts.generate-pdf');
+Route::post('contracts/{contract}/share-link', [ContractController::class, 'shareLink'])->name('contracts.share-link');
+Route::post('contracts/{contract}/store-in-documents', [ContractController::class, 'storeInDocuments'])->name('contracts.store-in-documents');
+Route::post('contracts/{contract}/cancel', [ContractController::class, 'cancel'])->name('contracts.cancel');
 
 Route::get('content-calendar', [ContentCalendarController::class, 'index'])->name('content-calendar.index');
 Route::post('content-calendar', [ContentCalendarController::class, 'store'])->name('content-calendar.store');

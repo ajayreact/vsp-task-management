@@ -8,6 +8,7 @@ use App\Modules\Core\Models\User;
 use App\Modules\TaskManagement\Models\Company;
 use App\Modules\TaskManagement\Models\CompanyDocument;
 use App\Modules\TaskManagement\Models\ContentCalendarItem;
+use App\Modules\TaskManagement\Models\Contract;
 use App\Modules\TaskManagement\Models\Deliverable;
 use App\Modules\TaskManagement\Models\EmployeeAvailability;
 use App\Modules\TaskManagement\Models\PersonalTodo;
@@ -22,6 +23,7 @@ use App\Modules\TaskManagement\Models\Timesheet;
 use App\Modules\TaskManagement\Policies\CompanyDocumentPolicy;
 use App\Modules\TaskManagement\Policies\CompanyPolicy;
 use App\Modules\TaskManagement\Policies\ContentCalendarItemPolicy;
+use App\Modules\TaskManagement\Policies\ContractPolicy;
 use App\Modules\TaskManagement\Policies\DeliverablePolicy;
 use App\Modules\TaskManagement\Policies\EmployeeAvailabilityPolicy;
 use App\Modules\TaskManagement\Policies\PersonalTodoPolicy;
@@ -58,6 +60,7 @@ class TaskManagementServiceProvider extends ServiceProvider
 
         Gate::policy(Company::class, CompanyPolicy::class);
         Gate::policy(CompanyDocument::class, CompanyDocumentPolicy::class);
+        Gate::policy(Contract::class, ContractPolicy::class);
         Gate::policy(ContentCalendarItem::class, ContentCalendarItemPolicy::class);
         Gate::policy(Project::class, ProjectPolicy::class);
         Gate::policy(Task::class, TaskPolicy::class);
@@ -76,6 +79,7 @@ class TaskManagementServiceProvider extends ServiceProvider
         });
 
         Route::bind('document', fn (string $value) => CompanyDocument::query()->findOrFail($value));
+        Route::bind('contract', fn (string $value) => Contract::query()->findOrFail($value));
         Route::bind('calendarItem', fn (string $value) => ContentCalendarItem::query()->findOrFail($value));
         Route::bind('personalTodo', fn (string $value) => PersonalTodo::query()->findOrFail($value));
         Route::bind('media', function (string $value): Media {

@@ -8,6 +8,7 @@ use App\Modules\Core\Services\UserNotificationPreferenceService;
 use App\Modules\TaskManagement\Models\Company;
 use App\Modules\TaskManagement\Models\CompanyDocument;
 use App\Modules\TaskManagement\Models\ContentCalendarItem;
+use App\Modules\TaskManagement\Models\Contract;
 use App\Modules\TaskManagement\Services\TaskManagementNotificationSoundService;
 use App\Support\NotificationPresenter;
 use Illuminate\Foundation\Inspiring;
@@ -65,6 +66,7 @@ class HandleInertiaRequests extends Middleware
                     'logo_library' => $user ? Gate::allows('viewLogoLibrary', Company::class) : false,
                     'document_library' => $user ? Gate::allows('viewAny', CompanyDocument::class) : false,
                     'content_calendar' => $user ? Gate::allows('viewAny', ContentCalendarItem::class) : false,
+                    'contracts' => $user ? Gate::allows('viewAny', Contract::class) : false,
                 ],
             ],
             'flash' => [

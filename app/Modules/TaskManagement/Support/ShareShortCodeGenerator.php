@@ -6,6 +6,7 @@ use App\Modules\TaskManagement\Models\CompanyDocumentShareLink;
 use App\Modules\TaskManagement\Models\CompanyShareLink;
 use App\Modules\TaskManagement\Models\ContentCalendarItemShareLink;
 use App\Modules\TaskManagement\Models\ContentCalendarScheduleShareLink;
+use App\Modules\TaskManagement\Models\ContractShareLink;
 use App\Modules\TaskManagement\Models\DeliverableShareLink;
 
 class ShareShortCodeGenerator
@@ -32,7 +33,8 @@ class ShareShortCodeGenerator
             || DeliverableShareLink::query()->where('short_code', $code)->exists()
             || CompanyDocumentShareLink::query()->where('short_code', $code)->exists()
             || ContentCalendarItemShareLink::query()->where('short_code', $code)->exists()
-            || ContentCalendarScheduleShareLink::query()->where('short_code', $code)->exists();
+            || ContentCalendarScheduleShareLink::query()->where('short_code', $code)->exists()
+            || ContractShareLink::query()->where('short_code', $code)->exists();
     }
 
     protected static function random(): string
