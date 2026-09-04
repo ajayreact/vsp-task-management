@@ -1,4 +1,4 @@
-import { ContractForm, normalizeFormValues, type ContractFormOptions, type CountryOption } from '@/components/contracts/contract-form';
+import { ContractForm, normalizeFormValues, type ContractFormOptions, type ContractFormValues, type CountryOption } from '@/components/contracts/contract-form';
 import { PageHeader } from '@/components/admin/page-header';
 import TaskLayout from '@/layouts/task-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -19,7 +19,7 @@ export default function CreateContract({ clients, contractTypes, countries, defa
     const initial = normalizeFormValues({
         ...defaults,
         contract_number: suggestedNumber,
-    });
+    }) as ContractFormValues & { has_document_logo?: boolean };
 
     return (
         <TaskLayout breadcrumbs={breadcrumbs}>

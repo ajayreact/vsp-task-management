@@ -21,6 +21,7 @@ use App\Support\Pagination;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -395,12 +396,12 @@ class ContractController extends Controller
                 'original' => $contract->originalDocument ? [
                     'id' => $contract->originalDocument->id,
                     'title' => $contract->originalDocument->title,
-                    'url' => route('tasks.documents.index', ['search' => $contract->contract_number]),
+                    'url' => $this->documentsIndexUrl($contract->contract_number),
                 ] : null,
                 'signed' => $contract->signedDocument ? [
                     'id' => $contract->signedDocument->id,
                     'title' => $contract->signedDocument->title,
-                    'url' => route('tasks.documents.index', ['search' => $contract->contract_number]),
+                    'url' => $this->documentsIndexUrl($contract->contract_number),
                 ] : null,
             ],
             'versions' => $contract->versions->map(fn ($v) => [
@@ -414,12 +415,24 @@ class ContractController extends Controller
                     ? $v->media->contains(fn ($media) => $media->collection_name === 'pdf')
                     : $v->getFirstMedia('pdf') !== null,
             ])->values(),
-            'timeline' => $contract->events->map(fn ($event) => [
-                'id' => $event->id,
-                'label' => $event->description ?? $event->event?->label() ?? 'Activity',
-                'by' => $event->actor?->name,
-                'at' => $event->occurred_at->toIso8601String(),
-            ])->values(),
+            'timeline' => $contract->events->map(function ($event) {
+                $label = $event->description ?? 'Activity';
+
+                if ($label === 'Activity' && $event->event !== null) {
+                    try {
+                        $label = $event->event->label();
+                    } catch (\Throwable) {
+                        $label = $event->description ?? 'Activity';
+                    }
+                }
+
+                return [
+                    'id' => $event->id,
+                    'label' => $label,
+                    'by' => $event->actor?->name,
+                    'at' => ($event->occurred_at ?? $event->created_at)->toIso8601String(),
+                ];
+            })->values(),
         ];
     }
 
@@ -429,6 +442,8 @@ class ContractController extends Controller
     protected function editPayload(Contract $contract): array
     {
         $snapshot = $contract->currentVersion?->snapshot ?? ContractService::defaultFormPayload($contract->company);
+        $documentLogo = (string) ($snapshot['document_logo'] ?? '');
+        unset($snapshot['document_logo']);
 
         return [
             'id' => $contract->id,
@@ -442,6 +457,8 @@ class ContractController extends Controller
             'end_date' => $contract->end_date?->toDateString() ?? '',
             'tm_company_id' => (string) $contract->tm_company_id,
             'status' => $contract->status->value,
+            'has_document_logo' => $documentLogo !== '',
+            'document_logo' => '',
             ...$snapshot,
         ];
     }
@@ -510,6 +527,15 @@ class ContractController extends Controller
         }
 
         return url('/contract-share/'.$link->token);
+    }
+
+    protected function documentsIndexUrl(string $contractNumber): string
+    {
+        if (Route::has('tasks.documents.index')) {
+            return route('tasks.documents.index', ['search' => $contractNumber]);
+        }
+
+        return url('/tasks/documents?search='.urlencode($contractNumber));
     }
 
     /**

@@ -1,4 +1,4 @@
-import { ContractForm, normalizeFormValues, type ContractFormOptions, type CountryOption } from '@/components/contracts/contract-form';
+import { ContractForm, normalizeFormValues, type ContractFormOptions, type ContractFormValues, type CountryOption } from '@/components/contracts/contract-form';
 import { PageHeader } from '@/components/admin/page-header';
 import TaskLayout from '@/layouts/task-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -29,7 +29,7 @@ export default function EditContract({ contract, clients, contractTypes, countri
                         contractTypes,
                         countries: countries as CountryOption[],
                     }}
-                    initial={normalizeFormValues(contract)}
+                    initial={normalizeFormValues(contract) as ContractFormValues & { has_document_logo?: boolean }}
                     action={`/tasks/contracts/${contract.id}`}
                     method="put"
                     contractId={contract.id}

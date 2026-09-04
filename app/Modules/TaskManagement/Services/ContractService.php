@@ -67,6 +67,12 @@ class ContractService
     {
         return DB::transaction(function () use ($contract, $user, $data): Contract {
             $company = Company::query()->findOrFail($data['tm_company_id']);
+            $existingLogo = (string) ($contract->currentVersion?->snapshot['document_logo'] ?? '');
+
+            if (($data['document_logo'] ?? '') === '' && $existingLogo !== '') {
+                $data['document_logo'] = $existingLogo;
+            }
+
             $snapshot = $this->buildSnapshot($data, $company);
 
             $needsNewVersion = ! $contract->status->isEditable()

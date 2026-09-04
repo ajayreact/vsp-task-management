@@ -170,7 +170,7 @@ export function ContractForm({
     cancelUrl,
 }: {
     options: ContractFormOptions;
-    initial: ContractFormValues;
+    initial: ContractFormValues & { has_document_logo?: boolean };
     action: string;
     method: 'post' | 'put';
     contractId?: number;
@@ -401,6 +401,9 @@ export function ContractForm({
                                 <Input id="document_logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={onLogoUpload} />
                                 <p className="text-muted-foreground text-xs">
                                     PNG, JPG, WebP or SVG. Shown in the PDF header. Default logo is used when none is uploaded.
+                                    {initial.has_document_logo && !data.document_logo && (
+                                        <> A custom logo is already saved on this contract.</>
+                                    )}
                                 </p>
                                 {data.document_logo && (
                                     <Button type="button" variant="ghost" size="sm" className="w-fit px-0" onClick={() => setData('document_logo', '')}>
