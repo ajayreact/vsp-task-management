@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { type Option } from '@/types';
 import { Link, router, useForm } from '@inertiajs/react';
 import { Eye, LoaderCircle, Plus, X } from 'lucide-react';
-import { type FormEvent, useRef } from 'react';
+import { type ChangeEvent, type FormEvent, useRef } from 'react';
 
 export type ContactBlock = {
     name: string;
@@ -61,6 +61,9 @@ export type ContractFormValues = {
         other: string;
     };
     custom_terms: string;
+    document_logo: string;
+    provider_signature: string;
+    provider_signature_date: string;
 };
 
 export interface ContractClientOption {
@@ -246,6 +249,25 @@ export function ContractForm({
             ? (parseFloat(data.lead_example.quantity) * parseFloat(data.lead_example.cpl)).toFixed(2)
             : null;
 
+    const onLogoUpload = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (typeof reader.result === 'string') {
+                setData('document_logo', reader.result);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
     return (
         <form onSubmit={(event) => submit(event, false)} className="max-w-4xl space-y-6">
             <Card>
@@ -358,6 +380,29 @@ export function ContractForm({
                         <Label htmlFor="end_date">End date</Label>
                         <Input id="end_date" type="date" value={data.end_date} onChange={(event) => setData('end_date', event.target.value)} />
                         <InputError message={errors.end_date} />
+                    </div>
+
+                    <div className="grid gap-3 sm:col-span-2">
+                        <Label htmlFor="document_logo">Document logo (PDF header)</Label>
+                        <div className="flex flex-wrap items-start gap-4 rounded-lg border border-dashed p-4">
+                            {data.document_logo ? (
+                                <img src={data.document_logo} alt="Contract logo preview" className="max-h-20 max-w-[160px] object-contain" />
+                            ) : (
+                                <div className="text-muted-foreground flex h-20 w-[160px] items-center justify-center rounded-md border bg-muted/30 text-xs">
+                                    No logo uploaded
+                                </div>
+                            )}
+                            <div className="flex flex-col gap-2">
+                                <Input id="document_logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={onLogoUpload} />
+                                <p className="text-muted-foreground text-xs">PNG, JPG, WebP or SVG. Shown in the PDF header.</p>
+                                {data.document_logo && (
+                                    <Button type="button" variant="ghost" size="sm" className="w-fit px-0" onClick={() => setData('document_logo', '')}>
+                                        Remove logo
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                        <InputError message={errors.document_logo} />
                     </div>
                 </CardContent>
             </Card>
@@ -1057,6 +1102,48 @@ export function ContractForm({
 
             <Card>
                 <CardHeader>
+                    <CardTitle>Service Provider Signature</CardTitle>
+                    <CardDescription>Pre-applied to the PDF. The client signs separately via the signing link.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-2">
+                        <Label htmlFor="provider_signature">Digital signature</Label>
+                        <Input
+                            id="provider_signature"
+                            value={data.provider_signature}
+                            onChange={(event) => setData('provider_signature', event.target.value)}
+                            placeholder="Ajay O"
+                            className="font-serif text-lg italic"
+                        />
+                        <InputError message={errors.provider_signature} />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="provider_signature_date">Signature date</Label>
+                        <Input
+                            id="provider_signature_date"
+                            type="date"
+                            value={data.provider_signature_date}
+                            onChange={(event) => setData('provider_signature_date', event.target.value)}
+                        />
+                        <InputError message={errors.provider_signature_date} />
+                    </div>
+                    {data.provider_signature && (
+                        <div className="sm:col-span-2 rounded-lg border bg-muted/20 p-4">
+                            <p className="text-muted-foreground mb-2 text-xs uppercase tracking-wide">Preview</p>
+                            <p className="font-serif text-3xl italic text-indigo-900">{data.provider_signature}</p>
+                            <p className="text-muted-foreground mt-2 text-sm">
+                                Date:{' '}
+                                {data.provider_signature_date
+                                    ? new Date(data.provider_signature_date).toLocaleDateString(undefined, { dateStyle: 'long' })
+                                    : '—'}
+                            </p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
                     <CardTitle>Custom Terms</CardTitle>
                     <CardDescription>Additional terms and conditions appended to the agreement.</CardDescription>
                 </CardHeader>
@@ -1184,6 +1271,9 @@ function normalizeFormValues(source: Record<string, unknown>): ContractFormValue
             other: String(paymentTerms.other ?? ''),
         },
         custom_terms: String(source.custom_terms ?? ''),
+        document_logo: String(source.document_logo ?? ''),
+        provider_signature: String(source.provider_signature ?? 'Ajay O'),
+        provider_signature_date: String(source.provider_signature_date ?? source.effective_date ?? ''),
     };
 }
 

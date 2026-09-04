@@ -10,5 +10,7 @@ return [
         'address' => env('CONTRACT_PROVIDER_ADDRESS', ''),
     ],
 
+    'provider_signature' => env('CONTRACT_PROVIDER_SIGNATURE', 'Ajay O'),
+
     'number_prefix' => env('CONTRACT_NUMBER_PREFIX', 'VSP-CONTRACT'),
 ];

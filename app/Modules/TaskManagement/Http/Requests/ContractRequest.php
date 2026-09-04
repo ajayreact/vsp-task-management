@@ -86,6 +86,9 @@ class ContractRequest extends FormRequest
             'lead_example' => ['nullable', 'array'],
             'payment_terms' => ['nullable', 'array'],
             'custom_terms' => ['nullable', 'string', 'max:20000'],
+            'document_logo' => ['nullable', 'string', 'max:500000'],
+            'provider_signature' => ['nullable', 'string', 'max:255'],
+            'provider_signature_date' => ['nullable', 'date'],
         ];
     }
 }

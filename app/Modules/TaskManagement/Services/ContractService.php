@@ -279,6 +279,9 @@ class ContractService
             'lead_example' => $data['lead_example'] ?? [],
             'payment_terms' => $data['payment_terms'] ?? self::defaultPaymentTerms(),
             'custom_terms' => $data['custom_terms'] ?? '',
+            'document_logo' => $data['document_logo'] ?? '',
+            'provider_signature' => $data['provider_signature'] ?? config('contracts.provider_signature', 'Ajay O'),
+            'provider_signature_date' => $data['provider_signature_date'] ?? ($data['effective_date'] ?? now()->toDateString()),
         ];
     }
 
@@ -403,6 +406,9 @@ class ContractService
             ],
             'payment_terms' => self::defaultPaymentTerms(),
             'custom_terms' => '',
+            'document_logo' => '',
+            'provider_signature' => config('contracts.provider_signature', 'Ajay O'),
+            'provider_signature_date' => now()->toDateString(),
         ];
     }
 }

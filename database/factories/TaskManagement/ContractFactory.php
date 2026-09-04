@@ -94,6 +94,9 @@ final class ContractSnapshotFactory
                 'other' => '',
             ],
             'custom_terms' => '',
+            'document_logo' => '',
+            'provider_signature' => config('contracts.provider_signature', 'Ajay O'),
+            'provider_signature_date' => now()->toDateString(),
         ];
     }
 }

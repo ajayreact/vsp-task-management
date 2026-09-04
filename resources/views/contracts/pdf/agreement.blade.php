@@ -4,97 +4,334 @@
     <meta charset="utf-8">
     <title>{{ $contract->title }}</title>
     <style>
-        body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #1f2937; line-height: 1.5; }
-        h1 { font-size: 20px; margin: 0 0 6px; color: #312e81; }
-        h2 { font-size: 14px; margin: 18px 0 8px; color: #4338ca; border-bottom: 1px solid #c7d2fe; padding-bottom: 4px; }
-        h3 { font-size: 12px; margin: 12px 0 6px; }
-        .header { border-bottom: 2px solid #4338ca; padding-bottom: 12px; margin-bottom: 18px; }
-        .muted { color: #6b7280; }
-        .grid-2 { width: 100%; }
-        .grid-2 td { vertical-align: top; width: 50%; padding: 4px 8px 4px 0; }
-        table.data { width: 100%; border-collapse: collapse; margin-top: 8px; }
-        table.data th, table.data td { border: 1px solid #d1d5db; padding: 6px 8px; text-align: left; }
-        table.data th { background: #eef2ff; }
-        ul { margin: 6px 0 6px 18px; padding: 0; }
-        .signature-box { margin-top: 24px; width: 100%; }
-        .signature-box td { width: 50%; vertical-align: top; padding-top: 12px; }
-        .line { border-bottom: 1px solid #111827; min-height: 28px; margin: 8px 0; }
-        .footer { position: fixed; bottom: -10px; left: 0; right: 0; text-align: center; font-size: 9px; color: #9ca3af; }
+        @page { margin: 28px 32px 36px; }
+        * { box-sizing: border-box; }
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 10.5px;
+            color: #1e293b;
+            line-height: 1.55;
+            margin: 0;
+        }
+
+        .doc-header {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #312e81;
+            padding-bottom: 14px;
+        }
+        .doc-header td { vertical-align: middle; }
+        .logo-cell { width: 120px; padding-right: 16px; }
+        .logo-img { max-width: 110px; max-height: 70px; }
+        .title-cell { text-align: right; }
+        .doc-title {
+            font-size: 19px;
+            font-weight: bold;
+            color: #1e1b4b;
+            margin: 0 0 6px;
+            line-height: 1.25;
+        }
+        .doc-meta { font-size: 10px; color: #64748b; }
+        .doc-meta strong { color: #334155; }
+
+        h2 {
+            font-size: 12.5px;
+            font-weight: bold;
+            color: #312e81;
+            margin: 20px 0 10px;
+            padding: 6px 10px;
+            background: #eef2ff;
+            border-left: 4px solid #4338ca;
+        }
+        h3 {
+            font-size: 11px;
+            font-weight: bold;
+            color: #312e81;
+            margin: 0 0 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .info-grid {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 6px;
+        }
+        .info-grid td {
+            width: 50%;
+            vertical-align: top;
+            padding: 3px 10px 3px 0;
+        }
+        .info-label {
+            font-size: 9px;
+            font-weight: bold;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .info-value { font-size: 10.5px; color: #0f172a; }
+
+        .parties-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 10px 0;
+            margin: 0 -10px 4px;
+        }
+        .party-box {
+            width: 50%;
+            vertical-align: top;
+            border: 1px solid #c7d2fe;
+            background: #fafbff;
+            padding: 12px 14px;
+        }
+        .party-box.client-box {
+            border-color: #ddd6fe;
+            background: #fdfcff;
+        }
+        .party-row { margin-bottom: 7px; }
+        .party-row:last-child { margin-bottom: 0; }
+
+        table.data {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6px;
+        }
+        table.data th {
+            background: #312e81;
+            color: #ffffff;
+            font-size: 9.5px;
+            font-weight: bold;
+            padding: 7px 9px;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        table.data td {
+            border: 1px solid #e2e8f0;
+            padding: 7px 9px;
+            font-size: 10px;
+        }
+        table.data tr:nth-child(even) td { background: #f8fafc; }
+
+        ul { margin: 4px 0 4px 16px; padding: 0; }
+        ul li { margin-bottom: 3px; }
+
+        .highlight-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 8px 12px;
+            margin-top: 6px;
+            font-size: 10px;
+        }
+
+        .terms-block {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 10px 12px;
+            font-size: 10px;
+        }
+
+        .signature-section {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 12px 0;
+            margin-top: 28px;
+            page-break-inside: avoid;
+        }
+        .signature-cell {
+            width: 50%;
+            vertical-align: top;
+            border: 1px solid #cbd5e1;
+            padding: 14px 16px;
+            background: #ffffff;
+        }
+        .signature-name {
+            font-size: 11px;
+            font-weight: bold;
+            color: #0f172a;
+            margin-bottom: 2px;
+        }
+        .signature-role {
+            font-size: 9.5px;
+            color: #64748b;
+            margin-bottom: 14px;
+        }
+        .signature-label {
+            font-size: 9px;
+            font-weight: bold;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .signature-script {
+            font-family: DejaVu Sans, sans-serif;
+            font-style: italic;
+            font-size: 26px;
+            color: #1e3a8a;
+            line-height: 1.2;
+            min-height: 34px;
+            margin-bottom: 10px;
+        }
+        .signature-image {
+            max-height: 52px;
+            max-width: 200px;
+            margin-bottom: 10px;
+        }
+        .signature-blank {
+            border-bottom: 1px solid #334155;
+            min-height: 28px;
+            margin-bottom: 12px;
+        }
+        .signature-date-value {
+            font-size: 10.5px;
+            color: #0f172a;
+            min-height: 16px;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: -8px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 8.5px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 6px;
+        }
         .page-number:after { content: counter(page); }
-        .signature-image { max-height: 60px; max-width: 220px; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>{{ $contract->title }}</h1>
-        <div class="muted">Contract No: {{ $contract->contract_number }} · Effective Date: {{ $contract->effective_date->format('F j, Y') }}</div>
-    </div>
+    @php
+        $logo = $snapshot['document_logo'] ?? '';
+        $providerSignature = $snapshot['provider_signature'] ?? config('contracts.provider_signature', 'Ajay O');
+        $providerSignatureDate = $snapshot['provider_signature_date'] ?? $contract->effective_date->toDateString();
+        $providerDateFormatted = \Illuminate\Support\Carbon::parse($providerSignatureDate)->format('F j, Y');
+    @endphp
+
+    <table class="doc-header">
+        <tr>
+            <td class="logo-cell">
+                @if (! empty($logo) && str_starts_with((string) $logo, 'data:image'))
+                    <img src="{{ $logo }}" class="logo-img" alt="Logo">
+                @else
+                    <div style="font-size: 11px; font-weight: bold; color: #4338ca;">{{ $snapshot['provider']['name'] ?? config('app.name') }}</div>
+                @endif
+            </td>
+            <td class="title-cell">
+                <div class="doc-title">{{ $contract->title }}</div>
+                <div class="doc-meta">
+                    <strong>Contract No:</strong> {{ $contract->contract_number }} &nbsp;|&nbsp;
+                    <strong>Effective:</strong> {{ $contract->effective_date->format('F j, Y') }}
+                    @if ($contract->start_date)
+                        &nbsp;|&nbsp; <strong>Period:</strong> {{ $contract->start_date->format('M j, Y') }} – {{ $contract->end_date?->format('M j, Y') ?? 'Ongoing' }}
+                    @endif
+                </div>
+            </td>
+        </tr>
+    </table>
 
     <h2>Agreement Details</h2>
-    <table class="grid-2">
+    <table class="info-grid">
         <tr>
-            <td><strong>Contract Type:</strong><br>{{ $contract->contract_type->label() }}</td>
-            <td><strong>Country / Version:</strong><br>{{ $contract->country->label() }}</td>
-        </tr>
-        <tr>
-            <td><strong>Start Date:</strong><br>{{ $contract->start_date?->format('F j, Y') ?? '—' }}</td>
-            <td><strong>End Date:</strong><br>{{ $contract->end_date?->format('F j, Y') ?? '—' }}</td>
-        </tr>
-    </table>
-
-    <h2>Service Provider</h2>
-    <table class="grid-2">
-        <tr>
-            <td><strong>Name:</strong><br>{{ $snapshot['provider']['name'] ?? '' }}</td>
-            <td><strong>Authorized Person:</strong><br>{{ $snapshot['provider']['authorized_person'] ?? '' }}</td>
-        </tr>
-        <tr>
-            <td><strong>Phone:</strong><br>{{ $snapshot['provider']['phone'] ?? '' }}</td>
-            <td><strong>Email:</strong><br>{{ $snapshot['provider']['email'] ?? '' }}</td>
-        </tr>
-        <tr>
-            <td colspan="2"><strong>Website:</strong><br>{{ $snapshot['provider']['website'] ?? '' }}</td>
-        </tr>
-        <tr>
-            <td colspan="2"><strong>Address:</strong><br>{{ $snapshot['provider']['address'] ?? '' }}</td>
+            <td>
+                <div class="info-label">Contract Type</div>
+                <div class="info-value">{{ $contract->contract_type->label() }}</div>
+            </td>
+            <td>
+                <div class="info-label">Country / Version</div>
+                <div class="info-value">{{ $contract->country->label() }} · {{ $contract->currency }}</div>
+            </td>
         </tr>
     </table>
 
-    <h2>Client Details</h2>
-    <table class="grid-2">
+    <h2>Parties to this Agreement</h2>
+    <table class="parties-table">
         <tr>
-            <td><strong>Client / Company:</strong><br>{{ $snapshot['client']['name'] ?? $contract->company->name }}</td>
-            <td><strong>Authorized Person:</strong><br>{{ $snapshot['client']['authorized_person'] ?? '' }}</td>
-        </tr>
-        <tr>
-            <td><strong>Phone:</strong><br>{{ $snapshot['client']['phone'] ?? '' }}</td>
-            <td><strong>Email:</strong><br>{{ $snapshot['client']['email'] ?? '' }}</td>
-        </tr>
-        <tr>
-            <td colspan="2"><strong>Website:</strong><br>{{ $snapshot['client']['website'] ?? '' }}</td>
-        </tr>
-        <tr>
-            <td colspan="2"><strong>Address:</strong><br>{{ $snapshot['client']['address'] ?? '' }}</td>
+            <td class="party-box">
+                <h3>Service Provider</h3>
+                <div class="party-row">
+                    <div class="info-label">Company</div>
+                    <div class="info-value"><strong>{{ $snapshot['provider']['name'] ?? '' }}</strong></div>
+                </div>
+                <div class="party-row">
+                    <div class="info-label">Authorized Person</div>
+                    <div class="info-value">{{ $snapshot['provider']['authorized_person'] ?? '—' }}</div>
+                </div>
+                <div class="party-row">
+                    <div class="info-label">Phone / Email</div>
+                    <div class="info-value">
+                        {{ $snapshot['provider']['phone'] ?? '—' }}<br>
+                        {{ $snapshot['provider']['email'] ?? '—' }}
+                    </div>
+                </div>
+                <div class="party-row">
+                    <div class="info-label">Website</div>
+                    <div class="info-value">{{ $snapshot['provider']['website'] ?? '—' }}</div>
+                </div>
+                @if (! empty($snapshot['provider']['address']))
+                    <div class="party-row">
+                        <div class="info-label">Address</div>
+                        <div class="info-value">{{ $snapshot['provider']['address'] }}</div>
+                    </div>
+                @endif
+            </td>
+            <td class="party-box client-box">
+                <h3>Client</h3>
+                <div class="party-row">
+                    <div class="info-label">Company</div>
+                    <div class="info-value"><strong>{{ $snapshot['client']['name'] ?? $contract->company->name }}</strong></div>
+                </div>
+                <div class="party-row">
+                    <div class="info-label">Authorized Person</div>
+                    <div class="info-value">{{ $snapshot['client']['authorized_person'] ?? '—' }}</div>
+                </div>
+                <div class="party-row">
+                    <div class="info-label">Phone / Email</div>
+                    <div class="info-value">
+                        {{ $snapshot['client']['phone'] ?? '—' }}<br>
+                        {{ $snapshot['client']['email'] ?? '—' }}
+                    </div>
+                </div>
+                <div class="party-row">
+                    <div class="info-label">Website</div>
+                    <div class="info-value">{{ $snapshot['client']['website'] ?? '—' }}</div>
+                </div>
+                @if (! empty($snapshot['client']['address']))
+                    <div class="party-row">
+                        <div class="info-label">Address</div>
+                        <div class="info-value">{{ $snapshot['client']['address'] }}</div>
+                    </div>
+                @endif
+            </td>
         </tr>
     </table>
 
     <h2>Service Plan</h2>
-    <table class="grid-2">
+    <table class="info-grid">
         <tr>
-            <td><strong>Monthly Service Fee:</strong><br>{{ $contract->currency }} {{ number_format((float) ($snapshot['service_plan']['monthly_fee'] ?? 0), 2) }}</td>
-            <td><strong>Billing Frequency:</strong><br>{{ ucfirst(str_replace('_', ' ', (string) ($snapshot['service_plan']['billing_frequency'] ?? 'monthly'))) }}</td>
+            <td>
+                <div class="info-label">Monthly Service Fee</div>
+                <div class="info-value"><strong>{{ $contract->currency }} {{ number_format((float) ($snapshot['service_plan']['monthly_fee'] ?? 0), 2) }}</strong></div>
+            </td>
+            <td>
+                <div class="info-label">Billing Frequency</div>
+                <div class="info-value">{{ ucfirst(str_replace('_', ' ', (string) ($snapshot['service_plan']['billing_frequency'] ?? 'monthly'))) }}</div>
+            </td>
         </tr>
     </table>
 
     @if (! empty($snapshot['deliverables']))
         <h2>Monthly Deliverables</h2>
         <table class="data">
-            <thead><tr><th>Qty</th><th>Service</th><th>Description</th></tr></thead>
+            <thead><tr><th style="width: 8%;">Qty</th><th style="width: 28%;">Service</th><th>Description</th></tr></thead>
             <tbody>
             @foreach ($snapshot['deliverables'] as $item)
                 <tr>
-                    <td>{{ $item['quantity'] ?? '' }}</td>
-                    <td>{{ $item['name'] ?? '' }}</td>
+                    <td>{{ $item['quantity'] ?? '—' }}</td>
+                    <td><strong>{{ $item['name'] ?? '' }}</strong></td>
                     <td>{{ $item['description'] ?? '' }}</td>
                 </tr>
             @endforeach
@@ -105,7 +342,7 @@
     @if (! empty($snapshot['extra_work']))
         <h2>Extra Work / Additional Services</h2>
         <table class="data">
-            <thead><tr><th>Description</th><th>Additional Fee</th><th>Affects Monthly Fee</th></tr></thead>
+            <thead><tr><th>Description</th><th style="width: 22%;">Additional Fee</th><th style="width: 18%;">Affects Monthly Fee</th></tr></thead>
             <tbody>
             @foreach ($snapshot['extra_work'] as $item)
                 <tr>
@@ -119,10 +356,10 @@
     @endif
 
     @if (! empty($snapshot['requirements']))
-        <h2>Client Information & Requirements</h2>
+        <h2>Client Information &amp; Requirements</h2>
         <ul>
             @foreach ($snapshot['requirements'] as $item)
-                <li>{{ $item['label'] ?? '' }}@if(!empty($item['value'])): {{ $item['value'] }}@endif</li>
+                <li>{{ $item['label'] ?? '' }}@if(!empty($item['value'])): <strong>{{ $item['value'] }}</strong>@endif</li>
             @endforeach
         </ul>
     @endif
@@ -133,11 +370,11 @@
     @if (! empty($snapshot['lead_pricing']))
         <h2>Lead Pricing</h2>
         <table class="data">
-            <thead><tr><th>Lead Type</th><th>Cost Per Lead</th><th>Description</th></tr></thead>
+            <thead><tr><th>Lead Type</th><th style="width: 20%;">Cost Per Lead</th><th>Description</th></tr></thead>
             <tbody>
             @foreach ($snapshot['lead_pricing'] as $row)
                 <tr>
-                    <td>{{ $row['lead_type'] ?? '' }}</td>
+                    <td><strong>{{ $row['lead_type'] ?? '' }}</strong></td>
                     <td>{{ ($row['currency'] ?? $contract->currency) }} {{ number_format((float) ($row['cpl'] ?? 0), 2) }}</td>
                     <td>{{ $row['description'] ?? '' }}</td>
                 </tr>
@@ -151,8 +388,12 @@
         $exampleCpl = $snapshot['lead_example']['cpl'] ?? null;
     @endphp
     @if ($exampleQty && $exampleCpl)
-        <h3>Example / Estimated Lead Invoice</h3>
-        <p>{{ $exampleQty }} × {{ $contract->currency }} {{ number_format((float) $exampleCpl, 2) }} = {{ $contract->currency }} {{ number_format((float) $exampleQty * (float) $exampleCpl, 2) }}</p>
+        <div class="highlight-box">
+            <strong>Example / Estimated Lead Invoice:</strong>
+            {{ $exampleQty }} × {{ $contract->currency }} {{ number_format((float) $exampleCpl, 2) }}
+            = <strong>{{ $contract->currency }} {{ number_format((float) $exampleQty * (float) $exampleCpl, 2) }}</strong>
+            <em style="color:#64748b;"> (illustrative only — not an actual invoice)</em>
+        </div>
     @endif
 
     <h2>Payment Terms</h2>
@@ -174,42 +415,47 @@
     @endif
 
     @if (! empty($snapshot['custom_terms']))
-        <h2>Additional Terms & Conditions</h2>
-        <div>{!! nl2br(e($snapshot['custom_terms'])) !!}</div>
+        <h2>Additional Terms &amp; Conditions</h2>
+        <div class="terms-block">{!! nl2br(e($snapshot['custom_terms'])) !!}</div>
     @endif
 
-    <table class="signature-box">
+    <table class="signature-section">
         <tr>
-            <td>
-                <h3>CLIENT</h3>
-                <div><strong>{{ $snapshot['client']['name'] ?? $contract->company->name }}</strong></div>
-                <div>Authorized Person: {{ $snapshot['client']['authorized_person'] ?? '' }}</div>
+            <td class="signature-cell">
+                <h3>Client</h3>
+                <div class="signature-name">{{ $snapshot['client']['name'] ?? $contract->company->name }}</div>
+                <div class="signature-role">Authorized: {{ $snapshot['client']['authorized_person'] ?? '—' }}</div>
+
+                <div class="signature-label">Signature</div>
                 @if ($clientSignature)
-                    <div class="line">
-                        @if (($clientSignature['signature_type'] ?? '') === 'typed')
-                            {{ $clientSignature['signature_data'] }}
-                        @elseif (str_starts_with((string) ($clientSignature['signature_data'] ?? ''), 'data:image'))
-                            <img src="{{ $clientSignature['signature_data'] }}" class="signature-image" alt="Signature">
-                        @else
-                            Signed electronically
-                        @endif
-                    </div>
-                    <div>Date: {{ isset($clientSignature['signed_at']) ? \Illuminate\Support\Carbon::parse($clientSignature['signed_at'])->format('F j, Y') : now()->format('F j, Y') }}</div>
+                    @if (($clientSignature['signature_type'] ?? '') === 'typed')
+                        <div class="signature-script">{{ $clientSignature['signature_data'] }}</div>
+                    @elseif (str_starts_with((string) ($clientSignature['signature_data'] ?? ''), 'data:image'))
+                        <img src="{{ $clientSignature['signature_data'] }}" class="signature-image" alt="Client signature">
+                    @else
+                        <div class="signature-script">Signed electronically</div>
+                    @endif
+                    <div class="signature-label">Date</div>
+                    <div class="signature-date-value">{{ isset($clientSignature['signed_at']) ? \Illuminate\Support\Carbon::parse($clientSignature['signed_at'])->format('F j, Y') : now()->format('F j, Y') }}</div>
                 @elseif ($includeSignaturePlaceholders)
-                    <div class="line">Signature: ______________________</div>
-                    <div>Date: ___________________________</div>
+                    <div class="signature-blank"></div>
+                    <div class="signature-label">Date</div>
+                    <div class="signature-blank"></div>
                 @endif
             </td>
-            <td>
-                <h3>SERVICE PROVIDER</h3>
-                <div><strong>{{ $snapshot['provider']['name'] ?? '' }}</strong></div>
-                <div>Authorized Person: {{ $snapshot['provider']['authorized_person'] ?? '' }}</div>
-                <div class="line">Signature: ______________________</div>
-                <div>Date: ___________________________</div>
+            <td class="signature-cell">
+                <h3>Service Provider</h3>
+                <div class="signature-name">{{ $snapshot['provider']['name'] ?? '' }}</div>
+                <div class="signature-role">Authorized: {{ $snapshot['provider']['authorized_person'] ?? '—' }}</div>
+
+                <div class="signature-label">Signature</div>
+                <div class="signature-script">{{ $providerSignature }}</div>
+                <div class="signature-label">Date</div>
+                <div class="signature-date-value">{{ $providerDateFormatted }}</div>
             </td>
         </tr>
     </table>
 
-    <div class="footer">Generated by {{ config('app.name') }} · Page <span class="page-number"></span></div>
+    <div class="footer">{{ $snapshot['provider']['name'] ?? config('app.name') }} · Generated by VSP CRM · Page <span class="page-number"></span></div>
 </body>
 </html>
