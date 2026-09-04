@@ -164,6 +164,46 @@ test('store in operations documents creates a contract category document', funct
         ->and($document->getFirstMedia('file'))->not->toBeNull();
 });
 
+test('authorized users can view a contract detail page with logo and share link', function () {
+    $employee = opsContractEmployee();
+    $contract = Contract::factory()->create(['title' => 'Detail Test Agreement']);
+    $version = $contract->currentVersion;
+    $version->update([
+        'snapshot' => array_merge($version->snapshot ?? [], [
+            'document_logo' => 'data:image/png;base64,'.base64_encode(str_repeat('x', 50000)),
+            'provider_signature' => 'Ajay O',
+            'provider_signature_date' => now()->toDateString(),
+        ]),
+    ]);
+
+    app(ContractShareLinkService::class)->getOrCreate($contract, $employee->user);
+
+    $this->actingAs($employee->user)
+        ->get("/tasks/contracts/{$contract->id}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('TaskManagement/contracts/show')
+            ->where('contract.title', 'Detail Test Agreement')
+            ->where('contract.has_document_logo', true)
+            ->missing('contract.snapshot')
+            ->has('contract.share_link.url'));
+});
+
+test('updating a contract redirects to the detail page successfully', function () {
+    $company = Company::factory()->create();
+    $employee = opsContractEmployee();
+    $contract = Contract::factory()->create(['tm_company_id' => $company->id]);
+
+    $this->actingAs($employee->user)
+        ->put("/tasks/contracts/{$contract->id}", validContractPayload($company))
+        ->assertRedirect(route('tasks.contracts.show', $contract));
+
+    $this->actingAs($employee->user)
+        ->get("/tasks/contracts/{$contract->id}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('TaskManagement/contracts/show'));
+});
+
 test('unauthorized users cannot access contracts', function () {
     Contract::factory()->create();
 

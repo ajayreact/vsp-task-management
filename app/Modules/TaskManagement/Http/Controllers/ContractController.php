@@ -10,8 +10,9 @@ use App\Modules\TaskManagement\Enums\ContractEventType;
 use App\Modules\TaskManagement\Enums\ContractStatus;
 use App\Modules\TaskManagement\Enums\ContractType;
 use App\Modules\TaskManagement\Http\Requests\ContractRequest;
-use App\Modules\TaskManagement\Models\Company;
 use App\Modules\TaskManagement\Models\Contract;
+use App\Modules\TaskManagement\Models\ContractShareLink;
+use App\Modules\TaskManagement\Models\Company;
 use App\Modules\TaskManagement\Services\ContractEventLogger;
 use App\Modules\TaskManagement\Services\ContractPdfService;
 use App\Modules\TaskManagement\Services\ContractService;
@@ -136,7 +137,7 @@ class ContractController extends Controller
             'company:id,name,primary_contact_name,primary_contact_email,primary_contact_phone,website',
             'createdBy:id,name',
             'currentVersion.media',
-            'versions' => fn ($q) => $q->with('createdBy:id,name')->limit(10),
+            'versions' => fn ($q) => $q->with(['createdBy:id,name', 'media'])->limit(10),
             'shareLink',
             'signatures',
             'events' => fn ($q) => $q->with('actor:id,name')->limit(50),
@@ -267,7 +268,7 @@ class ContractController extends Controller
             'expiry_preset' => $preset,
         ]);
 
-        $shareUrl = $link->publicUrl();
+        $shareUrl = $this->shareLinkUrl($link);
         $shareMessage = "{$contract->title}\n\nReview & Sign:\n{$shareUrl}";
 
         return back()
@@ -327,7 +328,7 @@ class ContractController extends Controller
             'effective_date' => $contract->effective_date->toDateString(),
             'created_at' => $contract->created_at->toIso8601String(),
             'signed_at' => $contract->signed_at?->toIso8601String(),
-            'created_by' => $contract->createdBy->name,
+            'created_by' => $contract->createdBy?->name ?? 'System',
             'has_pdf' => $hasPdf,
             'urls' => [
                 'show' => route('tasks.contracts.show', $contract),
@@ -375,17 +376,14 @@ class ContractController extends Controller
                 'id' => $contract->company->id,
                 'name' => $contract->company->name,
             ],
-            'created_by' => $contract->createdBy->name,
-            'snapshot' => $snapshot,
+            'created_by' => $contract->createdBy?->name ?? 'System',
+            'has_document_logo' => ! empty($snapshot['document_logo']),
+            'provider_signature' => $snapshot['provider_signature'] ?? config('contracts.provider_signature', 'Ajay O'),
+            'provider_signature_date' => $snapshot['provider_signature_date'] ?? $contract->effective_date->toDateString(),
             'version_number' => $version?->version_number,
             'pdf' => $this->mediaPayload($contract, $pdfMedia, false),
             'signed_pdf' => $this->mediaPayload($contract, $signedPdfMedia, true),
-            'share_link' => $shareLink ? [
-                'url' => $shareLink->publicUrl(),
-                'expires_at' => $shareLink->expires_at?->toIso8601String(),
-                'viewed_at' => $shareLink->viewed_at?->toIso8601String(),
-                'expiry_preset' => $shareLink->expiry_preset,
-            ] : null,
+            'share_link' => $this->shareLinkPayload($shareLink),
             'signature' => $latestSignature ? [
                 'signer_name' => $latestSignature->signer_name,
                 'authorized_person' => $latestSignature->authorized_person,
@@ -412,11 +410,13 @@ class ContractController extends Controller
                 'change_summary' => $v->change_summary,
                 'created_at' => $v->created_at->toIso8601String(),
                 'created_by' => $v->createdBy?->name,
-                'has_pdf' => $v->getFirstMedia('pdf') !== null,
+                'has_pdf' => $v->relationLoaded('media')
+                    ? $v->media->contains(fn ($media) => $media->collection_name === 'pdf')
+                    : $v->getFirstMedia('pdf') !== null,
             ])->values(),
             'timeline' => $contract->events->map(fn ($event) => [
                 'id' => $event->id,
-                'label' => $event->description ?? $event->event->label(),
+                'label' => $event->description ?? $event->event?->label() ?? 'Activity',
                 'by' => $event->actor?->name,
                 'at' => $event->occurred_at->toIso8601String(),
             ])->values(),
@@ -484,6 +484,32 @@ class ContractController extends Controller
                 'primary_contact_phone',
                 'website',
             ]);
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    protected function shareLinkPayload(?ContractShareLink $link): ?array
+    {
+        if ($link === null) {
+            return null;
+        }
+
+        return [
+            'url' => $this->shareLinkUrl($link),
+            'expires_at' => $link->expires_at?->toIso8601String(),
+            'viewed_at' => $link->viewed_at?->toIso8601String(),
+            'expiry_preset' => $link->expiry_preset,
+        ];
+    }
+
+    protected function shareLinkUrl(ContractShareLink $link): string
+    {
+        if ($link->short_code !== null && $link->short_code !== '') {
+            return url('/ct/'.$link->short_code);
+        }
+
+        return url('/contract-share/'.$link->token);
     }
 
     /**

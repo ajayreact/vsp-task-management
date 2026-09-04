@@ -270,6 +270,7 @@ class ContractService
             'service_plan' => $data['service_plan'] ?? [],
             'deliverables' => array_values($data['deliverables'] ?? []),
             'extra_work' => array_values($data['extra_work'] ?? []),
+            'extra_work_scope' => $data['extra_work_scope'] ?? self::defaultExtraWorkScope(),
             'requirements' => array_values($data['requirements'] ?? self::defaultRequirements()),
             'responsibilities' => array_values($data['responsibilities'] ?? self::defaultResponsibilities()),
             'campaign_objective' => $data['campaign_objective'] ?? ['type' => 'lead_generation', 'custom' => ''],
@@ -303,6 +304,55 @@ class ContractService
             'change_summary' => $changeSummary,
             'created_by_user_id' => $user->id,
         ]);
+    }
+
+    /**
+     * @return list<array{quantity: string, name: string, description: string}>
+     */
+    public static function defaultDeliverables(): array
+    {
+        return [
+            [
+                'quantity' => '2',
+                'name' => 'Promotional Videos',
+                'description' => 'Professional promotional videos for the Client\'s business.',
+            ],
+            [
+                'quantity' => '4',
+                'name' => 'Reels',
+                'description' => 'Creative short-form videos for social media marketing.',
+            ],
+            [
+                'quantity' => '12',
+                'name' => 'Social Media Posts',
+                'description' => 'Branded posts for business promotion, awareness and engagement.',
+            ],
+            [
+                'quantity' => '',
+                'name' => 'Lead Generation',
+                'description' => 'Digital marketing campaigns designed to generate leads for the Client\'s business.',
+            ],
+        ];
+    }
+
+    /**
+     * @return array{intro: string, items: list<string>, revised_fee_label: string, revised_fee: string, footer: string}
+     */
+    public static function defaultExtraWorkScope(): array
+    {
+        return [
+            'intro' => 'The monthly plan covers the services listed above. If the Client requests additional work beyond the above scope, such as:',
+            'items' => [
+                'Additional promotional videos',
+                'Additional reels',
+                'Additional posts / creatives',
+                'Additional campaigns',
+                'Other marketing work outside the agreed scope',
+            ],
+            'revised_fee_label' => 'the monthly service fee will be changed to:',
+            'revised_fee' => '',
+            'footer' => 'The additional work will be carried out after confirmation with the Client.',
+        ];
     }
 
     /**
@@ -382,8 +432,9 @@ class ContractService
                 'currency' => $country->defaultCurrency(),
                 'billing_frequency' => 'monthly',
             ],
-            'deliverables' => [],
+            'deliverables' => self::defaultDeliverables(),
             'extra_work' => [],
+            'extra_work_scope' => self::defaultExtraWorkScope(),
             'requirements' => self::defaultRequirements(),
             'responsibilities' => self::defaultResponsibilities(),
             'campaign_objective' => ['type' => 'lead_generation', 'custom' => ''],

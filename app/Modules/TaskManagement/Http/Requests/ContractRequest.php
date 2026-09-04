@@ -57,6 +57,13 @@ class ContractRequest extends FormRequest
             'deliverables.*.description' => ['nullable', 'string', 'max:2000'],
 
             'extra_work' => ['nullable', 'array'],
+            'extra_work_scope' => ['nullable', 'array'],
+            'extra_work_scope.intro' => ['nullable', 'string', 'max:2000'],
+            'extra_work_scope.items' => ['nullable', 'array'],
+            'extra_work_scope.items.*' => ['nullable', 'string', 'max:500'],
+            'extra_work_scope.revised_fee_label' => ['nullable', 'string', 'max:500'],
+            'extra_work_scope.revised_fee' => ['nullable'],
+            'extra_work_scope.footer' => ['nullable', 'string', 'max:2000'],
             'extra_work.*.description' => ['nullable', 'string', 'max:2000'],
             'extra_work.*.fee' => ['nullable'],
             'extra_work.*.currency' => ['nullable', 'string', 'max:8'],

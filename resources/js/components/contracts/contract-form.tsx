@@ -40,6 +40,13 @@ export type ContractFormValues = {
         billing_frequency: string;
     };
     deliverables: { quantity: string; name: string; description: string }[];
+    extra_work_scope: {
+        intro: string;
+        items: string[];
+        revised_fee_label: string;
+        revised_fee: string;
+        footer: string;
+    };
     extra_work: { description: string; fee: string; currency: string; affects_monthly_fee: boolean }[];
     requirements: { label: string; value: string }[];
     responsibilities: { text: string }[];
@@ -385,19 +392,19 @@ export function ContractForm({
                     <div className="grid gap-3 sm:col-span-2">
                         <Label htmlFor="document_logo">Document logo (PDF header)</Label>
                         <div className="flex flex-wrap items-start gap-4 rounded-lg border border-dashed p-4">
-                            {data.document_logo ? (
-                                <img src={data.document_logo} alt="Contract logo preview" className="max-h-20 max-w-[160px] object-contain" />
-                            ) : (
-                                <div className="text-muted-foreground flex h-20 w-[160px] items-center justify-center rounded-md border bg-muted/30 text-xs">
-                                    No logo uploaded
-                                </div>
-                            )}
+                            <img
+                                src={data.document_logo || '/images/branding/vsp-crm-logo.png'}
+                                alt="Contract logo preview"
+                                className="max-h-20 max-w-[160px] object-contain"
+                            />
                             <div className="flex flex-col gap-2">
                                 <Input id="document_logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={onLogoUpload} />
-                                <p className="text-muted-foreground text-xs">PNG, JPG, WebP or SVG. Shown in the PDF header.</p>
+                                <p className="text-muted-foreground text-xs">
+                                    PNG, JPG, WebP or SVG. Shown in the PDF header. Default logo is used when none is uploaded.
+                                </p>
                                 {data.document_logo && (
                                     <Button type="button" variant="ghost" size="sm" className="w-fit px-0" onClick={() => setData('document_logo', '')}>
-                                        Remove logo
+                                        Remove uploaded logo
                                     </Button>
                                 )}
                             </div>
@@ -576,8 +583,119 @@ export function ContractForm({
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between gap-4">
                     <div>
-                        <CardTitle>Extra Work</CardTitle>
-                        <CardDescription>Additional services outside the monthly plan.</CardDescription>
+                        <CardTitle>Extra Work Scope</CardTitle>
+                        <CardDescription>
+                            Standard extra-work wording included in the PDF. Add priced items below only when needed.
+                        </CardDescription>
+                    </div>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                            setData('extra_work_scope', {
+                                ...data.extra_work_scope,
+                                items: [...data.extra_work_scope.items, ''],
+                            })
+                        }
+                    >
+                        <Plus className="size-4" /> Add point
+                    </Button>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="extra_work_intro">Introduction</Label>
+                        <Textarea
+                            id="extra_work_intro"
+                            value={data.extra_work_scope.intro}
+                            onChange={(event) =>
+                                setData('extra_work_scope', { ...data.extra_work_scope, intro: event.target.value })
+                            }
+                            rows={2}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>Scope points</Label>
+                        {data.extra_work_scope.items.map((item, index) => (
+                            <div key={index} className="flex items-center gap-2">
+                                <Input
+                                    value={item}
+                                    onChange={(event) => {
+                                        const next = [...data.extra_work_scope.items];
+                                        next[index] = event.target.value;
+                                        setData('extra_work_scope', { ...data.extra_work_scope, items: next });
+                                    }}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() =>
+                                        setData('extra_work_scope', {
+                                            ...data.extra_work_scope,
+                                            items: data.extra_work_scope.items.filter((_, i) => i !== index),
+                                        })
+                                    }
+                                >
+                                    <X className="size-4" />
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="grid gap-2 sm:col-span-2">
+                            <Label htmlFor="extra_work_revised_label">Revised fee label</Label>
+                            <Input
+                                id="extra_work_revised_label"
+                                value={data.extra_work_scope.revised_fee_label}
+                                onChange={(event) =>
+                                    setData('extra_work_scope', {
+                                        ...data.extra_work_scope,
+                                        revised_fee_label: event.target.value,
+                                    })
+                                }
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="extra_work_revised_fee">Revised monthly fee (optional)</Label>
+                            <Input
+                                id="extra_work_revised_fee"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={data.extra_work_scope.revised_fee}
+                                onChange={(event) =>
+                                    setData('extra_work_scope', {
+                                        ...data.extra_work_scope,
+                                        revised_fee: event.target.value,
+                                    })
+                                }
+                                placeholder="Leave blank until agreed"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="extra_work_footer">Closing note</Label>
+                        <Textarea
+                            id="extra_work_footer"
+                            value={data.extra_work_scope.footer}
+                            onChange={(event) =>
+                                setData('extra_work_scope', { ...data.extra_work_scope, footer: event.target.value })
+                            }
+                            rows={2}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between gap-4">
+                    <div>
+                        <CardTitle>Extra Work Pricing</CardTitle>
+                        <CardDescription>Optional priced add-ons beyond the standard scope points.</CardDescription>
                     </div>
                     <Button
                         type="button"
@@ -1208,13 +1326,55 @@ function normalizeFormValues(source: Record<string, unknown>): ContractFormValue
             currency: String((source.service_plan as ContractFormValues['service_plan'])?.currency ?? ''),
             billing_frequency: String((source.service_plan as ContractFormValues['service_plan'])?.billing_frequency ?? 'monthly'),
         },
-        deliverables: Array.isArray(source.deliverables)
+        deliverables: Array.isArray(source.deliverables) && source.deliverables.length > 0
             ? source.deliverables.map((row) => ({
                   quantity: String((row as ContractFormValues['deliverables'][number]).quantity ?? ''),
                   name: String((row as ContractFormValues['deliverables'][number]).name ?? ''),
                   description: String((row as ContractFormValues['deliverables'][number]).description ?? ''),
               }))
-            : [],
+            : [
+                  {
+                      quantity: '2',
+                      name: 'Promotional Videos',
+                      description: "Professional promotional videos for the Client's business.",
+                  },
+                  {
+                      quantity: '4',
+                      name: 'Reels',
+                      description: 'Creative short-form videos for social media marketing.',
+                  },
+                  {
+                      quantity: '12',
+                      name: 'Social Media Posts',
+                      description: 'Branded posts for business promotion, awareness and engagement.',
+                  },
+                  {
+                      quantity: '',
+                      name: 'Lead Generation',
+                      description: "Digital marketing campaigns designed to generate leads for the Client's business.",
+                  },
+              ],
+        extra_work_scope: (() => {
+            const scope = (source.extra_work_scope ?? {}) as Partial<ContractFormValues['extra_work_scope']>;
+
+            return {
+                intro:
+                    scope.intro ??
+                    'The monthly plan covers the services listed above. If the Client requests additional work beyond the above scope, such as:',
+                items: Array.isArray(scope.items)
+                    ? scope.items.map((item) => String(item))
+                    : [
+                          'Additional promotional videos',
+                          'Additional reels',
+                          'Additional posts / creatives',
+                          'Additional campaigns',
+                          'Other marketing work outside the agreed scope',
+                      ],
+                revised_fee_label: scope.revised_fee_label ?? 'the monthly service fee will be changed to:',
+                revised_fee: String(scope.revised_fee ?? ''),
+                footer: scope.footer ?? 'The additional work will be carried out after confirmation with the Client.',
+            };
+        })(),
         extra_work: Array.isArray(source.extra_work)
             ? source.extra_work.map((row) => ({
                   description: String((row as ContractFormValues['extra_work'][number]).description ?? ''),
