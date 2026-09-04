@@ -17,6 +17,7 @@ class ContractPdfService
     {
         $contract->loadMissing(['company', 'createdBy']);
         $snapshot = $version->snapshot;
+        $snapshot['document_logo'] = $this->documentLogoDataUri($version);
 
         $html = view('contracts.pdf.agreement', [
             'contract' => $contract,
@@ -71,5 +72,18 @@ class ContractPdfService
     protected function sanitizeFilename(string $filename): string
     {
         return preg_replace('/[^\w\s\-.()]/u', '', str_replace(['/', '\\'], '-', $filename)) ?: 'contract.pdf';
+    }
+
+    protected function documentLogoDataUri(ContractVersion $version): string
+    {
+        $media = $version->getFirstMedia('document_logo');
+
+        if ($media !== null && is_file($media->getPath())) {
+            return 'data:'.$media->mime_type.';base64,'.base64_encode((string) file_get_contents($media->getPath()));
+        }
+
+        $logo = (string) ($version->snapshot['document_logo'] ?? '');
+
+        return str_starts_with($logo, 'data:image') ? $logo : '';
     }
 }

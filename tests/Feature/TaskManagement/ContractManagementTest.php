@@ -113,6 +113,31 @@ test('authorized users can create a contract draft', function () {
         ->and($contract->currentVersion)->not->toBeNull();
 });
 
+test('creating a contract opens the detail page even with an uploaded logo', function () {
+    $company = Company::factory()->create();
+    $employee = opsContractEmployee();
+    $payload = validContractPayload($company);
+    $payload['document_logo'] = 'data:image/png;base64,'.base64_encode(str_repeat('x', 50000));
+
+    $response = $this->actingAs($employee->user)
+        ->post('/tasks/contracts', $payload);
+
+    $contract = Contract::query()->sole();
+
+    $response->assertRedirect(route('tasks.contracts.show', $contract));
+
+    $this->actingAs($employee->user)
+        ->get("/tasks/contracts/{$contract->id}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('TaskManagement/contracts/show')
+            ->where('contract.has_document_logo', true)
+            ->missing('contract.snapshot'));
+
+    expect($contract->fresh()->currentVersion?->snapshot['document_logo'] ?? '')->toBe('')
+        ->and($contract->currentVersion?->getFirstMedia('document_logo'))->not->toBeNull();
+});
+
 test('authorized users can generate a contract pdf', function () {
     $contract = Contract::factory()->create();
     $employee = opsContractEmployee();
@@ -187,6 +212,9 @@ test('authorized users can view a contract detail page with logo and share link'
             ->where('contract.has_document_logo', true)
             ->missing('contract.snapshot')
             ->has('contract.share_link.url'));
+
+    expect($contract->fresh()->currentVersion?->snapshot['document_logo'] ?? '')->toBe('')
+        ->and($contract->currentVersion?->getFirstMedia('document_logo'))->not->toBeNull();
 });
 
 test('updating a contract redirects to the detail page successfully', function () {

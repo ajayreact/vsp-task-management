@@ -19,7 +19,7 @@ export default function CreateContract({ clients, contractTypes, countries, defa
     const initial = normalizeFormValues({
         ...defaults,
         contract_number: suggestedNumber,
-    }) as ContractFormValues & { has_document_logo?: boolean };
+    }) as ContractFormValues & { has_document_logo?: boolean; logo_url?: string | null };
 
     return (
         <TaskLayout breadcrumbs={breadcrumbs}>

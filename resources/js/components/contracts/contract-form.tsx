@@ -170,7 +170,7 @@ export function ContractForm({
     cancelUrl,
 }: {
     options: ContractFormOptions;
-    initial: ContractFormValues & { has_document_logo?: boolean };
+    initial: ContractFormValues & { has_document_logo?: boolean; logo_url?: string | null };
     action: string;
     method: 'post' | 'put';
     contractId?: number;
@@ -393,7 +393,7 @@ export function ContractForm({
                         <Label htmlFor="document_logo">Document logo (PDF header)</Label>
                         <div className="flex flex-wrap items-start gap-4 rounded-lg border border-dashed p-4">
                             <img
-                                src={data.document_logo || '/images/branding/vsp-crm-logo.png'}
+                                src={data.document_logo || initial.logo_url || '/images/branding/vsp-crm-logo.png'}
                                 alt="Contract logo preview"
                                 className="max-h-20 max-w-[160px] object-contain"
                             />
@@ -1296,7 +1296,10 @@ export function ContractForm({
     );
 }
 
-function normalizeFormValues(source: Record<string, unknown>): ContractFormValues {
+function normalizeFormValues(source: Record<string, unknown>): ContractFormValues & {
+    has_document_logo?: boolean;
+    logo_url?: string | null;
+} {
     const contact = (block: unknown): ContactBlock => {
         const value = (block ?? {}) as Partial<ContactBlock>;
 
@@ -1437,6 +1440,8 @@ function normalizeFormValues(source: Record<string, unknown>): ContractFormValue
         document_logo: String(source.document_logo ?? ''),
         provider_signature: String(source.provider_signature ?? 'Ajay O'),
         provider_signature_date: String(source.provider_signature_date ?? source.effective_date ?? ''),
+        has_document_logo: Boolean(source.has_document_logo),
+        logo_url: typeof source.logo_url === 'string' ? source.logo_url : null,
     };
 }
 

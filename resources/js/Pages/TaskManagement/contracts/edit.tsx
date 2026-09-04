@@ -29,7 +29,7 @@ export default function EditContract({ contract, clients, contractTypes, countri
                         contractTypes,
                         countries: countries as CountryOption[],
                     }}
-                    initial={normalizeFormValues(contract) as ContractFormValues & { has_document_logo?: boolean }}
+                    initial={normalizeFormValues(contract) as ContractFormValues & { has_document_logo?: boolean; logo_url?: string | null }}
                     action={`/tasks/contracts/${contract.id}`}
                     method="put"
                     contractId={contract.id}

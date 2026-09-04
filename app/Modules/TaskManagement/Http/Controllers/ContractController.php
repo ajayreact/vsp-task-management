@@ -12,6 +12,7 @@ use App\Modules\TaskManagement\Enums\ContractType;
 use App\Modules\TaskManagement\Http\Requests\ContractRequest;
 use App\Modules\TaskManagement\Models\Contract;
 use App\Modules\TaskManagement\Models\ContractShareLink;
+use App\Modules\TaskManagement\Models\ContractVersion;
 use App\Modules\TaskManagement\Models\Company;
 use App\Modules\TaskManagement\Services\ContractEventLogger;
 use App\Modules\TaskManagement\Services\ContractPdfService;
@@ -134,13 +135,44 @@ class ContractController extends Controller
     {
         $this->authorize('view', $contract);
 
+        if ($contract->current_version_id) {
+            $this->contracts->compactVersionSnapshotLogo(
+                ContractVersion::query()->find($contract->current_version_id)
+            );
+        }
+
         $contract->load([
             'company:id,name,primary_contact_name,primary_contact_email,primary_contact_phone,website',
             'createdBy:id,name',
             'currentVersion.media',
-            'versions' => fn ($q) => $q->with(['createdBy:id,name', 'media'])->limit(10),
+            'versions' => fn ($q) => $q
+                ->select([
+                    'id',
+                    'tm_contract_id',
+                    'version_number',
+                    'status',
+                    'change_summary',
+                    'created_by_user_id',
+                    'created_at',
+                    'updated_at',
+                ])
+                ->with(['createdBy:id,name', 'media'])
+                ->limit(10),
             'shareLink',
-            'signatures',
+            'signatures' => fn ($q) => $q->select([
+                'id',
+                'tm_contract_id',
+                'tm_contract_version_id',
+                'party',
+                'signer_name',
+                'authorized_person',
+                'signature_type',
+                'ip_address',
+                'user_agent',
+                'signed_at',
+                'created_at',
+                'updated_at',
+            ]),
             'events' => fn ($q) => $q->with('actor:id,name')->limit(50),
             'originalDocument:id,title',
             'signedDocument:id,title',
@@ -156,7 +188,13 @@ class ContractController extends Controller
     {
         $this->authorize('update', $contract);
 
-        $contract->load(['company:id,name', 'currentVersion']);
+        if ($contract->current_version_id) {
+            $this->contracts->compactVersionSnapshotLogo(
+                ContractVersion::query()->find($contract->current_version_id)
+            );
+        }
+
+        $contract->load(['company:id,name', 'currentVersion.media']);
 
         return Inertia::render('TaskManagement/contracts/edit', [
             'contract' => $this->editPayload($contract),
@@ -181,7 +219,13 @@ class ContractController extends Controller
     {
         $this->authorize('view', $contract);
 
-        $contract->load(['company:id,name', 'currentVersion', 'createdBy:id,name']);
+        if ($contract->current_version_id) {
+            $this->contracts->compactVersionSnapshotLogo(
+                ContractVersion::query()->find($contract->current_version_id)
+            );
+        }
+
+        $contract->load(['company:id,name', 'currentVersion.media', 'createdBy:id,name']);
 
         return Inertia::render('TaskManagement/contracts/preview', [
             'contract' => $this->previewPayload($contract, $request),
@@ -247,6 +291,38 @@ class ContractController extends Controller
         }
 
         return $this->pdf->inlineResponse($contract, $version);
+    }
+
+    public function logo(Request $request, Contract $contract): SymfonyResponse
+    {
+        $this->authorize('view', $contract);
+
+        if ($contract->current_version_id) {
+            $this->contracts->compactVersionSnapshotLogo(
+                ContractVersion::query()->find($contract->current_version_id)
+            );
+        }
+
+        $contract->loadMissing(['currentVersion.media']);
+        $media = $contract->currentVersion?->getFirstMedia('document_logo');
+
+        if ($media !== null && is_file($media->getPath())) {
+            return response()->file($media->getPath(), [
+                'Content-Type' => $media->mime_type,
+                'Cache-Control' => 'private, max-age=3600',
+            ]);
+        }
+
+        $defaultLogoPath = public_path((string) config('contracts.default_logo', 'images/branding/vsp-crm-logo.png'));
+
+        if (is_file($defaultLogoPath)) {
+            return response()->file($defaultLogoPath, [
+                'Content-Type' => mime_content_type($defaultLogoPath) ?: 'image/png',
+                'Cache-Control' => 'private, max-age=3600',
+            ]);
+        }
+
+        abort(404);
     }
 
     public function shareLink(Request $request, Contract $contract): RedirectResponse
@@ -355,6 +431,7 @@ class ContractController extends Controller
         $signedPdfMedia = $version?->getFirstMedia('signed_pdf');
         $shareLink = $contract->shareLink;
         $latestSignature = $contract->signatures->sortByDesc('signed_at')->first();
+        $hasDocumentLogo = (bool) $version?->hasMedia('document_logo');
 
         return [
             'id' => $contract->id,
@@ -378,7 +455,8 @@ class ContractController extends Controller
                 'name' => $contract->company->name,
             ],
             'created_by' => $contract->createdBy?->name ?? 'System',
-            'has_document_logo' => ! empty($snapshot['document_logo']),
+            'has_document_logo' => $hasDocumentLogo,
+            'logo_url' => $hasDocumentLogo ? route('tasks.contracts.logo', $contract) : null,
             'provider_signature' => $snapshot['provider_signature'] ?? config('contracts.provider_signature', 'Ajay O'),
             'provider_signature_date' => $snapshot['provider_signature_date'] ?? $contract->effective_date->toDateString(),
             'version_number' => $version?->version_number,
@@ -442,8 +520,9 @@ class ContractController extends Controller
     protected function editPayload(Contract $contract): array
     {
         $snapshot = $contract->currentVersion?->snapshot ?? ContractService::defaultFormPayload($contract->company);
-        $documentLogo = (string) ($snapshot['document_logo'] ?? '');
         unset($snapshot['document_logo']);
+
+        $hasDocumentLogo = (bool) $contract->currentVersion?->hasMedia('document_logo');
 
         return [
             'id' => $contract->id,
@@ -457,7 +536,8 @@ class ContractController extends Controller
             'end_date' => $contract->end_date?->toDateString() ?? '',
             'tm_company_id' => (string) $contract->tm_company_id,
             'status' => $contract->status->value,
-            'has_document_logo' => $documentLogo !== '',
+            'has_document_logo' => $hasDocumentLogo,
+            'logo_url' => $hasDocumentLogo ? route('tasks.contracts.logo', $contract) : null,
             'document_logo' => '',
             ...$snapshot,
         ];

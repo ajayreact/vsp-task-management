@@ -113,6 +113,7 @@ Route::post('contracts', [ContractController::class, 'store'])->name('contracts.
 Route::get('contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
 Route::get('contracts/{contract}/edit', [ContractController::class, 'edit'])->name('contracts.edit');
 Route::put('contracts/{contract}', [ContractController::class, 'update'])->name('contracts.update');
+Route::get('contracts/{contract}/logo', [ContractController::class, 'logo'])->name('contracts.logo');
 Route::get('contracts/{contract}/preview', [ContractController::class, 'preview'])->name('contracts.preview');
 Route::get('contracts/{contract}/pdf', [ContractController::class, 'inlinePdf'])->name('contracts.pdf');
 Route::get('contracts/{contract}/download', [ContractController::class, 'downloadPdf'])->name('contracts.download');

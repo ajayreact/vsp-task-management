@@ -66,5 +66,6 @@ class ContractVersion extends Model implements HasMedia
     {
         $this->addMediaCollection('pdf');
         $this->addMediaCollection('signed_pdf');
+        $this->addMediaCollection('document_logo')->singleFile();
     }
 }

@@ -52,6 +52,7 @@ class ContractService
             ]);
 
             $version = $this->createVersion($contract, $user, $snapshot);
+            $this->syncDocumentLogo($version, (string) ($data['document_logo'] ?? ''));
 
             $contract->update(['current_version_id' => $version->id]);
             $this->events->log($contract, ContractEventType::Created, $user);
@@ -67,12 +68,8 @@ class ContractService
     {
         return DB::transaction(function () use ($contract, $user, $data): Contract {
             $company = Company::query()->findOrFail($data['tm_company_id']);
-            $existingLogo = (string) ($contract->currentVersion?->snapshot['document_logo'] ?? '');
-
-            if (($data['document_logo'] ?? '') === '' && $existingLogo !== '') {
-                $data['document_logo'] = $existingLogo;
-            }
-
+            $logoUpload = (string) ($data['document_logo'] ?? '');
+            $previousVersion = $contract->currentVersion;
             $snapshot = $this->buildSnapshot($data, $company);
 
             $needsNewVersion = ! $contract->status->isEditable()
@@ -96,11 +93,23 @@ class ContractService
                     'status' => ContractStatus::Draft,
                 ]);
 
+                if ($logoUpload !== '') {
+                    $this->syncDocumentLogo($version, $logoUpload);
+                } else {
+                    $this->copyDocumentLogo($previousVersion, $version);
+                }
+
                 $this->events->log($contract, ContractEventType::VersionCreated, $user, [
                     'version_number' => $version->version_number,
                 ]);
             } else {
-                $contract->currentVersion?->update(['snapshot' => $snapshot]);
+                $version = $contract->currentVersion ?? throw new \RuntimeException('Contract has no active version.');
+                $version->update(['snapshot' => $snapshot]);
+
+                if ($logoUpload !== '') {
+                    $this->syncDocumentLogo($version, $logoUpload);
+                }
+
                 $this->events->log($contract, ContractEventType::Edited, $user);
             }
 
@@ -286,7 +295,7 @@ class ContractService
             'lead_example' => $data['lead_example'] ?? [],
             'payment_terms' => $data['payment_terms'] ?? self::defaultPaymentTerms(),
             'custom_terms' => $data['custom_terms'] ?? '',
-            'document_logo' => $data['document_logo'] ?? '',
+            'document_logo' => '',
             'provider_signature' => $data['provider_signature'] ?? config('contracts.provider_signature', 'Ajay O'),
             'provider_signature_date' => $data['provider_signature_date'] ?? ($data['effective_date'] ?? now()->toDateString()),
         ];
@@ -310,6 +319,96 @@ class ContractService
             'change_summary' => $changeSummary,
             'created_by_user_id' => $user->id,
         ]);
+    }
+
+    /**
+     * Move any embedded base64 logo out of the JSON snapshot into media storage.
+     * Existing oversized logos are migrated once, then stripped in SQL so show/edit pages stay light.
+     */
+    public function compactVersionSnapshotLogo(?ContractVersion $version): void
+    {
+        if ($version === null) {
+            return;
+        }
+
+        $logoLength = (int) DB::table('tm_contract_versions')
+            ->where('id', $version->id)
+            ->value(DB::raw("IFNULL(CHAR_LENGTH(JSON_UNQUOTE(JSON_EXTRACT(snapshot, '$.document_logo'))), 0)"));
+
+        if ($logoLength <= 0) {
+            return;
+        }
+
+        if (! $version->hasMedia('document_logo')) {
+            $previousLimit = ini_get('memory_limit');
+            @ini_set('memory_limit', '512M');
+
+            try {
+                $logo = (string) ($version->fresh()?->snapshot['document_logo'] ?? '');
+
+                if ($logo !== '') {
+                    $this->syncDocumentLogo($version, $logo);
+                }
+            } finally {
+                if (is_string($previousLimit) && $previousLimit !== '') {
+                    @ini_set('memory_limit', $previousLimit);
+                }
+            }
+        }
+
+        $this->stripEmbeddedSnapshotLogo($version->id);
+        $version->unsetRelation('media');
+        $version->refresh();
+    }
+
+    public function stripEmbeddedSnapshotLogo(int $versionId): void
+    {
+        DB::statement(
+            "UPDATE tm_contract_versions
+             SET snapshot = JSON_SET(COALESCE(snapshot, JSON_OBJECT()), '$.document_logo', '')
+             WHERE id = ?
+               AND IFNULL(CHAR_LENGTH(JSON_UNQUOTE(JSON_EXTRACT(snapshot, '$.document_logo'))), 0) > 0",
+            [$versionId],
+        );
+    }
+
+    protected function syncDocumentLogo(ContractVersion $version, string $logo): void
+    {
+        if ($logo === '' || ! str_starts_with($logo, 'data:image')) {
+            return;
+        }
+
+        if (! preg_match('/^data:image\/([a-zA-Z0-9+.-]+);base64,(.+)$/s', $logo, $matches)) {
+            return;
+        }
+
+        $mimeSubtype = strtolower($matches[1]);
+        $extension = match ($mimeSubtype) {
+            'jpeg' => 'jpg',
+            'svg+xml' => 'svg',
+            default => preg_replace('/[^a-z0-9]/', '', $mimeSubtype) ?: 'png',
+        };
+        $binary = base64_decode($matches[2], true);
+
+        if ($binary === false) {
+            return;
+        }
+
+        $version->clearMediaCollection('document_logo');
+        $version->addMediaFromString($binary)
+            ->usingFileName('document-logo.'.$extension)
+            ->toMediaCollection('document_logo');
+    }
+
+    protected function copyDocumentLogo(?ContractVersion $from, ContractVersion $to): void
+    {
+        $media = $from?->getFirstMedia('document_logo');
+
+        if ($media === null) {
+            return;
+        }
+
+        $media->copy($to, 'document_logo');
     }
 
     /**
