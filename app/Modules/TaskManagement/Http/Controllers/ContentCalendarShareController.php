@@ -3,14 +3,19 @@
 namespace App\Modules\TaskManagement\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\TaskManagement\Enums\ContentCalendarStatus;
 use App\Modules\TaskManagement\Exceptions\DeliverableShareException;
+use App\Modules\TaskManagement\Exceptions\ProductivityException;
 use App\Modules\TaskManagement\Models\ContentCalendarItem;
 use App\Modules\TaskManagement\Models\ContentCalendarItemShareLink;
 use App\Modules\TaskManagement\Models\ContentCalendarScheduleShareLink;
+use App\Modules\TaskManagement\Services\ClientContentCalendarReview;
 use App\Modules\TaskManagement\Services\ContentCalendarItemShareLinkService;
 use App\Modules\TaskManagement\Services\ContentCalendarScheduleShareLinkService;
 use App\Modules\TaskManagement\Services\DeliverableShareResponder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -23,6 +28,7 @@ class ContentCalendarShareController extends Controller
         protected ContentCalendarItemShareLinkService $itemShareLinks,
         protected ContentCalendarScheduleShareLinkService $scheduleShareLinks,
         protected DeliverableShareResponder $responder,
+        protected ClientContentCalendarReview $clientReview,
     ) {}
 
     public function showItem(string $token): SymfonyResponse|JsonResponse
@@ -121,6 +127,74 @@ class ContentCalendarShareController extends Controller
         );
     }
 
+    public function approveItem(string $token): SymfonyResponse|JsonResponse|RedirectResponse
+    {
+        return $this->handleShareRequest(
+            fn () => $this->runApprove($this->itemShareLinks->resolveByToken($token)),
+            ['identifier_type' => 'legacy_token', 'token_suffix' => substr($token, -8)],
+        );
+    }
+
+    public function approveItemShort(string $shortCode): SymfonyResponse|JsonResponse|RedirectResponse
+    {
+        return $this->handleShareRequest(
+            fn () => $this->runApprove($this->itemShareLinks->resolveByShortCode($shortCode)),
+            ['identifier_type' => 'short_code', 'short_code' => $shortCode],
+        );
+    }
+
+    public function requestChangesItem(Request $request, string $token): SymfonyResponse|JsonResponse|RedirectResponse
+    {
+        $validated = $request->validate([
+            'feedback' => ['required', 'string', 'min:3', 'max:2000'],
+        ]);
+
+        return $this->handleShareRequest(
+            fn () => $this->runRequestChanges(
+                $this->itemShareLinks->resolveByToken($token),
+                $validated['feedback'],
+            ),
+            ['identifier_type' => 'legacy_token', 'token_suffix' => substr($token, -8)],
+        );
+    }
+
+    public function requestChangesItemShort(Request $request, string $shortCode): SymfonyResponse|JsonResponse|RedirectResponse
+    {
+        $validated = $request->validate([
+            'feedback' => ['required', 'string', 'min:3', 'max:2000'],
+        ]);
+
+        return $this->handleShareRequest(
+            fn () => $this->runRequestChanges(
+                $this->itemShareLinks->resolveByShortCode($shortCode),
+                $validated['feedback'],
+            ),
+            ['identifier_type' => 'short_code', 'short_code' => $shortCode],
+        );
+    }
+
+    protected function runApprove(ContentCalendarItemShareLink $link): RedirectResponse
+    {
+        try {
+            $this->clientReview->approve($link);
+        } catch (ProductivityException $exception) {
+            return back()->with('error', $exception->getMessage());
+        }
+
+        return back()->with('success', 'Thank you — your approval has been recorded.');
+    }
+
+    protected function runRequestChanges(ContentCalendarItemShareLink $link, ?string $feedback): RedirectResponse
+    {
+        try {
+            $this->clientReview->requestChanges($link, $feedback);
+        } catch (ProductivityException $exception) {
+            return back()->with('error', $exception->getMessage());
+        }
+
+        return back()->with('success', 'Thanks — your change request has been sent to the team.');
+    }
+
     /**
      * @param  callable(): InertiaResponse|SymfonyResponse  $callback
      * @param  array<string, mixed>  $context
@@ -143,13 +217,47 @@ class ContentCalendarShareController extends Controller
     protected function renderItemShow(ContentCalendarItemShareLink $link, bool $preferLegacyUrls = false): InertiaResponse
     {
         $item = $link->item;
-        $item->loadMissing('company', 'media');
+        $item->loadMissing('company', 'media', 'platforms');
+
+        $canRespond = $item->status === ContentCalendarStatus::UnderReview;
 
         return Inertia::render('TaskManagement/content-share/show-item', [
             'brand' => config('app.name'),
             'client_name' => $item->company->name,
             'item' => $this->publicItemPayload($item, $link, $preferLegacyUrls),
+            'can_respond' => $canRespond,
+            'status_label' => $item->status->label(),
+            'approve_url' => $link->approveUrl($preferLegacyUrls),
+            'request_changes_url' => $link->requestChangesUrl($preferLegacyUrls),
         ]);
+    }
+
+    /**
+     * Used by branded /{client-slug}/{shortCode} dispatch when the code is a content share.
+     */
+    public function renderItemShowFromShortCode(string $shortCode): InertiaResponse
+    {
+        return $this->renderItemShow($this->itemShareLinks->resolveByShortCode($shortCode));
+    }
+
+    public function approveFromShortCode(string $shortCode): RedirectResponse
+    {
+        return $this->runApprove($this->itemShareLinks->resolveByShortCode($shortCode));
+    }
+
+    public function requestChangesFromShortCode(string $shortCode, ?string $feedback): RedirectResponse
+    {
+        return $this->runRequestChanges($this->itemShareLinks->resolveByShortCode($shortCode), $feedback);
+    }
+
+    public function fileFromShortCode(string $shortCode, string $mediaUuid): SymfonyResponse
+    {
+        return $this->renderItemFile($this->itemShareLinks->resolveByShortCode($shortCode), $mediaUuid);
+    }
+
+    public function downloadFromShortCode(string $shortCode, string $mediaUuid): SymfonyResponse
+    {
+        return $this->renderItemDownload($this->itemShareLinks->resolveByShortCode($shortCode), $mediaUuid);
     }
 
     protected function renderScheduleShow(ContentCalendarScheduleShareLink $link, bool $preferLegacyUrls = false): InertiaResponse
@@ -157,7 +265,7 @@ class ContentCalendarShareController extends Controller
         $link->loadMissing('company');
 
         $items = ContentCalendarItem::query()
-            ->with('media')
+            ->with(['media', 'platforms'])
             ->where('tm_company_id', $link->tm_company_id)
             ->whereDate('scheduled_date', '>=', $link->period_start)
             ->whereDate('scheduled_date', '<=', $link->period_end)
@@ -211,8 +319,12 @@ class ContentCalendarShareController extends Controller
             'scheduled_date' => $item->scheduled_date->format('M j, Y'),
             'scheduled_time' => $item->scheduled_time,
             'content_type' => $item->content_type->label(),
-            'platform' => $item->platform->label(),
+            'topic' => $item->topic->label(),
+            'platforms' => $item->platformLabels(),
+            'platform' => implode(', ', $item->platformLabels()),
             'description' => $item->description,
+            'caption' => $item->caption,
+            'hashtags' => $item->hashtags,
             'attachments' => $attachments,
         ];
     }

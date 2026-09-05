@@ -192,7 +192,7 @@ test('generating a share link twice returns the same url and does not create dup
         ->and($second->token)->toBe($first->token)
         ->and($second->short_code)->toBe($first->short_code)
         ->and($second->publicUrl())->toBe($first->publicUrl())
-        ->and($second->publicUrl())->toMatch('#/d/[A-Za-z0-9]{8}$#');
+        ->and($second->publicUrl())->toMatch('#/[a-z0-9]+(?:-[a-z0-9]+)*/[A-Za-z0-9]{8}$#');
 
     $this->assertDatabaseCount('tm_deliverable_share_links', 1);
 });

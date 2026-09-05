@@ -25,6 +25,9 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string|null $primary_contact_email
  * @property string|null $primary_contact_phone
  * @property string|null $notes
+ * @property int|null $monthly_post_target
+ * @property bool $holiday_india_enabled
+ * @property bool $holiday_usa_enabled
  * @property-read int|null $projects_count
  */
 class Company extends Model implements HasMedia
@@ -46,6 +49,9 @@ class Company extends Model implements HasMedia
         'primary_contact_email',
         'primary_contact_phone',
         'notes',
+        'monthly_post_target',
+        'holiday_india_enabled',
+        'holiday_usa_enabled',
     ];
 
     /**
@@ -55,6 +61,9 @@ class Company extends Model implements HasMedia
     {
         return [
             'status' => CompanyStatus::class,
+            'monthly_post_target' => 'integer',
+            'holiday_india_enabled' => 'boolean',
+            'holiday_usa_enabled' => 'boolean',
         ];
     }
 
@@ -108,8 +117,17 @@ class Company extends Model implements HasMedia
     {
         return LogOptions::defaults()
             ->useLogName('task-management')
-            ->logOnly(['name', 'code', 'status'])
+            ->logOnly(['name', 'code', 'status', 'monthly_post_target'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Company $company): void {
+            if ($company->monthly_post_target === null) {
+                $company->monthly_post_target = 18;
+            }
+        });
     }
 }

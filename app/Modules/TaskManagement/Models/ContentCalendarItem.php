@@ -5,11 +5,13 @@ namespace App\Modules\TaskManagement\Models;
 use App\Modules\Core\Models\User;
 use App\Modules\TaskManagement\Enums\ContentCalendarPlatform;
 use App\Modules\TaskManagement\Enums\ContentCalendarStatus;
+use App\Modules\TaskManagement\Enums\ContentCalendarTopic;
 use App\Modules\TaskManagement\Enums\ContentCalendarType;
 use Database\Factories\TaskManagement\ContentCalendarItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use Spatie\Activitylog\LogOptions;
@@ -22,11 +24,18 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property int $tm_company_id
  * @property Carbon $scheduled_date
  * @property string|null $scheduled_time
+ * @property int|null $post_number
  * @property ContentCalendarType $content_type
- * @property ContentCalendarPlatform $platform
+ * @property ContentCalendarTopic $topic
  * @property string|null $description
+ * @property string|null $caption
+ * @property string|null $hashtags
  * @property ContentCalendarStatus $status
  * @property string|null $internal_notes
+ * @property string|null $client_feedback
+ * @property Carbon|null $reviewed_at
+ * @property Carbon|null $published_at
+ * @property string|null $published_url
  * @property int $created_by_user_id
  * @property int|null $updated_by_user_id
  * @property-read Company $company
@@ -47,11 +56,18 @@ class ContentCalendarItem extends Model implements HasMedia
         'tm_company_id',
         'scheduled_date',
         'scheduled_time',
+        'post_number',
         'content_type',
-        'platform',
+        'topic',
         'description',
+        'caption',
+        'hashtags',
         'status',
         'internal_notes',
+        'client_feedback',
+        'reviewed_at',
+        'published_at',
+        'published_url',
         'created_by_user_id',
         'updated_by_user_id',
     ];
@@ -63,9 +79,12 @@ class ContentCalendarItem extends Model implements HasMedia
     {
         return [
             'scheduled_date' => 'date',
+            'post_number' => 'integer',
             'content_type' => ContentCalendarType::class,
-            'platform' => ContentCalendarPlatform::class,
+            'topic' => ContentCalendarTopic::class,
             'status' => ContentCalendarStatus::class,
+            'reviewed_at' => 'datetime',
+            'published_at' => 'datetime',
         ];
     }
 
@@ -101,6 +120,70 @@ class ContentCalendarItem extends Model implements HasMedia
         return $this->hasOne(ContentCalendarItemShareLink::class, 'tm_content_calendar_item_id');
     }
 
+    /**
+     * @return HasMany<ContentCalendarStatusHistory, $this>
+     */
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(ContentCalendarStatusHistory::class, 'tm_content_calendar_item_id')
+            ->orderBy('created_at')
+            ->orderBy('id');
+    }
+
+    /**
+     * @return HasMany<ContentCalendarItemPlatform, $this>
+     */
+    public function platforms(): HasMany
+    {
+        return $this->hasMany(ContentCalendarItemPlatform::class, 'tm_content_calendar_item_id');
+    }
+
+    /**
+     * @param  list<string|ContentCalendarPlatform>  $platforms
+     */
+    public function syncPlatforms(array $platforms): void
+    {
+        $normalized = collect($platforms)
+            ->map(function ($platform) {
+                if ($platform instanceof ContentCalendarPlatform) {
+                    return $platform->value;
+                }
+
+                return ContentCalendarPlatform::tryFrom((string) $platform)?->value;
+            })
+            ->filter()
+            ->unique()
+            ->values();
+
+        $this->platforms()->delete();
+
+        foreach ($normalized as $platform) {
+            $this->platforms()->create(['platform' => $platform]);
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function platformValues(): array
+    {
+        return $this->platforms
+            ->map(fn (ContentCalendarItemPlatform $row) => $row->platform->value)
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function platformLabels(): array
+    {
+        return $this->platforms
+            ->map(fn (ContentCalendarItemPlatform $row) => $row->platform->label())
+            ->values()
+            ->all();
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('attachments');
@@ -110,7 +193,17 @@ class ContentCalendarItem extends Model implements HasMedia
     {
         return LogOptions::defaults()
             ->useLogName('task-management')
-            ->logOnly(['scheduled_date', 'scheduled_time', 'content_type', 'platform', 'description', 'status'])
+            ->logOnly([
+                'scheduled_date',
+                'scheduled_time',
+                'post_number',
+                'content_type',
+                'topic',
+                'description',
+                'caption',
+                'status',
+                'published_url',
+            ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

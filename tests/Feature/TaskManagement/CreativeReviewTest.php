@@ -210,7 +210,7 @@ test('the share message includes only the task title and review link', function 
         'description' => 'Using brand colors, create an attractive poster.',
     ]);
 
-    $message = DeliverableController::buildShareMessage($task, 'https://app.vspcrm.in/d/8KJujQ6M');
+    $message = DeliverableController::buildShareMessage($task, 'https://app.vspcrm.in/vsp-law-associates/8KJujQ6M');
 
-    expect($message)->toBe("Create a Krishna Janmashtami Poster\nhttps://app.vspcrm.in/d/8KJujQ6M");
+    expect($message)->toBe("Create a Krishna Janmashtami Poster\nhttps://app.vspcrm.in/vsp-law-associates/8KJujQ6M");
 });

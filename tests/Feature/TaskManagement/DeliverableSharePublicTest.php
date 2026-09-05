@@ -1,12 +1,15 @@
 <?php
 
+use App\Modules\Core\Enums\Ability;
 use App\Modules\Core\Models\User;
 use App\Modules\TaskManagement\Enums\DeliverableStatus;
 use App\Modules\TaskManagement\Enums\TaskStatus;
 use App\Modules\TaskManagement\Models\Deliverable;
+use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Services\DeliverableShareLinkService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 beforeEach(function () {
     $this->withoutVite();
@@ -30,26 +33,52 @@ test('a valid token shows the deliverable to a guest', function () {
             ->missing('auth.user.id'));
 });
 
-test('the public share url uses the short code route', function () {
+test('the public share url uses the client slug and short code', function () {
+    $deliverable = Deliverable::factory()->create();
+    $deliverable->load('task.project.company');
+    $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
+    $slug = Str::slug($deliverable->task->project->company->name);
+
+    expect($link->publicUrl())->toEndWith('/'.$slug.'/'.$link->short_code)
+        ->and(route('share.client.show', ['companySlug' => $slug, 'shortCode' => $link->short_code], false))
+        ->toBe('/'.$slug.'/'.$link->short_code);
+});
+
+test('legacy /d short code urls continue to work', function () {
     $deliverable = Deliverable::factory()->create();
     $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
 
-    expect($link->publicUrl())->toEndWith('/d/'.$link->short_code)
-        ->and(route('share.short.show', ['shortCode' => $link->short_code], false))->toBe('/d/'.$link->short_code);
+    expect($link->legacyShortUrl())->toEndWith('/d/'.$link->short_code);
+
+    $this->get(route('share.short.show', ['shortCode' => $link->short_code]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('TaskManagement/share/show'));
 });
 
-test('a valid short code shows the deliverable to a guest', function () {
+test('a valid client-slug short code shows the deliverable to a guest', function () {
     $deliverable = Deliverable::factory()->create();
     $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
     $deliverable->load('task.project.company');
 
-    $this->get(route('share.short.show', ['shortCode' => $link->short_code]))
+    $this->get($link->publicUrl())
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('TaskManagement/share/show')
             ->where('client_name', $deliverable->task->project->company->name)
             ->where('approve_url', $link->publicApproveUrl())
             ->where('request_changes_url', $link->publicRequestChangesUrl()));
+});
+
+test('client-slug urls still work when the slug does not match the current company name', function () {
+    $deliverable = Deliverable::factory()->create();
+    $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
+
+    $this->get(route('share.client.show', [
+        'companySlug' => 'old-client-name',
+        'shortCode' => $link->short_code,
+    ]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('TaskManagement/share/show'));
 });
 
 test('legacy long token urls continue to work', function () {
@@ -265,9 +294,9 @@ test('the public share page does not include staff navigation', function () {
 });
 
 test('a client can approve through the short url', function () {
-    $employee = employeeWith(\App\Modules\Core\Enums\Ability::AccessTasks);
-    $reviewer = employeeWith(\App\Modules\Core\Enums\Ability::AccessTasks, \App\Modules\Core\Enums\Ability::ReviewDeliverables);
-    $task = \App\Modules\TaskManagement\Models\Task::factory()->create([
+    $employee = employeeWith(Ability::AccessTasks);
+    $reviewer = employeeWith(Ability::AccessTasks, Ability::ReviewDeliverables);
+    $task = Task::factory()->create([
         'status' => TaskStatus::InReview,
         'assigned_employee_id' => $employee->id,
     ]);
@@ -286,9 +315,9 @@ test('a client can approve through the short url', function () {
 });
 
 test('a client can approve an internally approved deliverable and complete the task', function () {
-    $employee = employeeWith(\App\Modules\Core\Enums\Ability::AccessTasks);
-    $reviewer = employeeWith(\App\Modules\Core\Enums\Ability::AccessTasks, \App\Modules\Core\Enums\Ability::ReviewDeliverables);
-    $task = \App\Modules\TaskManagement\Models\Task::factory()->create([
+    $employee = employeeWith(Ability::AccessTasks);
+    $reviewer = employeeWith(Ability::AccessTasks, Ability::ReviewDeliverables);
+    $task = Task::factory()->create([
         'status' => TaskStatus::InReview,
         'assigned_employee_id' => $employee->id,
     ]);
@@ -308,9 +337,9 @@ test('a client can approve an internally approved deliverable and complete the t
 });
 
 test('a client can request changes and send the task back to revision', function () {
-    $employee = employeeWith(\App\Modules\Core\Enums\Ability::AccessTasks);
-    $reviewer = employeeWith(\App\Modules\Core\Enums\Ability::AccessTasks, \App\Modules\Core\Enums\Ability::ReviewDeliverables);
-    $task = \App\Modules\TaskManagement\Models\Task::factory()->create([
+    $employee = employeeWith(Ability::AccessTasks);
+    $reviewer = employeeWith(Ability::AccessTasks, Ability::ReviewDeliverables);
+    $task = Task::factory()->create([
         'status' => TaskStatus::InReview,
         'assigned_employee_id' => $employee->id,
     ]);

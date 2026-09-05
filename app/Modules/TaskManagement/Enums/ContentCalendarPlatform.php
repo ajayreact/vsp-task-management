@@ -7,6 +7,7 @@ enum ContentCalendarPlatform: string
     case Instagram = 'instagram';
     case Facebook = 'facebook';
     case LinkedIn = 'linkedin';
+    case X = 'x';
     case YouTube = 'youtube';
     case WhatsApp = 'whatsapp';
     case Other = 'other';
@@ -17,6 +18,7 @@ enum ContentCalendarPlatform: string
             self::Instagram => 'Instagram',
             self::Facebook => 'Facebook',
             self::LinkedIn => 'LinkedIn',
+            self::X => 'X / Twitter',
             self::YouTube => 'YouTube',
             self::WhatsApp => 'WhatsApp',
             self::Other => 'Other',

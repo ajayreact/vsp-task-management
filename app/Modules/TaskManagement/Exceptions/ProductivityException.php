@@ -59,4 +59,14 @@ class ProductivityException extends RuntimeException
     {
         return new self('This deliverable is not ready for client review.');
     }
+
+    public static function invalidTransition(string $message): self
+    {
+        return new self($message);
+    }
+
+    public static function contentClientReviewUnavailable(): self
+    {
+        return new self('This content item is not ready for client review.');
+    }
 }

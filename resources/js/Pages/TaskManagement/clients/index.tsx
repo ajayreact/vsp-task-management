@@ -25,6 +25,9 @@ interface ClientRow {
     primary_contact_email: string | null;
     primary_contact_phone: string | null;
     notes: string | null;
+    monthly_post_target: number | null;
+    holiday_india_enabled: boolean;
+    holiday_usa_enabled: boolean;
     projects_count: number;
     can_delete: boolean;
 }
@@ -43,6 +46,9 @@ type ClientFormValues = {
     primary_contact_email: string;
     primary_contact_phone: string;
     notes: string;
+    monthly_post_target: string;
+    holiday_india_enabled: boolean;
+    holiday_usa_enabled: boolean;
 };
 
 const blank: ClientFormValues = {
@@ -53,6 +59,9 @@ const blank: ClientFormValues = {
     primary_contact_email: '',
     primary_contact_phone: '',
     notes: '',
+    monthly_post_target: '18',
+    holiday_india_enabled: true,
+    holiday_usa_enabled: false,
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -89,6 +98,9 @@ export default function ClientIndex({ clients, statuses, can }: Props) {
                       primary_contact_email: client.primary_contact_email ?? '',
                       primary_contact_phone: client.primary_contact_phone ?? '',
                       notes: client.notes ?? '',
+                      monthly_post_target: client.monthly_post_target != null ? String(client.monthly_post_target) : '',
+                      holiday_india_enabled: client.holiday_india_enabled,
+                      holiday_usa_enabled: client.holiday_usa_enabled,
                   }
                 : blank,
         );
@@ -98,12 +110,19 @@ export default function ClientIndex({ clients, statuses, can }: Props) {
     const submit = (event: React.FormEvent) => {
         event.preventDefault();
 
-        const options = { preserveScroll: true, onSuccess: () => setOpen(false) };
+        const options = {
+            preserveScroll: true,
+            onSuccess: () => setOpen(false),
+            transform: (data: ClientFormValues) => ({
+                ...data,
+                monthly_post_target: data.monthly_post_target === '' ? null : Number(data.monthly_post_target),
+            }),
+        };
 
         if (editing) {
-            form.put(`/tasks/clients/${editing.id}`, options);
+            form.transform(options.transform).put(`/tasks/clients/${editing.id}`, options);
         } else {
-            form.post('/tasks/clients', options);
+            form.transform(options.transform).post('/tasks/clients', options);
         }
     };
 
@@ -292,6 +311,39 @@ export default function ClientIndex({ clients, statuses, can }: Props) {
                                 <Label htmlFor="notes">Notes</Label>
                                 <Textarea id="notes" value={form.data.notes} onChange={(e) => form.setData('notes', e.target.value)} />
                                 <InputError message={form.errors.notes} />
+                            </div>
+
+                            <div className="grid gap-2 sm:col-span-2">
+                                <Label htmlFor="monthly_post_target">Monthly post target</Label>
+                                <Input
+                                    id="monthly_post_target"
+                                    type="number"
+                                    min={0}
+                                    max={999}
+                                    value={form.data.monthly_post_target}
+                                    onChange={(e) => form.setData('monthly_post_target', e.target.value)}
+                                />
+                                <InputError message={form.errors.monthly_post_target} />
+                            </div>
+
+                            <div className="grid gap-2 sm:col-span-2">
+                                <Label>Holiday calendars</Label>
+                                <label className="flex items-center gap-2 text-sm">
+                                    <input
+                                        type="checkbox"
+                                        checked={form.data.holiday_india_enabled}
+                                        onChange={(e) => form.setData('holiday_india_enabled', e.target.checked)}
+                                    />
+                                    India
+                                </label>
+                                <label className="flex items-center gap-2 text-sm">
+                                    <input
+                                        type="checkbox"
+                                        checked={form.data.holiday_usa_enabled}
+                                        onChange={(e) => form.setData('holiday_usa_enabled', e.target.checked)}
+                                    />
+                                    United States
+                                </label>
                             </div>
                         </div>
 

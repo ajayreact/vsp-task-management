@@ -28,6 +28,9 @@ class CompanyFactory extends Factory
             'primary_contact_email' => fake()->unique()->companyEmail(),
             'primary_contact_phone' => fake()->numerify('##########'),
             'notes' => null,
+            'monthly_post_target' => 18,
+            'holiday_india_enabled' => true,
+            'holiday_usa_enabled' => false,
         ];
     }
 

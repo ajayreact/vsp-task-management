@@ -1,15 +1,14 @@
 <?php
 
 use App\Modules\TaskManagement\Http\Controllers\AvailabilityController;
+use App\Modules\TaskManagement\Http\Controllers\BrandKitController;
 use App\Modules\TaskManagement\Http\Controllers\CompanyController;
 use App\Modules\TaskManagement\Http\Controllers\CompanyDocumentController;
-use App\Modules\TaskManagement\Http\Controllers\ContractController;
-use App\Modules\TaskManagement\Http\Controllers\BrandKitController;
-use App\Modules\TaskManagement\Models\Company;
 use App\Modules\TaskManagement\Http\Controllers\ContentCalendarController;
+use App\Modules\TaskManagement\Http\Controllers\ContractController;
 use App\Modules\TaskManagement\Http\Controllers\DeliverableController;
-use App\Modules\TaskManagement\Http\Controllers\NotificationSoundController;
 use App\Modules\TaskManagement\Http\Controllers\MyTodoController;
+use App\Modules\TaskManagement\Http\Controllers\NotificationSoundController;
 use App\Modules\TaskManagement\Http\Controllers\OpenBoardController;
 use App\Modules\TaskManagement\Http\Controllers\PersonalTodoController;
 use App\Modules\TaskManagement\Http\Controllers\ProjectController;
@@ -26,6 +25,7 @@ use App\Modules\TaskManagement\Http\Controllers\TimeEntryController;
 use App\Modules\TaskManagement\Http\Controllers\TimerController;
 use App\Modules\TaskManagement\Http\Controllers\TimesheetController;
 use App\Modules\TaskManagement\Http\Controllers\WorkloadController;
+use App\Modules\TaskManagement\Models\Company;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -128,8 +128,15 @@ Route::put('content-calendar/{calendarItem}', [ContentCalendarController::class,
 Route::delete('content-calendar/{calendarItem}', [ContentCalendarController::class, 'destroy'])->name('content-calendar.destroy');
 Route::get('content-calendar/{calendarItem}/attachments/{media}/preview', [ContentCalendarController::class, 'previewAttachment'])->name('content-calendar.attachments.preview');
 Route::get('content-calendar/{calendarItem}/attachments/{media}/download', [ContentCalendarController::class, 'downloadAttachment'])->name('content-calendar.attachments.download');
+Route::delete('content-calendar/{calendarItem}/attachments/{media}', [ContentCalendarController::class, 'destroyAttachment'])->name('content-calendar.attachments.destroy');
+Route::post('content-calendar/{calendarItem}/attachments/{media}/replace', [ContentCalendarController::class, 'replaceAttachment'])->name('content-calendar.attachments.replace');
 Route::post('content-calendar/{calendarItem}/share-link', [ContentCalendarController::class, 'shareItem'])->name('content-calendar.share-item');
+Route::post('content-calendar/{calendarItem}/send-for-review', [ContentCalendarController::class, 'sendForReview'])->name('content-calendar.send-for-review');
 Route::post('content-calendar/share-schedule', [ContentCalendarController::class, 'shareSchedule'])->name('content-calendar.share-schedule');
+Route::post('content-calendar/holiday-post', [ContentCalendarController::class, 'createHolidayPost'])->name('content-calendar.holiday-post');
+Route::get('content-calendar/import/template', [ContentCalendarController::class, 'downloadTemplate'])->name('content-calendar.import.template');
+Route::post('content-calendar/import/preview', [ContentCalendarController::class, 'previewImport'])->name('content-calendar.import.preview');
+Route::post('content-calendar/import/confirm', [ContentCalendarController::class, 'confirmImport'])->name('content-calendar.import.confirm');
 
 Route::get('projects/export/excel', [ProjectController::class, 'exportExcel'])->name('projects.export.excel');
 Route::get('projects/export/pdf', [ProjectController::class, 'exportPdf'])->name('projects.export.pdf');

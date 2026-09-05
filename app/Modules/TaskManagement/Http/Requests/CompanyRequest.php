@@ -33,6 +33,9 @@ class CompanyRequest extends FormRequest
             'primary_contact_email' => ['nullable', 'email', 'max:255'],
             'primary_contact_phone' => ['nullable', 'string', 'max:32'],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'monthly_post_target' => ['nullable', 'integer', 'min:0', 'max:999'],
+            'holiday_india_enabled' => ['sometimes', 'boolean'],
+            'holiday_usa_enabled' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -40,6 +43,14 @@ class CompanyRequest extends FormRequest
     {
         if (is_string($this->input('code'))) {
             $this->merge(['code' => strtoupper($this->string('code')->trim()->value())]);
+        }
+
+        if ($this->has('holiday_india_enabled')) {
+            $this->merge(['holiday_india_enabled' => $this->boolean('holiday_india_enabled')]);
+        }
+
+        if ($this->has('holiday_usa_enabled')) {
+            $this->merge(['holiday_usa_enabled' => $this->boolean('holiday_usa_enabled')]);
         }
     }
 }

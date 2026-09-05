@@ -3,6 +3,7 @@
 namespace App\Modules\TaskManagement\Models;
 
 use App\Modules\Core\Models\User;
+use App\Modules\TaskManagement\Support\CompanySlug;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -71,19 +72,39 @@ class ContentCalendarItemShareLink extends Model
         return $this->belongsTo(User::class, 'created_by_user_id');
     }
 
+    public function companySlug(): string
+    {
+        $this->loadMissing('item.company');
+
+        return CompanySlug::fromName($this->item?->company?->name);
+    }
+
     public function publicUrl(): string
     {
         if ($this->short_code !== null) {
-            return route('content-share.short.show', ['shortCode' => $this->short_code]);
+            return route('share.client.show', [
+                'companySlug' => $this->companySlug(),
+                'shortCode' => $this->short_code,
+            ]);
         }
 
         return route('content-share.show', ['token' => $this->token]);
     }
 
+    public function legacyShortUrl(): string
+    {
+        if ($this->short_code === null) {
+            return $this->publicUrl();
+        }
+
+        return route('content-share.short.show', ['shortCode' => $this->short_code]);
+    }
+
     public function publicFileUrl(string $mediaUuid): string
     {
         if ($this->short_code !== null) {
-            return route('content-share.short.file', [
+            return route('share.client.file', [
+                'companySlug' => $this->companySlug(),
                 'shortCode' => $this->short_code,
                 'mediaUuid' => $mediaUuid,
             ]);
@@ -98,7 +119,8 @@ class ContentCalendarItemShareLink extends Model
     public function publicFileDownloadUrl(string $mediaUuid): string
     {
         if ($this->short_code !== null) {
-            return route('content-share.short.file.download', [
+            return route('share.client.file.download', [
+                'companySlug' => $this->companySlug(),
                 'shortCode' => $this->short_code,
                 'mediaUuid' => $mediaUuid,
             ]);
@@ -107,6 +129,30 @@ class ContentCalendarItemShareLink extends Model
         return route('content-share.file.download', [
             'token' => $this->token,
             'mediaUuid' => $mediaUuid,
+        ]);
+    }
+
+    public function approveUrl(bool $preferLegacy = false): string
+    {
+        if ($preferLegacy || $this->short_code === null) {
+            return route('content-share.approve', ['token' => $this->token]);
+        }
+
+        return route('share.client.approve', [
+            'companySlug' => $this->companySlug(),
+            'shortCode' => $this->short_code,
+        ]);
+    }
+
+    public function requestChangesUrl(bool $preferLegacy = false): string
+    {
+        if ($preferLegacy || $this->short_code === null) {
+            return route('content-share.request-changes', ['token' => $this->token]);
+        }
+
+        return route('share.client.request-changes', [
+            'companySlug' => $this->companySlug(),
+            'shortCode' => $this->short_code,
         ]);
     }
 }

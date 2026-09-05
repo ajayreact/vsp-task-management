@@ -129,6 +129,14 @@ Route::prefix('cc')->name('content-share.short.')->group(function () {
         ->where('shortCode', '[A-Za-z0-9]{8,10}')
         ->name('show');
 
+    Route::post('{shortCode}/approve', [ContentCalendarShareController::class, 'approveItemShort'])
+        ->where('shortCode', '[A-Za-z0-9]{8,10}')
+        ->name('approve');
+
+    Route::post('{shortCode}/request-changes', [ContentCalendarShareController::class, 'requestChangesItemShort'])
+        ->where('shortCode', '[A-Za-z0-9]{8,10}')
+        ->name('request-changes');
+
     Route::get('{shortCode}/files/{mediaUuid}', [ContentCalendarShareController::class, 'fileItemShort'])
         ->where('shortCode', '[A-Za-z0-9]{8,10}')
         ->where('mediaUuid', '[0-9a-fA-F-]{36}')
@@ -143,6 +151,14 @@ Route::prefix('cc')->name('content-share.short.')->group(function () {
 Route::get('content-share/{token}', [ContentCalendarShareController::class, 'showItem'])
     ->where('token', '[0-9a-f]{64}')
     ->name('content-share.show');
+
+Route::post('content-share/{token}/approve', [ContentCalendarShareController::class, 'approveItem'])
+    ->where('token', '[0-9a-f]{64}')
+    ->name('content-share.approve');
+
+Route::post('content-share/{token}/request-changes', [ContentCalendarShareController::class, 'requestChangesItem'])
+    ->where('token', '[0-9a-f]{64}')
+    ->name('content-share.request-changes');
 
 Route::get('content-share/{token}/files/{mediaUuid}', [ContentCalendarShareController::class, 'fileItem'])
     ->where('token', '[0-9a-f]{64}')
@@ -209,3 +225,38 @@ Route::post('contract-share/{token}/sign', [ContractShareController::class, 'sig
 Route::get('contract-share/{token}/pdf', [ContractShareController::class, 'pdf'])
     ->where('token', '[0-9a-f]{64}')
     ->name('contract-share.pdf');
+
+/*
+| Preferred Creative Review URLs: /{client-slug}/{shortCode}
+| Registered last so reserved prefixes (d, c, docs, ci, cs, ct, share, …) win.
+| The slug is decorative; shortCode remains the real identifier.
+| Legacy /d/{shortCode} routes stay active for existing shares.
+*/
+Route::prefix('{companySlug}')
+    ->where([
+        'companySlug' => '(?!(?:d|c|cc|od|docs|ci|cs|ct|share|content-share|content-schedule-share|contract-share|tasks|admin|login|logout|dashboard|notifications|settings|api|up)(?:-|$))[a-z0-9]+(?:-[a-z0-9]+)*',
+    ])
+    ->name('share.client.')
+    ->group(function () {
+        Route::get('{shortCode}', [DeliverableShareController::class, 'showClient'])
+            ->where('shortCode', '[A-Za-z0-9]{8,10}')
+            ->name('show');
+
+        Route::post('{shortCode}/approve', [DeliverableShareController::class, 'approveClient'])
+            ->where('shortCode', '[A-Za-z0-9]{8,10}')
+            ->name('approve');
+
+        Route::post('{shortCode}/request-changes', [DeliverableShareController::class, 'requestChangesClient'])
+            ->where('shortCode', '[A-Za-z0-9]{8,10}')
+            ->name('request-changes');
+
+        Route::get('{shortCode}/files/{mediaUuid}', [DeliverableShareController::class, 'fileClient'])
+            ->where('shortCode', '[A-Za-z0-9]{8,10}')
+            ->where('mediaUuid', '[0-9a-fA-F-]{36}')
+            ->name('file');
+
+        Route::get('{shortCode}/files/{mediaUuid}/download', [DeliverableShareController::class, 'downloadFileClient'])
+            ->where('shortCode', '[A-Za-z0-9]{8,10}')
+            ->where('mediaUuid', '[0-9a-fA-F-]{36}')
+            ->name('file.download');
+    });

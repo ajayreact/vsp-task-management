@@ -4,6 +4,7 @@ namespace App\Modules\TaskManagement\Http\Requests;
 
 use App\Modules\TaskManagement\Enums\ContentCalendarPlatform;
 use App\Modules\TaskManagement\Enums\ContentCalendarStatus;
+use App\Modules\TaskManagement\Enums\ContentCalendarTopic;
 use App\Modules\TaskManagement\Enums\ContentCalendarType;
 use App\Modules\TaskManagement\Support\UploadLimits;
 use Illuminate\Foundation\Http\FormRequest;
@@ -27,11 +28,18 @@ class ContentCalendarItemRequest extends FormRequest
             'tm_company_id' => ['required', 'integer', Rule::exists('tm_companies', 'id')],
             'scheduled_date' => ['required', 'date'],
             'scheduled_time' => ['nullable', 'date_format:H:i'],
+            'post_number' => ['nullable', 'integer', 'min:1', 'max:999'],
             'content_type' => ['required', Rule::enum(ContentCalendarType::class)],
-            'platform' => ['required', Rule::enum(ContentCalendarPlatform::class)],
+            'topic' => ['required', Rule::enum(ContentCalendarTopic::class)],
+            'platforms' => ['required', 'array', 'min:1'],
+            'platforms.*' => ['required', Rule::enum(ContentCalendarPlatform::class)],
             'description' => ['nullable', 'string', 'max:10000'],
+            'caption' => ['nullable', 'string', 'max:10000'],
+            'hashtags' => ['nullable', 'string', 'max:5000'],
             'status' => ['required', Rule::enum(ContentCalendarStatus::class)],
             'internal_notes' => ['nullable', 'string', 'max:5000'],
+            'published_url' => ['nullable', 'string', 'max:2048'],
+            'published_at' => ['nullable', 'date'],
             'files' => ['nullable', 'array', 'max:'.UploadLimits::TASK_ATTACHMENT_MAX_FILES],
             'files.*' => ['required', 'file', 'max:'.UploadLimits::MAX_FILE_KILOBYTES],
         ];

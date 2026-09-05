@@ -5,6 +5,8 @@ namespace App\Modules\TaskManagement\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\TaskManagement\Exceptions\DeliverableShareException;
 use App\Modules\TaskManagement\Exceptions\ProductivityException;
+use App\Modules\TaskManagement\Models\ContentCalendarItemShareLink;
+use App\Modules\TaskManagement\Models\Deliverable;
 use App\Modules\TaskManagement\Models\DeliverableShareLink;
 use App\Modules\TaskManagement\Services\ClientDeliverableReview;
 use App\Modules\TaskManagement\Services\DeliverableShareLinkService;
@@ -42,6 +44,20 @@ class DeliverableShareController extends Controller
         );
     }
 
+    public function showClient(string $companySlug, string $shortCode): SymfonyResponse
+    {
+        return $this->handleShareRequest(
+            function () use ($shortCode) {
+                if ($this->isDeliverableShortCode($shortCode)) {
+                    return $this->renderShow($this->shareLinks->resolveByShortCode($shortCode));
+                }
+
+                return app(ContentCalendarShareController::class)->renderItemShowFromShortCode($shortCode);
+            },
+            ['identifier_type' => 'short_code', 'short_code' => $shortCode, 'company_slug' => $companySlug],
+        );
+    }
+
     public function approve(string $token): SymfonyResponse
     {
         return $this->handleShareRequest(
@@ -63,6 +79,24 @@ class DeliverableShareController extends Controller
                 'Thank you. Your approval has been recorded.',
             ),
             ['identifier_type' => 'short_code', 'short_code' => $shortCode],
+        );
+    }
+
+    public function approveClient(string $companySlug, string $shortCode): SymfonyResponse
+    {
+        return $this->handleShareRequest(
+            function () use ($shortCode) {
+                if ($this->isDeliverableShortCode($shortCode)) {
+                    return $this->runClientAction(
+                        fn () => $this->shareLinks->resolveByShortCode($shortCode),
+                        fn (DeliverableShareLink $link) => $this->clientReview->approve($link),
+                        'Thank you. Your approval has been recorded.',
+                    );
+                }
+
+                return app(ContentCalendarShareController::class)->approveFromShortCode($shortCode);
+            },
+            ['identifier_type' => 'short_code', 'short_code' => $shortCode, 'company_slug' => $companySlug],
         );
     }
 
@@ -98,6 +132,33 @@ class DeliverableShareController extends Controller
         );
     }
 
+    public function requestChangesClient(Request $request, string $companySlug, string $shortCode): SymfonyResponse
+    {
+        if ($this->isDeliverableShortCode($shortCode)) {
+            $validated = $request->validate([
+                'feedback' => ['nullable', 'string', 'max:2000'],
+            ]);
+
+            return $this->handleShareRequest(
+                fn () => $this->runClientAction(
+                    fn () => $this->shareLinks->resolveByShortCode($shortCode),
+                    fn (DeliverableShareLink $link) => $this->clientReview->requestChanges($link, $validated['feedback'] ?? null),
+                    'Your feedback has been sent to the team.',
+                ),
+                ['identifier_type' => 'short_code', 'short_code' => $shortCode, 'company_slug' => $companySlug],
+            );
+        }
+
+        $validated = $request->validate([
+            'feedback' => ['required', 'string', 'min:3', 'max:2000'],
+        ]);
+
+        return $this->handleShareRequest(
+            fn () => app(ContentCalendarShareController::class)->requestChangesFromShortCode($shortCode, $validated['feedback']),
+            ['identifier_type' => 'short_code', 'short_code' => $shortCode, 'company_slug' => $companySlug],
+        );
+    }
+
     public function file(string $token, string $mediaUuid): SymfonyResponse
     {
         return $this->handleShareRequest(
@@ -114,6 +175,20 @@ class DeliverableShareController extends Controller
         );
     }
 
+    public function fileClient(string $companySlug, string $shortCode, string $mediaUuid): SymfonyResponse
+    {
+        return $this->handleShareRequest(
+            function () use ($shortCode, $mediaUuid) {
+                if ($this->isDeliverableShortCode($shortCode)) {
+                    return $this->renderFile($this->shareLinks->resolveByShortCode($shortCode), $mediaUuid);
+                }
+
+                return app(ContentCalendarShareController::class)->fileFromShortCode($shortCode, $mediaUuid);
+            },
+            ['identifier_type' => 'short_code', 'short_code' => $shortCode, 'company_slug' => $companySlug, 'media_uuid' => $mediaUuid],
+        );
+    }
+
     public function downloadFile(string $token, string $mediaUuid): SymfonyResponse
     {
         return $this->handleShareRequest(
@@ -127,6 +202,20 @@ class DeliverableShareController extends Controller
         return $this->handleShareRequest(
             fn () => $this->renderDownloadFile($this->shareLinks->resolveByShortCode($shortCode), $mediaUuid),
             ['identifier_type' => 'short_code', 'short_code' => $shortCode, 'media_uuid' => $mediaUuid],
+        );
+    }
+
+    public function downloadFileClient(string $companySlug, string $shortCode, string $mediaUuid): SymfonyResponse
+    {
+        return $this->handleShareRequest(
+            function () use ($shortCode, $mediaUuid) {
+                if ($this->isDeliverableShortCode($shortCode)) {
+                    return $this->renderDownloadFile($this->shareLinks->resolveByShortCode($shortCode), $mediaUuid);
+                }
+
+                return app(ContentCalendarShareController::class)->downloadFromShortCode($shortCode, $mediaUuid);
+            },
+            ['identifier_type' => 'short_code', 'short_code' => $shortCode, 'company_slug' => $companySlug, 'media_uuid' => $mediaUuid],
         );
     }
 
@@ -258,7 +347,7 @@ class DeliverableShareController extends Controller
             ]);
         }
 
-        $deliverableClass = (new \App\Modules\TaskManagement\Models\Deliverable)->getMorphClass();
+        $deliverableClass = (new Deliverable)->getMorphClass();
 
         if ($media->collection_name !== 'proofs'
             || $media->model_type !== $deliverableClass
@@ -271,5 +360,11 @@ class DeliverableShareController extends Controller
         }
 
         return $media;
+    }
+
+    protected function isDeliverableShortCode(string $shortCode): bool
+    {
+        return DeliverableShareLink::query()->where('short_code', $shortCode)->exists()
+            || ! ContentCalendarItemShareLink::query()->where('short_code', $shortCode)->exists();
     }
 }

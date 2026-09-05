@@ -112,6 +112,9 @@ class CompanyController extends Controller
             'primary_contact_email' => $company->primary_contact_email,
             'primary_contact_phone' => $company->primary_contact_phone,
             'notes' => $company->notes,
+            'monthly_post_target' => $company->monthly_post_target,
+            'holiday_india_enabled' => (bool) $company->holiday_india_enabled,
+            'holiday_usa_enabled' => (bool) $company->holiday_usa_enabled,
             'projects_count' => $company->projects_count,
             'can_delete' => $request->user()->can('delete', $company),
         ];

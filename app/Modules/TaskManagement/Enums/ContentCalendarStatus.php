@@ -10,18 +10,22 @@ enum ContentCalendarStatus: string
     case UnderReview = 'under_review';
     case Approved = 'approved';
     case ChangesRequested = 'changes_requested';
+    case Scheduled = 'scheduled';
     case Published = 'published';
+    case Rejected = 'rejected';
 
     public function label(): string
     {
         return match ($this) {
-            self::Draft => 'Draft',
-            self::InProgress => 'In Progress',
-            self::Ready => 'Ready',
-            self::UnderReview => 'Under Review',
-            self::Approved => 'Approved',
-            self::ChangesRequested => 'Changes Requested',
+            self::Draft => 'Post Not Ready',
+            self::InProgress => 'Content In Progress',
+            self::Ready => 'Post Ready',
+            self::UnderReview => 'Client Review',
+            self::Approved => 'Client Approved',
+            self::ChangesRequested => 'Client Changes Requested',
+            self::Scheduled => 'Scheduled',
             self::Published => 'Published',
+            self::Rejected => 'Rejected',
         };
     }
 

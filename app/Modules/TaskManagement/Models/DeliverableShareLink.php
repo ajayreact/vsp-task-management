@@ -3,6 +3,7 @@
 namespace App\Modules\TaskManagement\Models;
 
 use App\Modules\Core\Models\User;
+use App\Modules\TaskManagement\Support\CompanySlug;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -76,19 +77,48 @@ class DeliverableShareLink extends Model
         return $this->belongsTo(User::class, 'created_by_user_id');
     }
 
+    /**
+     * URL-safe client slug derived from the associated company name.
+     * Decorative only — short_code remains the real identifier.
+     */
+    public function companySlug(): string
+    {
+        $this->loadMissing('deliverable.task.project.company');
+
+        return CompanySlug::fromName(
+            $this->deliverable?->task?->project?->company?->name
+        );
+    }
+
     public function publicUrl(): string
     {
         if ($this->short_code !== null) {
-            return route('share.short.show', ['shortCode' => $this->short_code]);
+            return route('share.client.show', [
+                'companySlug' => $this->companySlug(),
+                'shortCode' => $this->short_code,
+            ]);
         }
 
         return route('share.show', ['token' => $this->token]);
     }
 
+    /**
+     * Legacy short URL kept valid for previously shared links.
+     */
+    public function legacyShortUrl(): string
+    {
+        if ($this->short_code === null) {
+            return $this->publicUrl();
+        }
+
+        return route('share.short.show', ['shortCode' => $this->short_code]);
+    }
+
     public function publicFileUrl(string $mediaUuid): string
     {
         if ($this->short_code !== null) {
-            return route('share.short.file', [
+            return route('share.client.file', [
+                'companySlug' => $this->companySlug(),
                 'shortCode' => $this->short_code,
                 'mediaUuid' => $mediaUuid,
             ]);
@@ -103,7 +133,8 @@ class DeliverableShareLink extends Model
     public function publicFileDownloadUrl(string $mediaUuid): string
     {
         if ($this->short_code !== null) {
-            return route('share.short.file.download', [
+            return route('share.client.file.download', [
+                'companySlug' => $this->companySlug(),
                 'shortCode' => $this->short_code,
                 'mediaUuid' => $mediaUuid,
             ]);
@@ -118,7 +149,10 @@ class DeliverableShareLink extends Model
     public function publicApproveUrl(): string
     {
         if ($this->short_code !== null) {
-            return route('share.short.approve', ['shortCode' => $this->short_code]);
+            return route('share.client.approve', [
+                'companySlug' => $this->companySlug(),
+                'shortCode' => $this->short_code,
+            ]);
         }
 
         return route('share.approve', ['token' => $this->token]);
@@ -127,7 +161,10 @@ class DeliverableShareLink extends Model
     public function publicRequestChangesUrl(): string
     {
         if ($this->short_code !== null) {
-            return route('share.short.request-changes', ['shortCode' => $this->short_code]);
+            return route('share.client.request-changes', [
+                'companySlug' => $this->companySlug(),
+                'shortCode' => $this->short_code,
+            ]);
         }
 
         return route('share.request-changes', ['token' => $this->token]);
