@@ -13,13 +13,23 @@ beforeEach(function () {
 });
 
 test('share preview og image is publicly accessible without authentication', function () {
-    $response = $this->get(route('share-preview.og-image'));
+    $response = $this->get(route('share-preview.og-image', [
+        'brand' => 'VSP CRM',
+        'line' => 'Demo Client · Teachers Day Post',
+        'host' => 'app.vspcrm.in',
+        'v' => ShareLinkPreviewMeta::sourceLogoVersion(),
+    ]));
 
     $response->assertOk()
         ->assertHeader('Content-Type', 'image/png');
 
-    expect(strlen($response->getContent()))->toBeGreaterThan(1000)
-        ->and(strlen($response->getContent()))->toBeLessThan(500_000);
+    $binary = $response->getContent();
+    $size = getimagesizefromstring($binary);
+
+    expect(strlen($binary))->toBeGreaterThan(1000)
+        ->and(strlen($binary))->toBeLessThan(500_000)
+        ->and($size[0] ?? null)->toBe(1200)
+        ->and($size[1] ?? null)->toBe(630);
 });
 
 test('creative review share html includes open graph and twitter metadata', function () {
@@ -36,7 +46,11 @@ test('creative review share html includes open graph and twitter metadata', func
         ->toContain('property="og:url"')
         ->toContain('name="twitter:card"')
         ->toContain('content="summary_large_image"')
-        ->toContain('/share-preview/og-image.png?v=')
+        ->toContain('/share-preview/og-image.png?')
+        ->toContain('v=')
+        ->toContain('brand=')
+        ->toContain('line=')
+        ->toContain('host=')
         ->toContain($deliverable->task->project->company->name)
         ->not->toContain('/images/branding/logo.png')
         ->not->toContain('/images/branding/vsp-crm-logo.png');
@@ -55,8 +69,9 @@ test('content calendar share html includes open graph metadata', function () {
     expect($html)
         ->toContain('property="og:title"')
         ->toContain('property="og:image"')
-        ->toContain('/share-preview/og-image.png?v=')
-        ->toContain($item->company->name)
+        ->toContain('/share-preview/og-image.png?')
+        ->toContain('line=')
+        ->toContain(e($item->company->name))
         ->toContain('Happy Teachers Day')
         ->not->toContain('/images/branding/logo.png');
 });
@@ -71,30 +86,51 @@ test('legacy content calendar short urls still emit og metadata', function () {
 
     expect($html)
         ->toContain('property="og:image"')
-        ->toContain('/share-preview/og-image.png?v=');
+        ->toContain('/share-preview/og-image.png?');
 });
 
 test('og image version changes when the source v logo changes', function () {
     $logoDir = public_path('images/branding/share-preview');
     File::ensureDirectoryExists($logoDir);
     $logoPath = $logoDir.'/v-logo.png';
+    $original = is_file($logoPath) ? File::get($logoPath) : null;
 
     // Tiny valid 1x1 PNG.
     $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==');
     File::put($logoPath, $png);
     touch($logoPath, time() - 100);
+    clearstatcache(true, $logoPath);
 
-    $first = ShareLinkPreviewMeta::ogImageUrl();
-    expect($first)->toContain('?v=');
+    $first = ShareLinkPreviewMeta::ogImageUrl(['brand' => 'VSP CRM', 'line' => 'Demo', 'host' => 'app.vspcrm.in']);
+    expect($first)->toContain('v=');
 
     touch($logoPath, time());
     clearstatcache(true, $logoPath);
 
-    $second = ShareLinkPreviewMeta::ogImageUrl();
+    $second = ShareLinkPreviewMeta::ogImageUrl(['brand' => 'VSP CRM', 'line' => 'Demo', 'host' => 'app.vspcrm.in']);
 
     expect($second)->not->toBe($first);
 
-    File::delete($logoPath);
+    if ($original !== null) {
+        File::put($logoPath, $original);
+    } else {
+        File::delete($logoPath);
+    }
+});
+
+test('og image query includes dynamic client line without changing share routes', function () {
+    $url = ShareLinkPreviewMeta::ogImageUrl([
+        'brand' => 'VSP CRM',
+        'line' => 'VSP Law Associates · Teachers Day Post',
+        'host' => 'app.vspcrm.in',
+    ]);
+
+    expect($url)
+        ->toContain('/share-preview/og-image.png?')
+        ->toContain('brand=VSP+CRM')
+        ->toContain('line=')
+        ->toContain('host=app.vspcrm.in')
+        ->toContain('v=');
 });
 
 test('share preview meta prefers user v-logo over full branding logos', function () {

@@ -50,11 +50,17 @@ final class ShareLinkPreviewMeta
 
         $props = is_array($page['props'] ?? null) ? $page['props'] : [];
         $url = self::absoluteUrl((string) ($page['url'] ?? request()->getRequestUri()));
+        $title = self::titleFor($component, $props);
+        $description = self::descriptionFor($component, $props);
 
         return [
-            'title' => self::titleFor($component, $props),
-            'description' => self::descriptionFor($component, $props),
-            'image' => self::ogImageUrl(),
+            'title' => $title,
+            'description' => $description,
+            'image' => self::ogImageUrl([
+                'brand' => (string) config('app.name', 'VSP CRM'),
+                'line' => $title,
+                'host' => self::publicHost(),
+            ]),
             'url' => $url,
             'type' => 'website',
         ];
@@ -83,9 +89,26 @@ final class ShareLinkPreviewMeta
         return is_file($path) ? (string) filemtime($path) : '0';
     }
 
-    public static function ogImageUrl(): string
+    /**
+     * @param  array{brand?: string, line?: string, host?: string}  $overlay
+     */
+    public static function ogImageUrl(array $overlay = []): string
     {
-        return url('/share-preview/og-image.png').'?v='.self::sourceLogoVersion();
+        $query = array_filter([
+            'v' => self::sourceLogoVersion(),
+            'brand' => $overlay['brand'] ?? config('app.name', 'VSP CRM'),
+            'line' => $overlay['line'] ?? null,
+            'host' => $overlay['host'] ?? self::publicHost(),
+        ], static fn ($value) => $value !== null && $value !== '');
+
+        return url('/share-preview/og-image.png').'?'.http_build_query($query);
+    }
+
+    public static function publicHost(): string
+    {
+        $host = parse_url((string) config('app.url'), PHP_URL_HOST);
+
+        return is_string($host) && $host !== '' ? $host : 'app.vspcrm.in';
     }
 
     /**
@@ -103,7 +126,7 @@ final class ShareLinkPreviewMeta
             ),
             'TaskManagement/content-share/show-item' => self::joinTitle(
                 $client !== '' ? $client : $brand,
-                (string) data_get($props, 'item.content_type', 'Content'),
+                self::contentItemHeadline($props),
             ),
             'TaskManagement/content-share/show-schedule' => self::joinTitle(
                 $client !== '' ? $client : $brand,
@@ -112,6 +135,26 @@ final class ShareLinkPreviewMeta
             'TaskManagement/share/error' => (string) ($props['title'] ?? 'Share unavailable'),
             default => $brand,
         };
+    }
+
+    /**
+     * Prefer a human post label (caption/description) over just format type.
+     *
+     * @param  array<string, mixed>  $props
+     */
+    private static function contentItemHeadline(array $props): string
+    {
+        $caption = trim((string) data_get($props, 'item.caption', ''));
+        $description = trim((string) data_get($props, 'item.description', ''));
+        $type = trim((string) data_get($props, 'item.content_type', 'Content'));
+
+        foreach ([$caption, $description] as $candidate) {
+            if ($candidate !== '') {
+                return mb_substr($candidate, 0, 80);
+            }
+        }
+
+        return $type !== '' ? $type : 'Content';
     }
 
     /**
