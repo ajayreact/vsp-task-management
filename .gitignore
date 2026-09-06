@@ -20,6 +20,8 @@
 /storage/*.key
 /storage/pail
 /storage/app/backups
+/storage/app/share-preview/*
+!/storage/app/share-preview/.gitignore
 /storage/app/public/*
 !/storage/app/public/.gitignore
 /storage/framework/cache/*

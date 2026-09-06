@@ -21,6 +21,7 @@ final class CompanySlug
         'cs',
         'ct',
         'share',
+        'share-preview',
         'content-share',
         'content-schedule-share',
         'contract-share',

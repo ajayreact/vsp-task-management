@@ -1,46 +1,32 @@
 import { useEffect, useState } from 'react';
 
-export type Appearance = 'light' | 'dark' | 'system';
+export type Appearance = 'light';
 
-const prefersDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches;
+const FORCE_LIGHT: Appearance = 'light';
 
-const applyTheme = (appearance: Appearance) => {
-    const isDark = appearance === 'dark' || (appearance === 'system' && prefersDark());
-
-    document.documentElement.classList.toggle('dark', isDark);
+const applyLightTheme = () => {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.style.colorScheme = 'light';
 };
 
-const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-const handleSystemThemeChange = () => {
-    const currentAppearance = localStorage.getItem('appearance') as Appearance;
-    applyTheme(currentAppearance || 'system');
-};
-
+/**
+ * Always force Light mode. Migrates any previously saved dark/system preference.
+ */
 export function initializeTheme() {
-    const savedAppearance = (localStorage.getItem('appearance') as Appearance) || 'system';
-
-    applyTheme(savedAppearance);
-
-    // Add the event listener for system theme changes...
-    mediaQuery.addEventListener('change', handleSystemThemeChange);
+    localStorage.setItem('appearance', FORCE_LIGHT);
+    applyLightTheme();
 }
 
 export function useAppearance() {
-    const [appearance, setAppearance] = useState<Appearance>('system');
-
-    const updateAppearance = (mode: Appearance) => {
-        setAppearance(mode);
-        localStorage.setItem('appearance', mode);
-        applyTheme(mode);
-    };
+    const [appearance] = useState<Appearance>(FORCE_LIGHT);
 
     useEffect(() => {
-        const savedAppearance = localStorage.getItem('appearance') as Appearance | null;
-        updateAppearance(savedAppearance || 'system');
-
-        return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
+        initializeTheme();
     }, []);
+
+    const updateAppearance = (_mode?: string) => {
+        initializeTheme();
+    };
 
     return { appearance, updateAppearance };
 }

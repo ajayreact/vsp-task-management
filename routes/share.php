@@ -5,6 +5,7 @@ use App\Modules\TaskManagement\Http\Controllers\CompanyShareController;
 use App\Modules\TaskManagement\Http\Controllers\ContentCalendarShareController;
 use App\Modules\TaskManagement\Http\Controllers\ContractShareController;
 use App\Modules\TaskManagement\Http\Controllers\DeliverableShareController;
+use App\Modules\TaskManagement\Http\Controllers\SharePreviewImageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,6 +18,10 @@ use Illuminate\Support\Facades\Route;
 | legacy 64-char tokens remain supported for backward compatibility.
 |
 */
+
+// Open Graph / WhatsApp preview image (public, no auth). Cache-busted via ?v=.
+Route::get('share-preview/og-image.png', SharePreviewImageController::class)
+    ->name('share-preview.og-image');
 
 Route::prefix('d')->name('share.short.')->group(function () {
     Route::get('{shortCode}', [DeliverableShareController::class, 'showShort'])
@@ -234,7 +239,7 @@ Route::get('contract-share/{token}/pdf', [ContractShareController::class, 'pdf']
 */
 Route::prefix('{companySlug}')
     ->where([
-        'companySlug' => '(?!(?:d|c|cc|od|docs|ci|cs|ct|share|content-share|content-schedule-share|contract-share|tasks|admin|login|logout|dashboard|notifications|settings|api|up)(?:-|$))[a-z0-9]+(?:-[a-z0-9]+)*',
+        'companySlug' => '(?!(?:d|c|cc|od|docs|ci|cs|ct|share|share-preview|content-share|content-schedule-share|contract-share|tasks|admin|login|logout|dashboard|notifications|settings|api|up)(?:-|$))[a-z0-9]+(?:-[a-z0-9]+)*',
     ])
     ->name('share.client.')
     ->group(function () {

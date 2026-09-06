@@ -32,5 +32,5 @@ router.on('invalid', (event) => {
     }
 });
 
-// This will set light / dark mode on load...
+// Force Light mode on every load (migrates any saved dark/system preference).
 initializeTheme();

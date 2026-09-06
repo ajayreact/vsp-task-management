@@ -1,4 +1,3 @@
-import { useAppearance } from '@/hooks/use-appearance';
 import { type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
@@ -10,7 +9,6 @@ import { Toaster, toast } from 'sonner';
  */
 export function FlashToaster() {
     const { flash } = usePage<SharedData>().props;
-    const { appearance } = useAppearance();
 
     useEffect(() => {
         if (flash?.success) {
@@ -22,5 +20,5 @@ export function FlashToaster() {
         }
     }, [flash]);
 
-    return <Toaster position="bottom-right" theme={appearance} richColors closeButton />;
+    return <Toaster position="bottom-right" theme="light" richColors closeButton />;
 }

@@ -1,10 +1,7 @@
-import AppearanceTabs from '@/components/appearance-tabs';
-import { SettingsCard } from '@/components/settings/settings-card';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import { Palette } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -13,20 +10,17 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+/**
+ * Theme switching was removed. The route now redirects to Profile.
+ * This page is kept only as a safe fallback if SSR resolves it.
+ */
 export default function Appearance() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Appearance settings" />
 
             <SettingsLayout>
-                <SettingsCard
-                    title="Theme"
-                    description="Pick how VSP looks on this device. System follows your OS preference."
-                    icon={Palette}
-                    tone="fuchsia"
-                >
-                    <AppearanceTabs />
-                </SettingsCard>
+                <p className="text-muted-foreground text-sm">VSP CRM uses Light mode only.</p>
             </SettingsLayout>
         </AppLayout>
     );

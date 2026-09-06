@@ -1,7 +1,7 @@
 import { PageHeader } from '@/components/admin/page-header';
 import { cn } from '@/lib/utils';
 import { Link, usePage } from '@inertiajs/react';
-import { Lock, Palette, Settings, User } from 'lucide-react';
+import { Lock, Settings, User } from 'lucide-react';
 import { type ComponentType, type ReactNode } from 'react';
 
 const sidebarNavItems: {
@@ -22,12 +22,6 @@ const sidebarNavItems: {
         description: 'Login credentials',
         icon: Lock,
     },
-    {
-        title: 'Appearance',
-        url: '/settings/appearance',
-        description: 'Theme and display',
-        icon: Palette,
-    },
 ];
 
 export default function SettingsLayout({ children }: { children: ReactNode }) {
@@ -37,7 +31,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
         <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
             <PageHeader
                 title="Settings"
-                description="Manage your profile, security, and how VSP looks on your device."
+                description="Manage your profile and security."
             />
 
             <div className="grid gap-6 xl:grid-cols-[17.5rem_minmax(0,1fr)]">
