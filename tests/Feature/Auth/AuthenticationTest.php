@@ -17,7 +17,7 @@ class AuthenticationTest extends TestCase
             ->assertInertia(fn ($page) => $page
                 ->component('Core/auth/login')
                 ->has('superAdminPinLogin.enabled')
-                ->has('superAdminPinLogin.maxLength'));
+                ->has('superAdminPinLogin.pinLength'));
     }
 
     public function test_guests_see_the_login_page_at_the_root()

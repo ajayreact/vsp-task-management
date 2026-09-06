@@ -11,6 +11,7 @@ import {
     Eye,
     EyeOff,
     FolderKanban,
+    KeyRound,
     LoaderCircle,
     Lock,
     Mail,
@@ -30,12 +31,14 @@ type PinLoginForm = {
     pin: string;
 };
 
+type LoginMode = 'password' | 'pin';
+
 interface LoginProps {
     status?: string;
     canResetPassword: boolean;
     superAdminPinLogin?: {
         enabled: boolean;
-        maxLength: number;
+        pinLength: number;
     };
 }
 
@@ -47,8 +50,9 @@ const featureHighlights = [
 
 export default function Login({ status, canResetPassword, superAdminPinLogin }: LoginProps) {
     const [showPassword, setShowPassword] = useState(false);
+    const [mode, setMode] = useState<LoginMode>('password');
     const pinEnabled = superAdminPinLogin?.enabled === true;
-    const pinMaxLength = superAdminPinLogin?.maxLength ?? 12;
+    const pinLength = superAdminPinLogin?.pinLength ?? 6;
 
     const { data, setData, post, processing, errors, reset } = useForm<LoginForm>({
         email: '',
@@ -63,6 +67,7 @@ export default function Login({ status, canResetPassword, superAdminPinLogin }: 
         processing: pinProcessing,
         errors: pinErrors,
         reset: resetPin,
+        clearErrors: clearPinErrors,
     } = useForm<PinLoginForm>({
         pin: '',
     });
@@ -79,6 +84,17 @@ export default function Login({ status, canResetPassword, superAdminPinLogin }: 
         postPin(route('login.super-admin-pin'), {
             onFinish: () => resetPin('pin'),
         });
+    };
+
+    const switchToPassword = () => {
+        setMode('password');
+        resetPin('pin');
+        clearPinErrors();
+    };
+
+    const switchToPin = () => {
+        setMode('pin');
+        reset('password');
     };
 
     return (
@@ -172,7 +188,11 @@ export default function Login({ status, canResetPassword, superAdminPinLogin }: 
                                 <BrandLogo variant="card" />
                                 <div className="space-y-1.5">
                                     <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-                                    <p className="text-muted-foreground text-sm">Sign in to continue to your workspace.</p>
+                                    <p className="text-muted-foreground text-sm">
+                                        {mode === 'pin'
+                                            ? 'Enter your Super Admin PIN to continue.'
+                                            : 'Sign in to continue to your workspace.'}
+                                    </p>
                                 </div>
                             </div>
 
@@ -182,155 +202,170 @@ export default function Login({ status, canResetPassword, superAdminPinLogin }: 
                                 </div>
                             )}
 
-                            <form className="space-y-5" onSubmit={submit}>
-                                <div className="space-y-2">
-                                    <Label htmlFor="email">Email address</Label>
-                                    <div className="relative">
-                                        <Mail
-                                            className="text-muted-foreground pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
-                                            aria-hidden="true"
-                                        />
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            required
-                                            autoFocus
-                                            tabIndex={1}
-                                            autoComplete="email"
-                                            value={data.email}
-                                            onChange={(e) => setData('email', e.target.value)}
-                                            placeholder="name@company.com"
-                                            disabled={processing}
-                                            className="focus-visible:border-primary/40 focus-visible:ring-primary/25 h-11 rounded-xl border bg-white/80 pl-10 dark:bg-white/[0.03]"
-                                        />
+                            {mode === 'password' ? (
+                                <form className="space-y-5" onSubmit={submit}>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="email">Email address</Label>
+                                        <div className="relative">
+                                            <Mail
+                                                className="text-muted-foreground pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
+                                                aria-hidden="true"
+                                            />
+                                            <Input
+                                                id="email"
+                                                type="email"
+                                                required
+                                                autoFocus
+                                                tabIndex={1}
+                                                autoComplete="email"
+                                                value={data.email}
+                                                onChange={(e) => setData('email', e.target.value)}
+                                                placeholder="name@company.com"
+                                                disabled={processing}
+                                                className="focus-visible:border-primary/40 focus-visible:ring-primary/25 h-11 rounded-xl border bg-white/80 pl-10 dark:bg-white/[0.03]"
+                                            />
+                                        </div>
+                                        <InputError message={errors.email} />
                                     </div>
-                                    <InputError message={errors.email} />
-                                </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="password">Password</Label>
-                                    <div className="relative">
-                                        <Lock
-                                            className="text-muted-foreground pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
-                                            aria-hidden="true"
-                                        />
-                                        <Input
-                                            id="password"
-                                            type={showPassword ? 'text' : 'password'}
-                                            required
-                                            tabIndex={2}
-                                            autoComplete="current-password"
-                                            value={data.password}
-                                            onChange={(e) => setData('password', e.target.value)}
-                                            placeholder="Enter your password"
-                                            disabled={processing}
-                                            className="focus-visible:border-primary/40 focus-visible:ring-primary/25 h-11 rounded-xl border bg-white/80 pr-11 pl-10 dark:bg-white/[0.03]"
-                                        />
-                                        <button
-                                            type="button"
-                                            tabIndex={3}
-                                            className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3.5 -translate-y-1/2 rounded-md p-0.5 transition-colors"
-                                            onClick={() => setShowPassword((visible) => !visible)}
-                                            aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="password">Password</Label>
+                                        <div className="relative">
+                                            <Lock
+                                                className="text-muted-foreground pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
+                                                aria-hidden="true"
+                                            />
+                                            <Input
+                                                id="password"
+                                                type={showPassword ? 'text' : 'password'}
+                                                required
+                                                tabIndex={2}
+                                                autoComplete="current-password"
+                                                value={data.password}
+                                                onChange={(e) => setData('password', e.target.value)}
+                                                placeholder="Enter your password"
+                                                disabled={processing}
+                                                className="focus-visible:border-primary/40 focus-visible:ring-primary/25 h-11 rounded-xl border bg-white/80 pr-11 pl-10 dark:bg-white/[0.03]"
+                                            />
+                                            <button
+                                                type="button"
+                                                tabIndex={3}
+                                                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3.5 -translate-y-1/2 rounded-md p-0.5 transition-colors"
+                                                onClick={() => setShowPassword((visible) => !visible)}
+                                                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                            >
+                                                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                                            </button>
+                                        </div>
+                                        <InputError message={errors.password} />
+                                    </div>
+
+                                    <div className="flex items-center justify-between gap-3 pt-0.5">
+                                        <label
+                                            htmlFor="remember"
+                                            className="text-foreground/90 flex cursor-pointer items-center gap-2.5 text-sm"
                                         >
-                                            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                                        </button>
+                                            <Checkbox
+                                                id="remember"
+                                                name="remember"
+                                                tabIndex={4}
+                                                checked={data.remember}
+                                                onCheckedChange={(checked) => setData('remember', checked === true)}
+                                                disabled={processing}
+                                                className="border-primary/30 data-[state=checked]:border-primary data-[state=checked]:bg-primary"
+                                            />
+                                            Remember me
+                                        </label>
+                                        {canResetPassword && (
+                                            <TextLink
+                                                href={route('password.request')}
+                                                className="text-muted-foreground hover:text-primary text-sm no-underline transition-colors"
+                                                tabIndex={5}
+                                            >
+                                                Forgot password?
+                                            </TextLink>
+                                        )}
                                     </div>
-                                    <InputError message={errors.password} />
-                                </div>
 
-                                <div className="flex items-center justify-between gap-3 pt-0.5">
-                                    <label
-                                        htmlFor="remember"
-                                        className="text-foreground/90 flex cursor-pointer items-center gap-2.5 text-sm"
+                                    <Button
+                                        type="submit"
+                                        tabIndex={6}
+                                        disabled={processing}
+                                        className="from-primary to-primary/90 hover:from-primary/95 hover:to-primary/85 focus-visible:ring-primary/30 h-11 w-full rounded-xl bg-gradient-to-r shadow-[0_0.5rem_1.25rem_-0.35rem_color-mix(in_srgb,var(--primary)_55%,transparent)] transition-all hover:-translate-y-px hover:shadow-[0_0.75rem_1.5rem_-0.35rem_color-mix(in_srgb,var(--primary)_50%,transparent)] motion-reduce:hover:translate-y-0"
                                     >
-                                        <Checkbox
-                                            id="remember"
-                                            name="remember"
-                                            tabIndex={4}
-                                            checked={data.remember}
-                                            onCheckedChange={(checked) => setData('remember', checked === true)}
-                                            disabled={processing}
-                                            className="border-primary/30 data-[state=checked]:border-primary data-[state=checked]:bg-primary"
-                                        />
-                                        Remember me
-                                    </label>
-                                    {canResetPassword && (
-                                        <TextLink
-                                            href={route('password.request')}
-                                            className="text-muted-foreground hover:text-primary text-sm no-underline transition-colors"
-                                            tabIndex={5}
-                                        >
-                                            Forgot password?
-                                        </TextLink>
-                                    )}
-                                </div>
+                                        {processing && <LoaderCircle className="size-4 animate-spin" />}
+                                        {processing ? 'Signing in…' : 'Sign In'}
+                                    </Button>
+                                </form>
+                            ) : (
+                                <form className="space-y-5" onSubmit={submitPin} autoComplete="off">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="super-admin-pin">Enter Super Admin PIN</Label>
+                                        <div className="relative">
+                                            <KeyRound
+                                                className="text-muted-foreground pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
+                                                aria-hidden="true"
+                                            />
+                                            <Input
+                                                id="super-admin-pin"
+                                                name="pin"
+                                                type="password"
+                                                inputMode="numeric"
+                                                pattern="[0-9]*"
+                                                maxLength={pinLength}
+                                                autoFocus
+                                                autoComplete="off"
+                                                autoCorrect="off"
+                                                autoCapitalize="off"
+                                                spellCheck={false}
+                                                value={pinData.pin}
+                                                onChange={(e) =>
+                                                    setPinData('pin', e.target.value.replace(/\D/g, '').slice(0, pinLength))
+                                                }
+                                                placeholder={'• '.repeat(pinLength).trim()}
+                                                disabled={pinProcessing}
+                                                aria-describedby="super-admin-pin-hint"
+                                                className="focus-visible:border-primary/40 focus-visible:ring-primary/25 h-11 rounded-xl border bg-white/80 pl-10 text-center text-lg tracking-[0.45em] dark:bg-white/[0.03]"
+                                            />
+                                        </div>
+                                        <p id="super-admin-pin-hint" className="text-muted-foreground text-xs">
+                                            Enter the {pinLength}-digit Super Admin PIN.
+                                        </p>
+                                        <InputError message={pinErrors.pin} />
+                                    </div>
 
-                                <Button
-                                    type="submit"
-                                    tabIndex={6}
-                                    disabled={processing || pinProcessing}
-                                    className="from-primary to-primary/90 hover:from-primary/95 hover:to-primary/85 focus-visible:ring-primary/30 h-11 w-full rounded-xl bg-gradient-to-r shadow-[0_0.5rem_1.25rem_-0.35rem_color-mix(in_srgb,var(--primary)_55%,transparent)] transition-all hover:-translate-y-px hover:shadow-[0_0.75rem_1.5rem_-0.35rem_color-mix(in_srgb,var(--primary)_50%,transparent)] motion-reduce:hover:translate-y-0"
-                                >
-                                    {processing && <LoaderCircle className="size-4 animate-spin" />}
-                                    {processing ? 'Signing in…' : 'Sign In'}
-                                </Button>
-                            </form>
+                                    <Button
+                                        type="submit"
+                                        disabled={pinProcessing || pinData.pin.length !== pinLength}
+                                        className="from-primary to-primary/90 hover:from-primary/95 hover:to-primary/85 focus-visible:ring-primary/30 h-11 w-full rounded-xl bg-gradient-to-r shadow-[0_0.5rem_1.25rem_-0.35rem_color-mix(in_srgb,var(--primary)_55%,transparent)] transition-all hover:-translate-y-px hover:shadow-[0_0.75rem_1.5rem_-0.35rem_color-mix(in_srgb,var(--primary)_50%,transparent)] motion-reduce:hover:translate-y-0"
+                                    >
+                                        {pinProcessing && <LoaderCircle className="size-4 animate-spin" />}
+                                        {pinProcessing ? 'Signing in…' : 'Login with PIN'}
+                                    </Button>
 
-                            {pinEnabled && (
-                                <div className="mt-7 space-y-4">
+                                    <Button type="button" variant="outline" className="h-11 w-full rounded-xl" onClick={switchToPassword}>
+                                        Back to email login
+                                    </Button>
+                                </form>
+                            )}
+
+                            {pinEnabled && mode === 'password' && (
+                                <div className="mt-7 space-y-3">
                                     <div className="relative flex items-center gap-3">
                                         <div className="bg-border h-px flex-1" />
-                                        <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                                            Super Admin
-                                        </span>
+                                        <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">Or</span>
                                         <div className="bg-border h-px flex-1" />
                                     </div>
 
-                                    <form className="space-y-4" onSubmit={submitPin} autoComplete="off">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="super-admin-pin">Super Admin PIN</Label>
-                                            <div className="relative">
-                                                <ShieldCheck
-                                                    className="text-muted-foreground pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
-                                                    aria-hidden="true"
-                                                />
-                                                <Input
-                                                    id="super-admin-pin"
-                                                    name="pin"
-                                                    type="password"
-                                                    inputMode="numeric"
-                                                    pattern="[0-9]*"
-                                                    maxLength={pinMaxLength}
-                                                    autoComplete="off"
-                                                    autoCorrect="off"
-                                                    autoCapitalize="off"
-                                                    spellCheck={false}
-                                                    value={pinData.pin}
-                                                    onChange={(e) =>
-                                                        setPinData(
-                                                            'pin',
-                                                            e.target.value.replace(/\D/g, '').slice(0, pinMaxLength),
-                                                        )
-                                                    }
-                                                    placeholder="Enter PIN"
-                                                    disabled={pinProcessing || processing}
-                                                    className="focus-visible:border-primary/40 focus-visible:ring-primary/25 h-11 rounded-xl border bg-white/80 pl-10 tracking-[0.35em] dark:bg-white/[0.03]"
-                                                />
-                                            </div>
-                                            <InputError message={pinErrors.pin} />
-                                        </div>
-
-                                        <Button
-                                            type="submit"
-                                            variant="outline"
-                                            disabled={pinProcessing || processing || pinData.pin.length < 4}
-                                            className="h-11 w-full rounded-xl"
-                                        >
-                                            {pinProcessing && <LoaderCircle className="size-4 animate-spin" />}
-                                            {pinProcessing ? 'Signing in…' : 'Login as Super Admin'}
-                                        </Button>
-                                    </form>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="h-11 w-full rounded-xl"
+                                        onClick={switchToPin}
+                                    >
+                                        <ShieldCheck className="size-4" aria-hidden="true" />
+                                        Super Admin PIN Login
+                                    </Button>
                                 </div>
                             )}
 

@@ -15,7 +15,7 @@ beforeEach(function () {
         'auth.super_admin_pin.hash' => Hash::make('951570'),
         'auth.super_admin_pin.max_attempts' => 5,
         'auth.super_admin_pin.decay_seconds' => 60,
-        'auth.super_admin_pin.input_max_length' => 12,
+        'auth.super_admin_pin.pin_length' => 6,
     ]);
 });
 
@@ -25,7 +25,7 @@ test('login page exposes pin login when a hash is configured', function () {
         ->assertInertia(fn ($page) => $page
             ->component('Core/auth/login')
             ->where('superAdminPinLogin.enabled', true)
-            ->where('superAdminPinLogin.maxLength', 12)
+            ->where('superAdminPinLogin.pinLength', 6)
             ->missing('superAdminPinLogin.hash')
             ->missing('superAdminPinLogin.pin'));
 });
@@ -62,7 +62,7 @@ test('correct super admin pin authenticates the super admin session', function (
             && ! array_key_exists('pin', $context));
 });
 
-test('incorrect pin is rejected with a generic error and stays guest', function () {
+test('incorrect pin is rejected with a clear error and stays guest', function () {
     User::factory()->create(['is_active' => true])->syncRoles(
         Role::findOrCreate(SystemRole::SuperAdmin->value, 'web')
     );
@@ -74,11 +74,11 @@ test('incorrect pin is rejected with a generic error and stays guest', function 
     ]);
 
     $response->assertRedirect('/login')
-        ->assertSessionHasErrors(['pin' => 'Invalid PIN.']);
+        ->assertSessionHasErrors(['pin' => 'Invalid PIN. Please try again.']);
     $this->assertGuest();
 
     $content = session('errors')->getBag('default')->first('pin');
-    expect($content)->toBe('Invalid PIN.')
+    expect($content)->toBe('Invalid PIN. Please try again.')
         ->and($content)->not->toContain('951570')
         ->and($content)->not->toContain(config('auth.super_admin_pin.hash'));
 
@@ -88,10 +88,22 @@ test('incorrect pin is rejected with a generic error and stays guest', function 
             && ! array_key_exists('pin', $context));
 });
 
+test('pin must be exactly six digits', function () {
+    User::factory()->create(['is_active' => true])->syncRoles(
+        Role::findOrCreate(SystemRole::SuperAdmin->value, 'web')
+    );
+
+    $this->from('/login')->post(route('login.super-admin-pin'), [
+        'pin' => '95157',
+    ])->assertSessionHasErrors(['pin' => 'Invalid PIN. Please try again.']);
+
+    $this->assertGuest();
+});
+
 test('pin login never authenticates a normal staff user', function () {
     Role::findOrCreate(SystemRole::SuperAdmin->value, 'web');
 
-    $staff = User::factory()->create(['is_active' => true])->syncRoles(
+    User::factory()->create(['is_active' => true])->syncRoles(
         Role::findOrCreate(SystemRole::Employee->value, 'web')
     );
 
@@ -113,7 +125,7 @@ test('pin login fails when hash is not configured', function () {
     $this->from('/login')->post(route('login.super-admin-pin'), [
         'pin' => '951570',
     ])->assertRedirect('/login')
-        ->assertSessionHasErrors(['pin' => 'Invalid PIN.']);
+        ->assertSessionHasErrors(['pin' => 'Invalid PIN. Please try again.']);
 
     $this->assertGuest();
 });
@@ -177,5 +189,19 @@ test('inactive super admin cannot authenticate with pin', function () {
         'pin' => '951570',
     ])->assertSessionHasErrors('pin');
 
+    $this->assertGuest();
+});
+
+test('logout clears the pin authenticated session', function () {
+    $admin = User::factory()->create(['is_active' => true])->syncRoles(
+        Role::findOrCreate(SystemRole::SuperAdmin->value, 'web')
+    );
+
+    $this->post(route('login.super-admin-pin'), ['pin' => '951570'])
+        ->assertRedirect(route('dashboard', absolute: false));
+    $this->assertAuthenticatedAs($admin);
+
+    $this->post(route('logout'))
+        ->assertRedirect('/');
     $this->assertGuest();
 });

@@ -130,7 +130,8 @@ return [
         'hash' => env('SUPER_ADMIN_PIN_HASH'),
         'max_attempts' => (int) env('SUPER_ADMIN_PIN_MAX_ATTEMPTS', 5),
         'decay_seconds' => (int) env('SUPER_ADMIN_PIN_DECAY_SECONDS', 60),
-        'input_max_length' => 12,
+        // Exact digit length required for PIN login (do not put the PIN itself here).
+        'pin_length' => (int) env('SUPER_ADMIN_PIN_LENGTH', 6),
     ],
 
 ];

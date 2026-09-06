@@ -14,6 +14,8 @@ use Illuminate\Validation\ValidationException;
 
 class SuperAdminPinLoginRequest extends FormRequest
 {
+    private const INVALID_PIN_MESSAGE = 'Invalid PIN. Please try again.';
+
     public function authorize(): bool
     {
         return true;
@@ -24,18 +26,18 @@ class SuperAdminPinLoginRequest extends FormRequest
      */
     public function rules(): array
     {
-        $maxLength = app(SuperAdminPinAuthenticator::class)->inputMaxLength();
+        $length = app(SuperAdminPinAuthenticator::class)->pinLength();
 
         return [
-            'pin' => ['required', 'string', 'digits_between:4,'.$maxLength],
+            'pin' => ['required', 'string', 'digits:'.$length],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'pin.required' => 'Invalid PIN.',
-            'pin.digits_between' => 'Invalid PIN.',
+            'pin.required' => self::INVALID_PIN_MESSAGE,
+            'pin.digits' => self::INVALID_PIN_MESSAGE,
         ];
     }
 
@@ -62,7 +64,7 @@ class SuperAdminPinLoginRequest extends FormRequest
             $authenticator->logAttempt($this, success: false, user: $user);
 
             throw ValidationException::withMessages([
-                'pin' => 'Invalid PIN.',
+                'pin' => self::INVALID_PIN_MESSAGE,
             ]);
         }
 

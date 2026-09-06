@@ -21,9 +21,17 @@ class SuperAdminPinAuthenticator
         return $hash !== '';
     }
 
+    public function pinLength(): int
+    {
+        return max(4, min(12, (int) config('auth.super_admin_pin.pin_length', 6)));
+    }
+
+    /**
+     * @deprecated Use pinLength(); kept for older call sites.
+     */
     public function inputMaxLength(): int
     {
-        return max(4, (int) config('auth.super_admin_pin.input_max_length', 12));
+        return $this->pinLength();
     }
 
     public function maxAttempts(): int

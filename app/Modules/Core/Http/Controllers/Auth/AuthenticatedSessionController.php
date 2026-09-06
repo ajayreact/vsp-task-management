@@ -25,7 +25,7 @@ class AuthenticatedSessionController extends Controller
             'status' => $request->session()->get('status'),
             'superAdminPinLogin' => [
                 'enabled' => $pinAuth->isEnabled(),
-                'maxLength' => $pinAuth->inputMaxLength(),
+                'pinLength' => $pinAuth->pinLength(),
             ],
         ]);
     }
