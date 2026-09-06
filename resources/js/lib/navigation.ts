@@ -19,6 +19,7 @@ import {
     UsersRound,
     SlidersHorizontal,
     ScrollText,
+    Wallet,
 } from 'lucide-react';
 
 /**
@@ -39,6 +40,12 @@ export const adminNavItems: NavItem[] = [
         url: '/admin/departments',
         icon: Building2,
         permission: 'departments.view',
+    },
+    {
+        title: 'My Finance',
+        url: '/admin/finance',
+        icon: Wallet,
+        role: 'super-admin',
     },
 ];
 

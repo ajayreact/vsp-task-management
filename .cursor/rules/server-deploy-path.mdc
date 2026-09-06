@@ -1,0 +1,16 @@
+---
+description: Production server path for VSP CRM deploys
+alwaysApply: true
+---
+
+# Server deploy path
+
+Production app directory on Hostinger VPS:
+
+```bash
+cd /var/www/vsp-task-management
+```
+
+- Repo/folder name on server: `vsp-task-management`
+- Local Windows path: `d:\wamp64\www\VSP-CRM`
+- Never use placeholder paths like `/path/to/...` in deploy instructions

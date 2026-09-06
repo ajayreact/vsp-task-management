@@ -26,9 +26,17 @@ type LoginForm = {
     remember: boolean;
 };
 
+type PinLoginForm = {
+    pin: string;
+};
+
 interface LoginProps {
     status?: string;
     canResetPassword: boolean;
+    superAdminPinLogin?: {
+        enabled: boolean;
+        maxLength: number;
+    };
 }
 
 const featureHighlights = [
@@ -37,18 +45,39 @@ const featureHighlights = [
     { icon: Radio, label: 'Real-Time Collaboration' },
 ] as const;
 
-export default function Login({ status, canResetPassword }: LoginProps) {
+export default function Login({ status, canResetPassword, superAdminPinLogin }: LoginProps) {
     const [showPassword, setShowPassword] = useState(false);
+    const pinEnabled = superAdminPinLogin?.enabled === true;
+    const pinMaxLength = superAdminPinLogin?.maxLength ?? 12;
+
     const { data, setData, post, processing, errors, reset } = useForm<LoginForm>({
         email: '',
         password: '',
         remember: false,
     });
 
+    const {
+        data: pinData,
+        setData: setPinData,
+        post: postPin,
+        processing: pinProcessing,
+        errors: pinErrors,
+        reset: resetPin,
+    } = useForm<PinLoginForm>({
+        pin: '',
+    });
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(route('login'), {
             onFinish: () => reset('password'),
+        });
+    };
+
+    const submitPin: FormEventHandler = (e) => {
+        e.preventDefault();
+        postPin(route('login.super-admin-pin'), {
+            onFinish: () => resetPin('pin'),
         });
     };
 
@@ -240,13 +269,70 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                 <Button
                                     type="submit"
                                     tabIndex={6}
-                                    disabled={processing}
+                                    disabled={processing || pinProcessing}
                                     className="from-primary to-primary/90 hover:from-primary/95 hover:to-primary/85 focus-visible:ring-primary/30 h-11 w-full rounded-xl bg-gradient-to-r shadow-[0_0.5rem_1.25rem_-0.35rem_color-mix(in_srgb,var(--primary)_55%,transparent)] transition-all hover:-translate-y-px hover:shadow-[0_0.75rem_1.5rem_-0.35rem_color-mix(in_srgb,var(--primary)_50%,transparent)] motion-reduce:hover:translate-y-0"
                                 >
                                     {processing && <LoaderCircle className="size-4 animate-spin" />}
                                     {processing ? 'Signing in…' : 'Sign In'}
                                 </Button>
                             </form>
+
+                            {pinEnabled && (
+                                <div className="mt-7 space-y-4">
+                                    <div className="relative flex items-center gap-3">
+                                        <div className="bg-border h-px flex-1" />
+                                        <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                                            Super Admin
+                                        </span>
+                                        <div className="bg-border h-px flex-1" />
+                                    </div>
+
+                                    <form className="space-y-4" onSubmit={submitPin} autoComplete="off">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="super-admin-pin">Super Admin PIN</Label>
+                                            <div className="relative">
+                                                <ShieldCheck
+                                                    className="text-muted-foreground pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
+                                                    aria-hidden="true"
+                                                />
+                                                <Input
+                                                    id="super-admin-pin"
+                                                    name="pin"
+                                                    type="password"
+                                                    inputMode="numeric"
+                                                    pattern="[0-9]*"
+                                                    maxLength={pinMaxLength}
+                                                    autoComplete="off"
+                                                    autoCorrect="off"
+                                                    autoCapitalize="off"
+                                                    spellCheck={false}
+                                                    value={pinData.pin}
+                                                    onChange={(e) =>
+                                                        setPinData(
+                                                            'pin',
+                                                            e.target.value.replace(/\D/g, '').slice(0, pinMaxLength),
+                                                        )
+                                                    }
+                                                    placeholder="Enter PIN"
+                                                    disabled={pinProcessing || processing}
+                                                    className="focus-visible:border-primary/40 focus-visible:ring-primary/25 h-11 rounded-xl border bg-white/80 pl-10 tracking-[0.35em] dark:bg-white/[0.03]"
+                                                />
+                                            </div>
+                                            <InputError message={pinErrors.pin} />
+                                        </div>
+
+                                        <Button
+                                            type="submit"
+                                            variant="outline"
+                                            disabled={pinProcessing || processing || pinData.pin.length < 4}
+                                            className="h-11 w-full rounded-xl"
+                                        >
+                                            {pinProcessing && <LoaderCircle className="size-4 animate-spin" />}
+                                            {pinProcessing ? 'Signing in…' : 'Login as Super Admin'}
+                                        </Button>
+                                    </form>
+                                </div>
+                            )}
 
                             <p className="text-muted-foreground mt-6 text-center text-xs tracking-wide">
                                 Authorized personnel only

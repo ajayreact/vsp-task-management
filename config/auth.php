@@ -114,4 +114,23 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Super Admin PIN Login
+    |--------------------------------------------------------------------------
+    |
+    | Optional hashed PIN that unlocks the Super Admin account from the login
+    | page. Generate with: php artisan tinker --execute="echo Hash::make('your-pin');"
+    | Store ONLY the hash in SUPER_ADMIN_PIN_HASH — never the plaintext PIN in
+    | application source or frontend code.
+    |
+    */
+
+    'super_admin_pin' => [
+        'hash' => env('SUPER_ADMIN_PIN_HASH'),
+        'max_attempts' => (int) env('SUPER_ADMIN_PIN_MAX_ATTEMPTS', 5),
+        'decay_seconds' => (int) env('SUPER_ADMIN_PIN_DECAY_SECONDS', 60),
+        'input_max_length' => 12,
+    ],
+
 ];

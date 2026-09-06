@@ -56,11 +56,7 @@ final class ShareLinkPreviewMeta
         return [
             'title' => $title,
             'description' => $description,
-            'image' => self::ogImageUrl([
-                'brand' => (string) config('app.name', 'VSP CRM'),
-                'line' => $title,
-                'host' => self::publicHost(),
-            ]),
+            'image' => self::ogImageUrl(),
             'url' => $url,
             'type' => 'website',
         ];
@@ -89,26 +85,9 @@ final class ShareLinkPreviewMeta
         return is_file($path) ? (string) filemtime($path) : '0';
     }
 
-    /**
-     * @param  array{brand?: string, line?: string, host?: string}  $overlay
-     */
-    public static function ogImageUrl(array $overlay = []): string
+    public static function ogImageUrl(): string
     {
-        $query = array_filter([
-            'v' => self::sourceLogoVersion(),
-            'brand' => $overlay['brand'] ?? config('app.name', 'VSP CRM'),
-            'line' => $overlay['line'] ?? null,
-            'host' => $overlay['host'] ?? self::publicHost(),
-        ], static fn ($value) => $value !== null && $value !== '');
-
-        return url('/share-preview/og-image.png').'?'.http_build_query($query);
-    }
-
-    public static function publicHost(): string
-    {
-        $host = parse_url((string) config('app.url'), PHP_URL_HOST);
-
-        return is_string($host) && $host !== '' ? $host : 'app.vspcrm.in';
+        return url('/share-preview/og-image.png').'?v='.self::sourceLogoVersion();
     }
 
     /**

@@ -9,6 +9,11 @@ use App\Modules\Core\Models\User;
 use App\Modules\Core\Policies\DepartmentPolicy;
 use App\Modules\Core\Policies\EmployeePolicy;
 use App\Modules\Core\Policies\RolePolicy;
+use App\Modules\Finance\Models\FinanceExpense;
+use App\Modules\Finance\Models\FinanceIncome;
+use App\Modules\Finance\Models\FinanceLoan;
+use App\Modules\Finance\Models\FinanceLoanPayment;
+use App\Modules\TaskManagement\Models\Task;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -66,8 +71,16 @@ class CoreServiceProvider extends ServiceProvider
             $model = $arguments[0] ?? null;
 
             // Employee-specific task workflow actions must still evaluate TaskPolicy.
-            if ($model instanceof \App\Modules\TaskManagement\Models\Task
+            if ($model instanceof Task
                 && in_array($ability, ['respond', 'claim', 'assign'], true)) {
+                return null;
+            }
+
+            // Personal finance records stay private even between Super Admin accounts.
+            if ($model instanceof FinanceIncome
+                || $model instanceof FinanceExpense
+                || $model instanceof FinanceLoan
+                || $model instanceof FinanceLoanPayment) {
                 return null;
             }
 
