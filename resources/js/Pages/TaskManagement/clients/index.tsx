@@ -141,10 +141,13 @@ export default function ClientIndex({ clients, statuses, can }: Props) {
             holiday_usa_enabled: Boolean(form.data.holiday_usa_enabled),
         };
 
+        // Inertia v2 transform() does not return the form — do not chain .post/.put.
+        form.transform(() => payload);
+
         if (editing) {
-            form.transform(() => payload).put(`/tasks/clients/${editing.id}`, visit);
+            form.put(`/tasks/clients/${editing.id}`, visit);
         } else {
-            form.transform(() => payload).post('/tasks/clients', visit);
+            form.post('/tasks/clients', visit);
         }
     };
 
