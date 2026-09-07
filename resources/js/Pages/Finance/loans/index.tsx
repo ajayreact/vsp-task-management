@@ -317,7 +317,7 @@ export default function MyLoansIndex({
 
                 <FinanceSectionNav active="loans" />
 
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
                     <KpiStatCard label="Total Loans" value={String(summaries.count)} icon={HandCoins} tone="indigo" />
                     <KpiStatCard label="Original Amount" value={formatInr(summaries.loan_amount)} icon={Wallet} tone="sky" />
                     <KpiStatCard label="Amount Paid" value={formatInr(summaries.paid)} icon={IndianRupee} tone="emerald" />

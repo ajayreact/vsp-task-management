@@ -49,20 +49,27 @@ interface KpiStatCardProps {
 
 /**
  * Soft pastel KPI tile using shared --vsp-card-* tokens.
+ * Icon sits out of flow so long currency values stay fully readable.
  */
 export function KpiStatCard({ href, label, value, icon: Icon, tone = 'indigo', footer, className }: KpiStatCardProps) {
     const theme = TONES[tone];
 
     const card = (
-        <article className={cn('vsp-card relative mb-0 flex h-full items-center gap-4 overflow-hidden px-5 py-4', theme.card)}>
+        <article className={cn('vsp-card relative mb-0 flex h-full min-h-[5.5rem] items-center overflow-hidden px-5 py-4 pr-16', theme.card)}>
             <div className="min-w-0 flex-1 space-y-1.5">
                 <p className="text-muted-foreground text-sm font-medium">{label}</p>
-                <p className="text-foreground text-[1.75rem] leading-none font-bold tracking-tight tabular-nums sm:text-[2rem]">{value}</p>
+                <p className="text-foreground text-xl leading-tight font-bold tracking-tight break-words tabular-nums sm:text-2xl">{value}</p>
                 {footer && <div className="pt-0.5">{footer}</div>}
             </div>
 
-            <span className={cn('flex size-12 shrink-0 items-center justify-center rounded-full text-white shadow-sm sm:size-14', theme.iconWrap)}>
-                <Icon className="size-5 sm:size-6" strokeWidth={1.75} />
+            <span
+                className={cn(
+                    'pointer-events-none absolute top-1/2 right-4 flex size-11 -translate-y-1/2 items-center justify-center rounded-full text-white shadow-sm sm:size-12',
+                    theme.iconWrap,
+                )}
+                aria-hidden
+            >
+                <Icon className="size-5" strokeWidth={1.75} />
             </span>
         </article>
     );
