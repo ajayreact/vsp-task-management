@@ -10,7 +10,9 @@ use App\Modules\Finance\Models\FinanceExpense;
 use App\Modules\Finance\Models\FinanceIncome;
 use App\Modules\Finance\Models\FinanceLoan;
 use App\Modules\Finance\Models\FinanceLoanPayment;
+use App\Modules\Finance\Models\FinanceRecurringExpense;
 use App\Modules\Finance\Support\FinanceDatePeriod;
+use App\Modules\Finance\Support\FinanceMonthlySummary;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -19,80 +21,64 @@ use Inertia\Response;
 
 class MyFinanceController extends Controller
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request, FinanceMonthlySummary $summary): Response
     {
         $this->authorize('viewMyFinance');
 
         $user = $request->user();
         $period = FinanceDatePeriod::resolve($request, FinanceDatePeriod::THIS_MONTH);
-
-        $incomeQuery = $this->scopedByDate(
-            FinanceIncome::query()->forUser($user),
-            'income_date',
-            $period,
-        );
-        $expenseQuery = $this->scopedByDate(
-            FinanceExpense::query()->forUser($user),
-            'expense_date',
-            $period,
-        );
-        $loanQuery = $this->scopedByDate(
-            FinanceLoan::query()->forUser($user),
-            'loan_date',
-            $period,
-        );
-        $paymentQuery = $this->scopedByDate(
-            FinanceLoanPayment::query()->forUser($user),
-            'payment_date',
-            $period,
-        );
-
-        $totalIncome = (float) (clone $incomeQuery)
-            ->where('status', '!=', FinanceIncomeStatus::Cancelled->value)
-            ->sum('amount');
-        $totalReceived = (float) (clone $incomeQuery)
-            ->where('status', FinanceIncomeStatus::Received->value)
-            ->sum('amount');
-        $totalExpenses = (float) (clone $expenseQuery)->sum('amount');
-        $paidExpenses = (float) (clone $expenseQuery)
-            ->where('payment_status', FinanceExpensePaymentStatus::Paid->value)
-            ->sum('amount');
-        $loanCount = (int) (clone $loanQuery)
-            ->where('status', '!=', FinanceLoanStatus::Cancelled->value)
-            ->count();
-        $loanPaid = (float) (clone $loanQuery)
-            ->where('status', '!=', FinanceLoanStatus::Cancelled->value)
-            ->sum('amount_paid');
-        $loanRemaining = (float) (clone $loanQuery)
-            ->where('status', '!=', FinanceLoanStatus::Cancelled->value)
-            ->sum('remaining_amount');
-        $loanPaymentsTotal = (float) (clone $paymentQuery)->sum('amount');
+        $summaries = $summary->forUser($user, $period);
 
         return Inertia::render('Finance/index', [
             'period' => $period,
             'period_options' => FinanceDatePeriod::options(),
-            'summaries' => [
-                'total_income' => $totalIncome,
-                'total_received' => $totalReceived,
-                'total_expenses' => $totalExpenses,
-                'paid_expenses' => $paidExpenses,
-                'total_loans' => $loanCount,
-                'loan_paid' => $loanPaid,
-                'loan_remaining' => $loanRemaining,
-                'net_balance' => round($totalReceived - $paidExpenses, 2),
+            'summaries' => $summaries,
+            'buckets' => [
+                'actual_spending' => [
+                    'paid_expenses' => $summaries['paid_expenses'],
+                ],
+                'upcoming_committed' => [
+                    'emi_due' => $summaries['emi_due'],
+                    'recurring_due' => $summaries['recurring_due'],
+                    'pending_expenses' => $summaries['pending_expenses'],
+                    'total_monthly_commitments' => $summaries['total_monthly_commitments'],
+                ],
+                'liabilities' => [
+                    'loan_outstanding' => $summaries['loan_outstanding'],
+                ],
             ],
             'overview' => [
-                'income' => $totalReceived,
-                'expenses' => $paidExpenses,
-                'loan_payments' => $loanPaymentsTotal,
+                'income' => $summaries['received_income'],
+                'expenses' => $summaries['paid_expenses'],
+                'loan_payments' => (float) $this->scopedByDate(
+                    FinanceLoanPayment::query()->forUser($user),
+                    'payment_date',
+                    $period,
+                )->sum('amount'),
             ],
             'counts' => [
                 'income' => FinanceIncome::query()->forUser($user)->count(),
-                'expenses' => FinanceExpense::query()->forUser($user)->count(),
+                'expenses' => FinanceExpense::query()->forUser($user)->countable()->count(),
                 'loans' => FinanceLoan::query()->forUser($user)->count(),
+                'recurring' => FinanceRecurringExpense::query()->forUser($user)->count(),
             ],
             'recent_activity' => $this->recentActivity($user, $period),
             'loan_alerts' => $this->loanAlerts($user),
+            'cleanup_candidates' => FinanceExpense::query()
+                ->forUser($user)
+                ->countable()
+                ->orderByDesc('amount')
+                ->limit(20)
+                ->get()
+                ->filter(fn (FinanceExpense $expense) => $expense->isLikelyMisfiledLiability())
+                ->values()
+                ->map(fn (FinanceExpense $expense) => [
+                    'id' => $expense->id,
+                    'expense_date' => $expense->expense_date->toDateString(),
+                    'description' => $expense->description,
+                    'amount' => (float) $expense->amount,
+                    'notes' => $expense->notes,
+                ]),
         ]);
     }
 
@@ -133,7 +119,11 @@ class MyFinanceController extends Controller
                 'href' => route('admin.finance.income.index'),
             ]);
 
-        $expenses = $this->scopedByDate(FinanceExpense::query()->forUser($user), 'expense_date', $period)
+        $expenses = $this->scopedByDate(
+            FinanceExpense::query()->forUser($user)->countable(),
+            'expense_date',
+            $period,
+        )
             ->orderByDesc('expense_date')
             ->orderByDesc('id')
             ->limit(8)
@@ -142,7 +132,7 @@ class MyFinanceController extends Controller
                 'id' => 'expense-'.$expense->id,
                 'date' => $expense->expense_date->toDateString(),
                 'type' => 'expense',
-                'type_label' => 'Expense',
+                'type_label' => $expense->fin_loan_payment_id ? 'EMI Expense' : 'Expense',
                 'label' => $expense->description,
                 'amount' => (float) $expense->amount,
                 'status' => $expense->payment_status instanceof FinanceExpensePaymentStatus
@@ -197,28 +187,29 @@ class MyFinanceController extends Controller
             ->forUser($user)
             ->where('status', '!=', FinanceLoanStatus::Cancelled->value)
             ->where('remaining_amount', '>', 0)
-            ->orderByRaw('case when due_date is null then 1 else 0 end')
-            ->orderBy('due_date')
+            ->orderByRaw('case when next_emi_due_date is null and due_date is null then 1 else 0 end')
+            ->orderByRaw('coalesce(next_emi_due_date, due_date)')
             ->limit(8)
             ->get()
             ->map(function (FinanceLoan $loan) use ($today, $soon) {
-                $due = $loan->due_date?->startOfDay();
+                $due = $loan->next_emi_due_date?->startOfDay() ?? $loan->due_date?->startOfDay();
                 $alert = 'remaining';
-                $alertLabel = 'Remaining balance';
+                $alertLabel = 'Outstanding liability';
 
                 if ($loan->status === FinanceLoanStatus::Overdue || ($due && $due->lt($today))) {
                     $alert = 'overdue';
                     $alertLabel = 'Overdue';
                 } elseif ($due && $due->lte($soon)) {
                     $alert = 'due_soon';
-                    $alertLabel = 'Due soon';
+                    $alertLabel = $loan->hasEmiSchedule() ? 'EMI due soon' : 'Due soon';
                 }
 
                 return [
                     'id' => $loan->id,
                     'lender_name' => $loan->lender_name,
                     'reason' => $loan->reason,
-                    'due_date' => $loan->due_date?->toDateString(),
+                    'due_date' => $due?->toDateString(),
+                    'emi_amount' => $loan->emi_amount !== null ? (float) $loan->emi_amount : null,
                     'remaining_amount' => (float) $loan->remaining_amount,
                     'status' => $loan->status instanceof FinanceLoanStatus
                         ? $loan->status->value

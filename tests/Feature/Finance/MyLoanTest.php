@@ -2,6 +2,7 @@
 
 use App\Modules\Core\Enums\Ability;
 use App\Modules\Finance\Enums\FinanceLoanStatus;
+use App\Modules\Finance\Enums\FinanceLoanType;
 use App\Modules\Finance\Models\FinanceLoan;
 use App\Modules\Finance\Models\FinanceLoanPayment;
 
@@ -19,6 +20,7 @@ function makeLoan(\App\Modules\Core\Models\User $user, array $overrides = []): F
 
     return FinanceLoan::query()->create(array_merge(
         FinanceLoan::normalizedAttributes([
+            'loan_type' => FinanceLoanType::Personal->value,
             'loan_date' => now()->toDateString(),
             'lender_name' => 'Friend Lender',
             'mobile_number' => '9000011111',
@@ -57,6 +59,7 @@ test('loan remaining is calculated and never negative', function () {
     $this->actingAs($owner)
         ->post(route('admin.finance.loans.store'), [
             'loan_date' => '2026-09-01',
+            'loan_type' => 'personal',
             'lender_name' => 'Bank',
             'reason' => 'Emergency',
             'loan_amount' => 10000,
@@ -85,6 +88,7 @@ test('record payment updates balances and status', function () {
         ->post(route('admin.finance.loans.payments.store', $loan), [
             'payment_date' => '2026-09-05',
             'amount' => 30000,
+            'payment_type' => 'full',
             'note' => 'Final payment',
         ])
         ->assertRedirect(route('admin.finance.loans.index'));
@@ -114,6 +118,7 @@ test('payment cannot exceed remaining balance', function () {
         ->post(route('admin.finance.loans.payments.store', $loan), [
             'payment_date' => '2026-09-05',
             'amount' => 5000,
+            'payment_type' => 'partial',
         ])
         ->assertSessionHasErrors(['amount']);
 
@@ -135,6 +140,7 @@ test('super admin cannot access another users loan or payment', function () {
         ->post(route('admin.finance.loans.payments.store', $loan), [
             'payment_date' => '2026-09-05',
             'amount' => 100,
+            'payment_type' => 'partial',
         ])
         ->assertForbidden();
 

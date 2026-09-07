@@ -30,6 +30,22 @@ interface ExpenseRow {
     amount: number;
     payment_status: string;
     notes: string | null;
+    fin_loan_id: number | null;
+    fin_loan_payment_id: number | null;
+    recurring_template_id: number | null;
+    loan_name: string | null;
+    recurring_title: string | null;
+    excluded_as_liability: boolean;
+    converted_to_fin_loan_id: number | null;
+    likely_liability: boolean;
+    is_emi_linked: boolean;
+}
+
+interface RecurringTemplate {
+    id: number;
+    title: string;
+    amount: number;
+    category: string;
 }
 
 interface Props {
@@ -40,9 +56,12 @@ interface Props {
         payment_status: string;
         date_from: string;
         date_to: string;
+        include_excluded: string;
     };
     categories: Option[];
     payment_statuses: Option[];
+    loan_types: Option[];
+    recurring_templates: RecurringTemplate[];
     summaries: { total: number; paid: number; pending: number };
     has_any_records: boolean;
     open_create?: boolean;
@@ -55,6 +74,8 @@ type ExpenseFormValues = {
     amount: string;
     payment_status: string;
     notes: string;
+    recurring_template_id: string;
+    confirm_large_expense: boolean;
 };
 
 const ALL = 'all';
@@ -84,6 +105,8 @@ function blankForm(): ExpenseFormValues {
         amount: '',
         payment_status: 'paid',
         notes: '',
+        recurring_template_id: '',
+        confirm_large_expense: false,
     };
 }
 
@@ -96,6 +119,8 @@ export default function MyExpensesIndex({
     filters,
     categories,
     payment_statuses,
+    loan_types,
+    recurring_templates,
     summaries,
     has_any_records,
     open_create = false,
@@ -103,8 +128,15 @@ export default function MyExpensesIndex({
     const [search, setSearch] = useState(filters.search ?? '');
     const [editing, setEditing] = useState<ExpenseRow | null>(null);
     const [viewing, setViewing] = useState<ExpenseRow | null>(null);
+    const [converting, setConverting] = useState<ExpenseRow | null>(null);
     const [formOpen, setFormOpen] = useState(false);
     const form = useForm<ExpenseFormValues>(blankForm());
+    const convertForm = useForm({
+        confirm: false as boolean,
+        loan_type: 'other',
+        lender_name: '',
+        reason: '',
+    });
 
     useEffect(() => {
         if (open_create) {
@@ -132,6 +164,7 @@ export default function MyExpensesIndex({
                 payment_status: filters.payment_status || undefined,
                 date_from: filters.date_from || undefined,
                 date_to: filters.date_to || undefined,
+                include_excluded: filters.include_excluded || undefined,
                 per_page: expenses.per_page,
                 ...changes,
             },
@@ -147,6 +180,10 @@ export default function MyExpensesIndex({
     };
 
     const startEdit = (expense: ExpenseRow) => {
+        if (expense.is_emi_linked) {
+            return;
+        }
+
         setEditing(expense);
         form.clearErrors();
         form.setData({
@@ -156,19 +193,55 @@ export default function MyExpensesIndex({
             amount: String(expense.amount),
             payment_status: expense.payment_status,
             notes: expense.notes ?? '',
+            recurring_template_id: expense.recurring_template_id ? String(expense.recurring_template_id) : '',
+            confirm_large_expense: false,
         });
         setFormOpen(true);
+    };
+
+    const startConvert = (expense: ExpenseRow) => {
+        setConverting(expense);
+        convertForm.clearErrors();
+        convertForm.setData({
+            confirm: false,
+            loan_type: expense.description.toLowerCase().includes('gold') ? 'gold' : 'other',
+            lender_name: expense.description,
+            reason: expense.description,
+        });
     };
 
     const submit = (event: React.FormEvent) => {
         event.preventDefault();
         const options = { preserveScroll: true, onSuccess: () => setFormOpen(false) };
 
+        form.transform((data) => ({
+            ...data,
+            recurring_template_id: data.recurring_template_id || null,
+            confirm_large_expense: data.confirm_large_expense ? 1 : 0,
+        }));
+
         if (editing) {
             form.put(`/admin/finance/expenses/${editing.id}`, options);
         } else {
             form.post('/admin/finance/expenses', options);
         }
+    };
+
+    const submitConvert = (event: React.FormEvent) => {
+        event.preventDefault();
+        if (!converting) {
+            return;
+        }
+
+        convertForm.transform((data) => ({
+            ...data,
+            confirm: data.confirm ? 1 : 0,
+        }));
+
+        convertForm.post(`/admin/finance/expenses/${converting.id}/convert-to-loan`, {
+            preserveScroll: true,
+            onSuccess: () => setConverting(null),
+        });
     };
 
     const emptyMessage = has_any_records ? 'No expense records match these filters.' : 'No expense records yet';
@@ -180,7 +253,7 @@ export default function MyExpensesIndex({
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
                 <PageHeader
                     title="My Expenses"
-                    description="Track personal spending in Indian Rupees (₹)."
+                    description="Actual money going out (rent, food, EMI payments). Loan principals belong under Loans & Liabilities."
                     action={
                         <Button type="button" onClick={startCreate}>
                             <Plus /> Add Expense
@@ -198,7 +271,7 @@ export default function MyExpensesIndex({
 
                 <DataTableCard
                     title="Expense records"
-                    description="Private to your Super Admin account."
+                    description="EMI rows created from loan payments are linked and read-only here."
                     action={
                         <Button type="button" size="sm" onClick={startCreate}>
                             <Plus /> Add Expense
@@ -253,6 +326,18 @@ export default function MyExpensesIndex({
                                         ))}
                                     </SelectContent>
                                 </Select>
+                                <Select
+                                    value={filters.include_excluded === '1' ? '1' : '0'}
+                                    onValueChange={(value) => applyFilter({ include_excluded: value === '1' ? '1' : null })}
+                                >
+                                    <SelectTrigger className="w-48" aria-label="Include converted liabilities">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="0">Hide converted liabilities</SelectItem>
+                                        <SelectItem value="1">Show converted liabilities</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <SearchInput
                                 value={search}
@@ -277,7 +362,7 @@ export default function MyExpensesIndex({
                                 <TableHead>Description</TableHead>
                                 <TableHead className="text-right">Amount</TableHead>
                                 <TableHead>Payment Status</TableHead>
-                                <TableHead>Notes</TableHead>
+                                <TableHead>Link</TableHead>
                                 <TableHead className="w-16 text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -301,13 +386,23 @@ export default function MyExpensesIndex({
                             )}
 
                             {expenses.data.map((expense) => (
-                                <TableRow key={expense.id}>
+                                <TableRow key={expense.id} className={expense.excluded_as_liability ? 'opacity-60' : undefined}>
                                     <TableCell className="whitespace-nowrap text-sm">{formatDate(expense.expense_date)}</TableCell>
                                     <TableCell className="text-sm">
                                         {categories.find((category) => category.value === expense.category)?.label ?? expense.category}
                                     </TableCell>
                                     <TableCell className="max-w-[14rem] truncate font-medium" title={expense.description}>
                                         {expense.description}
+                                        {expense.excluded_as_liability && (
+                                            <Badge variant="warning" className="ml-2">
+                                                Excluded
+                                            </Badge>
+                                        )}
+                                        {expense.likely_liability && !expense.excluded_as_liability && (
+                                            <Badge variant="danger" className="ml-2">
+                                                Check
+                                            </Badge>
+                                        )}
                                     </TableCell>
                                     <TableCell className="text-right text-sm font-medium tabular-nums">{formatInr(expense.amount)}</TableCell>
                                     <TableCell>
@@ -316,24 +411,58 @@ export default function MyExpensesIndex({
                                                 expense.payment_status}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="text-muted-foreground max-w-[12rem] truncate text-sm" title={expense.notes ?? undefined}>
-                                        {expense.notes ?? '—'}
+                                    <TableCell className="text-muted-foreground max-w-[10rem] truncate text-xs">
+                                        {expense.loan_name
+                                            ? `Loan: ${expense.loan_name}`
+                                            : expense.recurring_title
+                                              ? `Recurring: ${expense.recurring_title}`
+                                              : '—'}
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <RowActions
                                             label={`Actions for ${expense.description}`}
                                             items={[
                                                 { key: 'view', label: 'View', onSelect: () => setViewing(expense) },
-                                                { key: 'edit', label: 'Edit', onSelect: () => startEdit(expense) },
-                                                {
-                                                    key: 'delete',
-                                                    label: 'Delete',
-                                                    confirm: {
-                                                        url: `/admin/finance/expenses/${expense.id}`,
-                                                        title: `Delete expense “${expense.description}”?`,
-                                                        description: 'This permanently removes the expense record.',
-                                                    },
-                                                },
+                                                ...(!expense.is_emi_linked && !expense.excluded_as_liability
+                                                    ? [{ key: 'edit', label: 'Edit', onSelect: () => startEdit(expense) }]
+                                                    : []),
+                                                ...(expense.likely_liability && !expense.excluded_as_liability
+                                                    ? [{ key: 'convert', label: 'Convert to loan', onSelect: () => startConvert(expense) }]
+                                                    : []),
+                                                ...(expense.excluded_as_liability && expense.converted_to_fin_loan_id
+                                                    ? [
+                                                          {
+                                                              key: 'revert',
+                                                              label: 'Revert conversion',
+                                                              onSelect: () => {
+                                                                  if (
+                                                                      window.confirm(
+                                                                          'Revert conversion? The expense will count in totals again and the linked loan will be removed if it has no payments.',
+                                                                      )
+                                                                  ) {
+                                                                      router.post(
+                                                                          `/admin/finance/expenses/${expense.id}/revert-conversion`,
+                                                                          {},
+                                                                          { preserveScroll: true },
+                                                                      );
+                                                                  }
+                                                              },
+                                                          },
+                                                      ]
+                                                    : []),
+                                                ...(!expense.is_emi_linked
+                                                    ? [
+                                                          {
+                                                              key: 'delete',
+                                                              label: 'Delete',
+                                                              confirm: {
+                                                                  url: `/admin/finance/expenses/${expense.id}`,
+                                                                  title: `Delete expense “${expense.description}”?`,
+                                                                  description: 'This permanently removes the expense record.',
+                                                              },
+                                                          },
+                                                      ]
+                                                    : []),
                                             ]}
                                         />
                                     </TableCell>
@@ -418,6 +547,38 @@ export default function MyExpensesIndex({
                                 <InputError message={form.errors.payment_status} />
                             </div>
                             <div className="grid gap-2 sm:col-span-2">
+                                <Label htmlFor="recurring_template_id">Link to recurring template (optional)</Label>
+                                <Select
+                                    value={form.data.recurring_template_id || ALL}
+                                    onValueChange={(value) => form.setData('recurring_template_id', value === ALL ? '' : value)}
+                                >
+                                    <SelectTrigger id="recurring_template_id">
+                                        <SelectValue placeholder="None" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={ALL}>None</SelectItem>
+                                        {recurring_templates.map((template) => (
+                                            <SelectItem key={template.id} value={String(template.id)}>
+                                                {template.title} ({formatInr(template.amount)})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={form.errors.recurring_template_id} />
+                            </div>
+                            {Number(form.data.amount) >= 50000 && (
+                                <label className="flex items-start gap-2 text-sm sm:col-span-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={form.data.confirm_large_expense}
+                                        onChange={(event) => form.setData('confirm_large_expense', event.target.checked)}
+                                        className="mt-1"
+                                    />
+                                    <span>I confirm ₹50,000+ is an actual cash expense (not a loan principal).</span>
+                                </label>
+                            )}
+                            <InputError message={form.errors.confirm_large_expense} />
+                            <div className="grid gap-2 sm:col-span-2">
                                 <Label htmlFor="notes">Notes</Label>
                                 <Textarea id="notes" value={form.data.notes} onChange={(event) => form.setData('notes', event.target.value)} rows={3} />
                                 <InputError message={form.errors.notes} />
@@ -429,6 +590,65 @@ export default function MyExpensesIndex({
                             </Button>
                             <Button type="submit" disabled={form.processing}>
                                 {editing ? 'Save changes' : 'Add Expense'}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={converting !== null} onOpenChange={(open) => !open && setConverting(null)}>
+                <DialogContent className="sm:max-w-md">
+                    <form onSubmit={submitConvert} className="space-y-4">
+                        <DialogHeader>
+                            <DialogTitle>Convert to loan liability</DialogTitle>
+                        </DialogHeader>
+                        {converting && (
+                            <p className="text-muted-foreground text-sm">
+                                {converting.description} · {formatInr(converting.amount)}. Expense is kept and excluded from totals.
+                            </p>
+                        )}
+                        <div className="grid gap-3">
+                            <div className="grid gap-2">
+                                <Label htmlFor="convert_loan_type">Loan type</Label>
+                                <Select value={convertForm.data.loan_type} onValueChange={(value) => convertForm.setData('loan_type', value)}>
+                                    <SelectTrigger id="convert_loan_type">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {loan_types.map((type) => (
+                                            <SelectItem key={type.value} value={type.value}>
+                                                {type.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="convert_lender">Loan name</Label>
+                                <Input
+                                    id="convert_lender"
+                                    value={convertForm.data.lender_name}
+                                    onChange={(event) => convertForm.setData('lender_name', event.target.value)}
+                                />
+                            </div>
+                            <label className="flex items-start gap-2 text-sm">
+                                <input
+                                    type="checkbox"
+                                    checked={convertForm.data.confirm}
+                                    onChange={(event) => convertForm.setData('confirm', event.target.checked)}
+                                    className="mt-1"
+                                />
+                                <span>I confirm converting this expense into a loan liability.</span>
+                            </label>
+                            <InputError message={convertForm.errors.confirm} />
+                            <InputError message={convertForm.errors.expense} />
+                        </div>
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setConverting(null)}>
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={convertForm.processing || !convertForm.data.confirm}>
+                                Convert
                             </Button>
                         </DialogFooter>
                     </form>
@@ -461,15 +681,6 @@ export default function MyExpensesIndex({
                                 <dd className="mt-0.5 font-medium tabular-nums">{formatInr(viewing.amount)}</dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground">Payment Status</dt>
-                                <dd className="mt-1">
-                                    <Badge variant={statusTone[viewing.payment_status] ?? 'neutral'}>
-                                        {payment_statuses.find((status) => status.value === viewing.payment_status)?.label ??
-                                            viewing.payment_status}
-                                    </Badge>
-                                </dd>
-                            </div>
-                            <div>
                                 <dt className="text-muted-foreground">Notes</dt>
                                 <dd className="mt-0.5 whitespace-pre-wrap">{viewing.notes ?? '—'}</dd>
                             </div>
@@ -479,7 +690,7 @@ export default function MyExpensesIndex({
                         <Button type="button" variant="outline" onClick={() => setViewing(null)}>
                             Close
                         </Button>
-                        {viewing && (
+                        {viewing && !viewing.is_emi_linked && !viewing.excluded_as_liability && (
                             <Button
                                 type="button"
                                 onClick={() => {

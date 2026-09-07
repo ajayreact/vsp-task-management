@@ -4,16 +4,18 @@ namespace App\Modules\Finance\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Core\Models\User;
+use App\Modules\Finance\Enums\FinanceLoanPaymentType;
 use App\Modules\Finance\Enums\FinanceLoanStatus;
+use App\Modules\Finance\Enums\FinanceLoanType;
 use App\Modules\Finance\Http\Requests\FinanceLoanPaymentRequest;
 use App\Modules\Finance\Http\Requests\FinanceLoanRequest;
 use App\Modules\Finance\Models\FinanceLoan;
 use App\Modules\Finance\Models\FinanceLoanPayment;
+use App\Modules\Finance\Support\FinanceLoanPaymentRecorder;
 use App\Support\Pagination;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -27,6 +29,7 @@ class FinanceLoanController extends Controller
         $user = $request->user();
 
         $loans = $this->filteredQuery($user, $filters)
+            ->with(['payments' => fn ($query) => $query->orderByDesc('payment_date')->orderByDesc('id')])
             ->orderByDesc('loan_date')
             ->orderByDesc('id')
             ->paginate(Pagination::perPage($request, 15))
@@ -39,6 +42,8 @@ class FinanceLoanController extends Controller
             'loans' => $loans,
             'filters' => $filters,
             'statuses' => FinanceLoanStatus::options(),
+            'loan_types' => FinanceLoanType::options(),
+            'payment_types' => FinanceLoanPaymentType::options(),
             'summaries' => [
                 'count' => (int) (clone $summaryBase)
                     ->where('status', '!=', FinanceLoanStatus::Cancelled->value)
@@ -97,28 +102,15 @@ class FinanceLoanController extends Controller
             ->with('success', 'Loan deleted.');
     }
 
-    public function recordPayment(FinanceLoanPaymentRequest $request, FinanceLoan $loan): RedirectResponse
+    public function recordPayment(FinanceLoanPaymentRequest $request, FinanceLoan $loan, FinanceLoanPaymentRecorder $recorder): RedirectResponse
     {
         $this->authorize('recordPayment', $loan);
 
-        $payload = $request->validated();
-
-        DB::transaction(function () use ($request, $loan, $payload): void {
-            FinanceLoanPayment::query()->create([
-                'user_id' => $request->user()->id,
-                'fin_loan_id' => $loan->id,
-                'payment_date' => $payload['payment_date'],
-                'amount' => $payload['amount'],
-                'note' => $payload['note'] ?? null,
-            ]);
-
-            $loan->applyPayment((float) $payload['amount']);
-            $loan->save();
-        });
+        $recorder->record($request->user(), $loan, $request->validated());
 
         return redirect()
             ->route('admin.finance.loans.index')
-            ->with('success', 'Payment recorded.');
+            ->with('success', 'Repayment recorded. Linked expense created for the amount paid.');
     }
 
     /**
@@ -174,17 +166,41 @@ class FinanceLoanController extends Controller
         return [
             'id' => $loan->id,
             'loan_date' => $loan->loan_date->toDateString(),
+            'loan_type' => $loan->loan_type instanceof FinanceLoanType
+                ? $loan->loan_type->value
+                : (string) ($loan->loan_type ?? FinanceLoanType::Personal->value),
             'lender_name' => $loan->lender_name,
             'mobile_number' => $loan->mobile_number,
             'reason' => $loan->reason,
             'loan_amount' => (float) $loan->loan_amount,
             'amount_paid' => (float) $loan->amount_paid,
             'remaining_amount' => (float) $loan->remaining_amount,
+            'emi_amount' => $loan->emi_amount !== null ? (float) $loan->emi_amount : null,
+            'emi_due_day' => $loan->emi_due_day,
+            'next_emi_due_date' => $loan->next_emi_due_date?->toDateString(),
+            'has_emi' => $loan->hasEmiSchedule(),
             'due_date' => $loan->due_date?->toDateString(),
             'status' => $loan->status instanceof FinanceLoanStatus
                 ? $loan->status->value
                 : (string) $loan->status,
             'notes' => $loan->notes,
+            'payments' => $loan->relationLoaded('payments')
+                ? $loan->payments->map(fn (FinanceLoanPayment $payment) => [
+                    'id' => $payment->id,
+                    'payment_date' => $payment->payment_date->toDateString(),
+                    'payment_type' => $payment->payment_type instanceof FinanceLoanPaymentType
+                        ? $payment->payment_type->value
+                        : (string) ($payment->payment_type ?? FinanceLoanPaymentType::Partial->value),
+                    'payment_type_label' => $payment->payment_type instanceof FinanceLoanPaymentType
+                        ? $payment->payment_type->label()
+                        : FinanceLoanPaymentType::Partial->label(),
+                    'amount' => (float) $payment->amount,
+                    'note' => $payment->note,
+                    'remaining_balance_after' => $payment->remaining_balance_after !== null
+                        ? (float) $payment->remaining_balance_after
+                        : null,
+                ])->values()->all()
+                : [],
         ];
     }
 }

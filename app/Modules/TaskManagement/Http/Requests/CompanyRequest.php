@@ -30,7 +30,7 @@ class CompanyRequest extends FormRequest
             ],
             'status' => ['required', Rule::enum(CompanyStatus::class)],
             'primary_contact_name' => ['nullable', 'string', 'max:255'],
-            'primary_contact_email' => ['nullable', 'email', 'max:255'],
+            'primary_contact_email' => ['nullable', 'email:filter', 'max:255'],
             'primary_contact_phone' => ['nullable', 'string', 'max:32'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'monthly_post_target' => ['nullable', 'integer', 'min:0', 'max:999'],
@@ -39,10 +39,28 @@ class CompanyRequest extends FormRequest
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'primary_contact_email.email' => 'Enter a valid email address (for example name@company.com).',
+            'code.unique' => 'This client code is already in use.',
+            'code.alpha_dash' => 'Code may only contain letters, numbers, dashes, and underscores.',
+        ];
+    }
+
     protected function prepareForValidation(): void
     {
         if (is_string($this->input('code'))) {
             $this->merge(['code' => strtoupper($this->string('code')->trim()->value())]);
+        }
+
+        foreach (['primary_contact_name', 'primary_contact_email', 'primary_contact_phone', 'notes'] as $field) {
+            if ($this->has($field) && is_string($this->input($field)) && trim((string) $this->input($field)) === '') {
+                $this->merge([$field => null]);
+            }
         }
 
         if ($this->has('holiday_india_enabled')) {

@@ -5,7 +5,8 @@ const items = [
     { key: 'dashboard', label: 'Dashboard', href: '/admin/finance' },
     { key: 'income', label: 'My Income', href: '/admin/finance/income' },
     { key: 'expenses', label: 'My Expenses', href: '/admin/finance/expenses' },
-    { key: 'loans', label: 'My Loans', href: '/admin/finance/loans' },
+    { key: 'recurring', label: 'Recurring', href: '/admin/finance/recurring' },
+    { key: 'loans', label: 'Loans & Liabilities', href: '/admin/finance/loans' },
 ] as const;
 
 export type FinanceSection = (typeof items)[number]['key'];

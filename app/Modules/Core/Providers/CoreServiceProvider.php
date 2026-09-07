@@ -80,7 +80,8 @@ class CoreServiceProvider extends ServiceProvider
             if ($model instanceof FinanceIncome
                 || $model instanceof FinanceExpense
                 || $model instanceof FinanceLoan
-                || $model instanceof FinanceLoanPayment) {
+                || $model instanceof FinanceLoanPayment
+                || $model instanceof \App\Modules\Finance\Models\FinanceRecurringExpense) {
                 return null;
             }
 

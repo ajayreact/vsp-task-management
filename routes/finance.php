@@ -4,6 +4,7 @@ use App\Modules\Finance\Http\Controllers\FinanceExpenseController;
 use App\Modules\Finance\Http\Controllers\FinanceExportController;
 use App\Modules\Finance\Http\Controllers\FinanceIncomeController;
 use App\Modules\Finance\Http\Controllers\FinanceLoanController;
+use App\Modules\Finance\Http\Controllers\FinanceRecurringExpenseController;
 use App\Modules\Finance\Http\Controllers\MyFinanceController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,13 @@ Route::get('finance/expenses', [FinanceExpenseController::class, 'index'])->name
 Route::post('finance/expenses', [FinanceExpenseController::class, 'store'])->name('finance.expenses.store');
 Route::put('finance/expenses/{expense}', [FinanceExpenseController::class, 'update'])->name('finance.expenses.update');
 Route::delete('finance/expenses/{expense}', [FinanceExpenseController::class, 'destroy'])->name('finance.expenses.destroy');
+Route::post('finance/expenses/{expense}/convert-to-loan', [FinanceExpenseController::class, 'convertToLoan'])->name('finance.expenses.convert-to-loan');
+Route::post('finance/expenses/{expense}/revert-conversion', [FinanceExpenseController::class, 'revertConversion'])->name('finance.expenses.revert-conversion');
+
+Route::get('finance/recurring', [FinanceRecurringExpenseController::class, 'index'])->name('finance.recurring.index');
+Route::post('finance/recurring', [FinanceRecurringExpenseController::class, 'store'])->name('finance.recurring.store');
+Route::put('finance/recurring/{recurring}', [FinanceRecurringExpenseController::class, 'update'])->name('finance.recurring.update');
+Route::delete('finance/recurring/{recurring}', [FinanceRecurringExpenseController::class, 'destroy'])->name('finance.recurring.destroy');
 
 Route::get('finance/loans', [FinanceLoanController::class, 'index'])->name('finance.loans.index');
 Route::post('finance/loans', [FinanceLoanController::class, 'store'])->name('finance.loans.store');

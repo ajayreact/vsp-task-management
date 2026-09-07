@@ -3,6 +3,7 @@
 namespace App\Modules\Finance\Models;
 
 use App\Modules\Core\Models\User;
+use App\Modules\Finance\Enums\FinanceLoanPaymentType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +15,8 @@ use Illuminate\Support\Carbon;
  * @property int $fin_loan_id
  * @property Carbon $payment_date
  * @property string $amount
+ * @property FinanceLoanPaymentType $payment_type
+ * @property string|null $remaining_balance_after
  * @property string|null $note
  */
 class FinanceLoanPayment extends Model
@@ -25,6 +28,8 @@ class FinanceLoanPayment extends Model
         'fin_loan_id',
         'payment_date',
         'amount',
+        'payment_type',
+        'remaining_balance_after',
         'note',
     ];
 
@@ -33,6 +38,8 @@ class FinanceLoanPayment extends Model
         return [
             'payment_date' => 'date',
             'amount' => 'decimal:2',
+            'payment_type' => FinanceLoanPaymentType::class,
+            'remaining_balance_after' => 'decimal:2',
         ];
     }
 

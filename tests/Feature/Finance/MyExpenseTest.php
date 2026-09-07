@@ -19,6 +19,7 @@ function makeExpense(\App\Modules\Core\Models\User $user, array $overrides = [])
         'amount' => 1200.50,
         'payment_status' => FinanceExpensePaymentStatus::Paid,
         'notes' => null,
+        'excluded_as_liability' => false,
     ], $overrides));
 }
 

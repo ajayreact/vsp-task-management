@@ -107,22 +107,44 @@ export default function ClientIndex({ clients, statuses, can }: Props) {
         setOpen(true);
     };
 
-    const submit = (event: React.FormEvent) => {
-        event.preventDefault();
+    const submit = (event?: React.FormEvent) => {
+        event?.preventDefault();
 
-        const options = {
+        if (form.processing) {
+            return;
+        }
+
+        const visit = {
             preserveScroll: true,
-            onSuccess: () => setOpen(false),
-            transform: (data: ClientFormValues) => ({
-                ...data,
-                monthly_post_target: data.monthly_post_target === '' ? null : Number(data.monthly_post_target),
-            }),
+            onSuccess: () => {
+                setOpen(false);
+                form.clearErrors();
+                form.setData(blank);
+                setEditing(null);
+            },
+            onError: () => {
+                // Keep the modal open and surface field errors under inputs.
+            },
+        };
+
+        const payload = {
+            ...form.data,
+            monthly_post_target:
+                String(form.data.monthly_post_target ?? '').trim() === ''
+                    ? null
+                    : Number(form.data.monthly_post_target),
+            primary_contact_email: String(form.data.primary_contact_email ?? '').trim() || null,
+            primary_contact_name: String(form.data.primary_contact_name ?? '').trim() || null,
+            primary_contact_phone: String(form.data.primary_contact_phone ?? '').trim() || null,
+            notes: String(form.data.notes ?? '').trim() || null,
+            holiday_india_enabled: Boolean(form.data.holiday_india_enabled),
+            holiday_usa_enabled: Boolean(form.data.holiday_usa_enabled),
         };
 
         if (editing) {
-            form.transform(options.transform).put(`/tasks/clients/${editing.id}`, options);
+            form.transform(() => payload).put(`/tasks/clients/${editing.id}`, visit);
         } else {
-            form.transform(options.transform).post('/tasks/clients', options);
+            form.transform(() => payload).post('/tasks/clients', visit);
         }
     };
 
@@ -236,15 +258,21 @@ export default function ClientIndex({ clients, statuses, can }: Props) {
 
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-lg">
-                    <form onSubmit={submit} className="space-y-4">
+                    <form noValidate onSubmit={submit} className="space-y-4">
                         <DialogHeader>
                             <DialogTitle>{editing ? `Edit ${editing.name}` : 'New client'}</DialogTitle>
                         </DialogHeader>
 
+                        {Object.keys(form.errors).length > 0 && (
+                            <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800" role="alert">
+                                Please fix the highlighted fields and try again.
+                            </div>
+                        )}
+
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="grid gap-2 sm:col-span-2">
                                 <Label htmlFor="name">Name</Label>
-                                <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} required />
+                                <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
                                 <InputError message={form.errors.name} />
                             </div>
 
@@ -254,7 +282,6 @@ export default function ClientIndex({ clients, statuses, can }: Props) {
                                     id="code"
                                     value={form.data.code}
                                     onChange={(e) => form.setData('code', e.target.value.toUpperCase())}
-                                    required
                                 />
                                 <InputError message={form.errors.code} />
                             </div>
@@ -290,7 +317,10 @@ export default function ClientIndex({ clients, statuses, can }: Props) {
                                 <Label htmlFor="primary_contact_email">Email</Label>
                                 <Input
                                     id="primary_contact_email"
-                                    type="email"
+                                    type="text"
+                                    inputMode="email"
+                                    autoComplete="email"
+                                    placeholder="name@company.com"
                                     value={form.data.primary_contact_email}
                                     onChange={(e) => form.setData('primary_contact_email', e.target.value)}
                                 />
@@ -351,8 +381,8 @@ export default function ClientIndex({ clients, statuses, can }: Props) {
                             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={form.processing}>
-                                {editing ? 'Save changes' : 'Create client'}
+                            <Button type="button" disabled={form.processing} onClick={() => submit()}>
+                                {form.processing ? 'Saving…' : editing ? 'Save changes' : 'Create client'}
                             </Button>
                         </DialogFooter>
                     </form>

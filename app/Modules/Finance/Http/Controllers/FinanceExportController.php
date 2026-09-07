@@ -51,7 +51,7 @@ class FinanceExportController extends Controller
 
         $period = FinanceDatePeriod::resolve($request, FinanceDatePeriod::ALL);
         $rows = $this->scopedByDate(
-            FinanceExpense::query()->forUser($request->user())->orderByDesc('expense_date')->orderByDesc('id'),
+            FinanceExpense::query()->forUser($request->user())->countable()->orderByDesc('expense_date')->orderByDesc('id'),
             'expense_date',
             $period,
         )->get()->map(fn (FinanceExpense $expense) => [

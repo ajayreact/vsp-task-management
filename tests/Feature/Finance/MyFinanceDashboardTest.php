@@ -4,6 +4,7 @@ use App\Modules\Core\Enums\Ability;
 use App\Modules\Finance\Enums\FinanceExpensePaymentStatus;
 use App\Modules\Finance\Enums\FinanceIncomeStatus;
 use App\Modules\Finance\Enums\FinanceLoanStatus;
+use App\Modules\Finance\Enums\FinanceLoanType;
 use App\Modules\Finance\Models\FinanceExpense;
 use App\Modules\Finance\Models\FinanceIncome;
 use App\Modules\Finance\Models\FinanceLoan;
@@ -30,9 +31,11 @@ test('dashboard shows period summaries and net balance', function () {
         'description' => 'Lunch',
         'amount' => 2500,
         'payment_status' => FinanceExpensePaymentStatus::Paid,
+        'excluded_as_liability' => false,
     ]);
     FinanceLoan::query()->create(array_merge(
         FinanceLoan::normalizedAttributes([
+            'loan_type' => FinanceLoanType::Personal->value,
             'loan_date' => now()->toDateString(),
             'lender_name' => 'Lender',
             'reason' => 'Help',
@@ -49,14 +52,14 @@ test('dashboard shows period summaries and net balance', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Finance/index')
-            ->where('summaries.total_received', 10000)
+            ->where('summaries.received_income', 10000)
             ->where('summaries.paid_expenses', 2500)
             ->where('summaries.net_balance', 7500)
-            ->where('summaries.total_loans', 1)
-            ->where('summaries.loan_remaining', 4000)
+            ->where('summaries.loan_outstanding', 4000)
             ->has('recent_activity')
             ->has('loan_alerts')
-            ->has('period_options', 5));
+            ->has('buckets')
+            ->has('period_options', 6));
 });
 
 test('staff cannot open finance dashboard or export', function () {

@@ -239,7 +239,9 @@ Route::get('contract-share/{token}/pdf', [ContractShareController::class, 'pdf']
 */
 Route::prefix('{companySlug}')
     ->where([
-        'companySlug' => '(?!(?:d|c|cc|od|docs|ci|cs|ct|share|share-preview|content-share|content-schedule-share|contract-share|tasks|admin|login|logout|dashboard|notifications|settings|api|up)(?:-|$))[a-z0-9]+(?:-[a-z0-9]+)*',
+        // Use (?:-|/|$) — not (?:-|$) — so reserved first segments like "admin" are
+        // blocked when more path remains (e.g. /admin/attendance must not match).
+        'companySlug' => '(?!(?:d|c|cc|od|docs|ci|cs|ct|share|share-preview|content-share|content-schedule-share|contract-share|tasks|admin|attendance|employees|departments|roles|finance|login|logout|dashboard|notifications|settings|api|up|horizon|telescope|livewire|vendor|build|storage|sanctum)(?:-|/|$))[a-z0-9]+(?:-[a-z0-9]+)*',
     ])
     ->name('share.client.')
     ->group(function () {

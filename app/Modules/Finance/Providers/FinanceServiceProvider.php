@@ -7,9 +7,12 @@ use App\Modules\Core\Models\User;
 use App\Modules\Finance\Models\FinanceExpense;
 use App\Modules\Finance\Models\FinanceIncome;
 use App\Modules\Finance\Models\FinanceLoan;
+use App\Modules\Finance\Models\FinanceLoanPayment;
+use App\Modules\Finance\Models\FinanceRecurringExpense;
 use App\Modules\Finance\Policies\FinanceExpensePolicy;
 use App\Modules\Finance\Policies\FinanceIncomePolicy;
 use App\Modules\Finance\Policies\FinanceLoanPolicy;
+use App\Modules\Finance\Policies\FinanceRecurringExpensePolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -35,6 +38,7 @@ class FinanceServiceProvider extends ServiceProvider
         Gate::policy(FinanceIncome::class, FinanceIncomePolicy::class);
         Gate::policy(FinanceExpense::class, FinanceExpensePolicy::class);
         Gate::policy(FinanceLoan::class, FinanceLoanPolicy::class);
+        Gate::policy(FinanceRecurringExpense::class, FinanceRecurringExpensePolicy::class);
 
         Route::middleware(['web', 'auth', 'internal'])
             ->prefix('admin')

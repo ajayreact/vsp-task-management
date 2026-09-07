@@ -47,6 +47,49 @@ test('a client code is stored uppercase and must be unique', function () {
         ->assertSessionHasErrors('code');
 });
 
+test('creating a client stores monthly post target and holiday calendars', function () {
+    $user = staffWith(Ability::AccessTasks, Ability::ViewCompanies, Ability::ManageCompanies);
+
+    $this->actingAs($user)
+        ->post('/tasks/clients', [
+            'name' => 'VSP AI And Robotics',
+            'code' => 'VSP-005',
+            'status' => 'active',
+            'primary_contact_name' => '891 670426',
+            'primary_contact_email' => 'operations@vspaianandrobotics.com',
+            'primary_contact_phone' => '891 670426',
+            'monthly_post_target' => 18,
+            'holiday_india_enabled' => true,
+            'holiday_usa_enabled' => false,
+        ])
+        ->assertRedirect();
+
+    $client = Company::query()->where('code', 'VSP-005')->sole();
+
+    expect($client->name)->toBe('VSP AI And Robotics')
+        ->and($client->monthly_post_target)->toBe(18)
+        ->and($client->holiday_india_enabled)->toBeTrue()
+        ->and($client->holiday_usa_enabled)->toBeFalse();
+});
+
+test('invalid client email is rejected with a clear validation error', function () {
+    $user = staffWith(Ability::AccessTasks, Ability::ViewCompanies, Ability::ManageCompanies);
+
+    $this->actingAs($user)
+        ->post('/tasks/clients', [
+            'name' => 'VSP AI And Robotics',
+            'code' => 'VSP-006',
+            'status' => 'active',
+            'primary_contact_email' => 'operations@vspaianandrobotics',
+            'monthly_post_target' => 18,
+            'holiday_india_enabled' => true,
+            'holiday_usa_enabled' => false,
+        ])
+        ->assertSessionHasErrors('primary_contact_email');
+
+    expect(Company::query()->where('code', 'VSP-006')->exists())->toBeFalse();
+});
+
 test('a client with projects cannot be deleted', function () {
     $user = staffWith(Ability::AccessTasks, Ability::ViewCompanies, Ability::ManageCompanies);
     $company = Company::factory()->create();

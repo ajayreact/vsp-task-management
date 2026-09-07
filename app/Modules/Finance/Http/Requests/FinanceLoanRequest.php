@@ -3,6 +3,7 @@
 namespace App\Modules\Finance\Http\Requests;
 
 use App\Modules\Finance\Enums\FinanceLoanStatus;
+use App\Modules\Finance\Enums\FinanceLoanType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -20,11 +21,14 @@ class FinanceLoanRequest extends FormRequest
     {
         return [
             'loan_date' => ['required', 'date'],
+            'loan_type' => ['required', Rule::enum(FinanceLoanType::class)],
             'lender_name' => ['required', 'string', 'max:255'],
             'mobile_number' => ['nullable', 'string', 'max:20'],
             'reason' => ['required', 'string', 'max:255'],
             'loan_amount' => ['required', 'numeric', 'gt:0', 'max:9999999999.99'],
             'amount_paid' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
+            'emi_amount' => ['nullable', 'numeric', 'gt:0', 'max:9999999999.99'],
+            'emi_due_day' => ['nullable', 'integer', 'min:1', 'max:28', 'required_with:emi_amount'],
             'due_date' => ['nullable', 'date'],
             'status' => ['required', Rule::enum(FinanceLoanStatus::class)],
             'notes' => ['nullable', 'string', 'max:5000'],
@@ -38,10 +42,13 @@ class FinanceLoanRequest extends FormRequest
     {
         return [
             'loan_date' => 'date',
-            'lender_name' => 'person / lender name',
+            'loan_type' => 'loan type',
+            'lender_name' => 'loan name / lender',
             'mobile_number' => 'mobile number',
-            'loan_amount' => 'loan amount',
+            'loan_amount' => 'original / loan amount',
             'amount_paid' => 'amount paid',
+            'emi_amount' => 'monthly EMI',
+            'emi_due_day' => 'EMI due day',
             'due_date' => 'due date',
         ];
     }
@@ -66,12 +73,18 @@ class FinanceLoanRequest extends FormRequest
             $this->merge(['notes' => $notes === '' ? null : $notes]);
         }
 
-        if ($this->has('due_date') && is_string($this->input('due_date')) && trim($this->input('due_date')) === '') {
-            $this->merge(['due_date' => null]);
+        foreach (['due_date', 'emi_amount', 'emi_due_day'] as $field) {
+            if ($this->has($field) && is_string($this->input($field)) && trim((string) $this->input($field)) === '') {
+                $this->merge([$field => null]);
+            }
         }
 
         if (! $this->filled('amount_paid')) {
             $this->merge(['amount_paid' => 0]);
+        }
+
+        if (! $this->filled('loan_type')) {
+            $this->merge(['loan_type' => FinanceLoanType::Personal->value]);
         }
     }
 }

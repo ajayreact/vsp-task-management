@@ -100,6 +100,15 @@ test('an invalid short code returns a link not found page', function () {
         ->assertInertia(fn ($page) => $page->component('TaskManagement/share/error'));
 });
 
+test('reserved app paths are not captured by client-slug share routes', function () {
+    $this->get('/admin/attendance')->assertRedirect(route('login'));
+
+    $this->actingAs(superAdmin())
+        ->get('/admin/attendance')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('Attendance/dashboard'));
+});
+
 test('a revoked share link shows the unavailable message for both short and legacy urls', function () {
     $deliverable = Deliverable::factory()->create();
     $link = app(DeliverableShareLinkService::class)->getOrCreate($deliverable, User::factory()->create());
