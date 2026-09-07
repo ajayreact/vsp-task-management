@@ -21,6 +21,12 @@ export function FinanceSectionNav({ active }: { active: FinanceSection }) {
                     <Link
                         key={item.key}
                         href={item.href}
+                        onClick={() => {
+                            // Recover if a prior Radix menu/dialog left body pointer-events locked.
+                            if (document.body.style.pointerEvents === 'none') {
+                                document.body.style.pointerEvents = '';
+                            }
+                        }}
                         className={cn(
                             'rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors',
                             isActive
