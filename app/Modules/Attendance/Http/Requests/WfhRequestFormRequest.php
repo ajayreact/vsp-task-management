@@ -8,7 +8,13 @@ class WfhRequestFormRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('create', \App\Modules\Attendance\Models\WfhRequest::class) ?? false;
+        $user = $this->user();
+
+        if ($user === null || $user->isSuperAdmin()) {
+            return false;
+        }
+
+        return $user->can('create', \App\Modules\Attendance\Models\WfhRequest::class);
     }
 
     /**

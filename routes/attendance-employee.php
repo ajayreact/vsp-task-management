@@ -14,8 +14,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('mark', [AttendanceMarkController::class, 'show'])->name('mark');
 Route::get('wfh', [WfhRequestController::class, 'index'])->name('wfh.index');
 Route::post('wfh', [WfhRequestController::class, 'store'])->name('wfh.store');
-Route::put('wfh/{wfhRequest}', [WfhRequestController::class, 'update'])->name('wfh.update');
-Route::delete('wfh/{wfhRequest}', [WfhRequestController::class, 'destroy'])->name('wfh.destroy');
 Route::post('check-in', AttendanceCheckInController::class)->name('check-in');
 Route::post('check-in/wfh', AttendanceWfhCheckInController::class)->name('check-in.wfh');
 Route::post('check-out', AttendanceCheckOutController::class)->name('check-out');

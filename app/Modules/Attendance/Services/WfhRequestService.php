@@ -110,44 +110,6 @@ class WfhRequestService
         return $assignment->fresh(['employee.user', 'employee.department', 'assigner']);
     }
 
-    /**
-     * Super Admin self-service: record WFH as an immediate assignment (no approval queue).
-     */
-    public function recordOwnWfh(Employee $employee, User $actor, Carbon $startDate, Carbon $endDate, string $reason): WfhRequest
-    {
-        if (! $actor->isSuperAdmin() || $actor->employee?->id !== $employee->id) {
-            throw ValidationException::withMessages([
-                'start_date' => 'Only the Super Admin can record their own WFH this way.',
-            ]);
-        }
-
-        [$startDate, $endDate] = $this->normalizeRange($startDate, $endDate);
-
-        if ($startDate->isPast() && ! $startDate->isToday()) {
-            throw ValidationException::withMessages([
-                'start_date' => 'You can only record work from home for today or a future date.',
-            ]);
-        }
-
-        $this->assertNoBlockingConflicts($employee->id, $startDate, $endDate);
-
-        $assignment = WfhRequest::query()->create([
-            'employee_id' => $employee->id,
-            'type' => WfhRequestType::Assignment,
-            'start_date' => $startDate->toDateString(),
-            'end_date' => $endDate->toDateString(),
-            'reason' => trim($reason),
-            'status' => WfhRequestStatus::Assigned,
-            'assigned_by_user_id' => $actor->id,
-            'approved_by_user_id' => $actor->id,
-            'approved_at' => now(),
-        ]);
-
-        $this->resolvePendingConflicts($employee->id, $startDate, $endDate, $actor);
-
-        return $assignment->fresh(['employee.user', 'employee.department', 'assigner', 'approver']);
-    }
-
     public function updateAssignment(
         WfhRequest $assignment,
         User $editor,
@@ -309,12 +271,12 @@ class WfhRequestService
     /**
      * @return array<string, mixed>
      */
-    public function serialize(WfhRequest $request, bool $forSuperAdminSelf = false): array
+    public function serialize(WfhRequest $request): array
     {
         $isActiveAssignment = $request->type === WfhRequestType::Assignment
             && $request->status === WfhRequestStatus::Assigned;
 
-        $payload = [
+        return [
             'id' => $request->id,
             'employee_id' => $request->employee_id,
             'employee' => $request->employee->user->name,
@@ -343,46 +305,6 @@ class WfhRequestService
             'can_edit' => $isActiveAssignment,
             'can_cancel' => $isActiveAssignment,
         ];
-
-        if ($forSuperAdminSelf) {
-            [$status, $label] = $this->superAdminLifecycle($request);
-            $payload['status'] = $status;
-            $payload['status_label'] = $label;
-            $payload['source_label'] = $request->type === WfhRequestType::Assignment
-                ? 'Recorded by you'
-                : 'Legacy request';
-            $payload['type_label'] = $request->type === WfhRequestType::Assignment ? 'My WFH' : $request->type->label();
-            $payload['can_approve'] = false;
-            $payload['can_reject'] = false;
-            $payload['can_edit'] = $isActiveAssignment;
-            $payload['can_cancel'] = $isActiveAssignment;
-        }
-
-        return $payload;
-    }
-
-    /**
-     * @return array{0: string, 1: string}
-     */
-    protected function superAdminLifecycle(WfhRequest $request): array
-    {
-        if ($request->status === WfhRequestStatus::Cancelled) {
-            return ['cancelled', 'Cancelled'];
-        }
-
-        if ($request->status === WfhRequestStatus::Rejected) {
-            return ['rejected', 'Rejected'];
-        }
-
-        if ($request->status === WfhRequestStatus::Pending) {
-            return ['pending', 'Pending'];
-        }
-
-        if ($request->end_date->lt(today()->startOfDay())) {
-            return ['completed', 'Completed'];
-        }
-
-        return ['scheduled', 'Scheduled'];
     }
 
     /**

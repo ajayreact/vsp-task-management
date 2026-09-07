@@ -29,8 +29,6 @@ export interface NavItem {
     title: string;
     /** Shown instead of title when the user lacks tasks.view_all. */
     contributorTitle?: string;
-    /** Shown instead of title for Super Admin (e.g. My WFH vs WFH Requests). */
-    superAdminTitle?: string;
     url: string;
     icon?: LucideIcon | null;
     isActive?: boolean;
@@ -40,6 +38,8 @@ export interface NavItem {
     capability?: keyof NonNullable<Auth['capabilities']>;
     /** Hidden unless the signed-in user holds this role. Super Admin only items use this. */
     role?: string;
+    /** Hidden when the signed-in user holds any of these roles. */
+    hideForRoles?: string[];
 }
 
 export interface SharedData {

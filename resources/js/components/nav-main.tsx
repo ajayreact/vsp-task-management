@@ -14,6 +14,10 @@ export function NavMain({ items = [], label = 'Platform', anyPermission }: { ite
     }
 
     const visible = items.filter((item) => {
+        if (item.hideForRoles?.some((role) => hasRole(role))) {
+            return false;
+        }
+
         if (item.role && !hasRole(item.role)) {
             return false;
         }
@@ -37,12 +41,7 @@ export function NavMain({ items = [], label = 'Platform', anyPermission }: { ite
             </SidebarGroupLabel>
             <SidebarMenu className="gap-1">
                 {visible.map((item) => {
-                    const label =
-                        hasRole('super-admin') && item.superAdminTitle
-                            ? item.superAdminTitle
-                            : item.contributorTitle && !can('tasks.view_all')
-                              ? item.contributorTitle
-                              : item.title;
+                    const label = item.contributorTitle && !can('tasks.view_all') ? item.contributorTitle : item.title;
 
                     return (
                     <SidebarMenuItem key={item.url}>

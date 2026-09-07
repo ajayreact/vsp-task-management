@@ -481,82 +481,26 @@ test('wfh management page exposes type and assignment metadata', function () {
             ->where('requests.0.can_cancel', true));
 });
 
-test('super admin records own wfh directly without pending approval', function () {
+test('super admin cannot access employee wfh request page and is redirected', function () {
     $employee = superAdminEmployee();
     $start = today()->addDay()->toDateString();
-    $end = today()->addDays(3)->toDateString();
 
     $this->actingAs($employee->user)
         ->get('/attendance/wfh')
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('Attendance/wfh/index')
-            ->where('mode', 'direct'));
+        ->assertRedirect(route('admin.attendance.index'));
 
     $this->actingAs($employee->user)
         ->post('/attendance/wfh', [
             'start_date' => $start,
-            'end_date' => $end,
-            'reason' => 'Working from home this week.',
+            'end_date' => $start,
+            'reason' => 'Super Admin should not create personal WFH.',
         ])
-        ->assertRedirect()
-        ->assertSessionHas('success', 'WFH recorded.');
+        ->assertForbidden();
 
-    $record = WfhRequest::query()->where('employee_id', $employee->id)->sole();
-
-    expect($record->type)->toBe(WfhRequestType::Assignment)
-        ->and($record->status)->toBe(WfhRequestStatus::Assigned)
-        ->and($record->assigned_by_user_id)->toBe($employee->user_id)
-        ->and($record->start_date->toDateString())->toBe($start)
-        ->and($record->end_date->toDateString())->toBe($end);
-
-    Notification::assertNothingSent();
-
-    $this->actingAs($employee->user)
-        ->get('/attendance/wfh')
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->where('mode', 'direct')
-            ->where('requests.0.status', 'scheduled')
-            ->where('requests.0.status_label', 'Scheduled')
-            ->where('requests.0.can_edit', true));
+    expect(WfhRequest::query()->where('employee_id', $employee->id)->exists())->toBeFalse();
 });
 
-test('super admin can edit and delete own wfh record', function () {
-    $employee = superAdminEmployee();
-    $record = WfhRequest::factory()->assigned()->create([
-        'employee_id' => $employee->id,
-        'start_date' => today()->addDays(2),
-        'end_date' => today()->addDays(3),
-        'reason' => 'Original reason',
-        'assigned_by_user_id' => $employee->user_id,
-        'approved_by_user_id' => $employee->user_id,
-    ]);
-
-    $newStart = today()->addDays(4)->toDateString();
-    $newEnd = today()->addDays(5)->toDateString();
-
-    $this->actingAs($employee->user)
-        ->put("/attendance/wfh/{$record->id}", [
-            'start_date' => $newStart,
-            'end_date' => $newEnd,
-            'reason' => 'Updated reason',
-        ])
-        ->assertRedirect()
-        ->assertSessionHas('success');
-
-    expect($record->fresh()->start_date->toDateString())->toBe($newStart)
-        ->and($record->fresh()->reason)->toBe('Updated reason');
-
-    $this->actingAs($employee->user)
-        ->delete("/attendance/wfh/{$record->id}")
-        ->assertRedirect()
-        ->assertSessionHas('success');
-
-    expect($record->fresh()->status)->toBe(WfhRequestStatus::Cancelled);
-});
-
-test('employee still submits pending wfh requests and cannot use super admin self routes', function () {
+test('employee can still access and submit wfh requests', function () {
     $employee = employeeWith(Ability::AccessTasks);
     $start = today()->addDay()->toDateString();
 
@@ -565,7 +509,7 @@ test('employee still submits pending wfh requests and cannot use super admin sel
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Attendance/wfh/index')
-            ->where('mode', 'request'));
+            ->missing('mode'));
 
     $this->actingAs($employee->user)
         ->post('/attendance/wfh', [
@@ -580,28 +524,15 @@ test('employee still submits pending wfh requests and cannot use super admin sel
 
     expect($request->type)->toBe(WfhRequestType::Request)
         ->and($request->status)->toBe(WfhRequestStatus::Pending);
-
-    $this->actingAs($employee->user)
-        ->put("/attendance/wfh/{$request->id}", [
-            'start_date' => $start,
-            'end_date' => $start,
-            'reason' => 'Trying to edit',
-        ])
-        ->assertForbidden();
-
-    $this->actingAs($employee->user)
-        ->delete("/attendance/wfh/{$request->id}")
-        ->assertForbidden();
 });
 
-test('operations user with manage wfh cannot record via super admin direct path semantics', function () {
+test('operations user with manage wfh still submits pending personal requests', function () {
     $ops = employeeWith(Ability::AccessTasks, Ability::ManageWfhRequests);
     $start = today()->addDay()->toDateString();
 
     $this->actingAs($ops->user)
         ->get('/attendance/wfh')
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page->where('mode', 'request'));
+        ->assertOk();
 
     $this->actingAs($ops->user)
         ->post('/attendance/wfh', [
