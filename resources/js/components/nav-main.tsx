@@ -38,7 +38,11 @@ export function NavMain({ items = [], label = 'Platform', anyPermission }: { ite
             <SidebarMenu className="gap-1">
                 {visible.map((item) => {
                     const label =
-                        item.contributorTitle && !can('tasks.view_all') ? item.contributorTitle : item.title;
+                        hasRole('super-admin') && item.superAdminTitle
+                            ? item.superAdminTitle
+                            : item.contributorTitle && !can('tasks.view_all')
+                              ? item.contributorTitle
+                              : item.title;
 
                     return (
                     <SidebarMenuItem key={item.url}>

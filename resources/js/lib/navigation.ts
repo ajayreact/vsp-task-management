@@ -76,6 +76,7 @@ export const attendanceNavItems: NavItem[] = [
     },
     {
         title: 'WFH Requests',
+        superAdminTitle: 'My WFH',
         url: '/attendance/wfh',
         icon: Home,
         permission: 'tasks.access',

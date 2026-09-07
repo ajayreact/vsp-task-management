@@ -38,7 +38,8 @@ interface Props {
     mode?: 'direct' | 'request';
 }
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'WFH Requests', href: '/attendance/wfh' }];
+const requestBreadcrumbs: BreadcrumbItem[] = [{ title: 'WFH Requests', href: '/attendance/wfh' }];
+const directBreadcrumbs: BreadcrumbItem[] = [{ title: 'My WFH', href: '/attendance/wfh' }];
 
 const STATUS_TONE: Record<string, 'success' | 'warning' | 'danger' | 'neutral' | 'info'> = {
     pending: 'warning',
@@ -104,7 +105,7 @@ export default function WfhRequestsIndex({ requests, mode = 'request' }: Props) 
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={isDirect ? directBreadcrumbs : requestBreadcrumbs}>
             <Head title={isDirect ? 'My WFH' : 'WFH Requests'} />
 
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">

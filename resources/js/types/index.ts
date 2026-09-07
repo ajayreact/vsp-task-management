@@ -29,6 +29,8 @@ export interface NavItem {
     title: string;
     /** Shown instead of title when the user lacks tasks.view_all. */
     contributorTitle?: string;
+    /** Shown instead of title for Super Admin (e.g. My WFH vs WFH Requests). */
+    superAdminTitle?: string;
     url: string;
     icon?: LucideIcon | null;
     isActive?: boolean;
