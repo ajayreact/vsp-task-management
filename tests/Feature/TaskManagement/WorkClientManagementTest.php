@@ -22,7 +22,9 @@ test('clients are listed with their project counts', function () {
             ->component('TaskManagement/clients/index')
             ->where('clients.data.0.name', 'Northwind')
             ->where('clients.data.0.projects_count', 2)
-            ->where('can.manage', false));
+            ->where('can.manage', false)
+            ->has('filters')
+            ->has('employees'));
 });
 
 test('viewing does not imply managing', function () {
@@ -33,28 +35,37 @@ test('viewing does not imply managing', function () {
 
 test('a client code is stored uppercase and must be unique', function () {
     $user = staffWith(Ability::AccessTasks, Ability::ViewCompanies, Ability::ManageCompanies);
+    $primary = employeeWith(Ability::AccessTasks);
 
     $this->actingAs($user)->post('/tasks/clients', [
         'name' => 'Northwind',
         'code' => 'nw-01',
         'status' => 'active',
+        'primary_responsible_employee_id' => $primary->id,
     ]);
 
     expect(Company::query()->sole()->code)->toBe('NW-01');
 
     $this->actingAs($user)
-        ->post('/tasks/clients', ['name' => 'Other', 'code' => 'NW-01', 'status' => 'active'])
+        ->post('/tasks/clients', [
+            'name' => 'Other',
+            'code' => 'NW-01',
+            'status' => 'active',
+            'primary_responsible_employee_id' => $primary->id,
+        ])
         ->assertSessionHasErrors('code');
 });
 
 test('creating a client stores monthly post target and holiday calendars', function () {
     $user = staffWith(Ability::AccessTasks, Ability::ViewCompanies, Ability::ManageCompanies);
+    $primary = employeeWith(Ability::AccessTasks);
 
     $this->actingAs($user)
         ->post('/tasks/clients', [
             'name' => 'VSP AI And Robotics',
             'code' => 'VSP-005',
             'status' => 'active',
+            'primary_responsible_employee_id' => $primary->id,
             'primary_contact_name' => '891 670426',
             'primary_contact_email' => 'operations@vspaianandrobotics.com',
             'primary_contact_phone' => '891 670426',
@@ -69,17 +80,20 @@ test('creating a client stores monthly post target and holiday calendars', funct
     expect($client->name)->toBe('VSP AI And Robotics')
         ->and($client->monthly_post_target)->toBe(18)
         ->and($client->holiday_india_enabled)->toBeTrue()
-        ->and($client->holiday_usa_enabled)->toBeFalse();
+        ->and($client->holiday_usa_enabled)->toBeFalse()
+        ->and($client->primary_responsible_employee_id)->toBe($primary->id);
 });
 
 test('invalid client email is rejected with a clear validation error', function () {
     $user = staffWith(Ability::AccessTasks, Ability::ViewCompanies, Ability::ManageCompanies);
+    $primary = employeeWith(Ability::AccessTasks);
 
     $this->actingAs($user)
         ->post('/tasks/clients', [
             'name' => 'VSP AI And Robotics',
             'code' => 'VSP-006',
             'status' => 'active',
+            'primary_responsible_employee_id' => $primary->id,
             'primary_contact_email' => 'operations@vspaianandrobotics',
             'monthly_post_target' => 18,
             'holiday_india_enabled' => true,

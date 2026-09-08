@@ -2,10 +2,13 @@
 
 namespace App\Modules\TaskManagement\Models;
 
+use App\Modules\Core\Models\Employee;
 use App\Modules\TaskManagement\Enums\CompanyStatus;
 use Database\Factories\TaskManagement\CompanyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\LogOptions;
@@ -21,6 +24,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string|null $website
  * @property string $code
  * @property CompanyStatus $status
+ * @property int|null $primary_responsible_employee_id
  * @property string|null $primary_contact_name
  * @property string|null $primary_contact_email
  * @property string|null $primary_contact_phone
@@ -29,6 +33,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property bool $holiday_india_enabled
  * @property bool $holiday_usa_enabled
  * @property-read int|null $projects_count
+ * @property-read Employee|null $primaryResponsible
  */
 class Company extends Model implements HasMedia
 {
@@ -45,6 +50,7 @@ class Company extends Model implements HasMedia
         'website',
         'code',
         'status',
+        'primary_responsible_employee_id',
         'primary_contact_name',
         'primary_contact_email',
         'primary_contact_phone',
@@ -65,6 +71,33 @@ class Company extends Model implements HasMedia
             'holiday_india_enabled' => 'boolean',
             'holiday_usa_enabled' => 'boolean',
         ];
+    }
+
+    /**
+     * @return BelongsTo<Employee, $this>
+     */
+    public function primaryResponsible(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class, 'primary_responsible_employee_id');
+    }
+
+    /**
+     * Supporting client-team members (excludes the primary responsible).
+     *
+     * @return BelongsToMany<Employee, $this>
+     */
+    public function supportingEmployees(): BelongsToMany
+    {
+        return $this->belongsToMany(Employee::class, 'tm_company_members', 'tm_company_id', 'employee_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<CompanyMember, $this>
+     */
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(CompanyMember::class, 'tm_company_id');
     }
 
     /**
@@ -117,7 +150,7 @@ class Company extends Model implements HasMedia
     {
         return LogOptions::defaults()
             ->useLogName('task-management')
-            ->logOnly(['name', 'code', 'status', 'monthly_post_target'])
+            ->logOnly(['name', 'code', 'status', 'monthly_post_target', 'primary_responsible_employee_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
