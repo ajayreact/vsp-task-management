@@ -15,6 +15,7 @@ class TaskCreationService
     public function __construct(
         protected TaskWorkflow $workflow,
         protected TaskNotifier $notifier,
+        protected CreativeChecklistSyncService $checklistSync,
     ) {}
 
     /**
@@ -49,9 +50,12 @@ class TaskCreationService
             foreach (array_values($checklistItems) as $position => $item) {
                 $task->checklistItems()->create([
                     'title' => trim($item['title']),
+                    'source' => 'custom',
                     'sort_order' => $position + 1,
                 ]);
             }
+
+            $this->checklistSync->syncDefaults($task);
 
             foreach (array_values($subtasks) as $position => $subtaskData) {
                 $status = SubtaskStatus::from($subtaskData['status'] ?? SubtaskStatus::Pending->value);

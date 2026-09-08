@@ -69,4 +69,9 @@ class ProductivityException extends RuntimeException
     {
         return new self('This content item is not ready for client review.');
     }
+
+    public static function checklistIncompleteForReady(): self
+    {
+        return new self('Please complete all required checklist items before marking this creative as Ready.');
+    }
 }

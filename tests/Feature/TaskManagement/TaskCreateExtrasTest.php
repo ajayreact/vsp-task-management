@@ -32,7 +32,7 @@ test('creating a task can save a detailed requirement brief', function () {
 });
 
 test('updating a task can change the requirement brief', function () {
-    $author = employeeWith(Ability::AccessTasks, Ability::ManageTasks);
+    $author = employeeWith(Ability::AccessTasks, Ability::ManageTasks, Ability::ViewAllTasks);
     $task = Task::factory()->create([
         'created_by_user_id' => $author->user->id,
         'requirement' => 'Original brief',

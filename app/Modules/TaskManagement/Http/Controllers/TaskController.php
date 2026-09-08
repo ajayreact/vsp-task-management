@@ -7,6 +7,7 @@ use App\Modules\Core\Enums\Ability;
 use App\Modules\Core\Models\Department;
 use App\Modules\Core\Models\Employee;
 use App\Modules\Core\Models\User;
+use App\Modules\TaskManagement\Enums\ContentCalendarType;
 use App\Modules\TaskManagement\Enums\RecurrenceFrequency;
 use App\Modules\TaskManagement\Enums\SubtaskStatus;
 use App\Modules\TaskManagement\Enums\TaskPriority;
@@ -24,10 +25,12 @@ use App\Modules\TaskManagement\Models\TaskReminder;
 use App\Modules\TaskManagement\Models\TaskStatusChange;
 use App\Modules\TaskManagement\Models\TaskSubtask;
 use App\Modules\TaskManagement\Models\TimeEntry;
+use App\Modules\TaskManagement\Services\CreativeChecklistSyncService;
 use App\Modules\TaskManagement\Services\TaskActionResolver;
 use App\Modules\TaskManagement\Services\TaskCreationService;
 use App\Modules\TaskManagement\Services\TaskListExporter;
 use App\Modules\TaskManagement\Services\TaskWorkflow;
+use App\Modules\TaskManagement\Support\CreativeChecklistDefaults;
 use App\Support\Pagination;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -441,6 +444,7 @@ class TaskController extends Controller
                 'description' => $task->description,
                 'requirement' => $task->requirement,
                 'type' => $task->type->value,
+                'creative_type' => $task->creative_type?->value,
                 'priority' => $task->priority->value,
                 'estimated_hours' => $task->estimated_hours,
                 'due_at' => $task->due_at?->format('Y-m-d\TH:i'),
@@ -448,11 +452,18 @@ class TaskController extends Controller
         ]);
     }
 
-    public function update(TaskRequest $request, Task $task): RedirectResponse
+    public function update(TaskRequest $request, Task $task, CreativeChecklistSyncService $checklistSync): RedirectResponse
     {
         $this->authorize('update', $task);
 
-        $task->update($request->validated());
+        $validated = $request->validated();
+        $previousCreativeType = $task->creative_type?->value;
+
+        $task->update($validated);
+
+        if (($validated['creative_type'] ?? null) !== $previousCreativeType) {
+            $checklistSync->syncDefaults($task->fresh());
+        }
 
         return to_route('tasks.show', $task)->with('success', 'Task updated.');
     }
@@ -541,6 +552,8 @@ class TaskController extends Controller
             'id' => $task->id,
             'title' => $task->title,
             'type' => $task->type->label(),
+            'creative_type' => $task->creative_type?->value,
+            'creative_type_label' => $task->creative_type?->label(),
             'priority' => $task->priority->value,
             'priority_label' => $task->priority->label(),
             'status' => $task->status->value,
@@ -666,16 +679,34 @@ class TaskController extends Controller
             ->map(fn (TaskChecklistItem $item) => [
                 'id' => $item->id,
                 'title' => $item->title,
+                'source' => $item->source,
+                'template_key' => $item->template_key,
+                'checklist_group' => $item->checklist_group,
+                'is_mandatory' => $item->is_mandatory,
+                'is_system' => $item->isSystem(),
                 'is_completed' => $item->is_completed,
                 'completed_by' => $item->completedBy?->name,
                 'completed_at' => $item->completed_at?->toIso8601String(),
                 'sort_order' => $item->sort_order,
             ])->all();
 
+        $requiredKeys = CreativeChecklistDefaults::requiredKeysFor($task->creative_type);
+        $requiredIncomplete = $requiredKeys === []
+            ? 0
+            : $task->checklistItems()
+                ->whereIn('template_key', $requiredKeys)
+                ->where('is_completed', false)
+                ->count();
+
         return [
             'items' => $items,
             'completed' => $task->checklistItems()->where('is_completed', true)->count(),
             'total' => $task->checklistItems()->count(),
+            'required_incomplete' => $requiredIncomplete,
+            'ready_blocked' => $requiredIncomplete > 0,
+            'ready_blocked_message' => $requiredIncomplete > 0
+                ? 'Please complete all required checklist items before marking this creative as Ready.'
+                : null,
         ];
     }
 
@@ -696,6 +727,13 @@ class TaskController extends Controller
                 TaskStatus::Completed => 'This task has already been completed.',
                 default => 'Deliverables can only be submitted while the task is in progress, under review, or after changes have been requested.',
             };
+        }
+
+        $checklistBlocked = app(CreativeChecklistSyncService::class)->hasIncompleteRequired($task);
+
+        if ($canSubmit && $checklistBlocked) {
+            $blockedReason = 'Please complete all required checklist items before marking this creative as Ready.';
+            $canSubmit = false;
         }
 
         return [
@@ -800,6 +838,7 @@ class TaskController extends Controller
                 ->orderBy('name')
                 ->get(['id', 'name']),
             'types' => TaskType::options(),
+            'creativeTypes' => ContentCalendarType::options(),
             'priorities' => TaskPriority::options(),
         ];
     }

@@ -9,11 +9,19 @@ class TaskChecklistItemPolicy
 {
     public function update(User $user, TaskChecklistItem $item): bool
     {
+        if ($item->isSystem()) {
+            return false;
+        }
+
         return $user->can('manageChecklist', $item->task);
     }
 
     public function delete(User $user, TaskChecklistItem $item): bool
     {
+        if ($item->isSystem() && $item->is_mandatory) {
+            return false;
+        }
+
         return $user->can('manageChecklist', $item->task);
     }
 

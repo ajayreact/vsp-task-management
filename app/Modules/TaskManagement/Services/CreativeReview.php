@@ -19,6 +19,7 @@ class CreativeReview
         protected TaskWorkflow $workflow,
         protected TaskNotifier $notifier,
         protected DeliverableShareLinkService $shareLinks,
+        protected CreativeChecklistSyncService $checklistSync,
     ) {}
 
     /**
@@ -30,6 +31,8 @@ class CreativeReview
             if (! in_array($task->status, [TaskStatus::InProgress, TaskStatus::Revision, TaskStatus::InReview], true)) {
                 throw ProductivityException::cannotSubmitProof();
             }
+
+            $this->checklistSync->assertReadyForReview($task);
 
             $task->deliverables()
                 ->whereIn('status', [DeliverableStatus::Submitted, DeliverableStatus::InReview])

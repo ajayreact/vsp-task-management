@@ -154,6 +154,7 @@ class RecurringTaskService
             'title' => $source->title,
             'description' => $source->description,
             'type' => $source->type,
+            'creative_type' => $source->creative_type,
             'priority' => $source->priority,
             'status' => TaskStatus::Draft,
             'assignment_mode' => $source->assignment_mode,
@@ -175,6 +176,10 @@ class RecurringTaskService
         foreach ($source->checklistItems()->orderBy('sort_order')->get() as $item) {
             $task->checklistItems()->create([
                 'title' => $item->title,
+                'source' => $item->source,
+                'template_key' => $item->template_key,
+                'checklist_group' => $item->checklist_group,
+                'is_mandatory' => $item->is_mandatory,
                 'is_completed' => false,
                 'sort_order' => $item->sort_order,
             ]);

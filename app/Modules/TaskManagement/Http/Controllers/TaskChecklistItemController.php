@@ -24,6 +24,7 @@ class TaskChecklistItemController extends Controller
 
         $task->checklistItems()->create([
             'title' => trim($validated['title']),
+            'source' => 'custom',
             'sort_order' => $nextOrder,
         ]);
 

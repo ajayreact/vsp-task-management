@@ -6,6 +6,7 @@ use App\Modules\Attendance\Models\EmployeeOfficeAssignment;
 use App\Modules\Attendance\Models\OfficeLocation;
 use App\Modules\Attendance\Services\AttendanceLocationVerificationService;
 use App\Modules\Core\Enums\Ability;
+use App\Modules\Core\Models\User;
 
 test('employee can check in with gps verification and cannot check in twice', function () {
     $employee = employeeWith(Ability::AccessTasks);
@@ -183,4 +184,61 @@ test('attendance page shows today status and super admin sees todays records', f
             ->has('snapshot.records', 1)
             ->where('snapshot.records.0.employee_code', $employee->employee_code)
             ->where('snapshot.records.0.office', 'HQ Office'));
+});
+
+test('dashboard reuses the same attendance today snapshot as the mark page', function () {
+    $employee = employeeWith(Ability::AccessTasks);
+    $office = OfficeLocation::factory()->create([
+        'name' => 'Studio Office',
+        'latitude' => 28.613939,
+        'longitude' => 77.209023,
+        'allowed_gps_radius_meters' => 150,
+        'is_active' => true,
+    ]);
+
+    EmployeeOfficeAssignment::query()->create([
+        'employee_id' => $employee->id,
+        'office_location_id' => $office->id,
+    ]);
+
+    $this->actingAs($employee->user)
+        ->get('/dashboard')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Dashboard')
+            ->where('attendance.today.status', 'not_checked_in')
+            ->where('attendance.today.can_check_in', true)
+            ->where('attendance.office.name', 'Studio Office')
+            ->where('attendance.can_mark_attendance', true));
+
+    $this->actingAs($employee->user)
+        ->from('/dashboard')
+        ->post('/attendance/check-in', [
+            'latitude' => (float) $office->latitude,
+            'longitude' => (float) $office->longitude,
+        ])
+        ->assertRedirect('/dashboard');
+
+    $this->actingAs($employee->user)
+        ->get('/dashboard')
+        ->assertInertia(fn ($page) => $page
+            ->where('attendance.today.status', 'present')
+            ->where('attendance.today.can_check_out', true)
+            ->where('attendance.today.can_start_break', true));
+
+    $this->actingAs($employee->user)
+        ->get('/attendance/mark')
+        ->assertInertia(fn ($page) => $page
+            ->where('today.status', 'present')
+            ->where('today.can_check_out', true)
+            ->where('today.can_start_break', true));
+});
+
+test('users without an employee profile do not receive dashboard attendance', function () {
+    $this->actingAs(User::factory()->create())
+        ->get('/dashboard')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Dashboard')
+            ->where('attendance', null));
 });

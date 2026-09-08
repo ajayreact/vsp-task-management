@@ -1,60 +1,16 @@
 import { PageHeader } from '@/components/admin/page-header';
+import { TodayAttendanceCard, type AttendanceMarkData } from '@/components/attendance/today-attendance-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAttendanceActions } from '@/hooks/use-attendance-actions';
 import { useAttendanceBreakActions } from '@/hooks/use-attendance-break-actions';
-import { useBreakDuration, useNetWorkingDuration } from '@/hooks/use-working-duration';
 import AppLayout from '@/layouts/app-layout';
-import { formatDuration, formatTimeLabel } from '@/lib/attendance/format';
+import { formatTimeLabel } from '@/lib/attendance/format';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
-import { Clock3, Coffee, Home, LoaderCircle, LogIn, LogOut, MapPin, Play } from 'lucide-react';
+import { Home, LoaderCircle, LogOut, MapPin } from 'lucide-react';
 import { useEffect } from 'react';
-
-interface OfficeSummary {
-    id: number;
-    name: string;
-    address: string;
-    allowed_gps_radius_meters: number;
-    network_verification_enabled: boolean;
-    is_active: boolean;
-}
-
-interface TodaySnapshot {
-    status: string;
-    status_label: string;
-    work_mode?: string | null;
-    work_mode_label?: string | null;
-    is_wfh?: boolean;
-    check_in_at: string | null;
-    check_out_at: string | null;
-    total_break_seconds: number;
-    net_working_seconds: number | null;
-    active_break_started_at: string | null;
-    break_count: number;
-    can_check_in: boolean;
-    can_check_in_wfh?: boolean;
-    can_check_out: boolean;
-    can_start_break: boolean;
-    can_resume_work: boolean;
-    wfh_request?: {
-        id: number;
-        date: string;
-        date_range_label?: string;
-        source_label?: string;
-        status: string;
-        status_label: string;
-    } | null;
-}
-
-interface Props {
-    office: OfficeSummary | null;
-    can_mark_attendance: boolean;
-    location_bypass_enabled: boolean;
-    location_fallback: { latitude: number; longitude: number } | null;
-    today: TodaySnapshot;
-}
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Attendance', href: '/attendance/mark' }];
 
@@ -66,34 +22,14 @@ const STATUS_TONE: Record<string, 'success' | 'warning' | 'neutral' | 'info'> = 
     checked_out: 'neutral',
 };
 
-export default function AttendanceMark({
-    office,
-    can_mark_attendance,
-    location_bypass_enabled,
-    location_fallback,
-    today,
-}: Props) {
+export default function AttendanceMark(props: AttendanceMarkData) {
+    const { office, can_mark_attendance, location_bypass_enabled, location_fallback, today } = props;
     const { flash } = usePage<SharedData>().props;
-    const { perform, performWfh, reset, isBusy: isAttendanceBusy, phase, action, error } = useAttendanceActions({
+    const { performWfh, reset, isBusy: isAttendanceBusy, action } = useAttendanceActions({
         locationBypassEnabled: location_bypass_enabled,
         fallbackCoordinates: location_fallback,
     });
-    const {
-        perform: performBreak,
-        reset: resetBreak,
-        isBusy: isBreakBusy,
-        action: breakAction,
-    } = useAttendanceBreakActions();
-
-    const isSessionOpen = today.check_in_at !== null && today.check_out_at === null;
-    const netWorkingSeconds = useNetWorkingDuration({
-        checkInAt: today.check_in_at,
-        totalBreakSeconds: today.total_break_seconds,
-        activeBreakStartedAt: today.active_break_started_at,
-        isActive: isSessionOpen,
-        frozenNetSeconds: today.check_out_at !== null ? today.net_working_seconds : null,
-    });
-    const currentBreakSeconds = useBreakDuration(today.active_break_started_at, today.can_resume_work);
+    const { reset: resetBreak, isBusy: isBreakBusy } = useAttendanceBreakActions();
 
     useEffect(() => {
         if (flash?.error) {
@@ -101,24 +37,6 @@ export default function AttendanceMark({
             resetBreak();
         }
     }, [flash?.error, reset, resetBreak]);
-
-    const handleAction = async (nextAction: 'check_in' | 'check_out') => {
-        reset();
-        resetBreak();
-
-        try {
-            await perform(nextAction);
-        } catch {
-            // Error state is stored in the hook; flash may also carry server errors.
-        }
-    };
-
-    const handleBreakAction = async (nextAction: 'start' | 'resume') => {
-        reset();
-        resetBreak();
-
-        await performBreak(nextAction);
-    };
 
     const handleWfhAction = async (nextAction: 'check_in' | 'check_out') => {
         reset();
@@ -131,22 +49,7 @@ export default function AttendanceMark({
         }
     };
 
-    const canCheckInOffice =
-        today.can_check_in && (location_bypass_enabled || (office !== null && office.is_active));
-
     const isBusy = isAttendanceBusy || isBreakBusy;
-    const busyLabel =
-        phase === 'locating'
-            ? location_bypass_enabled
-                ? 'Saving attendance…'
-                : 'Getting location…'
-            : 'Verifying location and saving…';
-    const displayError = error ?? flash?.error ?? null;
-    const displaySuccess = flash?.success ?? null;
-
-    const totalBreakDisplaySeconds = today.can_resume_work
-        ? today.total_break_seconds + currentBreakSeconds
-        : today.total_break_seconds;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -238,8 +141,8 @@ export default function AttendanceMark({
                                     </p>
                                     {office.network_verification_enabled && (
                                         <p className="text-muted-foreground text-sm">
-                                            Office network verification is enabled. Check-in and check-out require office
-                                            Wi-Fi in addition to GPS.
+                                            Office network verification is enabled. Check-in and check-out require office Wi-Fi
+                                            in addition to GPS.
                                         </p>
                                     )}
                                 </>
@@ -261,195 +164,7 @@ export default function AttendanceMark({
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Clock3 className="size-5" strokeWidth={1.75} />
-                                Today&apos;s attendance
-                            </CardTitle>
-                            <CardDescription>
-                                {today.can_check_in &&
-                                    (location_bypass_enabled
-                                        ? 'Check in when you are ready to start your day.'
-                                        : 'Check in when you arrive at the office.')}
-                                {today.can_check_out && 'You are currently working. Start a break when you step away.'}
-                                {today.status === 'late' && today.can_check_out && 'You checked in late today. Start a break when you step away.'}
-                                {today.can_resume_work && 'You are on a break. Resume work when you return.'}
-                                {!today.can_check_in &&
-                                    !today.can_check_out &&
-                                    !today.can_start_break &&
-                                    !today.can_resume_work &&
-                                    today.check_out_at &&
-                                    'Your attendance for today is complete.'}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {today.check_in_at && (
-                                <div className="rounded-lg border border-[rgba(120,115,110,0.12)] bg-white px-4 py-3 text-sm">
-                                    <p className="text-muted-foreground">Check-in time</p>
-                                    <p className="text-foreground font-medium tabular-nums">{formatTimeLabel(today.check_in_at)}</p>
-                                </div>
-                            )}
-
-                            {isSessionOpen && (
-                                <div className="grid gap-3 sm:grid-cols-2">
-                                    <div
-                                        className={`rounded-lg border px-4 py-3 text-sm ${
-                                            today.can_resume_work
-                                                ? 'border-[rgba(120,115,110,0.12)] bg-white'
-                                                : today.status === 'late'
-                                                  ? 'border-amber-200 bg-amber-50 text-amber-900'
-                                                  : 'border-emerald-200 bg-emerald-50 text-emerald-900'
-                                        }`}
-                                    >
-                                        <p
-                                            className={
-                                                today.can_resume_work
-                                                    ? 'text-muted-foreground'
-                                                    : today.status === 'late'
-                                                      ? 'text-muted-foreground text-amber-900/80'
-                                                      : 'text-muted-foreground text-emerald-900/80'
-                                            }
-                                        >
-                                            Net working duration
-                                        </p>
-                                        <p className="text-2xl font-semibold tabular-nums">{formatDuration(netWorkingSeconds)}</p>
-                                    </div>
-
-                                    {(today.break_count > 0 || today.can_resume_work) && (
-                                        <div
-                                            className={`rounded-lg border px-4 py-3 text-sm ${
-                                                today.can_resume_work
-                                                    ? 'border-sky-200 bg-sky-50 text-sky-900'
-                                                    : 'border-[rgba(120,115,110,0.12)] bg-white'
-                                            }`}
-                                        >
-                                            <p
-                                                className={
-                                                    today.can_resume_work
-                                                        ? 'text-muted-foreground text-sky-900/80'
-                                                        : 'text-muted-foreground'
-                                                }
-                                            >
-                                                {today.can_resume_work ? 'Current break' : 'Total break time'}
-                                            </p>
-                                            <p className="text-2xl font-semibold tabular-nums">
-                                                {formatDuration(
-                                                    today.can_resume_work ? currentBreakSeconds : totalBreakDisplaySeconds,
-                                                )}
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {today.check_out_at && (
-                                <>
-                                    <div className="rounded-lg border border-[rgba(120,115,110,0.12)] bg-white px-4 py-3 text-sm">
-                                        <p className="text-muted-foreground">Check-out time</p>
-                                        <p className="text-foreground font-medium tabular-nums">{formatTimeLabel(today.check_out_at)}</p>
-                                    </div>
-                                    <div className="grid gap-3 sm:grid-cols-2">
-                                        <div className="rounded-lg border border-[rgba(120,115,110,0.12)] bg-white px-4 py-3 text-sm">
-                                            <p className="text-muted-foreground">Total break time</p>
-                                            <p className="text-foreground text-lg font-semibold tabular-nums">
-                                                {formatDuration(today.total_break_seconds)}
-                                            </p>
-                                            {today.break_count > 0 && (
-                                                <p className="text-muted-foreground mt-1 text-xs">
-                                                    {today.break_count} break{today.break_count === 1 ? '' : 's'} taken
-                                                </p>
-                                            )}
-                                        </div>
-                                        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-                                            <p className="text-muted-foreground text-emerald-900/80">Net working hours</p>
-                                            <p className="text-lg font-semibold tabular-nums">
-                                                {formatDuration(today.net_working_seconds ?? 0)}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-
-                            <div className="flex flex-wrap gap-3">
-                                {canCheckInOffice && (
-                                    <Button
-                                        type="button"
-                                        disabled={!can_mark_attendance || isBusy}
-                                        onClick={() => handleAction('check_in')}
-                                    >
-                                        {isAttendanceBusy && action === 'check_in' ? (
-                                            <LoaderCircle className="animate-spin" />
-                                        ) : (
-                                            <LogIn />
-                                        )}
-                                        Check In
-                                    </Button>
-                                )}
-
-                                {today.can_start_break && (
-                                    <Button
-                                        type="button"
-                                        variant="secondary"
-                                        disabled={!can_mark_attendance || isBusy}
-                                        onClick={() => handleBreakAction('start')}
-                                    >
-                                        {isBreakBusy && breakAction === 'start' ? (
-                                            <LoaderCircle className="animate-spin" />
-                                        ) : (
-                                            <Coffee />
-                                        )}
-                                        Start Break
-                                    </Button>
-                                )}
-
-                                {today.can_resume_work && (
-                                    <Button
-                                        type="button"
-                                        disabled={!can_mark_attendance || isBusy}
-                                        onClick={() => handleBreakAction('resume')}
-                                    >
-                                        {isBreakBusy && breakAction === 'resume' ? (
-                                            <LoaderCircle className="animate-spin" />
-                                        ) : (
-                                            <Play />
-                                        )}
-                                        Resume Work
-                                    </Button>
-                                )}
-
-                                {today.can_check_out && !today.is_wfh && (
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        disabled={!can_mark_attendance || isBusy}
-                                        onClick={() => handleAction('check_out')}
-                                    >
-                                        {isAttendanceBusy && action === 'check_out' ? (
-                                            <LoaderCircle className="animate-spin" />
-                                        ) : (
-                                            <LogOut />
-                                        )}
-                                        Check Out
-                                    </Button>
-                                )}
-                            </div>
-
-                            {isAttendanceBusy && <p className="text-muted-foreground text-sm">{busyLabel}</p>}
-
-                            {displayError && (
-                                <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-                                    {displayError}
-                                </div>
-                            )}
-
-                            {displaySuccess && (
-                                <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-                                    {displaySuccess}
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                    <TodayAttendanceCard attendance={props} variant="session" />
                 </div>
             </div>
         </AppLayout>

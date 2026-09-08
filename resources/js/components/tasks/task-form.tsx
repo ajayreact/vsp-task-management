@@ -17,6 +17,7 @@ export type TaskFormValues = {
     description: string;
     requirement: string;
     type: string;
+    creative_type: string;
     priority: string;
     estimated_hours: string;
     due_at: string;
@@ -27,6 +28,7 @@ export interface TaskFormOptions {
     projects: { id: number; name: string; code: string }[];
     departments: { id: number; name: string }[];
     types: Option[];
+    creativeTypes?: Option[];
     priorities: Option[];
     assignableEmployees?: { id: number; label: string }[];
     canAssign?: boolean;
@@ -151,6 +153,30 @@ export function TaskDetailsCard({
                         </SelectContent>
                     </Select>
                     <InputError message={errors.type} />
+                </div>
+
+                <div className="grid gap-2">
+                    <Label htmlFor="creative_type">Creative type</Label>
+                    <Select
+                        value={data.creative_type || NONE}
+                        onValueChange={(value) => setData('creative_type', value === NONE ? '' : value)}
+                    >
+                        <SelectTrigger id="creative_type">
+                            <SelectValue placeholder="None" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value={NONE}>None</SelectItem>
+                            {(options.creativeTypes ?? []).map((creativeType) => (
+                                <SelectItem key={creativeType.value} value={creativeType.value}>
+                                    {creativeType.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <p className="text-muted-foreground text-xs">
+                        Poster, Reel, and Video get a default quality checklist when the task is created or the creative type changes.
+                    </p>
+                    <InputError message={errors.creative_type} />
                 </div>
 
                 <div className="grid gap-2">

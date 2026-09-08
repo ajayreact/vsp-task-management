@@ -12,6 +12,11 @@ import { useState } from 'react';
 export interface TaskChecklistItemRow {
     id: number;
     title: string;
+    source?: string;
+    template_key?: string | null;
+    checklist_group?: string | null;
+    is_mandatory?: boolean;
+    is_system?: boolean;
     is_completed: boolean;
     completed_by: string | null;
     completed_at: string | null;
@@ -22,6 +27,9 @@ export interface TaskChecklistPayload {
     items: TaskChecklistItemRow[];
     completed: number;
     total: number;
+    required_incomplete?: number;
+    ready_blocked?: boolean;
+    ready_blocked_message?: string | null;
 }
 
 export function TaskChecklist({
@@ -38,12 +46,34 @@ export function TaskChecklist({
     const addForm = useForm<{ title: string }>({ title: '' });
     const percent = checklist.total === 0 ? 0 : Math.round((checklist.completed / checklist.total) * 100);
 
+    const qualityItems = checklist.items.filter((item) => item.checklist_group === 'quality');
+    const videoItems = checklist.items.filter((item) => item.checklist_group === 'video');
+    const hasGroupedDefaults = qualityItems.length > 0 || videoItems.length > 0;
+    const otherItems = checklist.items.filter((item) => item.checklist_group !== 'quality' && item.checklist_group !== 'video');
+    const displaySections = hasGroupedDefaults
+        ? [
+              ...(qualityItems.length > 0 ? [{ title: 'Quality checklist', items: qualityItems }] : []),
+              ...(videoItems.length > 0 ? [{ title: 'Video checklist', items: videoItems }] : []),
+              ...(otherItems.length > 0 ? [{ title: 'Additional checklist', items: otherItems }] : []),
+          ]
+        : [{ title: null as string | null, items: checklist.items }];
+
     const reorder = (order: number[]) => {
-        router.post(
-            `/tasks/${taskId}/checklist-items/reorder`,
-            { order },
-            { preserveScroll: true },
-        );
+        router.post(`/tasks/${taskId}/checklist-items/reorder`, { order }, { preserveScroll: true });
+    };
+
+    const moveWithinAll = (itemId: number, direction: 'up' | 'down') => {
+        const order = checklist.items.map((row) => row.id);
+        const index = order.indexOf(itemId);
+        if (index < 0) {
+            return;
+        }
+        const swapWith = direction === 'up' ? index - 1 : index + 1;
+        if (swapWith < 0 || swapWith >= order.length) {
+            return;
+        }
+        [order[index], order[swapWith]] = [order[swapWith], order[index]];
+        reorder(order);
     };
 
     return (
@@ -52,7 +82,10 @@ export function TaskChecklist({
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                         <CardTitle>Checklist</CardTitle>
-                        <CardDescription>Break work into smaller steps. Completing the checklist does not close the task.</CardDescription>
+                        <CardDescription>
+                            Break work into smaller steps. Completing the checklist does not close the task.
+                            {checklist.ready_blocked ? ' Required quality checks must be done before marking the creative Ready.' : ''}
+                        </CardDescription>
                     </div>
                     {checklist.total > 0 && (
                         <div className="text-right">
@@ -71,33 +104,36 @@ export function TaskChecklist({
                         />
                     </div>
                 )}
+                {checklist.ready_blocked && checklist.ready_blocked_message && (
+                    <p className="text-destructive mt-3 text-sm">{checklist.ready_blocked_message}</p>
+                )}
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
                 {checklist.items.length === 0 && <p className="text-muted-foreground text-sm">No checklist items yet.</p>}
 
-                <div className="space-y-2">
-                    {checklist.items.map((item, index) => (
-                        <ChecklistRow
-                            key={item.id}
-                            taskId={taskId}
-                            item={item}
-                            canManage={canManage}
-                            canComplete={canComplete}
-                            canMoveUp={canManage && index > 0}
-                            canMoveDown={canManage && index < checklist.items.length - 1}
-                            onMoveUp={() => {
-                                const order = checklist.items.map((row) => row.id);
-                                [order[index - 1], order[index]] = [order[index], order[index - 1]];
-                                reorder(order);
-                            }}
-                            onMoveDown={() => {
-                                const order = checklist.items.map((row) => row.id);
-                                [order[index], order[index + 1]] = [order[index + 1], order[index]];
-                                reorder(order);
-                            }}
-                        />
-                    ))}
-                </div>
+                {displaySections.map((section) => (
+                    <div key={section.title ?? 'all'} className="space-y-2">
+                        {section.title && (
+                            <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">{section.title}</h3>
+                        )}
+                        {section.items.map((item) => {
+                            const index = checklist.items.findIndex((row) => row.id === item.id);
+                            return (
+                                <ChecklistRow
+                                    key={item.id}
+                                    taskId={taskId}
+                                    item={item}
+                                    canManage={canManage}
+                                    canComplete={canComplete}
+                                    canMoveUp={canManage && index > 0}
+                                    canMoveDown={canManage && index < checklist.items.length - 1}
+                                    onMoveUp={() => moveWithinAll(item.id, 'up')}
+                                    onMoveDown={() => moveWithinAll(item.id, 'down')}
+                                />
+                            );
+                        })}
+                    </div>
+                ))}
 
                 {canManage && (
                     <form
@@ -152,6 +188,7 @@ function ChecklistRow({
     const [editing, setEditing] = useState(false);
     const editForm = useForm<{ title: string }>({ title: item.title });
     const deleteForm = useForm({});
+    const isSystem = item.is_system === true;
 
     const toggle = () => {
         router.patch(`/tasks/${taskId}/checklist-items/${item.id}/toggle`, {}, { preserveScroll: true });
@@ -172,7 +209,7 @@ function ChecklistRow({
             />
 
             <div className="min-w-0 flex-1">
-                {editing ? (
+                {editing && !isSystem ? (
                     <form
                         className="space-y-2"
                         onSubmit={(event) => {
@@ -205,6 +242,9 @@ function ChecklistRow({
                 ) : (
                     <>
                         <p className={cn('text-sm', item.is_completed && 'text-muted-foreground line-through')}>{item.title}</p>
+                        {item.is_mandatory && (
+                            <p className="text-muted-foreground mt-1 text-xs">Required before Ready</p>
+                        )}
                         {item.is_completed && item.completed_by && (
                             <p className="text-muted-foreground mt-1 text-xs">
                                 Completed by {item.completed_by}
@@ -223,24 +263,28 @@ function ChecklistRow({
                     <Button type="button" variant="ghost" size="icon" className="size-7" disabled={!canMoveDown} onClick={onMoveDown} aria-label="Move down">
                         <ChevronDown className="size-4" />
                     </Button>
-                    <Button type="button" variant="ghost" size="icon" className="size-7" onClick={() => setEditing(true)} aria-label="Edit item">
-                        <Pencil className="size-4" />
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive size-7"
-                        disabled={deleteForm.processing}
-                        onClick={() => {
-                            if (window.confirm('Remove this checklist item?')) {
-                                deleteForm.delete(`/tasks/${taskId}/checklist-items/${item.id}`, { preserveScroll: true });
-                            }
-                        }}
-                        aria-label="Delete item"
-                    >
-                        <Trash2 className="size-4" />
-                    </Button>
+                    {!isSystem && (
+                        <Button type="button" variant="ghost" size="icon" className="size-7" onClick={() => setEditing(true)} aria-label="Edit item">
+                            <Pencil className="size-4" />
+                        </Button>
+                    )}
+                    {!(isSystem && item.is_mandatory) && (
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive size-7"
+                            disabled={deleteForm.processing}
+                            onClick={() => {
+                                if (window.confirm('Remove this checklist item?')) {
+                                    deleteForm.delete(`/tasks/${taskId}/checklist-items/${item.id}`, { preserveScroll: true });
+                                }
+                            }}
+                            aria-label="Delete item"
+                        >
+                            <Trash2 className="size-4" />
+                        </Button>
+                    )}
                 </div>
             )}
         </div>

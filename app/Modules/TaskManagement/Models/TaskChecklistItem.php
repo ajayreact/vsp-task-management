@@ -11,6 +11,10 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $tm_task_id
  * @property string $title
+ * @property string $source
+ * @property string|null $template_key
+ * @property string|null $checklist_group
+ * @property bool $is_mandatory
  * @property bool $is_completed
  * @property int|null $completed_by_user_id
  * @property Carbon|null $completed_at
@@ -30,6 +34,10 @@ class TaskChecklistItem extends Model
     protected $fillable = [
         'tm_task_id',
         'title',
+        'source',
+        'template_key',
+        'checklist_group',
+        'is_mandatory',
         'is_completed',
         'completed_by_user_id',
         'completed_at',
@@ -43,9 +51,15 @@ class TaskChecklistItem extends Model
     {
         return [
             'is_completed' => 'boolean',
+            'is_mandatory' => 'boolean',
             'completed_at' => 'datetime',
             'sort_order' => 'integer',
         ];
+    }
+
+    public function isSystem(): bool
+    {
+        return $this->source === 'system';
     }
 
     /**

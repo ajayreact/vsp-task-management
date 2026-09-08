@@ -12,6 +12,7 @@ interface TaskProps {
     description: string | null;
     requirement: string | null;
     type: string;
+    creative_type: string | null;
     priority: string;
     estimated_hours: string | null;
     due_at: string | null;
@@ -47,6 +48,7 @@ export default function EditTask({ task, ...options }: TaskFormOptions & { task:
                         description: task.description ?? '',
                         requirement: task.requirement ?? '',
                         type: task.type,
+                        creative_type: task.creative_type ?? '',
                         priority: task.priority,
                         estimated_hours: task.estimated_hours ?? '',
                         due_at: task.due_at ?? '',

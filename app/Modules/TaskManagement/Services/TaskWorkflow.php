@@ -8,6 +8,7 @@ use App\Modules\TaskManagement\Enums\AssignmentAction;
 use App\Modules\TaskManagement\Enums\AssignmentMode;
 use App\Modules\TaskManagement\Enums\AssignmentStatus;
 use App\Modules\TaskManagement\Enums\TaskStatus;
+use App\Modules\TaskManagement\Exceptions\ProductivityException;
 use App\Modules\TaskManagement\Exceptions\TaskWorkflowException;
 use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Models\TaskAssignment;
@@ -25,6 +26,7 @@ class TaskWorkflow
         protected RecurringTaskService $recurring,
         protected OpenBoardBroadcastService $openBoardBroadcast,
         protected DashboardBroadcastService $dashboardBroadcast,
+        protected CreativeChecklistSyncService $checklistSync,
     ) {}
 
     /**
@@ -194,6 +196,14 @@ class TaskWorkflow
 
         $task = DB::transaction(function () use ($task, $target, $actor) {
             $this->guardTransition($task, $target);
+
+            if ($target === TaskStatus::InReview) {
+                try {
+                    $this->checklistSync->assertReadyForReview($task);
+                } catch (ProductivityException $exception) {
+                    throw TaskWorkflowException::checklistIncompleteForReady();
+                }
+            }
 
             return $this->moveTo($task, $target, $actor);
         });

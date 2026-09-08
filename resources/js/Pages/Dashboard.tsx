@@ -1,6 +1,7 @@
 import { DashboardPanel, PanelEmpty, PanelRow } from '@/components/admin/dashboard-panel';
 import { KpiStatCard, type KpiTone } from '@/components/admin/kpi-stat-card';
 import { PageHeader } from '@/components/admin/page-header';
+import { TodayAttendanceCard, type AttendanceMarkData } from '@/components/attendance/today-attendance-card';
 import { MyTodoWidget } from '@/components/todos/my-todo-widget';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -139,13 +140,20 @@ const OVERVIEW_TONES: Record<string, KpiTone> = {
 
 const PRIMARY_OVERVIEW_KEYS = ['in_progress', 'in_review', 'changes_requested', 'open_board', 'completed_today'];
 
-export default function Dashboard({ snapshot }: { snapshot: Snapshot }) {
+export default function Dashboard({
+    snapshot,
+    attendance = null,
+}: {
+    snapshot: Snapshot;
+    attendance?: AttendanceMarkData | null;
+}) {
     useDashboardRealtime();
 
     const showTasks = snapshot.modules.tasks;
     const isAgency = snapshot.scope === 'agency';
     const primaryOverview = snapshot.overview.filter((stat) => PRIMARY_OVERVIEW_KEYS.includes(stat.key));
     const extendedOverview = snapshot.overview.filter((stat) => !PRIMARY_OVERVIEW_KEYS.includes(stat.key));
+    const showProductivityRow = Boolean(snapshot.my_todo) || Boolean(attendance);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -175,17 +183,24 @@ export default function Dashboard({ snapshot }: { snapshot: Snapshot }) {
                     }
                 />
 
+                {showProductivityRow && (
+                    <section className="space-y-4">
+                        <SectionHeading title="My productivity" />
+                        <div
+                            className={
+                                snapshot.my_todo && attendance
+                                    ? 'grid items-start gap-4 lg:grid-cols-2'
+                                    : 'max-w-2xl'
+                            }
+                        >
+                            {snapshot.my_todo && <MyTodoWidget snapshot={snapshot.my_todo} />}
+                            {attendance && <TodayAttendanceCard attendance={attendance} compact variant="full" />}
+                        </div>
+                    </section>
+                )}
+
                 {showTasks && (
                     <>
-                        {snapshot.my_todo && (
-                            <section className="space-y-4">
-                                <SectionHeading title="My productivity" />
-                                <div className="max-w-2xl">
-                                    <MyTodoWidget snapshot={snapshot.my_todo} />
-                                </div>
-                            </section>
-                        )}
-
                         <section className="space-y-4">
                             <SectionHeading title="Task overview" />
                             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">

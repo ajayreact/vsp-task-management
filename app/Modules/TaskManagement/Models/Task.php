@@ -7,6 +7,7 @@ use App\Modules\Core\Models\Employee;
 use App\Modules\Core\Models\User;
 use App\Modules\TaskManagement\Enums\AssignmentMode;
 use App\Modules\TaskManagement\Enums\AssignmentStatus;
+use App\Modules\TaskManagement\Enums\ContentCalendarType;
 use App\Modules\TaskManagement\Enums\TaskPriority;
 use App\Modules\TaskManagement\Enums\TaskStatus;
 use App\Modules\TaskManagement\Enums\TaskType;
@@ -31,6 +32,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string|null $description
  * @property string|null $requirement
  * @property TaskType $type
+ * @property ContentCalendarType|null $creative_type
  * @property TaskPriority $priority
  * @property TaskStatus $status
  * @property AssignmentMode $assignment_mode
@@ -64,6 +66,7 @@ class Task extends Model implements HasMedia
         'description',
         'requirement',
         'type',
+        'creative_type',
         'priority',
         'status',
         'assignment_mode',
@@ -84,6 +87,7 @@ class Task extends Model implements HasMedia
     {
         return [
             'type' => TaskType::class,
+            'creative_type' => ContentCalendarType::class,
             'priority' => TaskPriority::class,
             'status' => TaskStatus::class,
             'assignment_mode' => AssignmentMode::class,

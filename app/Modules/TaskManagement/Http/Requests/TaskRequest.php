@@ -5,6 +5,7 @@ namespace App\Modules\TaskManagement\Http\Requests;
 use App\Modules\TaskManagement\Enums\SubtaskStatus;
 use App\Modules\TaskManagement\Enums\TaskPriority;
 use App\Modules\TaskManagement\Enums\TaskType;
+use App\Modules\TaskManagement\Enums\ContentCalendarType;
 use App\Modules\TaskManagement\Models\Task;
 use App\Modules\TaskManagement\Support\UploadLimits;
 use Illuminate\Foundation\Http\FormRequest;
@@ -27,6 +28,10 @@ class TaskRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        if ($this->has('creative_type') && $this->input('creative_type') === '') {
+            $this->merge(['creative_type' => null]);
+        }
+
         if (! $this->isMethod('post') || ! $this->routeIs('tasks.store')) {
             return;
         }
@@ -62,6 +67,7 @@ class TaskRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:5000'],
             'requirement' => ['nullable', 'string', 'max:65535'],
             'type' => ['required', Rule::enum(TaskType::class)],
+            'creative_type' => ['nullable', Rule::enum(ContentCalendarType::class)],
             'priority' => ['required', Rule::enum(TaskPriority::class)],
             'estimated_hours' => ['nullable', 'numeric', 'min:0', 'max:999'],
             'due_at' => ['nullable', 'date'],

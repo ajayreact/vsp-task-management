@@ -56,6 +56,7 @@ export default function CreateTask({
                         description: '',
                         requirement: '',
                         type: 'design',
+                        creative_type: '',
                         priority: 'normal',
                         estimated_hours: '',
                         due_at: defaultTaskDueAtInputValue(),

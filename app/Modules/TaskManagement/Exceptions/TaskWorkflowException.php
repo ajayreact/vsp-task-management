@@ -36,4 +36,9 @@ class TaskWorkflowException extends RuntimeException
     {
         return new self('That employee is not currently available for work.');
     }
+
+    public static function checklistIncompleteForReady(): self
+    {
+        return new self('Please complete all required checklist items before marking this creative as Ready.');
+    }
 }
