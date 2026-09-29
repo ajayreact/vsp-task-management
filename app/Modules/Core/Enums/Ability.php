@@ -56,6 +56,15 @@ enum Ability: string
 
     case ManageWfhRequests = 'attendance.wfh.manage';
 
+    case RecruiterAccess = 'recruiter.access';
+    case ViewRecruiterTeam = 'recruiter.team.view';
+    case ManageRecruiterTasks = 'recruiter.tasks.manage';
+    case ManageRecruiterTraining = 'recruiter.training.manage';
+    case AssignRecruiterTraining = 'recruiter.training.assign';
+    case ManageRecruiterAssessments = 'recruiter.assessments.manage';
+    case InviteRecruiterAssessments = 'recruiter.assessments.invite';
+    case ReviewRecruiterAssessments = 'recruiter.assessments.review';
+
     /**
      * Permission names retired with CRM, Portal, and Lead Management. Seeders
      * detach these from roles before deleting the permission rows.
@@ -116,6 +125,14 @@ enum Ability: string
             self::ApproveTimesheets => 'Approve or reject submitted timesheets',
             self::ReviewDeliverables => 'Approve, reject or request changes on proofs',
             self::ManageWfhRequests => 'Assign, approve and manage work from home',
+            self::RecruiterAccess => 'Open the Recruiter Operations module',
+            self::ViewRecruiterTeam => "View every recruiter's operational records",
+            self::ManageRecruiterTasks => 'Create, assign and manage recruiter tasks',
+            self::ManageRecruiterTraining => 'Author recruiter training and quizzes',
+            self::AssignRecruiterTraining => 'Assign training and quizzes to recruiters',
+            self::ManageRecruiterAssessments => 'Author recruiter quizzes and the question bank',
+            self::InviteRecruiterAssessments => 'Assign quizzes to recruiters',
+            self::ReviewRecruiterAssessments => 'Review and score recruiter quiz results',
         };
     }
 
@@ -141,6 +158,14 @@ enum Ability: string
             self::ApproveTimesheets => 'Timesheets',
             self::ReviewDeliverables => 'Creative review',
             self::ManageWfhRequests => 'Attendance',
+            self::RecruiterAccess,
+            self::ViewRecruiterTeam,
+            self::ManageRecruiterTasks,
+            self::ManageRecruiterTraining,
+            self::AssignRecruiterTraining,
+            self::ManageRecruiterAssessments,
+            self::InviteRecruiterAssessments,
+            self::ReviewRecruiterAssessments => 'Recruiter Operations',
         };
     }
 }

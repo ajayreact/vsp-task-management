@@ -13,6 +13,8 @@ enum SystemRole: string
     case TeamLead = 'team-lead';
     case Manager = 'manager';
     case Employee = 'employee';
+    case Recruiter = 'recruiter';
+    case RecruiterLead = 'recruiter-lead';
 
     public function label(): string
     {
@@ -22,6 +24,8 @@ enum SystemRole: string
             self::TeamLead => 'Team Lead',
             self::Manager => 'Manager',
             self::Employee => 'Employee',
+            self::Recruiter => 'Recruiter',
+            self::RecruiterLead => 'Recruiter Lead',
         };
     }
 
@@ -96,6 +100,21 @@ enum SystemRole: string
             // Cannot create, assign, publish, manage org structure, or open admin screens.
             self::Employee => [
                 Ability::AccessTasks,
+            ],
+            // US IT Staffing recruiters. Deliberately no tasks.access: the
+            // Digital Marketing task system is a different operation.
+            self::Recruiter => [
+                Ability::RecruiterAccess,
+            ],
+            self::RecruiterLead => [
+                Ability::RecruiterAccess,
+                Ability::ViewRecruiterTeam,
+                Ability::ManageRecruiterTasks,
+                Ability::ManageRecruiterTraining,
+                Ability::AssignRecruiterTraining,
+                Ability::ManageRecruiterAssessments,
+                Ability::InviteRecruiterAssessments,
+                Ability::ReviewRecruiterAssessments,
             ],
         };
     }

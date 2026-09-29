@@ -40,6 +40,8 @@ export interface NavItem {
     role?: string;
     /** Hidden when the signed-in user holds any of these roles. */
     hideForRoles?: string[];
+    /** Hidden when the signed-in user holds this permission, e.g. a shortcut already shown in another section. */
+    hideWhenPermission?: string;
 }
 
 export interface SharedData {

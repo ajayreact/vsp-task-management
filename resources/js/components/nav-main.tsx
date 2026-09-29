@@ -18,6 +18,10 @@ export function NavMain({ items = [], label = 'Platform', anyPermission }: { ite
             return false;
         }
 
+        if (item.hideWhenPermission && can(item.hideWhenPermission)) {
+            return false;
+        }
+
         if (item.role && !hasRole(item.role)) {
             return false;
         }
@@ -85,6 +89,11 @@ function isCurrent(currentUrl: string, itemUrl: string): boolean {
     // Mark attendance is an exact match only — admin attendance screens must not highlight it.
     if (itemUrl === '/attendance/mark') {
         return path === '/attendance/mark';
+    }
+
+    // The recruiter dashboard is the module root; its sibling screens must not highlight it.
+    if (itemUrl === '/recruiter') {
+        return path === '/recruiter';
     }
 
     return path.startsWith(`${itemUrl}/`);

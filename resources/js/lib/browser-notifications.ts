@@ -91,7 +91,7 @@ export function isImportantWorkNotification(event: string | null): boolean {
         return true;
     }
 
-    return event.startsWith('task.') || event.startsWith('timesheet.');
+    return event.startsWith('task.') || event.startsWith('timesheet.') || event.startsWith('recruiter.');
 }
 
 export function isSafeAppPath(url: string): boolean {
