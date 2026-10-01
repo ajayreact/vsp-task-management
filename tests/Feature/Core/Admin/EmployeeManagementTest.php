@@ -192,9 +192,72 @@ test('departments and designations seeder is idempotent', function () {
     $this->seed(DepartmentsAndDesignationsSeeder::class);
     $this->seed(DepartmentsAndDesignationsSeeder::class);
 
-    expect(Department::query()->whereIn('code', ['OPS', 'CRT', 'CONTENT', 'SEO'])->count())->toBe(4)
+    expect(Department::query()->whereIn('code', ['OPS', 'CRT', 'CONTENT', 'SEO', 'OPT-RECRUITING', 'BENCH-SALES'])->count())->toBe(6)
+        ->and(Department::query()->count())->toBe(6)
         ->and(Designation::query()->whereIn('code', [
             'OPS-HEAD', 'TEAM-LEAD', 'GRAPHIC-DESIGNER', 'CONTENT-WRITER', 'SEO-SPECIALIST',
             'SOFTWARE-DEVELOPER', 'SENIOR-SOFTWARE-DEVELOPER', 'SALES-MANAGER', 'ONBOARDING-TEAM-LEAD',
-        ])->count())->toBe(9);
+            'OPT-HEAD', 'SENIOR-OPT-RECRUITER', 'OPT-RECRUITER',
+            'BENCH-SALES-HEAD', 'SENIOR-BENCH-SALES-RECRUITER', 'BENCH-SALES-RECRUITER',
+        ])->count())->toBe(15)
+        ->and(Designation::query()->count())->toBe(15);
+});
+
+test('the seeder adds the OPT Recruiting and Bench Sales structure', function () {
+    $this->seed(DepartmentsAndDesignationsSeeder::class);
+
+    expect(Department::query()->whereIn('name', ['OPT Recruiting', 'Bench Sales'])->where('is_active', true)->pluck('name')->sort()->values()->all())
+        ->toBe(['Bench Sales', 'OPT Recruiting'])
+        ->and(Designation::query()->whereIn('code', ['OPT-HEAD', 'SENIOR-OPT-RECRUITER', 'OPT-RECRUITER', 'BENCH-SALES-HEAD', 'SENIOR-BENCH-SALES-RECRUITER', 'BENCH-SALES-RECRUITER'])->where('is_active', true)->pluck('name', 'code')->all())
+        ->toEqual([
+            'OPT-HEAD' => 'OPT Head',
+            'SENIOR-OPT-RECRUITER' => 'Senior OPT Recruiter',
+            'OPT-RECRUITER' => 'OPT Recruiter',
+            'BENCH-SALES-HEAD' => 'Bench Sales Head',
+            'SENIOR-BENCH-SALES-RECRUITER' => 'Senior Bench Sales Recruiter',
+            'BENCH-SALES-RECRUITER' => 'Bench Sales Recruiter',
+        ]);
+});
+
+test('the seeder does not duplicate or rename records an admin already created under another code', function () {
+    $department = Department::factory()->create(['code' => 'OPTR', 'name' => ' opt recruiting ']);
+    $designation = Designation::factory()->create(['code' => 'BSR', 'name' => 'BENCH SALES RECRUITER']);
+
+    $this->seed(DepartmentsAndDesignationsSeeder::class);
+
+    expect(Department::query()->whereRaw('LOWER(TRIM(name)) = ?', ['opt recruiting'])->count())->toBe(1)
+        ->and($department->fresh()->only(['code', 'name']))->toBe(['code' => 'OPTR', 'name' => ' opt recruiting '])
+        ->and(Department::query()->where('code', 'OPT-RECRUITING')->exists())->toBeFalse()
+        ->and(Designation::query()->whereRaw('LOWER(TRIM(name)) = ?', ['bench sales recruiter'])->count())->toBe(1)
+        ->and($designation->fresh()->only(['code', 'name']))->toBe(['code' => 'BSR', 'name' => 'BENCH SALES RECRUITER']);
+});
+
+test('seeding the catalogue leaves existing employees, departments, designations and roles untouched', function () {
+    $employee = Employee::factory()->create();
+    $employee->user->assignRole(SystemRole::Employee->value);
+    $before = $employee->fresh()->getAttributes();
+    $departmentBefore = $employee->department->getAttributes();
+    $designationBefore = $employee->designation->getAttributes();
+
+    $this->seed(DepartmentsAndDesignationsSeeder::class);
+
+    expect($employee->fresh()->getAttributes())->toBe($before)
+        ->and($employee->department->fresh()->getAttributes())->toBe($departmentBefore)
+        ->and($employee->designation->fresh()->getAttributes())->toBe($designationBefore)
+        ->and($employee->user->fresh()->getRoleNames()->all())->toBe([SystemRole::Employee->value]);
+});
+
+test('the employee form offers the staffing departments and designations', function () {
+    $this->seed(DepartmentsAndDesignationsSeeder::class);
+
+    $props = $this->actingAs(staffWith(Ability::ManageEmployees))
+        ->get('/admin/employees/create')
+        ->assertOk()
+        ->viewData('page')['props'];
+
+    expect(collect($props['departments'])->pluck('name')->all())->toContain('OPT Recruiting', 'Bench Sales')
+        ->and(collect($props['designations'])->pluck('name')->all())->toContain(
+            'OPT Head', 'Senior OPT Recruiter', 'OPT Recruiter',
+            'Bench Sales Head', 'Senior Bench Sales Recruiter', 'Bench Sales Recruiter',
+        );
 });
