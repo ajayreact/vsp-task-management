@@ -50,6 +50,10 @@ return [
         Hiding the work mode until after selection.
         Forgetting to inform payroll about moves.
 
+        From the company calling script
+        The OPT calling script asks two relocation questions: Re-location? and, Are you open for relocation for training and projects? It later explains that candidates must be open to relocating for the training and placement program. The Day 7 questionnaire records relocation status as one of three options: fully open, remote only, or local only.
+        Company-specific process: if relocation for training is part of the program, the location, accommodation and any costs must be confirmed in writing before you discuss them. Verify with HR or authorized personnel.
+
         Key takeaway
         Relocation must be genuine and realistic. Ask specific questions, record honestly, and share planned moves with HR and payroll.
         TEXT,
@@ -102,6 +106,10 @@ return [
         Accepting the total years on the resume without checking.
         Presenting academic projects as professional experience.
         Coaching candidates to exaggerate.
+
+        From the company calling script
+        The Day 7 questionnaire asks for total U.S. IT experience, in years and months. Record U.S. experience separately from experience in other countries, because some clients ask specifically for U.S. experience, and the candidate's real history must be described accurately in any submission.
+        Company-specific process: how internships, CPT roles and academic projects are presented in submissions follows the team's approved standard. Verify with HR or authorized personnel.
 
         Key takeaway
         Honest, well-understood experience is the foundation of a strong submission and a successful interview.
@@ -161,6 +169,10 @@ return [
         Using technical words you do not understand.
         Ignoring signs of interview fraud.
 
+        From the company calling script
+        The OPT calling script asks: So what kind of technology are you interested in? Its example is a candidate interested in SQL development. The Day 7 questionnaire records the primary technical stack, and the cold call script tells you to mention one or two core skills from the candidate's resume. Use the technology groups from Level 3, such as Java, Microsoft, data warehousing, databases, testing and cloud, to place the candidate's answer in the right group.
+        Company-specific process: which technologies the company currently trains or markets for is decided by management. Verify with HR or authorized personnel before offering training in any technology.
+
         Key takeaway
         Understand the stack well enough to ask good questions, match honestly and prepare candidates ethically.
         TEXT,
@@ -214,6 +226,11 @@ return [
         Guessing status from profiles.
         Giving immigration advice.
 
+        From the company calling script
+        The OPT calling script asks, Let me know what is your visa status? and then, Expire date of visa? The Day 7 questionnaire records the status as F-1 CPT, F-1 initial OPT, F-1 STEM OPT, or other. It also asks how many unemployment days remain, out of ninety for initial OPT or one hundred and fifty in total with STEM OPT, and whether the current employer is E-Verified, which matters for STEM OPT.
+        Ask for the expiry of the work authorization, meaning the EAD end date, rather than the visa stamp. An F-1 visa stamp in the passport can expire while the student's status remains valid.
+        Company-specific process: use only the approved wording for status questions, and never decide eligibility yourself. Verify with HR or authorized personnel.
+
         Key takeaway
         Ask approved questions consistently, record facts accurately, and leave legal decisions to HR and compliance.
         TEXT,
@@ -261,6 +278,10 @@ return [
         Recording a general field instead of the exact major.
         Judging candidates by university reputation.
 
+        From the company calling script
+        The Day 7 questionnaire records the current university name as part of the visa and work authorization section, because the university's DSO is the official contact for the student's OPT and STEM OPT records.
+        Company-specific process: if a university or program raises questions about eligibility, HR decides the next step. Verify with HR or authorized personnel.
+
         Key takeaway
         Accurate university and program details support honest submissions, smooth documentation and correct HR guidance.
         TEXT,
@@ -307,6 +328,10 @@ return [
         Assuming graduation means the candidate can start work.
         Mixing up the ceremony date and program end date.
         Not asking about the OPT application status.
+
+        From the company calling script
+        The OPT calling script asks, When did you finish masters? The Day 7 questionnaire records the graduation date as month and year. Write it in that format every time, for example May 2025, so that teammates and HR read it the same way.
+        Company-specific process: HR, not the recruiter, compares graduation, OPT and EAD dates when a question about eligibility arises. Verify with HR or authorized personnel.
 
         Key takeaway
         Graduation is not the same as work authorization. Record each date separately and compare them with the start date.
@@ -358,6 +383,10 @@ return [
         Recording dates in an unclear number format.
         Ignoring the EAD end date.
         Promising a start date before approval.
+
+        From the company calling script
+        The Day 7 questionnaire records the EAD card start date and end date as full dates, and the remaining unemployment days out of ninety or one hundred and fifty. Record all three. A candidate with a valid EAD but very few unemployment days left needs urgent and careful handling, and HR should be told.
+        Company-specific process: EAD copies are collected only through the approved secure process. Verify with HR or authorized personnel.
 
         Key takeaway
         EAD dates define when a candidate can work. Record them exactly, compare them carefully, and involve HR whenever there is doubt.

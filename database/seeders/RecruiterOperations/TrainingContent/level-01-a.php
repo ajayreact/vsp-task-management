@@ -43,6 +43,9 @@ return [
         Mixing up cities that share a name, such as Portland, Oregon, and Portland, Maine.
         Scheduling a call without checking the candidate's time zone.
 
+        Source note
+        The OPT Recruiter Training Material covers the states, their abbreviations, the time zones, the time difference from India and the phonetic alphabet, which are taught in the lessons that follow. It does not include a general introduction to the U.S. This lesson is based on general reference information and needs review and approval by the training manager.
+
         Key takeaway
         The U.S. is a large federal country with 50 states, several time zones and state-level rules. Accurate location, time and date details are the foundation of professional recruiting.
         TEXT,
@@ -67,6 +70,9 @@ return [
         Virginia, Washington, West Virginia, Wisconsin, Wyoming.
 
         Remember that Washington state, on the west coast, is different from Washington, D.C., the capital on the east coast.
+
+        From the company training material
+        The US Visa Types presentation opens with a U.S. map showing time zones, and a map of the states and their capitals. Study both maps alongside this lesson. Knowing where each state sits, and which time zone it uses, is the starting point for every location and scheduling question in recruiting. The OPT Recruiter Training Material groups the states by time zone, which you will learn in the U.S. Time Zones lesson.
 
         States you will see often in IT staffing
         Texas, with Dallas, Austin and Houston.
@@ -125,6 +131,14 @@ return [
         NE is Nebraska and NV is Nevada.
         WA is Washington state. DC is Washington, D.C.
 
+        From the company training material
+        The US Visa Types presentation includes a full state code table, listing each code with its state, and including DC for the District of Columbia. The OPT Recruiter Training Material also lists each state with its code in brackets. Two codes in that handout are wrong: it writes MO for Montana and Co for Colorado. The correct codes are MT for Montana and CO, in capitals, for Colorado.
+
+        Spelling on calls with the phonetic alphabet
+        The company training material also teaches a phonetic alphabet. On phone calls, letters such as B, D, P and T, or M and N, are easy to mishear. Recruiters spell names, email addresses and state codes using one word for each letter, for example N as in November, J as in Juliet, for New Jersey.
+        The handout uses some older words, such as Frankie, Nancy, Peter, Queen and Sugar. The standard international alphabet, which most U.S. clients and vendors recognise, is: Alpha, Bravo, Charlie, Delta, Echo, Foxtrot, Golf, Hotel, India, Juliet, Kilo, Lima, Mike, November, Oscar, Papa, Quebec, Romeo, Sierra, Tango, Uniform, Victor, Whiskey, X-ray, Yankee, Zulu. Use the standard words, and be consistent.
+        Example: My email is Kiran at our company domain. That is K as in Kilo, I as in India, R as in Romeo, A as in Alpha, N as in November.
+
         Practical example
         A requirement says Location, Columbus, OH, or Columbus, GA. These are two different cities: Columbus, Ohio, and Columbus, Georgia. Always read the state code, not only the city name.
 
@@ -181,6 +195,9 @@ return [
         Assuming the Midwest is in the middle of the country in every sense. It actually stretches from Ohio to the Dakotas.
         Treating a long-distance move as easy because two states are in the same region. Distances in the U.S. can be very large.
 
+        Source note
+        The company training material groups states by time zone, not by region. The regions in this lesson follow common U.S. usage. This lesson is based on general reference information and needs review and approval by the training manager.
+
         Key takeaway
         Regions give you a quick mental map of the U.S. Use them to plan sourcing, relocation conversations and scheduling.
         TEXT,
@@ -200,6 +217,9 @@ return [
         Texas. Dallas, Plano, Irving, Austin, Houston and San Antonio. All are in Central Time.
         Mountain West. Denver, Colorado. Phoenix, Arizona. Salt Lake City, Utah. These are in Mountain Time.
         West Coast. San Francisco, San Jose, Sunnyvale and Santa Clara, California. Los Angeles and San Diego, California. Seattle and Redmond, Washington. Portland, Oregon. All are in Pacific Time.
+
+        Cities named in the company training material
+        The OPT Recruiter Training Material mentions company offices in Atlanta, Georgia, Edison, New Jersey, and Dallas, Texas, and the calling script refers to headquarters in New Jersey and Texas. These statements are not consistent with each other. Company-specific process: confirm the current office locations with HR or authorized personnel before you mention them to a candidate. Edison is in Eastern Time, Atlanta is in Eastern Time, and Dallas is in Central Time.
 
         Suburbs and nearby cities
         Requirements often name a suburb instead of the main city. Plano and Irving are part of the Dallas area. Redmond and Bellevue are near Seattle. Edison and Piscataway are in central New Jersey. If you do not recognise a city, look it up and note the nearest major city and the state.
@@ -254,6 +274,9 @@ return [
         Common mistakes
         Assuming the whole U.S. has the same weather at the same time.
         Promising fast interview feedback during holiday weeks.
+
+        Source note
+        The company training documents do not cover U.S. seasons. This lesson is based on general reference information and needs review and approval by the training manager.
 
         Key takeaway
         Seasons affect graduation, hiring speed and relocation. A recruiter who understands the calendar plans outreach and follow-up at the right time.

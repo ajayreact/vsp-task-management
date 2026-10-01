@@ -22,6 +22,13 @@ return [
         Overtime policy, if any.
         Interview process.
 
+        From the company training material
+        The Job Description Analysis training defines a contract as a fixed-term position that may include an extension, and reminds recruiters that work authorization requirements depend on the client and the engagement.
+        The OPT Recruiter Training Material describes two kinds of contract.
+        Contract, Independent, also called 1099. The candidate works as a contractor for a company for the contract period. In January, the company sends the candidate Form 1099 showing the amount earned in the previous year. The candidate then files a tax return with the Internal Revenue Service, called the IRS, and pays both the employee and the employer share of taxes.
+        Contract, Corp to Corp. A contract between two companies, the client and a vendor. The vendor's consultant works with the client, and the client pays the vendor, sending the vendor a Form 1099.
+        The US MNC Staffing document adds that 1099 arrangements apply only to Green Card holders, U.S. citizens and TN visa holders. They are not used for OPT or STEM OPT candidates, who work as W2 employees.
+
         Why OPT candidates take contract roles
         Contract roles can offer quicker starts and practical U.S. experience related to the degree, which OPT candidates value. Whether a specific contract arrangement suits a candidate's OPT or STEM OPT situation is a question for HR and the candidate's DSO.
 
@@ -62,6 +69,13 @@ return [
         Clients deciding on conversion may consider the candidate's work authorization and whether the client will sponsor. Some clients do not sponsor visas, which may affect conversion for some candidates. Do not speculate. Share only information confirmed by the client or vendor.
         Conversion may involve a conversion fee or agreement between the client and your company. These are business terms handled by management.
         After conversion, salary and benefits are set by the client.
+
+        From the company training material
+        The Job Description Analysis training defines contract-to-hire as a role that starts as a contract and may convert to permanent employment after the agreed period.
+        The OPT Recruiter Training Material describes two versions.
+        Contract to Hire, Independent, or 1099. The candidate first works as a contractor and is later hired as a full-time, permanent employee. In January, the company sends a Form 1099 for the contract period and a Form W-2 for the wages earned after the hire, and the candidate files a tax return using both.
+        Contract to Hire, Corp to Corp. The vendor's consultant works with the client on contract for a period and is later hired as the client's permanent employee. The client sends the vendor a Form 1099 for the contract period.
+        For OPT candidates, the contract period is normally on W2 with the staffing company, not 1099.
 
         How to explain CTH to candidates
         This role starts as a six-month contract on our payroll. The client may consider converting you to a full-time employee after that, based on performance and their needs. Conversion is not guaranteed.
@@ -104,6 +118,10 @@ return [
 
         Full-time with your company
         Some staffing companies hire consultants as full-time salaried employees of the staffing company and place them on client projects. In this case, your company is the employer and runs payroll. Always know which model applies to the role you are discussing.
+
+        From the company training material
+        The Job Description Analysis training defines full-time or permanent as direct-hire employment with the client or employer. The OPT Recruiter Training Material calls this W2 salary with benefits: a full-time, permanent job where the employee is paid a salary and may receive benefits such as a joining bonus, vacation, holidays, workers' compensation, relocation expenses, leave encashment, an individual retirement account called an IRA, health, vision, dental and life insurance, a 401k retirement plan, education benefits and other retirement plans.
+        The handout also says the company usually pays the candidate when there is no job or between projects. Company-specific process: pay between projects and every benefit listed depend on company policy and the individual offer. Verify with HR or authorized personnel before mentioning any benefit to a candidate.
 
         Key details to confirm
         Employer name.
@@ -148,6 +166,15 @@ return [
         W2 hourly means the consultant is paid for each hour worked at an hourly rate.
         W2 salary means the consultant receives a fixed annual salary paid in regular instalments.
         Which applies depends on the employer and the role.
+
+        From the company training material
+        The OPT Recruiter Training Material explains W2 this way. On W2, the candidate works as an employee of a company. The employer takes care of the employee and of employee taxes. In January, the employer sends the employee a Form W-2 showing the previous year's wages and deductions, and the employee files a tax return with the IRS.
+        The handout lists who can work on W2: U.S. citizens, Green Card holders, EAD holders, TN holders, OPT, CPT, H-1B and L-1, among others.
+        It also describes three W2 types.
+        W2 salary with benefits. A full-time, permanent job with a salary and benefits.
+        W2 hourly with benefits. A full-time but temporary job, paid by the hour, with benefits. When the contract ends, the employee needs another assignment.
+        W2 hourly with no benefits. A full-time, temporary job, paid by the hour, without benefits.
+        The US MNC Staffing document adds that W2 applies to the company's own bench consultants, and that for W2 consultants the company bears insurance claims, taxes, overheads and some benefits.
 
         Why W2 matters for OPT candidates
         OPT and STEM OPT candidates usually work as employees. STEM OPT specifically requires a genuine employer-employee relationship with an E-Verify employer that has signed the I-983 training plan.
@@ -198,6 +225,11 @@ return [
         1099
         You may also hear 1099, which refers to an independent contractor paid without tax withholding, named after the tax form used. Like C2C, this is not a typical arrangement for OPT candidates. Follow company policy.
 
+        From the company training material
+        The US MNC Staffing document lists three payment types in recruiting. W2 is for the company's own bench consultants. C2C, Corp to Corp, is for other vendors' bench consultants. 1099 is only for Green Card holders, U.S. citizens and TN holders.
+        The OPT Recruiter Training Material explains Corp to Corp as a contract between one company, the client, and another company, the vendor. The vendor's consultant works with the client, and the client sends the vendor a Form 1099. In daily work, this means C2C is how you work with another employer's consultant: you call that employer, agree the rate, and sign the paperwork with the employer, not the consultant.
+        The company business plan also lists C2C marketing as a service line, meaning marketing profiles to client partners under C2C engagement models. Company-specific process: which consultants may be marketed under C2C is decided by management and compliance.
+
         What to do when C2C comes up
         If a requirement is C2C only, check with your lead whether your company can participate and under which arrangement.
         If an OPT candidate asks for C2C, explain politely that your company's process for OPT candidates is the approved arrangement, and refer questions to HR.
@@ -245,6 +277,9 @@ return [
 
         Rate split
         Some companies describe pay as a percentage split of the bill rate, for example a stated percentage to the consultant. This is a company-specific practice. Explain it only using your company's approved terms.
+
+        From the company training material
+        The US MNC Staffing document teaches recruiters to discuss the rate with W2 consultants directly, and with the employer for C2C consultants, to negotiate the rate, and to send a written rate confirmation before submission. It mentions keeping a minimum margin of five dollars for the company. Company-specific process: margin rules are set by management, and you should never mention margins to consultants or employers. The calling script's screening questionnaire also records the candidate's expected hourly rate, W2 or C2C.
 
         Discussing rates with candidates
         Ask for the candidate's expected rate or salary and whether it is W2.
@@ -309,6 +344,9 @@ return [
         Presenting gross pay as take-home pay.
         Calculating with the wrong number of pay periods.
 
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover gross pay. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
+
         Key takeaway
         Gross pay is earnings before deductions. Be clear that it is not the amount the consultant takes home.
         TEXT,
@@ -356,6 +394,9 @@ return [
         Promising take-home amounts.
         Guessing which taxes apply to an OPT consultant.
 
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover net pay. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
+
         Key takeaway
         Net pay is what remains after taxes and deductions. Payroll calculates it, and recruiters set honest expectations.
         TEXT,
@@ -397,6 +438,9 @@ return [
         Common mistakes
         Telling a consultant they will get a refund.
         Advising on W-4 choices.
+
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover federal income tax beyond the annual tax return. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
 
         Key takeaway
         Federal income tax is withheld from pay based on the W-4 and IRS rules. Know the concept and leave every tax question to payroll.
@@ -447,6 +491,9 @@ return [
         Common mistakes
         Recording only the client's headquarters as the work location.
         Telling a consultant how to fill in withholding forms.
+
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover withholding. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
 
         Key takeaway
         Withholding is how taxes are collected from each paycheck. Your accurate handoff makes it correct from day one.

@@ -49,6 +49,9 @@ return [
         Spending all your time on one source.
         Not tracking which sources work.
 
+        From the company training material
+        The Day 5 recruiter workflow puts sourcing after three steps: read the entire requirement, extract the location, duration, rate, skills, dates and client, and prioritise must-have against preferred criteria. Only then do you source, which the training defines as searching the right channels using targeted keywords. Its six sources of recruitment are job boards, professional network, vendor network, groups, internal database and direct communication. The US MNC Staffing document adds the order for staffing requirements: your hotlist first, then a mass mail to your vendor list, then a portal posting and a C2C search, and finally select the best one or two resumes.
+
         Key takeaway
         A clear search strategy turns sourcing into a repeatable process that delivers results faster.
         TEXT,
@@ -103,6 +106,9 @@ return [
         Ignoring spelling variations.
         Treating a keyword match as proof of experience.
 
+        From the company training material
+        The Job Description Analysis training's Data Architect example gives a model list of high-value keywords: AWS, Solution Architect, Enterprise Architect, API Gateway, Lambda, VPC, CloudFront, security architecture, Python and Java. It also warns: validate years of experience against the requirement instead of matching keywords alone. Keywords find candidates. They do not prove a match.
+
         Key takeaway
         Primary keywords define the core match. Keep the list short, include variations, and always verify.
         TEXT,
@@ -145,6 +151,9 @@ return [
         Using secondary keywords with AND from the start.
         Rejecting candidates without bonus skills.
         Forgetting to mention bonus skills in the submission.
+
+        From the company training material
+        The Job Description Analysis training separates primary skills from secondary or preferred skills. In its Java and AWS example, Spring, Spring Boot and Spring Security are preferred and Terraform is a plus. These are secondary keywords: use them to rank candidates who already have Core Java and AWS, not to remove candidates who lack them.
 
         Key takeaway
         Secondary keywords help you rank and stand out. Use them to refine, not to exclude.
@@ -190,6 +199,9 @@ return [
         Forgetting brackets, which changes the meaning.
         Overusing NOT.
         Using lower-case operators on platforms that need capitals.
+
+        Source note
+        The company training documents do not cover Boolean search. This lesson is based on general recruiting practice and needs review and approval by the training manager. Ask a senior recruiter which search strings your team uses on each portal.
 
         Key takeaway
         A few Boolean operators make searches precise. Build strings in groups, test them, and refine.
@@ -240,6 +252,21 @@ return [
         Spending ten minutes on a resume that fails a must-have.
         Judging candidates on personal characteristics.
         Treating red flags as proof of dishonesty.
+
+        From the company training material: what to check
+        The Job Description Analysis training lists what to check on every resume.
+        Required skills. Check primary and secondary skills against the JD.
+        Experience. Verify relevant years, projects and responsibilities.
+        Contact details. Confirm that the candidate's contact information is complete and usable.
+        Domain experience. Look for relevant industry or domain exposure.
+        LinkedIn. Review it for consistency and additional professional context.
+        Customised resume. Identify job-specific tailoring and relevant keywords.
+        References and checks. Follow company process for reference and background checks.
+        Public professional information. Use approved, lawful sources and avoid unsupported conclusions.
+
+        The company resume screening checklist
+        The training also gives a systematic checklist for every candidate: key qualifications and skills; relevant work experience; education and certifications; achievements and accomplishments; culture-fit indicators relevant to the role; job history and tenure pattern; formatting and readability; grammar and spelling; LinkedIn profile; and referrals and recommendations.
+        Its key takeaway is: screen the complete resume, not just keyword matches.
 
         Key takeaway
         Screen in a consistent order, starting with must-haves. Be fast, fair and curious, and save your questions for the call.
@@ -292,6 +319,9 @@ return [
         Asking yes-or-no questions such as Do you know Java?
         Hiding gaps from the vendor.
 
+        From the company training material
+        The Job Description Analysis training says to check primary and secondary skills against the JD, and to prioritise must-have skills and verify actual project experience. For the Data Architect example, its screening focus is to look for architecture governance together with AWS cloud architecture, security and integration experience, and to check enterprise-scale infrastructure or application design and stakeholder management. A candidate with only one of these areas is not a match, however many AWS keywords the resume contains.
+
         Key takeaway
         Required skills must be real and deep enough. Verify each one with specific questions and honest ratings.
         TEXT,
@@ -340,6 +370,9 @@ return [
         Choosing candidates by years only.
         Overlooking strong internships.
         Presenting projects as professional experience.
+
+        From the company training material
+        The Job Description Analysis training says to verify relevant years, projects and responsibilities. Its Java and AWS example shows how clients weigh this. The client's scoring framework gives ten percent to years of direct web development, thirty percent to development tools and skill levels, twenty-five percent to roles and project experience, fifteen percent to SDLC knowledge and experience, meaning the software development life cycle, and twenty percent to rate. Years alone count for only a tenth of the score. The training's tip is to use a client's stated scoring criteria as an additional screening guide, not as a substitute for reading the full requirement.
 
         Key takeaway
         Relevance matters more than raw years. Look at what the candidate actually did, and describe it honestly.
@@ -394,6 +427,9 @@ return [
         Skipping project questions.
         Presenting academic projects as jobs.
         Ignoring candidates who cannot explain their own projects.
+
+        From the company training material
+        In the Java and AWS example's scoring framework, roles and project experience carry twenty-five percent of the score, more than years of experience. The Job Description Analysis training repeats the point in its key takeaways: prioritise must-have skills and verify actual project experience. Ask what the candidate built, which part was theirs, and which tools they used, and compare the answers with the client's primary duties.
 
         Key takeaway
         Projects are the clearest evidence of skill. Explore them on every call, and describe them truthfully.

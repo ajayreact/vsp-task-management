@@ -36,6 +36,9 @@ return [
         Promising an exemption to make an offer look better.
         Quoting rates from memory.
 
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover Social Security tax. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
+
         Key takeaway
         Social Security tax is a shared payroll tax with special rules for some students. Understand the concept and leave the decision to payroll.
         TEXT,
@@ -70,6 +73,9 @@ return [
         Common mistakes
         Confusing Medicare tax with health insurance.
         Telling consultants their rates without checking with payroll.
+
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover Medicare tax. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
 
         Key takeaway
         Medicare tax is a shared payroll tax without a wage limit. It is not health insurance for the worker today.
@@ -108,6 +114,9 @@ return [
         Thinking FICA is a third tax in addition to Social Security and Medicare.
         Promising FICA exemption.
 
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover FICA. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
+
         Key takeaway
         FICA is the combined Social Security and Medicare payroll tax, shared by employee and employer.
         TEXT,
@@ -140,6 +149,9 @@ return [
         Common mistakes
         Telling a consultant FUTA is deducted from their pay.
         Mixing up unemployment benefits with OPT unemployment days.
+
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover FUTA. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
 
         Key takeaway
         FUTA is a federal unemployment tax paid only by employers. It is part of staffing costs, not an employee deduction.
@@ -177,6 +189,9 @@ return [
         Using the client's headquarters as the work state for a remote consultant.
         Not reporting a consultant's move.
 
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover state unemployment tax. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
+
         Key takeaway
         State unemployment taxes depend on where the work is done. Accurate and up-to-date work location information is essential.
         TEXT,
@@ -212,6 +227,9 @@ return [
         Telling a consultant what to put on the W-4.
         Sharing a filled-in W-4 from another consultant as an example.
 
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover Form W-4. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
+
         Key takeaway
         The W-4 tells the employer how much federal income tax to withhold. The employee completes it, payroll guides it, and recruiters stay out of it.
         TEXT,
@@ -242,6 +260,9 @@ return [
         Other forms
         Independent contractors receive Form 1099 instead of a W-2.
         Some nonresident employees may also receive other tax forms, depending on their situation. Payroll handles this.
+
+        From the company training material
+        The OPT Recruiter Training Material explains it the same way: the employer sends the W-2 form to the employee in January, for the previous year's wages and deductions, and the employee submits a tax return to the Internal Revenue Service. For a contract-to-hire candidate, the company sends both a Form 1099 for the contract period and a Form W-2 for the wages earned after the hire.
 
         Recruiter role
         Understand the difference between the W-2 form and W2 employment.
@@ -296,6 +317,9 @@ return [
         Confusing the EIN with the E-Verify number.
         Sharing the EIN casually with unknown contacts.
 
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover the Employer Identification Number. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
+
         Key takeaway
         The EIN identifies a business for tax purposes. Recognise it, and route all requests through HR.
         TEXT,
@@ -339,6 +363,9 @@ return [
         Promising a first pay date without checking.
         Forgetting to mention timesheet deadlines.
 
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover pay periods. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
+
         Key takeaway
         Pay periods define when consultants are paid. Use the payroll calendar to set accurate expectations from the first day.
         TEXT,
@@ -378,6 +405,33 @@ return [
         Interview slots. Times offered for interviews.
         Feedback. The client's response after an interview.
         Offboarding. The process when an assignment ends.
+
+        Terms from the company training material
+        The US MNC Staffing document lists terms every recruiter must know before starting work. In addition to those above, learn these.
+        Preferred vendor, or Tier 1 layer. A vendor with a direct, approved relationship with the client.
+        Blue chip company. A large, well-established, financially strong client.
+        BDM. Business Development Manager, who collects requirements and assigns them to recruiters.
+        Resource manager. The person who receives your submission package and forwards it.
+        NDA. Non-disclosure agreement, which protects confidential client and project information.
+        NCA. Non-compete agreement, which stops a consultant or employer from bypassing your company to work directly with the client.
+        MSA. Master Services Agreement, the main contract between two companies, under which individual assignments are placed.
+        R2R. The document's term for the right to represent, also written RTR.
+        Rate confirmation. A written confirmation of the agreed rate, sent before submission.
+        Submission template. The standard form with candidate details that goes with every submission.
+        Mass mailing. Sending a requirement to your whole vendor list so that vendors can offer matching consultants.
+
+        Technologies named in the company training material
+        The OPT Recruiter Training Material lists the technology groups the company recruits and trains for. Recognise these group names in requirements and resumes.
+        Java, including J2EE, Struts, Hibernate, JavaScript and HTML.
+        Microsoft technologies, including .NET, C sharp, ASP.NET, Visual Basic and SharePoint.
+        Data warehousing and ETL, including Informatica, data analysis, data modelling and data architecture.
+        Databases, including SQL, Oracle, Teradata and Sybase.
+        Reporting tools, including Business Intelligence tools, Crystal Reports and Oracle BI.
+        ERP, meaning enterprise resource planning, including SAP, PeopleSoft and Oracle Applications.
+        Testing, including QA analysts, white box and black box testing, Selenium, manual and automation testing.
+        System administration and networking, including Cisco, Linux, Unix, storage area networks and Solaris.
+        Web, including PHP and web development. Mobile, including Android and iOS. Middleware, including webMethods, IBM MQ and TIBCO.
+        Some of these names are older technologies. Today's requirements also commonly ask for cloud platforms such as AWS and Azure, Python, data engineering, and modern JavaScript frameworks.
 
         Using terms carefully
         Terms can mean slightly different things to different companies. When a vendor uses a term you are unsure about, ask politely. When you talk to candidates, explain terms in simple language, especially for new graduates.

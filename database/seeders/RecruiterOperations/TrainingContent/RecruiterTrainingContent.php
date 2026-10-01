@@ -33,4 +33,16 @@ class RecruiterTrainingContent
 
         return array_values($levels);
     }
+
+    /**
+     * Fingerprints of the bodies earlier releases shipped, which
+     * recruiter:training-content --refresh is allowed to replace.
+     *
+     * @return array<int, array<string, list<string>>>
+     */
+    public static function previous(): array
+    {
+        /** @var array<int, array<string, list<string>>> */
+        return require __DIR__.'/previous-content.php';
+    }
 }

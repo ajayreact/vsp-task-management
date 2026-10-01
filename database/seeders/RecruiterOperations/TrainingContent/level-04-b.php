@@ -19,6 +19,9 @@ return [
         Relocation assistance means the employer may help with moving costs. Confirm the details before mentioning this.
         Multiple locations means the role could be based in any of several listed cities.
 
+        From the company training material
+        The Job Description Analysis training lists location as the first mandatory detail to capture before sourcing: the city and state, whether the role is onsite, remote or hybrid, and any local requirement. Its two examples show why. The Data Architect role is in McLean, Virginia, day-one onsite. The Java and AWS role in Draper, Utah, is ninety percent remote, but Utah local with a driving licence, so a remote candidate in Texas would not qualify.
+
         How to analyse location
         Confirm the city and state.
         Identify the time zone.
@@ -66,6 +69,9 @@ return [
         Hybrid. The number of onsite days, whether those days are fixed, and whether this might change.
         Remote. Whether the consultant must live in a specific state or time zone, whether occasional travel to the office is needed, and the required working hours.
 
+        From the company training material
+        The training's examples show how precise a work mode can be. The Data Architect role is day-one onsite, with three days onsite and two remote. Day-one onsite means the consultant must be in the office from the very first day, so relocation must be complete before the start. The Java and AWS role is ninety percent remote, with possible in-person meetings, and the consultant must be based in Utah.
+
         Remote does not mean location-free
         Many remote roles restrict where the consultant may live, for example remote within the U.S. only, or remote, but must be in Eastern or Central Time.
         Some remote roles require travel to the office for the first week or for quarterly meetings.
@@ -104,6 +110,9 @@ return [
         What you need to know
         Duration is the expected length of a contract, such as three months, six months, twelve months, or long term. It is usually an estimate based on the project, not a promise.
         Duration may be followed by phrases such as with possible extension, likely to extend, or contract-to-hire.
+
+        From the company training material
+        The Job Description Analysis training defines duration as the contract length and possible extension. The US MNC Staffing document also tells recruiters to note the duration of the project and its type, such as full-time, contract or long term, when first studying a requirement.
 
         Reading duration phrases
         Six months plus, or six months with extension, means the client expects at least six months and may extend.
@@ -152,6 +161,9 @@ return [
         It may be all-inclusive, meaning no extra payments for expenses.
         It may be a maximum, often written as up to a certain amount.
 
+        From the company training material
+        The Job Description Analysis training lists rate as a mandatory detail: the pay or rate details and the conditions attached to them. Its Java and AWS example uses a client scoring framework in which rate counts for twenty percent of the candidate's score. So rate is not only a business detail. It directly affects whether a candidate is selected.
+
         Using the rate in your analysis
         Compare the rate with the skills and experience required. A senior role with a very low rate may be hard to fill.
         Ask your lead what pay rate your company can offer consultants for this requirement.
@@ -193,6 +205,9 @@ return [
         What you need to know
         The start date is when the client wants the consultant to begin. It may be exact, such as June 3, or general, such as immediate, within two weeks, or ASAP.
         Clients often move start dates, and onboarding steps such as background checks can take time. Treat the start date as a target, and plan for the steps needed to reach it.
+
+        From the company training material
+        The Job Description Analysis training calls this detail dates: the expected start date and end date. Capture both. The end date, together with the duration, tells you whether the assignment will run past the candidate's EAD end date.
 
         What can affect a candidate's start date
         Work authorization. The candidate's EAD must be valid on the start date. A candidate whose EAD starts after the client's date cannot begin earlier.
@@ -237,6 +252,9 @@ return [
         In requirement analysis, client means the end client, the organisation where the consultant will work. The requirement may name the client, describe it, or hide it.
         Between the client and your company there may be one or more vendors, such as a prime vendor or an implementation partner.
 
+        From the company training material
+        The Job Description Analysis training says to capture the client name or client information, where permitted. The US MNC Staffing document explains that requirements arrive from the client or from a preferred vendor, also called the Tier 1 layer, through the BDM, and that client names and project details are protected by the NDA.
+
         What to identify about the client
         The client name, if shared, and the industry.
         The vendor chain: who sent the requirement, and who that vendor works for.
@@ -277,6 +295,9 @@ return [
 
         What you need to know
         Most job descriptions mix essential requirements with optional ones. Clients reject candidates who miss must-have requirements, but often accept candidates who miss some preferred ones. Recruiters who confuse the two either reject good candidates or submit unsuitable ones.
+
+        From the company training material
+        In the Day 5 workflow, this is the Prioritize step: separate must-have from preferred criteria. The key takeaways add: prioritise must-have skills and verify actual project experience. In the training's Java and AWS example, Core Java and JEE are must-haves, while Spring, Spring Boot and Spring Security are marked preferred, and Terraform is a plus.
 
         Signals of must-have requirements
         Words such as required, must have, minimum, mandatory and essential.
@@ -331,6 +352,14 @@ return [
         OPT and STEM OPT accepted.
         Some government or defence roles require U.S. citizenship and security clearance.
 
+        From the company training material: the recruiter checkpoint
+        The Job Description Analysis training has a dedicated slide called Work Authorization, Recruiter Checkpoint. Its rule is: always read the actual requirement and confirm client-specific eligibility.
+        Do not assume. Visa eligibility can vary by client, role, contract type and conversion terms.
+        Capture the requirement. Record any stated restrictions, such as No H-1B, No CPT or OPT, or citizen-only language.
+        Confirm before submission. When wording is unclear, verify with the Account Manager or BDM before presenting the candidate.
+        Document accurately. Do not alter or misrepresent a candidate's work authorization.
+        The training's Java and AWS example includes the note that stated visa restrictions must be verified. The US MNC Staffing document also tells recruiters to note which visa statuses the client is looking for, such as Green Card, OPT, EAD, H-1B or U.S. citizen.
+
         Why requirements include these rules
         Some clients do not sponsor visas or prefer not to employ candidates who may need sponsorship later. Some government contracts legally require citizenship. Whatever the reason, the rule is set by the client. Recruiters must follow it.
 
@@ -372,6 +401,9 @@ return [
 
         What you need to know
         After analysing a requirement, your next step is to find matching candidates. Good searching starts with good keywords. Keywords come directly from your analysis: titles, primary skills, secondary skills, domain, location and other filters.
+
+        From the company training material
+        The Job Description Analysis training states the goal directly: convert the JD into searchable keywords and objective screening criteria. For its Data Architect example, it lists the high-value keywords as AWS, Solution Architect, Enterprise Architect, API Gateway, Lambda, VPC, CloudFront, security architecture, Python and Java. Notice that the list mixes titles, platforms, services and languages. That is exactly the pattern to follow in the steps below.
 
         Step one, list title keywords
         Write the main title and similar titles. For example, Java Developer, Java Engineer, Software Engineer Java, Backend Developer and Spring Boot Developer.
@@ -423,6 +455,9 @@ return [
 
         What you need to know
         Recruiters often receive more requirements than they can work on at once. Spending equal time on every requirement is not effective. Prioritise requirements that you have the best chance of filling, with clear information and responsive partners.
+
+        From the company training material
+        The US MNC Staffing document explains that the BDM assigns each requirement to a recruiter based on technology or skill set, so your priorities usually start with what the BDM has assigned to you. The Job Description Analysis training adds a final piece of advice: ask senior recruiters for role-specific screening practices, and observe how they analyse requirements.
 
         Factors that increase priority
         Clear and complete requirement details.

@@ -56,6 +56,9 @@ return [
         Reporting delays at the last minute.
         Losing contact during onboarding.
 
+        From the company training material
+        In the company's End-to-End Business Process, onboarding follows this order: the OPT recruiter collects documents; the HR or verification team reviews them; genuine, valid and required documents are confirmed; the offer letter is issued; and HR completes the required E-Verify process. The OPT Head coordinates with USA HR on onboarding and verification. Your role is to keep the candidate informed, follow up on missing items, and escalate unresolved issues to the OPT Head or USA HR.
+
         Key takeaway
         Onboarding awareness lets you prepare candidates and prevent surprises. HR leads, and you support.
         TEXT,
@@ -107,6 +110,9 @@ return [
         Creating offer documents yourself.
         Interpreting agreement clauses.
         Ignoring small differences in dates or rates.
+
+        From the company training material
+        The OPT recruiter's offer letter coordination duty is to coordinate with the OPT Head and HR after the required document review, assist with processing, and keep status and documentation records. The OPT Head keeps records of every offer letter issued. The business plan treats offer letters as a paid service. Company-specific process: an offer letter must describe a genuine position, and any question about cost goes to HR. Verify with HR or authorized personnel.
 
         Key takeaway
         Offer documents must match approved terms exactly. Check carefully, report differences, and leave the documents to HR.
@@ -164,6 +170,9 @@ return [
         Missing the home address for remote consultants.
         Delaying the handoff until the first week.
 
+        From the company training material
+        The OPT recruiter's payroll follow-up duty is to follow up with active candidates about required payroll hours, track payroll status, coordinate with the Accountant or HR, and escalate payment or payroll issues to the OPT Head. The Accountant processes the applicable tax and payroll obligations, and then payroll is run. Recruiters never collect money from candidates, and never advise on tax.
+
         Key takeaway
         A complete and timely payroll handoff means the consultant is paid correctly from the first pay period.
         TEXT,
@@ -214,6 +223,9 @@ return [
         Recording the client's state for remote consultants.
         Learning about moves after they happen.
         Telling consultants a state has no tax impact.
+
+        Source note
+        The company training documents ask for the candidate's location and relocation plans, but do not cover work-state rules for payroll. This lesson is based on general payroll practice and needs review and approval by payroll and the training manager.
 
         Key takeaway
         The work state drives taxes and compliance. Record it accurately and report changes before they happen.
@@ -270,6 +282,9 @@ return [
         Using unclear date formats.
         Allowing early starts for training.
 
+        From the company training material
+        The Job Description Analysis training says to capture the expected start and end dates of every requirement. The Day 7 questionnaire records the candidate's notice period or availability, the EAD start and end dates, and the end date of any current project. Compare all of these before anyone confirms a start date.
+
         Key takeaway
         A correct start date is confirmed with everyone, checked against authorization and communicated clearly in writing.
         TEXT,
@@ -322,6 +337,9 @@ return [
         Estimating net pay.
         Guessing first pay dates.
         Encouraging inaccurate timesheets.
+
+        From the company training material
+        The OPT Recruiter Training Material explains the basics you may share: on W2, the employer handles employee taxes and sends a Form W-2 in January showing the previous year's wages and deductions, and the employee files a tax return with the IRS. It also explains the three W2 types: salary with benefits, hourly with benefits, and hourly without benefits. Anything beyond these basics goes to payroll.
 
         Key takeaway
         Share approved pay basics clearly, and connect consultants with payroll for everything else.
@@ -381,6 +399,9 @@ return [
         Waiting until the problem is urgent.
         Trying to resolve legal or HR issues yourself.
         Escalating with vague or emotional messages.
+
+        From the company training material
+        The company role documents set the escalation path. Escalate unresolved E-Verify and verification issues to the OPT Head or USA HR. Escalate payment or payroll issues to the OPT Head. Unclear work authorization wording in a requirement goes to the Account Manager or BDM before submission. The OPT Head reports to the Operations Head.
 
         Key takeaway
         Good escalation is early, factual and directed to the right person. It protects candidates, consultants and your company.

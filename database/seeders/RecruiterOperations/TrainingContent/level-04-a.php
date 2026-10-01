@@ -21,6 +21,17 @@ return [
         Decide the priority of the requirement against your other work.
         The following lessons cover each of these parts in turn.
 
+        From the company training material
+        This level follows the Day 5 Job Description Analysis training. By the end of it, you should be able to understand requirements and break them into actionable sourcing criteria, analyse job descriptions for must-have skills, experience, responsibilities and job conditions, screen resumes against requirement-specific keywords and experience, and source accurately.
+        The training describes the recruitment process in four steps. First, get the requirement from the Account Manager or the BDM. Second, identify sources, such as Dice, job posts, vendors, groups, the internal database and your network. Third, identify qualified people by matching skills, experience, location, rate and work authorization. Fourth, communicate: discuss the opportunity and confirm the candidate's interest and details.
+        It then gives the Day 5 recruiter workflow in six words. Read the entire requirement. Extract the location, duration, rate, skills, dates and client. Prioritize must-have against preferred criteria. Source through the right channels with targeted keywords. Screen skills, experience, location and other conditions. Communicate to confirm interest and fit before submission.
+        Its key message is: the quality of sourcing starts with the quality of requirement analysis.
+
+        The two requirement examples from the training
+        Example one is a Data Architect in McLean, Virginia, day-one onsite, three days onsite and two remote, on contract. It asks for five or more years of architecture governance, technology selection, architecture review boards and cloud migration, five or more years of AWS solutions, enterprise cloud and application security, API gateways and integration patterns, and an enterprise or solution architect background with Python or Java. The AWS stack includes EC2, ECS Fargate, Lambda, PostgreSQL, MongoDB, SageMaker, Athena, Glue, VPC and CloudFront.
+        Example two is a Java and AWS Full Stack Developer in Draper, Utah, ninety percent remote, on a twelve-month contract, Utah local with a driving licence. It asks for twelve or more years of experience, Core Java and JEE, with Spring, Spring Boot and Spring Security preferred, HTML5, CSS and JavaScript frameworks, REST and SOAP services, AWS API Gateway, Elastic Beanstalk and CloudFormation, with Terraform as a plus, and CI and CD, GitHub and SQL. It also mentions a video interview, a ten-panel drug test, and visa restrictions that must be verified.
+        You will see these two examples again in later lessons.
+
         The running example used in this level
         Title: Java Developer.
         Client: a large banking client.
@@ -65,6 +76,11 @@ return [
         U.S. job descriptions follow a familiar pattern, although every company writes them differently. Most include a job title, a summary of the role, a description of the company, responsibilities, required qualifications, preferred qualifications, and sometimes pay and benefits.
         Staffing requirements often add a header from the vendor with location, duration, rate, engagement type, interview process and submission instructions. Read both the header and the description.
 
+        From the company training material
+        The Job Description Analysis training defines a job description as a written statement describing the role, its expectations and its qualifications. It helps the recruiter understand what the client needs and what the selected candidate will do. It may be used externally to attract applicants, or internally to define responsibilities. A good JD gives a clear picture of the position, the required capabilities and the working conditions.
+        The recruiter's goal is to convert the JD into searchable keywords and objective screening criteria.
+        The training tells you to read beyond the job title, in eight parts: the job title, the summary, the company description, the requirements or qualifications, the experience, the skills, the responsibilities, and the pay or benefits. The next eight lessons cover these parts in that order.
+
         How to read a JD efficiently
         First pass. Read the whole JD quickly. Ask yourself what the person will actually do every day.
         Second pass. Highlight the title, the location and work mode, the duration, the start date, and the must-have skills.
@@ -106,6 +122,9 @@ return [
 
         What you need to know
         The job title is the first clue to the role, but titles vary widely between companies. A Software Engineer at one company may do the same work as a Java Developer at another. A Data Analyst at one client may need advanced engineering skills, while at another the role is mainly reporting.
+
+        From the company training material
+        The Job Description Analysis training gives one rule for the title: titles vary by company, so do not judge a role by its title alone. Its key takeaways repeat this: do not rely on the job title alone, read the summary, skills and responsibilities. For example, the training's Data Architect requirement also expects an enterprise or solution architect background, so profiles titled Solution Architect or Enterprise Architect are relevant even though the title says Data Architect.
 
         Parts of a title
         Level, such as junior, associate, mid-level, senior, lead, principal or architect.
@@ -152,6 +171,9 @@ return [
         The job summary, sometimes called the position overview or about the role, is a short paragraph at the start of the JD. It explains why the role exists and what the person will mainly do.
         Summaries are often written in marketing language, so look past phrases like exciting opportunity and dynamic team to find the facts.
 
+        From the company training material
+        The Job Description Analysis training says the summary is where you look for the role's focus, the business context and useful keywords.
+
         What to look for
         The main purpose of the role, such as building new features, maintaining existing systems, migrating to the cloud or supporting reporting.
         The team or project, such as a payments platform or a data warehouse.
@@ -190,6 +212,9 @@ return [
 
         What you need to know
         Many JDs include a paragraph about the company, sometimes called about us. In staffing requirements, this may describe the end client, the vendor, or may be removed to keep the client confidential.
+
+        From the company training material
+        The Job Description Analysis training says the company description helps you understand the organisation and the working environment. The requirement analysis slide adds that client name or client information should be captured where permitted.
 
         What the company description can tell you
         The industry or domain, such as banking, insurance, healthcare, retail, telecom, automotive or government.
@@ -233,6 +258,9 @@ return [
         The qualifications section lists what the client expects a candidate to have. It is often split into required or minimum qualifications and preferred or desired qualifications.
         Qualifications may include education, years of experience, technical skills, certifications, domain knowledge and soft skills such as communication.
 
+        From the company training material
+        The Job Description Analysis training says the requirements or qualifications section is where you identify education, experience, achievements and other qualifications. Its resume screening checklist then asks you to check key qualifications and skills, education and certifications, and achievements for every candidate.
+
         Education
         Many IT roles ask for a bachelor's degree in computer science, engineering, information technology or a related field. Some accept equivalent experience.
         For OPT candidates, education is especially important, because OPT work must relate to the degree. Note the candidate's degree and major for every requirement. Remember that decisions about whether a job relates to a degree are made by HR and the candidate's DSO, not by recruiters.
@@ -274,6 +302,9 @@ return [
 
         What you need to know
         Experience requirements are usually stated in years, for example three or more years of Java development. They may refer to total IT experience, experience with a specific technology, or experience in a domain. Read carefully to see which one is meant.
+
+        From the company training material
+        The Job Description Analysis training says to capture the required years and the relevant domain or project experience. For the Data Architect example, it tells recruiters to validate years of experience against the requirement instead of matching keywords alone. The second example, the Java and AWS developer, requests twelve or more years and scores years of direct web application development separately, so the type of experience matters as much as the total.
 
         Types of experience
         Total professional experience across all jobs.
@@ -320,6 +351,9 @@ return [
 
         What you need to know
         The skills section is the heart of most IT requirements. It lists programming languages, frameworks, databases, tools, platforms and methods. Some JDs list a few skills clearly. Others list twenty or more, mixing core skills with minor ones.
+
+        From the company training material
+        The Job Description Analysis training says to separate required skills from preferred or nice-to-have skills, and lists primary and secondary or preferred skills as mandatory details to capture before sourcing. Its Data Architect example groups skills exactly this way: architecture, cloud, security, integration, development and the AWS stack.
 
         Grouping skills
         Group the skills into categories to understand the role.
@@ -371,6 +405,9 @@ return [
         What you need to know
         The responsibilities section, sometimes called duties or what you will do, lists the tasks the person will perform. It often reveals more about the real role than the skills list does.
 
+        From the company training material
+        The Job Description Analysis training says the responsibilities show the actual day-to-day work, what the consultant will actually do. Its Java and AWS developer example lists the primary duties: architect, design, configure, implement, diagnose, repair, upgrade and optimise applications; anticipate the impact of new software on existing systems; take part in systems design based on user needs; monitor processes and recommend improvements; adapt agency-specific systems and integrations; identify problems and recommend solutions; and support other developers with troubleshooting. Reading a list like this tells you the role needs a senior, hands-on engineer who also supports others, not only a coder.
+
         What responsibilities reveal
         The type of work, such as building new features, maintaining legacy systems, fixing production issues, migrating systems, writing reports or testing.
         The level of ownership, through words like design, lead, own, mentor, support or assist.
@@ -417,6 +454,9 @@ return [
         What you need to know
         U.S. requirements may show pay as an hourly rate, an annual salary range, or not at all. Some U.S. states and cities have pay transparency laws that require salary ranges in job postings, so you will see ranges more often than in the past.
         In staffing requirements, the rate shown by a vendor is usually the bill rate in the chain, not the consultant's pay rate. Level 3 explains bill rate and pay rate.
+
+        From the company training material
+        The Job Description Analysis training says to capture the rate or salary and any stated benefits or conditions. Conditions can be easy to miss. The Java and AWS example says equipment is provided by the agency, and it includes a video interview and a drug test. These are part of the pay and working conditions a candidate needs to know.
 
         Common pay formats
         An hourly rate, for example per hour on W2.

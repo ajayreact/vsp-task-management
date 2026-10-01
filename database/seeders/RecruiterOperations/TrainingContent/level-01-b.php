@@ -50,6 +50,9 @@ return [
         Treating EOD as the end of your own day in India.
         Using casual slang with clients before you understand their tone.
 
+        Source note
+        The company training documents do not cover U.S. date formats and business-day conventions. This lesson is based on general reference information and needs review and approval by the training manager.
+
         Key takeaway
         Read dates as month, day, year, count business days carefully, and always tie deadlines to the client's time zone.
         TEXT,
@@ -102,6 +105,9 @@ return [
         Expecting quick feedback during Thanksgiving or Christmas week.
         Calling a candidate at 7 AM their time because it suited your shift.
 
+        Source note
+        The company training documents do not cover U.S. holidays and business hours. This lesson is based on general reference information and needs review and approval by the training manager.
+
         Key takeaway
         Plan your work around U.S. business hours and holidays. Good timing makes your outreach more effective and more professional.
         TEXT,
@@ -129,6 +135,21 @@ return [
 
         Arizona
         Most of Arizona does not use Daylight Saving Time. In summer, Arizona matches Pacific Time. In winter, it matches Mountain Time.
+
+        From the company training material
+        The OPT Recruiter Training Material teaches four main time zones, Eastern Standard Time, Central Standard Time, Mountain Standard Time and Pacific Standard Time, written as EST, CST, MST and PST, plus two other zones, Alaska Standard Time and Hawaii Standard Time. It then groups the states under each zone. Learn the groups below. They follow the handout, with a few corrections where the handout placed a state in the wrong zone.
+        Eastern Time. Connecticut, Delaware, Georgia, Maine, Maryland, Massachusetts, New Hampshire, New Jersey, New York, North Carolina, Ohio, Pennsylvania, Rhode Island, South Carolina, Vermont, Virginia and West Virginia, plus Washington, D.C. Most of Florida, Indiana and Michigan, and the eastern part of Kentucky and Tennessee, are also Eastern.
+        Central Time. Alabama, Arkansas, Illinois, Iowa, Louisiana, Minnesota, Mississippi, Missouri, Oklahoma and Wisconsin. Most of Texas, Kansas, Nebraska, North Dakota, South Dakota and Tennessee, and the western part of Kentucky, are also Central.
+        Mountain Time. Arizona, Colorado, Montana, New Mexico, Utah and Wyoming, and most of Idaho. The El Paso area of Texas is also Mountain.
+        Pacific Time. California, Nevada, Oregon and Washington, and the northern part of Idaho.
+        Alaska Time. Alaska.
+        Hawaii-Aleutian Time. Hawaii.
+
+        Corrections to the original handout
+        Texas is in Central Time, except the El Paso area. The handout listed Texas under Eastern Time with a note about the company headquarters. A company office never changes a state's time zone.
+        Hawaii is not in Mountain Time, and Alaska is not in Pacific Time. Each has its own zone.
+        Indiana, Kentucky, Michigan, Florida, Tennessee and several other states are split between two zones, so check the city.
+        The handout wrote MO for Montana. The correct code is MT. MO is Missouri.
 
         Practical example
         A hiring manager in Chicago wants a call at 11 AM. The candidate lives in San Jose. Chicago is Central Time and San Jose is Pacific Time, two hours earlier. The candidate must join at 9 AM Pacific Time. You write both times in the invitation: 11 AM Central, 9 AM Pacific.
@@ -169,7 +190,11 @@ return [
         Mountain Time, twelve hours thirty minutes.
         Pacific Time, thirteen hours thirty minutes.
 
-        Arizona stays twelve hours thirty minutes behind India all year. Hawaii stays fifteen hours thirty minutes behind India all year.
+        Arizona stays twelve hours thirty minutes behind India all year. Hawaii stays fifteen hours thirty minutes behind India all year. Alaska is thirteen hours thirty minutes behind India in summer and fourteen hours thirty minutes behind in winter.
+
+        From the company training material
+        The OPT Recruiter Training Material gives one set of differences between India and the U.S.: Eastern nine hours thirty minutes, Central ten hours thirty minutes, Mountain eleven hours thirty minutes, Pacific twelve hours thirty minutes, Alaska thirteen hours thirty minutes and Hawaii fourteen hours thirty minutes.
+        Use these figures with care. The first five are correct only while the U.S. is on daylight time, roughly March to November. In winter, add one hour to each. The Hawaii figure in the handout is wrong. Hawaii does not change its clocks, so it is fifteen hours thirty minutes behind India all year. The lists above in this lesson cover both seasons, so use them instead of the single list in the handout.
 
         How to convert
         To get U.S. time from India time, subtract the difference.
@@ -216,6 +241,9 @@ return [
         In March, when U.S. clocks move forward, the gap between India and the U.S. becomes one hour smaller. A 10 AM Eastern call moves from 8:30 PM India time to 7:30 PM India time.
         In November, when U.S. clocks move back, the gap becomes one hour larger. The same 10 AM Eastern call moves from 7:30 PM to 8:30 PM India time.
         Your shift timing in India may need to move by one hour to match U.S. business hours.
+
+        Why this matters for the company handout
+        The OPT Recruiter Training Material lists one fixed time difference for each zone, for example nine hours thirty minutes between India and Eastern Time. That figure is the summer, daylight time difference. In winter, after U.S. clocks move back in November, the difference is ten hours thirty minutes. Whenever you use the handout's list, ask yourself which season it is.
 
         Other countries
         Europe and some other countries also change their clocks, but on different dates. For a few weeks each year, the gap between the U.S. and Europe is different from usual. This matters only if your client or candidate is outside the U.S.

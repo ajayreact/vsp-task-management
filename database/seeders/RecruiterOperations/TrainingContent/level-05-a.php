@@ -51,6 +51,9 @@ return [
         Asking for a resume and visa details in the first message.
         Relying on the profile without confirming details on a call.
 
+        From the company training material
+        The OPT Recruiter Training Material lists social networking sites, LinkedIn, Facebook and Twitter, as one of the three ways to source candidates, with job portals and the previous database. The calling script's sixty-second cold call opens with: I came across your profile on LinkedIn, so the message and the call should refer to what you actually saw on the profile.
+
         Key takeaway
         LinkedIn works best with a professional profile, targeted searches and short, personal messages.
         TEXT,
@@ -103,6 +106,9 @@ return [
         Trusting profile fields without confirming them.
         Saving resumes on personal devices.
 
+        From the company training material
+        Dice is named in all three company documents. The OPT Recruiter Training Material lists it as a job portal, the Job Description Analysis training describes job boards as Dice search and relevant job-posting channels, and the calling script's cold call refers to profiles found on LinkedIn or Dice. The US MNC Staffing document adds that if your hotlist and vendor mailing do not produce a match, you post the requirement in a portal and search portals for C2C consultants.
+
         Key takeaway
         Dice is a strong source for active technology candidates. Search with focused keywords and recent activity, and confirm everything directly.
         TEXT,
@@ -152,6 +158,9 @@ return [
         Letting applications sit for days.
         Posting confidential client names without approval.
 
+        From the company training material
+        The OPT Recruiter Training Material names four job portals for OPT sourcing: desiOPT, simplyOPT, Dice and Monster. desiOPT and simplyOPT are portals aimed specifically at OPT candidates. The Job Description Analysis training lists job boards, meaning Dice search and relevant job-posting channels, as the first source of recruitment. Use only the portals your company holds approved accounts for, and follow each portal's terms.
+
         Key takeaway
         Job boards bring active candidates. Post clearly and fairly, respond quickly, and handle personal data responsibly.
         TEXT,
@@ -195,6 +204,9 @@ return [
         Contacting people only when you need something.
         Sharing personal details without consent.
         Sending frequent, irrelevant messages.
+
+        From the company training material
+        The Job Description Analysis training defines the professional network as friends, colleagues and recruiter networks, and its recruitment process includes your network as one of the places to identify candidates. The OPT calling script ends each call by asking for referrals: do you have friends who are looking for a job? Company-specific process: the script mentions a referral bonus. Verify with HR or authorized personnel whether a referral program exists and what its terms are before mentioning any amount.
 
         Key takeaway
         Your network grows with every professional interaction. Invest in it consistently, and it will bring strong candidates.
@@ -248,6 +260,9 @@ return [
         Ignoring vendor feedback.
         Failing to report a candidate withdrawal.
 
+        From the company training material
+        The Job Description Analysis training describes the vendor network in one line: send requirements to trusted vendors. The US MNC Staffing document describes how vendors are used when your own bench has no match. You send the requirement to your whole vendor list in a mass mail, and vendors reply with their consultants. You then call the vendor, who is the consultant's employer, to discuss the rate, request the employer details, and sign an NDA and an NCA before submitting. The document also mentions vendors' hotlists, which are lists of their available consultants.
+
         Key takeaway
         Vendors bring the requirements. Reliable, accurate and respectful work earns their trust and their best opportunities.
         TEXT,
@@ -294,6 +309,9 @@ return [
         Breaking group rules by posting jobs everywhere.
         Bulk messaging group members.
         Posting confidential information.
+
+        From the company training material
+        The Job Description Analysis training says to share requirements through relevant professional or Yahoo groups, where appropriate. Yahoo Groups was closed in 2020, so today the same idea applies to approved LinkedIn groups, technology communities and professional associations. The group rules described in this lesson still apply.
 
         Key takeaway
         Professional groups are communities, not job boards. Respect their rules, add value, and contact people thoughtfully.
@@ -342,6 +360,9 @@ return [
         Skipping the database and starting with external searches.
         Leaving notes incomplete or unclear.
         Submitting outdated resumes.
+
+        From the company training material
+        The OPT Recruiter Training Material lists the previous database as one of the three sourcing methods. The Job Description Analysis training calls it the internal database: search previously qualified consultant profiles. The US MNC Staffing document sets the order for fetching resumes: first check your hotlist, meaning your own company's bench consultants; if there is no match, send a mass mail to your vendor list; if there is still no match, post the requirement in a portal and search for C2C consultants. Always search what you already have first.
 
         Key takeaway
         Your internal database is a valuable shared asset. Search it first and keep it accurate for the whole team.
@@ -395,6 +416,9 @@ return [
         Starting with a long speech about the company.
         Calling late at night in the candidate's time zone.
         Requesting sensitive information by message.
+
+        From the company training material
+        The Job Description Analysis training describes direct communication as using approved messaging or messenger channels to reach potential candidates, and its recruitment process ends with communicate: discuss the opportunity, and confirm the candidate's interest and details. The OPT Recruiter Training Material's calling script, covered in Level 7, is the company's standard for these first calls.
 
         Key takeaway
         Direct communication is powerful when it is timely, clear and respectful. Make every first contact professional.

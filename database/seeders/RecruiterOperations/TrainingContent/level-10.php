@@ -49,6 +49,11 @@ return [
         Write a clear, shareable summary.
         Plan keywords and priority.
 
+        Scenario two, from the company training: the Data Architect
+        Use the Data Architect requirement from the Day 5 Job Description Analysis training. McLean, Virginia, day-one onsite, three days onsite and two remote, contract. Five or more years of architecture governance and cloud migration, five or more years of AWS, enterprise cloud security, API gateways and integration, and an architect background with Python or Java.
+        Apply the Day 5 workflow in its six steps: read, extract, prioritise, source, screen and communicate. Write down the location, duration, rate, skills, dates and client. Separate must-haves from preferred skills. Build a keyword list and compare it with the training's own list: AWS, Solution Architect, Enterprise Architect, API Gateway, Lambda, VPC, CloudFront, security architecture, Python and Java. Note what the requirement does not tell you, such as the rate, the duration and the accepted work authorization, and write the questions you would send to the Account Manager or BDM.
+        Then do the same for the Java and AWS Full Stack Developer in Draper, Utah. Explain why a strong remote candidate living in Texas does not meet this requirement.
+
         Key takeaway
         Good analysis turns a long job description into clear actions. Practise until it becomes a habit.
         TEXT,
@@ -99,6 +104,11 @@ return [
         Separate types of experience.
         Note gaps honestly.
         Prepare clear screening questions.
+
+        Scenario two, from the company training: the scoring framework
+        The Java and AWS Full Stack Developer requirement in the Day 5 training uses a client scoring framework: ten percent for years of direct web development, thirty percent for development tools and skill levels, twenty-five percent for roles and project experience, fifteen percent for SDLC knowledge and experience, and twenty percent for rate.
+        Imagine two candidates. The first has fourteen years of experience, mostly maintaining older Java desktop systems, little AWS, and a high rate. The second has nine years of web development with Core Java, Spring Boot, AWS API Gateway and CloudFormation, strong project ownership, and a rate within range, but fewer years than the twelve requested.
+        Score both using the framework, then go through the company resume screening checklist for each: key qualifications and skills, relevant experience, education and certifications, achievements, culture-fit indicators, job history and tenure, formatting and readability, grammar and spelling, LinkedIn profile, and referrals. Decide whom you would present, and how you would explain the experience gap honestly to the Account Manager. Remember the training's tip: the scoring framework is an additional guide, not a substitute for reading the full requirement.
 
         Key takeaway
         Screening is about evidence and honest judgement. Questions are better than assumptions.
@@ -158,6 +168,12 @@ return [
         Stay within approved information.
         Close with next steps.
 
+        Scenario two, using the company calling script
+        Practise the full OPT calling script from the company training material. Start with the greeting and the right-time question. On the first attempt, the person playing the candidate says it is not a good time. Ask for the right time, note it, and end politely. On the second attempt, the candidate agrees to talk. Continue with the professional introduction, ask whether they are looking for a job change, and then ask the script's questions in order: visa status, expiry, graduation, location, relocation, openness to relocate for training and projects, and technology interest. Fill in the Day 7 screening questionnaire as you go.
+        Close as the script does: send the company details by email, ask for an updated resume, ask for referrals, ask the notice period, and ask when the candidate is available to talk with your sales manager. End with, Thank you, have a nice day.
+        Finally, practise the voicemail for a candidate who does not answer.
+        Company-specific process: describe the training and placement program, accommodation, offer letter, referral bonus and sponsorship only in the wording HR has approved. Verify with HR or authorized personnel.
+
         Key takeaway
         Complete calls are a skill. Each practice call makes the next real call clearer and more confident.
         TEXT,
@@ -206,6 +222,15 @@ return [
         Never promise outcomes.
         Accept no gracefully.
 
+        Scenario two, using the company objection cheat sheet
+        Use the five objections from the Day 7 cheat sheet. For each one, the person playing the candidate reads the objection, and the recruiter must first name the hidden concern before responding.
+        One, I already have an employer or vendor handling my OPT. The hidden concern is the hassle of switching and fear of problems with the SEVIS record.
+        Two, is your company real? The hidden concern is fear of losing F-1 status through a fraudulent employer.
+        Three, why do you need my EAD and I-20 right now? The hidden concern is identity theft and document misuse.
+        Four, can you guarantee H-1B next year? The hidden concern is long-term immigration stability.
+        Five, your rate or split is too low. The hidden concern is comparing gross numbers without the full picture.
+        After each response, the reviewer checks one more thing: did the recruiter repeat any line that the Level 7 lessons corrected? Examples are claiming the legal team can guarantee a candidate is fully work-authorized, promising sponsorship costs or petition numbers that HR has not confirmed, or criticising other vendors.
+
         Key takeaway
         Practising objections in a safe setting prepares you to stay calm, honest and helpful on real calls.
         TEXT,
@@ -229,6 +254,9 @@ return [
         Situation six. A vendor asks you to describe a candidate's OPT as a green card so that the client accepts the profile.
         Situation seven. A candidate asks: Will your company definitely file my H-1B next year?
         Situation eight. A candidate's EAD shows a different spelling of her last name from her resume.
+        Situation nine. During screening, a candidate on initial OPT says she has only eight unemployment days left out of ninety, and asks whether an offer letter this week would solve the problem.
+        Situation ten. A candidate asks how much the offer letter costs, and whether paying for it means he is employed.
+        Situation eleven. A requirement says No CPT or OPT, but the Account Manager asks you to submit a strong OPT candidate anyway because the client might not check.
 
         Questions to consider for each situation
         Is this question within a recruiter's role?
@@ -253,6 +281,9 @@ return [
         Refer to the right expert.
         Escalate improper requests.
         Never give legal advice or misrepresent status.
+
+        Source note
+        Situations nine, ten and eleven come from the company training material: the unemployment-day count in the Day 7 questionnaire, the offer letter step in the company's business process, and the work authorization checkpoint in the Day 5 training, which says never to alter or misrepresent a candidate's work authorization. The other situations are based on published government guidance and need review and approval by HR and the training manager.
 
         Key takeaway
         Knowing your boundaries is a professional strength. Refer, escalate and stay honest every time.
@@ -300,6 +331,10 @@ return [
         Stage eight: first day and follow-up
         Plan first-day confirmation and follow-up checkpoints.
         Plan when you might ask for referrals.
+
+        Mapping to the company process
+        Now repeat the simulation using the company's own process documents. For a vendor requirement, follow the US MNC Staffing steps: get the requirement from the BDM, study it two or three times, check your hotlist, mass mail your vendor list, post in a portal and search for C2C consultants, select the best one or two resumes, call and screen, confirm the rate, collect the right to represent and the submission template, call the employer for C2C consultants and sign the NDA and NCA, send the submission to the BDM, and follow up for feedback.
+        For an OPT candidate, follow the End-to-End Business Process: sourcing, document collection by you, review by HR or the verification team, confirmation of genuine and valid documents, offer letter issued by HR, the E-Verify step completed by HR, payroll follow-up by you, payroll processed by the Accountant, and continued monitoring by you and the OPT Head. At each step, write down which part is yours and which belongs to HR, the Accountant or the OPT Head.
 
         Things that could go wrong
         The vendor goes silent after submission.

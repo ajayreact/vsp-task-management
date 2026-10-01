@@ -28,6 +28,16 @@ return [
         Onboarding, documentation and payroll setup happen.
         The consultant starts the project, and the company supports them until the assignment ends.
 
+        From the company training material: the three parts of US staffing
+        The US MNC Staffing document divides staffing into three parts.
+        Recruiting, defined as sourcing consultants to the client's requirements, or providing resources to meet the client's needs. This is your main role.
+        Sales or marketing, defined as marketing the company's bench consultants to vendors and clients.
+        Business development, handled by Business Development Managers, called BDMs, senior recruiters and leadership. Business development collects requirements from clients or from preferred vendors and assigns them to the right recruiter or team, based on technology or skill set.
+
+        The recruiting process in the company material
+        The same document teaches seven steps. Receive the requirement from the BDM. Understand the requirement. Fetch resumes. Call the consultant. Call the consultant's employer, if they have one. Complete the submission. Follow up on the submission feedback.
+        The Job Description Analysis training summarises the same flow in four steps: get the requirement from the Account Manager or BDM, identify sources, identify qualified people, and communicate with them. Later lessons teach each step in detail.
+
         Types of engagement
         Contract means work for a fixed or estimated period.
         Contract-to-hire means a contract that may convert to a permanent role.
@@ -73,6 +83,10 @@ return [
         For STEM OPT, the employer must meet specific requirements, including E-Verify and the I-983 training plan, and must have a genuine employer-employee relationship with the student. Whether a particular arrangement fits is decided by HR and compliance, not by recruiters.
         Candidates often ask: Who will be my employer? Answer accurately using approved company information.
 
+        From the company training material
+        The US MNC Staffing document defines the employer simply as the consultant's company, the company whose payroll the consultant is on. When you call a consultant who already works for another company, that company is the employer, and the document teaches you to contact the employer as well before submitting, because the employer must agree to the rate and sign the paperwork.
+        The document also lists terms every recruiter must know before starting: consultant, employer, vendor, preferred vendor or Tier 1 layer, client, blue chip companies, implementation partner, types of visas, payment terms, NDA, NCA, right to represent and MSA. A blue chip company is a large, well-established and financially strong company. An implementation partner is a consulting firm delivering a project for the end client. The other terms are explained in the Vendor, Submission and U.S. Staffing Terminology lessons.
+
         Explaining it to candidates
         A simple explanation: Our company is your employer. We run your payroll and provide HR support. You will work on a project for our client, and the client will interview you. Use this only if it is true for your company and the role.
 
@@ -114,6 +128,9 @@ return [
         Duplicate submissions
         If a candidate has already been submitted to the same client for the same role by another company, a second submission can create conflict and may disqualify the candidate. Always ask the candidate whether they have already applied or been submitted to that client.
 
+        From the company training material
+        The OPT Recruiter Training Material and the calling section list direct clients, naming Accenture, Capgemini, Avanade, iGate, T-Mobile USA, Tesoro, HCL, Infosys, Apple and Pepsi. Company-specific process: client relationships change, and some of these names may be implementation partners or past clients rather than current direct clients. Verify with HR or authorized personnel before you name any client to a candidate, and never say a candidate will work for a client before a real requirement and selection exist.
+
         Client expectations
         Clients expect accurate profiles, honest information, quick responses, and candidates who attend interviews on time.
         A wrong submission damages the relationship for the whole team.
@@ -147,6 +164,11 @@ return [
         An implementation partner is a consulting firm delivering a project for the end client, which may need consultants.
         A sub-vendor works under another vendor.
         A vendor management system is an online platform some clients use to manage requirements and submissions.
+
+        From the company training material
+        The US MNC Staffing document defines a vendor as the company or person that sends requirements to us, or that submits consultant details to us. So the word works in both directions: a vendor can be above you, sending requirements, or beside you, offering their own bench consultants.
+        A preferred vendor, also called the Tier 1 layer, is a vendor with a direct, approved relationship with the client. Requirements that come from a preferred vendor are closer to the client and are usually more reliable.
+        The document also teaches that recruiters send requirements to their vendor list, a practice called mass mailing, so that other vendors can offer matching consultants on a Corp to Corp basis. Agreements with vendors are usually covered by a Master Services Agreement, called an MSA.
 
         The vendor chain
         A common chain is end client, then prime vendor or implementation partner, then your company, then the consultant. Each layer has its own agreements and rates. The longer the chain, the lower the rate that reaches the consultant, and the more coordination is needed.
@@ -187,6 +209,9 @@ return [
         What you need to know
         In U.S. IT staffing, a consultant is a professional placed at a client to work on a project. The word is used for contractors at every level, from junior developers to senior architects.
         For OPT recruiters, consultants are usually recent graduates or early-career professionals on OPT or STEM OPT.
+
+        From the company training material
+        The US MNC Staffing document defines the consultant as the resource for the client's requirement, in other words, the person you are sourcing for the client's need. It also explains that W2 consultants are treated as the company's own bench consultants, and that for these consultants the company bears insurance claims, taxes, overheads and some benefits.
 
         Consultant, candidate and employee
         A candidate is someone being considered for a role.
@@ -248,6 +273,10 @@ return [
         Work authorization requirements or restrictions.
         Interview process and submission deadline.
 
+        From the company training material
+        The US MNC Staffing document says that understanding the requirement is the first and most important step in recruiting. It teaches you to study the requirement two or three times and note what the client needs: the platform or technology, the domain, the project location, the duration, any must-have or preferred conditions, the type of project, such as full-time, contract or long term, and the visa statuses the client accepts, such as Green Card, OPT, EAD, H-1B or U.S. citizen.
+        The Job Description Analysis training lists the mandatory details to capture before sourcing: location, duration, rate, skills, dates, the job description, the client and the roles and responsibilities. Level 4 teaches each of these in its own lesson.
+
         Requirement priority
         Not all requirements are equal. A requirement with a clear description, a responsive vendor, a realistic rate and an urgent start date is usually worth more effort than an unclear one. Level 4 covers prioritisation.
 
@@ -301,6 +330,14 @@ return [
         Current location and willingness to relocate if required.
         Availability to start and to interview.
         Any other details the vendor requires.
+
+        From the company training material: the submission package
+        The US MNC Staffing document describes exactly what to collect before a submission.
+        If the consultant will work on your company's W2, discuss the rate with them, then send the requirement, the submission template and the right to represent, which the document calls the R2R.
+        If the consultant has an employer, call the employer, discuss and negotiate the rate, send a rate confirmation, and send the non-disclosure agreement, called the NDA, or the non-compete agreement, called the NCA, as your process requires.
+        Collect the completed submission template, the updated resume, the signed right to represent, the rate confirmation and, where there is an employer, the employer details and signed NDA or NCA.
+        Attach everything to one email with the requirement and send it to your BDM or resource manager, who submits to the client or vendor.
+        The document notes that rate negotiation should keep a minimum margin for the company. Company-specific process: margin rules are set by management. Never discuss margins with a consultant or an employer.
 
         Honesty in submissions
         Never add skills, projects or experience that the candidate does not have.
@@ -382,6 +419,9 @@ return [
         No preparation call.
         Not following up after the interview.
 
+        Source note
+        The company documents mention interviews in several places: the US MNC Staffing document says to follow up for feedback after submission, the Day 7 questionnaire asks whether the candidate is comfortable with a live webcam coding assessment, and the Java and AWS requirement in the Day 5 training includes a video interview. They do not describe interview preparation in detail, so the rest of this lesson needs review and approval by the training manager.
+
         Key takeaway
         Interviews decide placements. Clear scheduling, honest preparation and quick follow-up give your candidate the best fair chance.
         TEXT,
@@ -432,6 +472,9 @@ return [
         Leaving the work state blank.
         Not checking the EAD start date against the job start date.
 
+        Source note
+        The company documents describe placement as the goal of the process: the OPT calling script says that after training the company prepares the resume and places the candidate with direct clients, and the business plan lists interviews and placement opportunities after bench enrollment and profile marketing. No placement is guaranteed. The rest of this lesson is based on general staffing practice and needs review and approval by the training manager.
+
         Key takeaway
         A placement is complete only when the consultant starts correctly. Hand off accurately, watch for risks, and stay involved until day one.
         TEXT,
@@ -451,6 +494,9 @@ return [
 
         How OPT recruiting and bench sales connect
         OPT recruiters find and prepare candidates. In some companies, candidates who join are then marketed to clients by the bench sales team.
+
+        From the company training material
+        The US MNC Staffing document defines sales or marketing as marketing the bench consultants, and describes W2 consultants as the company's own bench. The OPT Recruiter role description adds the OPT recruiter's part: ask eligible candidates whether they want their professional profile marketed for suitable IT opportunities, explain the bench and marketing process, add interested candidates to the bench pipeline after the required onboarding, keep their resumes and information updated, and coordinate with the Bench Sales team. The recruiter also tracks profile submissions, interviews, client responses, requirements and placement progress for each bench candidate.
         Good handoffs between the two teams matter: accurate resumes, skills, availability, location preferences and work authorization dates.
 
         Professional conduct

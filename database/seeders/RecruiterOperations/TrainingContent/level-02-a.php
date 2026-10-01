@@ -26,6 +26,13 @@ return [
         Duration of status, often written as D/S on the I-94 record, means the student may stay as long as they maintain their F-1 status and program.
         After finishing the program, a student generally has a short grace period to leave, change status, transfer, or begin approved OPT. Verify the current rules.
 
+        From the company training material
+        The OPT Recruiter Training Material describes the F-1 visa as the student visa given to students from all over the world who want to pursue a bachelor's or master's degree in the U.S., and notes that F-1 students are generally not eligible to work in the U.S. without separate authorization. The US Visa Types presentation adds that F-1 allows full-time study at an academic institution such as a university, private school or language institute.
+        Correction: the handout says the validity of the F-1 visa is five years. That is not a fixed rule. The visa stamp's validity varies by country and case, and the student's permission to stay depends on maintaining status for the length of the program, shown as duration of status. Do not quote a fixed number of years.
+
+        F-2, the dependent of F-1
+        Both company documents describe F-2 as the dependent visa of an F-1 student, for the spouse and children. F-2 dependents are not permitted to work in the U.S. If a candidate tells you they are on F-2, record it accurately and follow company policy. Do not suggest any way around the rule.
+
         Why this matters for an OPT recruiter
         Your candidates are often F-1 students preparing for OPT, or graduates already on OPT or STEM OPT. Knowing how F-1 works helps you ask the right questions and understand the timeline: study, graduation, OPT application, EAD card, then work.
 
@@ -68,6 +75,10 @@ return [
 
         An important rule to be aware of
         Under long-standing rules, a student who uses twelve months or more of full-time CPT is generally no longer eligible for OPT at that degree level. Part-time CPT does not have this effect. Candidates should confirm their own situation with their DSO.
+
+        From the company training material
+        The OPT Recruiter Training Material describes CPT as a temporary authorization for F-1 students. It also says that CPT students can work in the university area only, and that CPT validity is nine months. Treat those two statements with care. CPT can be authorized for work with an off-campus employer when the work is part of the curriculum, and there is no single nine-month validity. The authorized dates are whatever the school's DSO records on the student's I-20. Always read the actual dates and employer on the I-20, and confirm with HR.
+        The calling script's screening questionnaire includes F-1 CPT as one of the visa options a recruiter records. Record it exactly as the candidate states it.
 
         Day 1 CPT
         Some schools offer CPT from the start of a program. This is sometimes called Day 1 CPT. These programs can come with additional questions and scrutiny. Recruiters should not judge or advise on these programs. Record the facts and follow company policy about CPT candidates.
@@ -119,6 +130,10 @@ return [
         Reporting
         Students on OPT must report employment details, such as employer name and address, to their school or the SEVP portal within required time frames. This is the candidate's responsibility, guided by the DSO.
 
+        From the company training material
+        The OPT Recruiter Training Material teaches that OPT is given to F-1 students after they complete their bachelor's or master's degree in the U.S., and that they are eligible to work legally anywhere in the U.S. It states that OPT validity is twelve months and can be extended by up to twenty-four months, for a total of thirty-six months, and that MBA students have OPT for twelve months only.
+        Read those points precisely. The twenty-four month extension is STEM OPT, and only graduates of qualifying STEM degree programs can apply for it. So thirty-six months is the maximum for a STEM graduate, not the normal case. Most MBA programs are not STEM programs, which is why the handout says twelve months, but some MBA programs are STEM designated. Do not assume either way. And OPT work anywhere in the U.S. must still relate to the student's field of study.
+
         Job relevance
         The job must be directly related to the student's degree. A computer science graduate in a software role is a clear example. If you are unsure whether a role relates to a candidate's degree, do not decide yourself. Escalate according to company policy.
 
@@ -165,6 +180,10 @@ return [
 
         Unemployment awareness
         STEM OPT adds a limited number of extra unemployment days to the OPT limit. The total is commonly cited as one hundred fifty days across OPT and STEM OPT. Verify with official sources. Never calculate or advise on this for a candidate.
+
+        From the company training material
+        The calling script's screening questionnaire asks recruiters to record whether the candidate is on F-1 initial OPT or F-1 STEM OPT, the EAD start and end dates, the remaining unemployment days out of ninety or one hundred fifty, and whether the candidate's current employer is E-Verified. Record what the candidate tells you. Do not calculate unemployment days yourself.
+        The calling script also contains the line that the company is completely E-Verified and has a legal team that handles STEM OPT extensions and H-1B sponsorship without any hiccups. Company-specific process: do not use this statement unless HR or authorized personnel confirm it is accurate today. Never describe any immigration process as having no risk.
 
         Why this matters for recruiters
         Candidates often ask whether your company supports STEM OPT. Answer only with information your company has approved. Do not promise STEM OPT support, an I-983, or approval.
@@ -217,6 +236,10 @@ return [
         Never post or forward EAD images in unofficial chat groups.
         Whether and when an EAD copy is requested is a company-specific process. Some requests are only appropriate at particular stages. Confirm with HR or compliance.
 
+        From the company training material
+        The OPT Recruiter Training Material describes the EAD as the Employment Authorization Document, a card given to a person so they can work in the U.S. It notes that L-2 dependents can work if they have an EAD card. The US Visa Types presentation adds an important principle: U.S. employers must check that all employees, regardless of citizenship or national origin, are allowed to work in the U.S. A person who is not a U.S. citizen or lawful permanent resident may need an EAD to prove that eligibility.
+        For recruiters, this means two things. Every candidate is treated the same way in the verification process, and the EAD dates must be recorded exactly. The calling script also asks for the EAD card start date and end date during every screening call.
+
         Pending EAD
         A candidate may have filed for OPT but not yet received the card. A receipt notice shows that the application was filed, but for initial OPT it generally does not allow work by itself. Record the status as pending and follow up.
 
@@ -254,6 +277,18 @@ return [
         H-1B and OPT candidates
         Many OPT candidates hope to move to H-1B status in the future. This is why they often ask whether your company sponsors H-1B.
         There is a provision often called cap-gap, which may extend F-1 status and work authorization for some students between the end of OPT and the start of an H-1B. Whether it applies depends on the details. HR and immigration counsel decide this.
+
+        From the company training material
+        The OPT Recruiter Training Material describes H-1B as an employer-sponsored, nonimmigrant visa that allows foreign workers to work temporarily in the U.S. in a specific occupation, valid for three years and extendable by three years, for six years in total.
+        The US Visa Types presentation gives more detail that recruiters should understand.
+        H-1B is for a specialty occupation, which requires specialized knowledge and at least a bachelor's degree or its equivalent.
+        The employer must offer a job and file a petition, Form I-129, with U.S. immigration. The approved petition allows the person to work for that employer.
+        A person may work for more than one employer, but each employer must have its own approved petition.
+        The employer may place the worker at another company's work site, such as a client site, under the rules that apply.
+        H-1B can be transferred to a new employer. The new employer must file a new petition.
+        The spouse and unmarried children under twenty-one may hold H-4 status for the same period.
+        An H-1B holder may seek permanent residence, the Green Card.
+        One statement in the presentation needs care. It says an H-1B worker can be inactive without affecting status as long as the employer relationship exists. Current rules include wage and benching obligations for employers, so never interpret a consultant's H-1B status yourself. Refer every such question to HR or immigration counsel.
 
         What recruiters may and may not say
         You may share your company's approved, factual position on H-1B sponsorship, if HR has given you one.

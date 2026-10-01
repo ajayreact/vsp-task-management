@@ -54,6 +54,9 @@ return [
         Contacting candidates a colleague already manages.
         Ignoring requests to stop contact.
 
+        Source note
+        The company's Day 6 sixty-second cold call script, covered in Level 7, is the approved model for first contact by phone. The company documents do not cover a full outreach plan, so the rest of this lesson needs additional approved training content.
+
         Key takeaway
         Personal, relevant and respectful outreach earns candidate attention and trust.
         TEXT,
@@ -110,6 +113,9 @@ return [
         Using automation that breaks platform rules.
         Not tracking results.
 
+        Source note
+        The company documents list LinkedIn as a sourcing channel and base the cold call on a LinkedIn or Dice profile. They do not include LinkedIn message templates, connection limits or campaign plans. Those parts of this lesson need additional approved training content.
+
         Key takeaway
         Planned, personalised and measured LinkedIn outreach becomes a dependable source of OPT candidates.
         TEXT,
@@ -163,6 +169,9 @@ return [
         Vague subject lines.
         Ignoring opt-out requests.
 
+        Source note
+        The company calling script says to email interested candidates the company details and ask for an updated resume. It does not include email templates. The templates and rules in this lesson need additional approved training content.
+
         Key takeaway
         Relevant, well-timed and privacy-respecting emails turn applications into conversations.
         TEXT,
@@ -213,6 +222,9 @@ return [
         Calling repeatedly in one day.
         Leaving long, unclear voicemails.
         Calling at unreasonable hours.
+
+        Source note
+        The company calling script gives the opening, the right-time question and the voicemail, taught in Level 7: Hi, this is your name calling from VSP Group. This call is regarding a job opportunity for you. Please call me back at the number and extension. Thank you, have a nice day. The documents do not set calling hours or the number of attempts, so those parts need additional approved training content.
 
         Key takeaway
         Respectful timing, clear voicemails and limited attempts make phone outreach effective and professional.
@@ -265,6 +277,9 @@ return [
         Promising unofficial rewards.
         Forgetting to thank referrers.
 
+        Source note
+        The company calling script asks every interested candidate for referrals and mentions a referral amount of seven hundred and fifty dollars. The documents do not state the referral program's conditions. Company-specific process: mention a referral bonus only after HR confirms it in writing. Verify with HR or authorized personnel.
+
         Key takeaway
         Planned referral outreach turns good relationships into a steady flow of trusted candidates.
         TEXT,
@@ -312,6 +327,9 @@ return [
         Sending outreach in the middle of the night in the candidate's time zone.
         Heavy outreach during exam weeks.
         Ignoring graduation seasons.
+
+        Source note
+        The company OPT training material covers U.S. time zones and their difference from India, taught in Level 1. It does not cover outreach timing around academic calendars. Those parts of this lesson need additional approved training content.
 
         Key takeaway
         Good timing multiplies the effect of good messages. Plan around clocks, calendars and candidate situations.
@@ -366,6 +384,9 @@ return [
         Contacting people only when you need something.
         Forgetting details people shared.
         Breaking small promises.
+
+        Source note
+        The OPT Recruiter Roles and Responsibilities document includes candidate relationship management: regular communication, updates on profile marketing, interviews, payroll and placement, and current records. It does not describe a relationship plan in detail, so the rest of this lesson needs additional approved training content.
 
         Key takeaway
         Long-term relationships are built through honesty, reliability and respect, one interaction at a time.

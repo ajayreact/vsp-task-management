@@ -47,6 +47,9 @@ return [
         Treating I-9 as a recruiter task.
         Using I-9 language during early screening.
 
+        Source note
+        The US Visa Types material notes that employers must check the employment eligibility of all employees, regardless of citizenship. The company documents do not describe Form I-9 itself. This lesson is based on published government guidance and needs review and approval by HR and the training manager.
+
         Key takeaway
         Form I-9 is a legal employer process at the time of hire. Recruiters support it with accurate information and leave verification to HR.
         TEXT,
@@ -92,6 +95,9 @@ return [
         Suggesting E-Verify can check a candidate before an offer.
         Sharing company identifiers without HR approval.
 
+        Source note
+        The company documents say that HR completes the required E-Verify process after the offer letter, that the OPT recruiter follows up with candidates on pending verification, and that the screening questionnaire asks whether a candidate's current employer is E-Verified. They do not explain how E-Verify works. That part of this lesson is based on published government guidance and needs review and approval by HR.
+
         Key takeaway
         E-Verify confirms work authorization after hire and is essential for STEM OPT. Share only approved information and never use it to pre-screen.
         TEXT,
@@ -135,6 +141,9 @@ return [
         Common mistakes
         Giving a client name instead of the legal employer name for reporting.
         Commenting on a candidate's SEVIS status.
+
+        Source note
+        The company objection cheat sheet mentions candidates' worry about their SEVIS record when changing employers. The company documents do not explain SEVIS. This lesson is based on published government guidance and needs review and approval by HR and the training manager.
 
         Key takeaway
         SEVIS is the student record system behind F-1 and OPT. Recruiters support accuracy and refer all SEVIS matters to the DSO.
@@ -185,6 +194,9 @@ return [
         Answering status questions yourself to keep the conversation moving.
         Telling a candidate their DSO will definitely approve something.
 
+        Source note
+        The company training documents do not cover the role of the designated school official. This lesson is based on published government guidance and needs review and approval by HR and the training manager.
+
         Key takeaway
         The DSO is the student's official guide on F-1, OPT and STEM OPT matters. Refer status questions to them, every time.
         TEXT,
@@ -199,6 +211,22 @@ return [
         What you need to know
         Employment authorization means a person is legally allowed to work in the U.S. Citizens and lawful permanent residents, also called green card holders, are authorized to work without time limits. Many others are authorized only in certain categories and for certain dates.
         For OPT recruiters, the common categories are OPT, STEM OPT, H-1B, H-4 EAD and, less often, others such as green card holders.
+
+        From the company training material: the visa categories
+        The OPT Recruiter Training Material and the US Visa Types presentation introduce the U.S. immigration system as follows. Learn these terms, because candidates and vendors use them every day.
+        USCIS stands for U.S. Citizenship and Immigration Services. It is the government agency that approves petitions and applications such as OPT, STEM OPT, H-1B and Green Cards.
+        A visa is a document placed in the passport that allows a person to travel to the U.S. and seek entry for a specific purpose.
+        There are two basic types of U.S. visas. Immigrant visas are for people who intend to live permanently in the U.S., whether or not they work. Nonimmigrant visas are for temporary purposes, such as tourism, medical treatment, business, study, exchange programs and temporary work.
+
+        Categories you will hear about
+        Green Card, or GC. Lawful permanent residence. A Green Card holder can work anywhere in the U.S. for any employer. The card itself is usually renewed every ten years, but the permanent resident status does not expire with the card. A Green Card can be obtained through an employer, through family, or through investment, among other routes. It is not citizenship, although a holder may later apply to become a citizen.
+        U.S. Citizen, or USC. The handout calls this a citizen visa and says it means people born in the U.S. In fact, citizenship is not a visa, and people can also become citizens by naturalization. Citizens can work anywhere in the U.S.
+        TN. For certain Canadian and Mexican professionals. The handout links it to the North American Free Trade Agreement, known as NAFTA, which was replaced in 2020 by the United States, Mexico and Canada Agreement. TN status is granted for up to three years at a time.
+        B-1 and B-2. Visitor visas, for business visits and for tourism or medical visits. They do not allow employment in the U.S. The six months in the handout is a typical period of stay, not a fixed rule.
+        L-1. An intra-company transfer, for employees of a company's foreign office who come to work for the same company in the U.S. L-1A is for managers and executives, and L-1B is for people with specialized knowledge. The handout gives seven years, which is the maximum for L-1A. For L-1B it is five years. An L-1 worker may not work for other companies. L-2 is the dependent status, and L-2 spouses may be authorized to work.
+        E-3. For Australian citizens in specialty occupations, granted in periods of up to two years. E-1 and E-2 are treaty trader and treaty investor categories.
+        J-1 and J-2. Exchange visitors, such as scholars and trainees. Some J-1 holders are subject to a two-year home residency requirement. J-2 dependents may apply for work authorization.
+        H-1B, H-4, F-1, F-2, CPT and OPT are covered in their own lessons. The presentation also lists H-1C for nurses, H-2A for agricultural workers, H-2B for non-agricultural workers and H-3 for trainees. You will rarely see these in IT staffing.
 
         Work authorization dates
         The start date is the earliest day the person may work.
@@ -264,6 +292,13 @@ return [
         Ask for documents or personal numbers outside the approved process.
         Treat candidates differently based on citizenship, national origin, name or accent.
         Create, alter or suggest altering any document.
+
+        From the company training material: the work authorization checkpoint
+        The Job Description Analysis training gives four rules for every requirement.
+        Do not assume. Visa eligibility can vary by client, role, contract type and conversion terms.
+        Capture the requirement. Record any stated restriction, such as No H-1B, No CPT or OPT, or citizen-only language.
+        Confirm before submission. When the wording is unclear, verify with the Account Manager or the Business Development Manager, known as the BDM, before presenting a candidate.
+        Document accurately. Never alter or misrepresent a candidate's work authorization.
 
         When to verify
         When dates on a document do not match what the candidate said.

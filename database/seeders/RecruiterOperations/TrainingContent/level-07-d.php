@@ -58,6 +58,11 @@ return [
         Making promises to overcome an objection.
         Pushing after the candidate has said no.
 
+        From the company training material: the objection cheat sheet
+        The Calling script and Practice document gives a Day 7 objection handling cheat sheet that trainers print or pin to the team dashboard. It begins: international students are highly cautious due to the rise in visa scams, so recruiters must lead with transparency, empathy and proof of legitimacy.
+        For every objection, the cheat sheet first names the hidden concern, the real worry behind the words, and then gives a response. That is the clarify step of the method above. The five objections are: I already have an employer or vendor handling my OPT; Is your company real; Why do you need a copy of my EAD card and I-20; Can you guarantee H-1B sponsorship next year; and Your hourly rate or split is too low. The next five lessons cover each one, using the source response and correcting any line that promises an outcome.
+        Company-specific process: before using any cheat sheet line about E-Verify, legal support, sponsorship costs or petition numbers, confirm the facts. Verify with HR or authorized personnel.
+
         Key takeaway
         Handle objections by understanding and informing, not by pressuring. Honesty wins long-term trust.
         TEXT,
@@ -110,6 +115,12 @@ return [
         Pushing a candidate to break commitments.
         Ending the call without asking about the future.
 
+        From the company cheat sheet
+        Objection one: I already have an employer or vendor handling my OPT.
+        The hidden concern: the candidate feels safe with the current setup and does not want the hassle of switching or problems with their SEVIS record, the government system that tracks international students.
+        The source response, in summary: I completely understand. Having an employer locked in gives you peace of mind. Many of the consultants working with us were in your exact position. We are not asking you to switch today. I would like to share our active marketing pipelines. Can we keep a backup plan ready?
+        Keep the empathy and the backup-plan idea. Leave out two lines from the original. Do not say that other employers lack direct client relationships, because that criticises another company without facts. Do not say that the candidate will waste unemployment days if the current employer does not place them in two weeks, because that uses fear to create pressure. If the candidate raises unemployment days themselves, refer status questions to their DSO.
+
         Key takeaway
         I already have an employer is often a starting point. Understand the situation, respect commitments, and keep the relationship.
         TEXT,
@@ -137,7 +148,7 @@ return [
         Some candidates ask whether your company is an E-Verified employer, because STEM OPT requires an employer that is enrolled in E-Verify. Company-specific process: answer only with the approved company position. Verify with HR or authorized personnel. Never guess. The candidate can also check publicly available information and ask their DSO.
 
         Step three: reassure with your process
-        We never charge candidates for placement. If your company has this policy, state it clearly.
+        Never ask a candidate for money yourself. If your company offers any paid service, it must follow the approved written company process, and it must never be presented as buying a job, an offer letter, work authorization or sponsorship.
         We only request documents at the appropriate stage, through secure company channels.
         You can take your time to check before moving forward.
 
@@ -149,7 +160,7 @@ return [
         Avoid all of these in your own work.
 
         Sample response
-        That is a very fair question. My name is Anita, and I am an OPT recruiter with our company. I will send you an email right now from my official address, with a link to our website and my LinkedIn profile. Please take your time to check. We do not charge candidates any fee, and we only ask for documents through our secure process at the right stage.
+        That is a very fair question. My name is Anita, and I am an OPT recruiter with our company. I will send you an email right now from my official address, with a link to our website and my LinkedIn profile. Please take your time to check. We only ask for documents through our secure process at the right stage.
 
         Practical example
         A candidate asks whether your company is real and E-Verified. You share your verifiable details, send an official email, and say that you will confirm the E-Verify question with HR. HR confirms the approved answer. You share it in writing the same day.
@@ -164,6 +175,12 @@ return [
         Becoming defensive.
         Guessing about E-Verify status.
         Pressuring the candidate to trust you without evidence.
+
+        From the company cheat sheet
+        Objection two: Is your company real? Is this a scam or a fake company?
+        The hidden concern: the student is afraid of losing F-1 status by associating with a fraudulent company or an unverified employer.
+        The source response, in summary: I completely appreciate your caution. With so many compliance updates from USCIS, you should absolutely protect your legal status. I want to give you our verification details right now so that you can verify us independently. You can visit our LinkedIn page with our active employees, or look at our Google Business profile reviews. I will email you these links right now so you can review them at your own pace.
+        This response follows the lesson exactly: acknowledge, give checkable facts, and let the candidate take their time. One correction: the original suggests giving the company's E-Verify number and says the candidate can look it up on the official USCIS E-Verify registry. Check this with HR before using it. The public E-Verify search lists participating employers by name and location, and HR decides which identifiers may be shared.
 
         Key takeaway
         Trust is earned with verifiable facts. Welcome the question and make verification easy.
@@ -220,6 +237,12 @@ return [
         Accepting documents by text message or social media.
         Requesting more documents than needed.
 
+        From the company cheat sheet
+        Objection three: Why do you need a copy of my EAD card and I-20 right now?
+        The hidden concern: fear of identity theft, or of documents being misused for fraudulent filings.
+        The source response, in summary: That is a very fair question. We treat your personal data with strict confidentiality. We request these documents up front to protect both of us, because our clients require compliance screening before they review a resume. You are welcome to watermark the copies with the words For Verification Only before sending them.
+        Keep the explanation and the watermark suggestion, which is a practical way to reassure a candidate. Correct one line. The original says that by checking the documents, the legal team can guarantee to the client that the candidate is one hundred percent work-authorized. Do not say this. Only the employer's formal verification, done by HR, establishes eligibility, and no one should promise a client or candidate a guaranteed result.
+
         Key takeaway
         Explain why, when and how. Collect only what is needed, through secure channels, according to company process.
         TEXT,
@@ -272,6 +295,12 @@ return [
         Making promises to win the candidate.
         Guessing sponsorship numbers or fees.
         Criticising other companies' claims.
+
+        From the company cheat sheet
+        Objection four: Can you guarantee H-1B sponsorship next year?
+        The hidden concern: the candidate wants long-term immigration stability and does not want to be treated as temporary labour.
+        The source response opens correctly: the H-1B process is an official lottery managed by the U.S. government, so no company can legally guarantee a selection. Use that sentence.
+        The rest of the source response must be checked before use. It says the company can guarantee its commitment to sponsor, that it covers the full registration and filing costs for every eligible employee who meets project performance benchmarks, that it filed a stated number of successful petitions last cycle, and that its immigration lawyers manage everything from registration to responses to requests for evidence. Each of these is a company-specific claim. Use them only in the exact wording HR approves, with real figures. Federal rules also restrict which H-1B costs can be passed to employees, so cost questions always go to HR.
 
         Key takeaway
         On H-1B, honesty is the only acceptable answer. No guarantees, approved information only, and HR for the details.
@@ -330,6 +359,12 @@ return [
         Arguing with the candidate.
         Sharing bill rates or margins.
 
+        From the company cheat sheet
+        Objection five: Your hourly rate or split is too low. Other vendors are offering me more.
+        The hidden concern: the candidate is comparing gross percentages or hourly rates without accounting for support, hidden fees or bench delays.
+        The source response, in summary: I understand that a higher rate sounds attractive on paper. However, a high rate means very little if a vendor takes months to find you a project. Our package includes dedicated technical interview preparation and marketing support from a full sales team. We focus on continuous employment and long-term career growth. Let us look at the full package value together.
+        Keep the like-for-like comparison and the full-package approach. Describe only the support the company actually provides, confirmed by HR, and do not suggest that other vendors are slow or charge hidden fees unless you have facts. The word split refers to a percentage arrangement between consultant and employer. Explain any such arrangement only as HR has approved it.
+
         Key takeaway
         Handle rate objections with facts, fairness and approved flexibility only. Respect the candidate's decision.
         TEXT,
@@ -380,6 +415,9 @@ return [
         Give one or two specific improvements.
         Suggest a better phrase or approach.
         Keep it kind and practical.
+
+        Practising with the company scripts
+        Use the company documents as your practice material. Practise the OPT calling script from greeting to close, including the right-time question, the screening questions, the email and resume request, the referral question, the notice period and the sales manager call. Practise the sixty-second cold call until it fits in one minute. Fill in the Day 7 questionnaire during every mock screening call. Use the five objections from the cheat sheet as role cards, and practise the corrected responses from the previous lessons. Practise the voicemail until it sounds natural.
 
         Company-specific process
         Your trainer may provide company scripts and practice sheets. Statements about your company's policies, E-Verify enrollment, sponsorship, benefits and rate structures in those scripts are company-specific. Verify with HR or authorized personnel before using them on real calls.

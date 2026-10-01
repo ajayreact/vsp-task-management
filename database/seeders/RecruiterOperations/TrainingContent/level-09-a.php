@@ -50,6 +50,9 @@ return [
         Editing content without approval.
         Ignoring differences between resume and call.
 
+        From the company training material
+        The calling script says to ask every interested candidate for their most updated resume. The OPT Recruiter Roles and Responsibilities document says to keep bench candidates' resumes and profiles updated. The Job Description Analysis checklist includes formatting and readability, grammar and spelling, and a customised resume with job-specific tailoring. Tailoring means highlighting relevant, true experience. It never means adding skills, years or employers the candidate does not have.
+
         Key takeaway
         An honest, accurate resume protects the candidate, the client and your company. Format it if allowed, but never change the facts.
         TEXT,
@@ -102,6 +105,9 @@ return [
         Sharing copies without consent.
         Ignoring name differences.
 
+        From the company training material
+        The OPT Recruiter Training Material defines the EAD as the Employment Authorization Document, a card that allows the holder to work in the U.S. The Day 7 questionnaire records the EAD start and end dates. The OPT recruiter's document collection duty is to collect required documents, check that they are complete and readable, submit them to the HR or verification team, and follow up for anything missing. HR or the verification team confirms whether documents are genuine and valid.
+
         Key takeaway
         Accurate EAD details and secure handling support HR's verification. The final decision belongs to HR.
         TEXT,
@@ -153,6 +159,9 @@ return [
         Explaining I-20 entries to candidates.
         Sharing the form insecurely.
 
+        From the company training material
+        The objection cheat sheet covers the question, Why do you need a copy of my EAD card and I-20 right now? It suggests explaining that the documents are handled confidentially, and allowing the candidate to watermark copies with the words For Verification Only. It also mentions checking I-20 travel signatures. Interpreting travel signatures is not a recruiter task. Pass any travel question to HR and the candidate's DSO.
+
         Key takeaway
         The I-20 belongs to the school's process. Handle it only when HR requires it, securely and without interpretation.
         TEXT,
@@ -202,6 +211,9 @@ return [
         Not reporting project changes.
         Explaining the form's legal requirements.
 
+        Source note
+        The company training documents do not cover Form I-983. The calling questionnaire asks only whether the current employer is E-Verified, which matters for STEM OPT. This lesson is based on published government guidance and needs review and approval by HR and the training manager.
+
         Key takeaway
         The I-983 is an employer and student responsibility managed by HR. Your role is early identification, accurate handoff and change reporting.
         TEXT,
@@ -246,6 +258,9 @@ return [
         Interpreting I-94 entries.
         Advising on travel.
         Using unofficial websites for records.
+
+        Source note
+        The company training documents do not cover Form I-94. This lesson is based on published government guidance and needs review and approval by HR and the training manager.
 
         Key takeaway
         I-94 information is handled by HR and official sources. Support the request, share securely and never interpret.
@@ -293,6 +308,9 @@ return [
         Telling candidates to bring specific documents.
         Treating OPT candidates differently in the process.
         Delaying the handoff, which risks missing deadlines.
+
+        Source note
+        The US Visa Types material notes that employers must verify the employment eligibility of all employees, regardless of citizenship. The company documents describe the related E-Verify step as completed by HR after the offer letter. They do not describe the I-9 process itself, so this lesson is based on published government guidance and needs review and approval by HR.
 
         Key takeaway
         Form I-9 is HR's responsibility, with strict timing and fairness rules. Support it with an accurate, timely handoff.
@@ -343,6 +361,9 @@ return [
         Repeating tax tips from other consultants.
         Filling in forms for candidates.
         Estimating net pay.
+
+        Source note
+        The company training documents explain Forms W-2 and 1099 but do not cover Form W-4. This lesson is based on published IRS guidance and needs review and approval by payroll and the training manager.
 
         Key takeaway
         The W-4 is the employee's decision with payroll guidance. Your role is accurate information and a clear referral.

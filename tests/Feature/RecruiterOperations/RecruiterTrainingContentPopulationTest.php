@@ -14,6 +14,7 @@ use App\Modules\RecruiterOperations\Services\TrainingContentService;
 use Database\Seeders\Core\RolesAndPermissionsSeeder;
 use Database\Seeders\RecruiterOperations\RecruiterTrainingCurriculumSeeder;
 use Database\Seeders\RecruiterOperations\TrainingContent\RecruiterTrainingContent;
+use Illuminate\Support\Collection;
 use Spatie\Permission\PermissionRegistrar;
 
 beforeEach(function () {
@@ -197,6 +198,132 @@ test('a published version is never edited; with a manager a new draft is created
         ->and($v1->lessons()->whereNotNull('body')->count())->toBe(0)
         ->and($assignment->fresh()->course_version_id)->toBe($v1->id)
         ->and($completion->fresh()->lesson_id)->toBe($firstLesson->id);
+});
+
+/**
+ * Puts an "earlier release" body on the first $count lessons of a level and
+ * returns those lessons with the fingerprint list that marks them as generated.
+ *
+ * @return array{0: Collection<int, TrainingLesson>, 1: array<int, array<string, list<string>>>}
+ */
+function earlierGeneratedLessons(TrainingCourseVersion $version, int $level, int $count): array
+{
+    $lessons = $version->lessons()->orderBy('sort_order')->take($count)->get();
+    $previous = [];
+
+    foreach ($lessons as $lesson) {
+        $old = "Learning objective\nAn earlier generated version of {$lesson->title}.\n\nKey takeaway\nOld text.";
+        $lesson->forceFill(['body' => str_replace("\n", "\r\n", $old)])->save();
+        $previous[$level][$lesson->title] = [TrainingContentPopulator::fingerprint($old)];
+    }
+
+    return [$lessons, $previous];
+}
+
+test('the shipped fingerprints cover every curriculum lesson', function () {
+    $previous = RecruiterTrainingContent::previous();
+
+    foreach (RecruiterTrainingContent::all() as $entry) {
+        foreach (array_keys($entry['lessons']) as $title) {
+            expect($previous[$entry['level']][$title] ?? [])->not->toBeEmpty("{$title} has no earlier fingerprint");
+
+            foreach ($previous[$entry['level']][$title] as $fingerprint) {
+                expect($fingerprint)->toMatch('/^[0-9a-f]{64}$/');
+            }
+        }
+    }
+});
+
+test('the normal run never replaces earlier generated content', function () {
+    $version = courseForLevel(1)->versions()->sole();
+    [$lessons] = earlierGeneratedLessons($version, 1, 2);
+    $before = $lessons->pluck('body', 'id')->all();
+
+    $report = collect(app(TrainingContentPopulator::class)->populate(RecruiterTrainingContent::all()))->keyBy('lesson');
+
+    expect(TrainingLesson::query()->whereIn('id', $lessons->pluck('id'))->pluck('body', 'id')->all())->toBe($before)
+        ->and($report[$lessons[0]->title]['status'])->toBe(TrainingContentPopulator::KEPT);
+});
+
+test('refresh replaces earlier generated content in place and keeps every identifier and record', function () {
+    $recruiter = contentPopulationEmployee(SystemRole::Recruiter);
+    $course = courseForLevel(4);
+    $version = $course->versions()->sole();
+    [$lessons, $previous] = earlierGeneratedLessons($version, 4, 3);
+    $assignment = TrainingAssignment::factory()->forVersion($version)->forEmployee($recruiter)->create();
+    $completion = new TrainingLessonCompletion;
+    $completion->forceFill(['assignment_id' => $assignment->id, 'lesson_id' => $lessons[0]->id, 'started_at' => now()])->save();
+
+    $structure = fn () => TrainingLesson::query()->orderBy('id')->get(['id', 'course_version_id', 'title', 'slug', 'sort_order', 'content_type', 'duration_minutes', 'is_required'])->toArray();
+    $before = $structure();
+    $counts = fn () => [TrainingCategory::query()->count(), TrainingCourse::query()->count(), TrainingCourseVersion::query()->count(), TrainingLesson::query()->count()];
+    $countsBefore = $counts();
+
+    $report = collect(app(TrainingContentPopulator::class)->populate(RecruiterTrainingContent::all(), previous: $previous))->keyBy('lesson');
+    $expected = collect(RecruiterTrainingContent::all())->keyBy('level')[4]['lessons'];
+
+    foreach ($lessons as $lesson) {
+        expect($report[$lesson->title]['status'])->toBe(TrainingContentPopulator::REFRESHED)
+            ->and($lesson->fresh()->body)->toBe(trim($expected[$lesson->title]));
+    }
+
+    expect($structure())->toBe($before)
+        ->and($counts())->toBe($countsBefore)
+        ->and($assignment->fresh()->course_version_id)->toBe($version->id)
+        ->and($completion->fresh()->lesson_id)->toBe($lessons[0]->id)
+        ->and($course->fresh()->id)->toBe($course->id)
+        ->and(TrainingLesson::query()->whereNull('body')->count())->toBe(0);
+
+    $again = collect(app(TrainingContentPopulator::class)->populate(RecruiterTrainingContent::all(), previous: $previous));
+
+    expect($again->pluck('status')->unique()->values()->all())->toBe([TrainingContentPopulator::CURRENT]);
+});
+
+test('refresh keeps content edited in the app', function () {
+    $version = courseForLevel(7)->versions()->sole();
+    [$lessons, $previous] = earlierGeneratedLessons($version, 7, 2);
+    $lessons[1]->forceFill(['body' => $lessons[1]->body."\r\nA paragraph the training manager added."])->save();
+
+    $report = collect(app(TrainingContentPopulator::class)->populate(RecruiterTrainingContent::all(), previous: $previous))->keyBy('lesson');
+
+    expect($report[$lessons[0]->title]['status'])->toBe(TrainingContentPopulator::REFRESHED)
+        ->and($report[$lessons[1]->title]['status'])->toBe(TrainingContentPopulator::KEPT_EDITED)
+        ->and($lessons[1]->fresh()->body)->toContain('A paragraph the training manager added.');
+});
+
+test('refresh never edits a published version and needs a manager to draft the update', function () {
+    $lead = contentPopulationEmployee(SystemRole::RecruiterLead);
+    $course = courseForLevel(10);
+    $v1 = $course->versions()->sole();
+    [$lessons, $previous] = earlierGeneratedLessons($v1, 10, 2);
+    app(TrainingContentService::class)->publishVersion($v1, $lead->user);
+    $published = $v1->lessons()->orderBy('id')->pluck('body', 'id')->all();
+    $populator = app(TrainingContentPopulator::class);
+
+    $report = collect($populator->populate(RecruiterTrainingContent::all(), previous: $previous))->keyBy('lesson');
+
+    expect($report[$lessons[0]->title]['status'])->toBe(TrainingContentPopulator::NEEDS_DRAFT)
+        ->and($course->versions()->count())->toBe(1);
+
+    $populator->populate(RecruiterTrainingContent::all(), $lead->user, previous: $previous);
+    $v2 = $course->versions()->where('version_number', 2)->sole();
+
+    expect($v2->status)->toBe(TrainingContentStatus::Draft)
+        ->and($v2->lessons()->count())->toBe($v1->lessons()->count())
+        ->and($v2->lessons()->where('title', $lessons[0]->title)->sole()->body)->toContain('Scenario two, from the company training')
+        ->and($v1->fresh()->status)->toBe(TrainingContentStatus::Published)
+        ->and($v1->lessons()->orderBy('id')->pluck('body', 'id')->all())->toBe($published);
+});
+
+test('the refresh option is explicit and reports what it would change', function () {
+    $this->artisan('recruiter:training-content')->assertSuccessful();
+
+    $this->artisan('recruiter:training-content', ['--refresh' => true, '--dry-run' => true])
+        ->expectsOutputToContain('Dry run, nothing saved.')
+        ->expectsOutputToContain('Refreshed from an earlier release: 0')
+        ->expectsOutputToContain('Already current: 183')
+        ->expectsOutputToContain('Kept because it was edited in the app: 0')
+        ->assertSuccessful();
 });
 
 test('the command refuses an unknown manager email', function () {

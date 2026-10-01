@@ -47,6 +47,9 @@ return [
         Ignoring graduation timing.
         Duplicating outreach across the team.
 
+        Source note
+        The company training documents do not cover university research. This lesson is based on general recruiting practice and needs additional approved training content, including the company's list of target universities and any rules on contacting them. Until that is approved, follow your team lead's instructions.
+
         Key takeaway
         Good research directs your effort to the right universities at the right time, in the right way.
         TEXT,
@@ -96,6 +99,9 @@ return [
         Assuming every technical program is STEM eligible.
         Advertising guarantees.
         Ignoring skills in favour of program names.
+
+        Source note
+        The OPT Recruiter Training Material covers only the OPT periods: twelve months, extendable by twenty-four months for STEM, and twelve months for MBA students. It does not cover STEM programs or the designated degree list. The rest of this lesson is based on published government guidance and needs review and approval by the training manager.
 
         Key takeaway
         STEM awareness focuses your outreach. Eligibility decisions belong to official rules and the DSO.
@@ -151,6 +157,9 @@ return [
         Hiding the staffing model.
         Registering without company approval.
 
+        Source note
+        The company training documents do not cover university career centers. This lesson is based on general recruiting practice and typical university employer rules, and it needs additional approved training content, including whether the company is registered with any career center and who may contact them.
+
         Key takeaway
         Career centers are gatekeepers that protect students. Earn their trust with honest postings and professional behaviour.
         TEXT,
@@ -201,6 +210,9 @@ return [
         Contacting offices about individual students.
         Discouraging candidates from asking their DSO.
 
+        Source note
+        The company training documents do not cover international student offices. This lesson is based on published guidance about the role of designated school officials, and it needs additional approved training content on when HR, not recruiters, contacts a school.
+
         Key takeaway
         International student offices are the official guides for students. Point candidates to them and let HR handle employer communication.
         TEXT,
@@ -241,7 +253,7 @@ return [
         Record policy notes in your university research.
 
         Practical example
-        A university's policy says third-party recruiters must disclose that they are staffing companies and must not charge students fees. You make sure your career portal posting clearly describes your company as an IT staffing and consulting company, and you include the approved statement that candidates are not charged any fee.
+        A university's policy says third-party recruiters must disclose that they are staffing companies and must not charge students fees. You make sure your career portal posting clearly describes your company as an IT staffing and consulting company, and you check with HR that the posting complies with the university's fee rule before it goes live.
 
         Recruiter checklist
         Read every university's policy before outreach.
@@ -253,6 +265,9 @@ return [
         Assuming every university has the same rules.
         Using university branding.
         Messaging students through lists without permission.
+
+        Source note
+        The company training documents do not cover university recruitment policies. This lesson describes common university rules and needs additional approved training content, including the company's own policy for working with universities.
 
         Key takeaway
         University policies are the rules of engagement. Follow them carefully to protect students and your company's access.
@@ -306,6 +321,9 @@ return [
         Sending identical messages to many organisations.
         Offering unapproved incentives.
         Forgetting follow-up.
+
+        Source note
+        The company training documents do not cover outreach to universities and student organisations. This lesson is based on general recruiting practice and needs additional approved training content, including approved message templates.
 
         Key takeaway
         Professional outreach is planned, personal and honest. It opens doors that generic messages cannot.
@@ -362,6 +380,9 @@ return [
         Giving up after one message.
         Sending daily follow-ups.
         Forgetting to thank contacts after help.
+
+        Source note
+        The company training documents cover follow-up with candidates, but not with universities or student organisations. This lesson is based on general practice and needs additional approved training content.
 
         Key takeaway
         Polite, timely and valuable follow-up turns first contacts into relationships.

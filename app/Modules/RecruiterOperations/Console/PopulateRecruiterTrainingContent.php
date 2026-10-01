@@ -13,11 +13,16 @@ use Illuminate\Support\Facades\Schema;
  * Fills empty or placeholder written content in the existing OPT recruiter
  * curriculum. Safe to run again: meaningful text is never overwritten and no
  * course or lesson is ever created.
+ *
+ * --refresh also replaces content that is exactly what an earlier release
+ * generated, upgrading it to the current version. Text edited in the app is
+ * still kept.
  */
 class PopulateRecruiterTrainingContent extends Command
 {
     protected $signature = 'recruiter:training-content
         {--as= : Email of a training manager, used to create a new draft when a course only has a published version}
+        {--refresh : Also replace content that an earlier release generated, keeping anything edited in the app}
         {--dry-run : Report what would change without saving}';
 
     protected $description = 'Populate empty written content in the existing OPT recruiter training lessons';
@@ -43,7 +48,8 @@ class PopulateRecruiterTrainingContent extends Command
         }
 
         $dryRun = (bool) $this->option('dry-run');
-        $report = $populator->populate(RecruiterTrainingContent::all(), $actor, $dryRun);
+        $refresh = (bool) $this->option('refresh');
+        $report = $populator->populate(RecruiterTrainingContent::all(), $actor, $dryRun, $refresh ? RecruiterTrainingContent::previous() : null);
 
         $this->table(
             ['Level', 'Course', 'Version', 'Lesson', 'Written content', 'Words'],
@@ -55,6 +61,13 @@ class PopulateRecruiterTrainingContent extends Command
         $this->newLine();
         $this->line(($dryRun ? 'Dry run, nothing saved. ' : '').'Lessons: '.count(array_filter($report, fn (array $row) => $row['status'] !== TrainingContentPopulator::LESSON_MISSING && $row['status'] !== TrainingContentPopulator::COURSE_MISSING)));
         $this->line('Populated: '.$count(TrainingContentPopulator::POPULATED, TrainingContentPopulator::REPLACED_PLACEHOLDER));
+
+        if ($refresh) {
+            $this->line('Refreshed from an earlier release: '.$count(TrainingContentPopulator::REFRESHED));
+            $this->line('Already current: '.$count(TrainingContentPopulator::CURRENT));
+            $this->line('Kept because it was edited in the app: '.$count(TrainingContentPopulator::KEPT_EDITED));
+        }
+
         $this->line('Already had meaningful content: '.$count(TrainingContentPopulator::KEPT));
         $this->line('Still empty: '.$count(TrainingContentPopulator::NO_CONTENT, TrainingContentPopulator::NEEDS_DRAFT));
         $this->line('Content with no matching lesson or course: '.$count(TrainingContentPopulator::LESSON_MISSING, TrainingContentPopulator::COURSE_MISSING));

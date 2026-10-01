@@ -52,6 +52,21 @@ return [
         Stopping work after the offer.
         Keeping important details in personal notes only.
 
+        From the company training material: the OPT recruiter role
+        The OPT Recruiter Roles and Responsibilities document states the purpose of the role: the OPT recruiter manages the candidate relationship from initial sourcing through documentation, offer letter, verification, bench enrollment, profile marketing, payroll follow-up and ongoing candidate support. It lists eight responsibilities.
+        One, candidate sourcing. Identify and contact OPT and STEM OPT candidates, explain the available services and process clearly, and identify candidates interested in proceeding.
+        Two, document collection. Collect the required documents, check that they are complete and readable, submit them to the HR or verification team, and follow up for anything missing.
+        Three, offer letter coordination. After the required document review, coordinate with the OPT Head and HR, assist with offer letter processing, and keep status and documentation records.
+        Four, E-Verify follow-up. Coordinate with candidates on the required HR verification steps, follow up on anything pending, and escalate unresolved issues to the OPT Head or USA HR.
+        Five, profile marketing and bench enrollment. Ask eligible candidates whether they want their profile marketed, explain the bench and marketing process, add interested candidates to the bench pipeline after onboarding, and coordinate with the Bench Sales team.
+        Six, bench candidate follow-up. Stay in regular contact with bench candidates, keep resumes updated, and track submissions, interviews, client responses, requirements and placement progress.
+        Seven, payroll follow-up. Follow up with active candidates on required hours, track payroll status, coordinate with the Accountant or HR, and escalate payroll issues to the OPT Head.
+        Eight, candidate relationship management. Give regular updates on marketing, interviews, payroll and placement, and keep records current.
+        The company's end-to-end process
+        The company's End-to-End Business Process document gives the sequence: candidate sourcing; the OPT recruiter collects documents; the HR or verification team reviews them; genuine, valid and required documents are confirmed; an offer letter is issued; HR completes the required E-Verify process; the recruiter becomes eligible for any applicable incentive; the recruiter follows up with the candidate for payroll; payroll is processed by the Accountant and run; and the OPT recruiter and OPT Head continue monitoring the candidate.
+        Compliance review required
+        The company business plan describes offer letters as a paid service to candidates, and the process document describes payroll amounts and taxes being collected before payroll is run. These arrangements need written review by HR and qualified immigration counsel before any recruiter describes them to a candidate. OPT employment must be genuine, related to the degree, and paid by the employer for real work. Recruiters never collect money, never present an offer letter as something a candidate can buy, and refer every fee or payroll funding question to HR. Company-specific process: verify with HR or authorized personnel.
+
         Key takeaway
         The OPT recruiter workflow is a chain. Every stage depends on the accuracy of the one before.
         TEXT,
@@ -98,6 +113,9 @@ return [
         Assuming OPT is accepted because it is not mentioned.
         Ignoring degree relevance.
         Not sharing the analysis with the team.
+
+        From the company training material
+        The US MNC Staffing document says to study each requirement two or three times and note the client's location, the duration and type of project, the required skills and roles, and the visa statuses the client accepts, such as Green Card, OPT, EAD, H-1B or U.S. citizen. The Job Description Analysis training adds its work authorization checkpoint: do not assume, capture the stated restrictions, confirm unclear wording with the Account Manager or BDM, and document accurately.
 
         Key takeaway
         OPT requirement analysis adds authorization, degree and date checks to the standard method. Clarify early and document clearly.
@@ -149,6 +167,9 @@ return [
         Filtering by nationality or name.
         Contacting OPT candidates for roles that exclude OPT.
 
+        From the company training material
+        The OPT Recruiter Training Material says the OPT recruiter goes through portals, studies the competition to identify the best candidates in the market, and uses three source types: OPT job portals such as desiOPT, simplyOPT, Dice and Monster; the previous database; and social networking sites such as LinkedIn, Facebook and Twitter. From these, you collect the candidate's details and then call the candidate to ask for the rest.
+
         Key takeaway
         OPT candidates are found where students and recent graduates gather. Plan around the academic calendar and stay fair and compliant.
         TEXT,
@@ -174,7 +195,7 @@ return [
         Do not misrepresent yourself or your company.
         Do not collect personal information you do not need.
         Respect candidates who decline or ask not to be contacted.
-        Never charge candidates for job placement. If your company has any policy on this, follow it. Candidates may ask, because some have heard of companies that do.
+        Never ask a candidate for money yourself. If your company offers any paid service, it must follow the approved written company process, and it must never be presented as buying a job, an offer letter, work authorization or sponsorship. Candidates may ask about fees, because some have heard of fraudulent companies. Refer every fee question to HR.
 
         What makes candidates respond
         A personal message that refers to their actual skills or projects.
@@ -198,6 +219,9 @@ return [
         Waiting for requirements before sourcing.
         Sending generic messages to large lists.
         Losing track of candidates whose EAD is pending.
+
+        From the company training material
+        The OPT Recruiter Roles and Responsibilities document defines sourcing as identifying and contacting OPT and STEM OPT candidates, explaining the available services and process clearly, and identifying the candidates interested in proceeding. The business plan sets a target of about twenty-five new candidates per month across the team. Company-specific process: individual targets are set by the OPT Head. Verify with HR or authorized personnel.
 
         Key takeaway
         Continuous, ethical sourcing builds a ready pipeline of engaged OPT candidates for every new requirement.
@@ -247,6 +271,9 @@ return [
         Skipping work authorization or availability.
         Asking non-approved personal questions.
         Promising outcomes to keep the candidate interested.
+
+        From the company training material
+        Use the Day 7 OPT candidate screening questionnaire from the calling script for every initial screening call. It covers location, relocation, U.S. IT experience and stack; visa status, university, graduation date, EAD start and end dates, remaining unemployment days and whether the current employer is E-Verified; expected rate, notice period and current project; and future H-1B needs and readiness for a webcam coding assessment. Level 7 teaches each question in detail.
 
         Key takeaway
         A structured screening gives you the facts you need, protects the candidate, and keeps your submissions accurate.
@@ -299,6 +326,9 @@ return [
         Overpromising to keep candidates engaged.
         Using jargon without explanation.
 
+        From the company training material
+        The OPT Recruiter Roles and Responsibilities document asks recruiters to explain the available services and process clearly, and to provide regular updates on profile marketing, interviews, payroll and placement. The objection cheat sheet reminds you why: international students are cautious because of visa scams, so lead with transparency, empathy and proof of legitimacy.
+
         Key takeaway
         Candidates remember how you communicated. Clear, honest and timely communication builds trust and long-term relationships.
         TEXT,
@@ -345,6 +375,9 @@ return [
         Submitting before the candidate replies.
         Treating a verbal maybe as consent.
         Forgetting to check for duplicates.
+
+        From the company training material
+        The US MNC Staffing document requires a right to represent, which it calls R2R, before every submission, together with a written rate confirmation and the submission template. For consultants employed by another company, you also call the employer, confirm the rate, and sign an NDA and an NCA. The Day 5 workflow ends with the same rule: confirm interest and requirement fit before submission.
 
         Key takeaway
         Genuine interest and written consent come before every submission. They protect the candidate, the vendor and your company.
@@ -396,6 +429,9 @@ return [
         Leaving fields blank or guessing.
         Sending documents through personal apps.
         Trying to resolve document issues yourself.
+
+        From the company training material
+        In the OPT Recruiter Roles and Responsibilities document, document collection has four parts: collect the required candidate documents, check that they are complete and readable, submit them to the appropriate HR or verification team, and follow up for missing documentation. The OPT Head document adds that documents are reviewed for completeness and validity, and that candidates who do not meet the required documentation criteria should not proceed. Your check is for completeness and readability only. Deciding whether a document is genuine and valid belongs to the HR or verification team.
 
         Key takeaway
         A clean documentation handoff starts onboarding on the right foot. Be accurate, secure and quick.
@@ -452,6 +488,10 @@ return [
         Delaying the handoff to HR.
         Ignoring a competing offer.
 
+        From the company training material
+        The OPT Recruiter Roles and Responsibilities document describes offer letter coordination: after the required document review, coordinate with the OPT Head and HR, assist with offer letter processing, and maintain status and documentation records. The OPT Head oversees the process and keeps records of every offer letter issued.
+        The calling script says the company will give an offer letter if the candidate relocates to the head office for training. The business plan lists offer letters as a paid service. Company-specific process: an offer letter must describe a genuine position with real duties, pay and a work location, and it is issued only by HR. Never tell a candidate that an offer letter can be bought, and refer every question about cost to HR. Verify with HR or authorized personnel.
+
         Key takeaway
         Offers must be accurate and approved. Communicate clearly, confirm in writing and hand off quickly.
         TEXT,
@@ -505,6 +545,9 @@ return [
         Disappearing after the offer.
         Answering HR, tax or immigration questions yourself.
         Informing the vendor of delays too late.
+
+        From the company training material
+        In the company process, onboarding includes the required E-Verify step, completed by HR after the offer letter. The OPT recruiter's part, called E-Verify follow-up, is to coordinate with candidates on the required HR verification steps, follow up on anything pending, and escalate unresolved issues to the OPT Head or USA HR. After onboarding, interested candidates can be enrolled on the bench for profile marketing.
 
         Key takeaway
         Onboarding is a team effort led by HR. Stay engaged, communicate early and keep the candidate confident.

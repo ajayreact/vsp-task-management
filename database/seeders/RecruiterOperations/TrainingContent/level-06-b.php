@@ -47,6 +47,10 @@ return [
         Not reporting a consultant's move.
         Giving tax advice.
 
+        From the company training material
+        The OPT Recruiter Roles and Responsibilities document describes payroll follow-up: follow up with active candidates about the required payroll hours, track payroll status, coordinate with the Accountant or HR when payroll information is needed, and escalate payment or payroll issues to the OPT Head. The OPT Head monitors the required minimum hours and payroll status with the Accountant and USA HR.
+        Company-specific process: the End-to-End Business Process document refers to payroll amounts and taxes being collected before payroll is run. Recruiters do not collect, request or handle any money from candidates. Any question about who funds payroll goes to HR, the Accountant and the OPT Head, and needs review by qualified counsel. Verify with HR or authorized personnel.
+
         Key takeaway
         Payroll can only be accurate if your handoff is accurate. Send complete details and report changes immediately.
         TEXT,
@@ -95,6 +99,9 @@ return [
         Waiting for others to update you.
         Following up too often, which annoys people.
         Forgetting placed consultants.
+
+        From the company training material
+        Follow-up appears in almost every part of the company's OPT recruiter role. Bench candidate follow-up means regular communication with candidates on the bench, keeping resumes and profiles updated, and tracking submissions, interviews, client responses, requirements and placement progress, in coordination with Bench Sales. Candidate relationship management means regular updates on profile marketing, interviews, payroll and placement. The final step of the end-to-end process is that the OPT recruiter and OPT Head continue monitoring the candidate. The US MNC Staffing document adds that after each submission you follow up for feedback from the BDM.
 
         Key takeaway
         Planned, friendly follow-up keeps the process moving and builds long-term relationships.
@@ -148,6 +155,9 @@ return [
         Sending the same message to everyone.
         Using an incomplete or anonymous profile.
 
+        From the company training material
+        The OPT Recruiter Training Material lists LinkedIn, Facebook and Twitter as the social networking sources for OPT candidates. The Day 6 cold call script starts from a profile found on LinkedIn or Dice and mentions one or two of the candidate's core skills.
+
         Key takeaway
         LinkedIn connects you with OPT candidates at the right moment. Search smartly and write personally and honestly.
         TEXT,
@@ -194,6 +204,9 @@ return [
         Emailing faculty or students without permission.
         Hiding that your company is a staffing company.
         Posting roles that do not exist.
+
+        Source note
+        The company training documents do not cover university sourcing. This lesson is based on general recruiting practice and university rules, and it needs review and approval by the training manager before any recruiter contacts a university on the company's behalf.
 
         Key takeaway
         Universities are valuable partners. Follow their rules, be transparent, and engage at the right time.
@@ -243,6 +256,9 @@ return [
         Assuming all IT-related degrees are STEM.
         Forgetting the employer requirements for STEM OPT.
 
+        From the company training material
+        The OPT Recruiter Training Material says OPT is valid for twelve months and can be extended by twenty-four months, a total of thirty-six months, and that MBA students have OPT for twelve months only. The extension applies only to degrees on the official STEM list, so an MBA without a STEM-designated program code does not qualify. The Day 7 questionnaire records whether a candidate is on initial OPT or STEM OPT and whether their current employer is E-Verified, which is required for STEM OPT.
+
         Key takeaway
         STEM programs matter for longer authorization, but eligibility is decided by official rules. Know the basics and refer the details.
         TEXT,
@@ -287,6 +303,9 @@ return [
         Posting in groups that do not allow recruiters.
         Exaggerating roles to attract attention.
         Selecting candidates by origin.
+
+        From the company training material
+        The OPT Recruiter Training Material names desiOPT and simplyOPT, portals aimed at OPT candidates, and social networking sites such as Facebook. The calling materials warn that international students are highly cautious because of visa scams. In student communities, introduce yourself and your company fully, and never post fee or offer letter claims.
 
         Key takeaway
         International student communities can be valuable, but only when you engage respectfully, honestly and fairly.
@@ -336,6 +355,9 @@ return [
         Hiding your recruiter identity.
         Ignoring group rules.
 
+        From the company training material
+        The Job Description Analysis training says to share requirements through relevant professional or Yahoo groups, where appropriate. Yahoo Groups closed in 2020. Today, use only the LinkedIn groups and professional communities your team lead approves.
+
         Key takeaway
         Professional groups are long-term relationship channels. Participate respectfully, learn, and post real roles where allowed.
         TEXT,
@@ -383,6 +405,9 @@ return [
         Promising referral bonuses that are not official.
         Skipping screening for referred candidates.
         Sharing candidate details with referrers.
+
+        From the company training material
+        The OPT calling script asks every interested candidate to refer friends who are looking for a job, and says that the more friends they refer, the more benefits they receive. It mentions a referral amount of seven hundred and fifty dollars. Company-specific process: mention a referral bonus only if HR confirms the program, the amount and the conditions in writing. Verify with HR or authorized personnel.
 
         Key takeaway
         Referrals are built on trust. Ask well, respond quickly, and treat everyone with the same fair process.
@@ -433,6 +458,11 @@ return [
         Creating informal partnerships without approval.
         Skipping screening for partner candidates.
         Sharing client information with partners.
+
+        From the company training material
+        The company business plan describes four core functions: OPT candidate services, bench sales and profile marketing, account management, and HR, operations and finance. It lists the business opportunities the division works with: offer letters, recurring payroll, C2C or Corp-to-Corp marketing, bench sales, paid training, job support, resume services and other candidate services. As the division grows, it plans to expand vendor and client relationships and add account managers and bench sales recruiters.
+        For an OPT recruiter, the most important partnership is internal. You hand interested candidates to the Bench Sales team for profile marketing, and you coordinate with Account Managers on requirements. Profiles are shared only through authorized channels.
+        Company-specific process: which services are offered to which candidates, and on what terms, is decided by management and must be reviewed by HR and legal. Never describe a paid service as a way to get work authorization. Verify with HR or authorized personnel.
 
         Key takeaway
         Partnerships extend your reach, but they work only within approved terms and the same quality standards.

@@ -49,6 +49,9 @@ return [
         Advising on whether a job fits the degree.
         Making judgements based on university reputation.
 
+        From the company training material
+        The Job Description Analysis checklist includes education and certifications for every candidate. The OPT calling script asks: When did you complete your masters? The calling questionnaire records the university and the graduation month and year, in the format month and four-digit year. Record these exactly as the candidate gives them, and check them against the resume.
+
         Key takeaway
         Education details matter for job fit and work authorization. Record them exactly and leave eligibility decisions to HR and the DSO.
         TEXT,
@@ -94,6 +97,9 @@ return [
         Writing a general term like AWS Certified without the specific certification.
         Treating a certification as proof of experience.
         Listing certifications that are in progress as completed.
+
+        From the company training material
+        The Job Description Analysis resume checklist lists education and certifications together, and achievements and accomplishments as a separate item. A certification is an achievement only if it is genuine and current, so record the exact name and date.
 
         Key takeaway
         Certifications can strengthen a profile. Record them precisely, confirm they are current, and pair them with real experience.
@@ -142,6 +148,9 @@ return [
         Ignoring domain when the requirement mentions it.
         Overstating domain experience.
         Rejecting entry-level candidates for lack of domain experience when it is only preferred.
+
+        From the company training material
+        The Job Description Analysis training lists domain experience as a resume check: look for relevant industry or domain exposure. Its reading method also asks you to capture relevant domain or project experience in the experience section of the JD.
 
         Key takeaway
         Domain experience can be a powerful differentiator. Find it, describe it accurately and use it to strengthen strong submissions.
@@ -192,6 +201,9 @@ return [
         Trusting the resume address.
         Calling relocating candidates local.
         Not confirming the state for remote roles.
+
+        From the company training material
+        The Day 5 workflow includes location in the Screen step: validate skills, experience, location and other conditions. The OPT calling script asks two questions on every call: Where are you located? and Are you willing to relocate? The training's Java and AWS example shows why: it requires Utah local candidates with a driving licence, so a resume that only says United States is not enough.
 
         Key takeaway
         Location must be confirmed, not assumed. Accurate location details prevent rejected submissions and payroll problems.
@@ -246,6 +258,9 @@ return [
         Accusing candidates instead of asking.
         Submitting candidates with major unexplained differences.
 
+        From the company training material
+        The Job Description Analysis training says to review LinkedIn for consistency and additional professional context, and to use public professional information only from approved, lawful sources, avoiding unsupported conclusions. A difference between the resume and the profile is a question to ask the candidate, not proof of anything.
+
         Key takeaway
         LinkedIn review supports accurate submissions. Check consistency, ask respectfully, and resolve differences before submitting.
         TEXT,
@@ -297,6 +312,9 @@ return [
         Judging candidates harshly for gaps.
         Ignoring overlapping full-time roles.
         Changing dates to improve a resume.
+
+        From the company training material
+        The Job Description Analysis checklist includes job history and tenure pattern, and formatting, readability, grammar and spelling. Tenure pattern means how long the candidate stayed in each role. Short contract roles are normal in IT staffing, so ask about them rather than assuming a problem.
 
         Key takeaway
         Job history tells a candidate's story. Read it carefully, ask fair questions, and keep every detail accurate.
@@ -355,6 +373,9 @@ return [
         Submitting based on a general impression.
         Hiding a gap in the summary.
         Sending an old resume.
+
+        From the company training material
+        The Job Description Analysis training's learning objective for this skill is to compare candidate profiles against requirement-specific keywords and experience. Its workflow ends with screen, validating skills, experience, location and other conditions, and communicate, confirming interest and requirement fit before submission. Where a client provides a scoring framework, such as the Java and AWS example's split of ten, thirty, twenty-five, fifteen and twenty percent, use it as an additional guide. The US MNC Staffing document then says to select the best one or two resumes for each requirement, rather than sending many weak ones.
 
         Key takeaway
         A structured comparison leads to clear decisions and honest, persuasive submissions. Accuracy protects the candidate, the client and your company.

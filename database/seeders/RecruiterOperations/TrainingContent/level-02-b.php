@@ -17,6 +17,9 @@ return [
         Certain H-4 spouses may apply for an H-4 EAD, which does allow work. The next lesson explains this.
         H-4 holders can study in the U.S.
 
+        From the company training material
+        The OPT Recruiter Training Material describes H-4 as the dependent visa of H-1B and states that H-4 holders are not eligible to work in the U.S. The US Visa Types presentation lists H-1B and H-4 together as the temporary worker and the dependent who cannot work, and explains that the spouse and unmarried children under twenty-one of an H-1B professional may stay under H-4 for the same period as the H-1B. The one important exception, the H-4 EAD for certain spouses, is explained in the next lesson.
+
         How H-4 connects to OPT recruiting
         Some candidates you meet were F-1 students who later married an H-1B worker. Some may have changed from F-1 to H-4. Others may hold H-4 and also have an H-4 EAD.
         A candidate's status can change over time, so always ask about current status rather than assuming from the resume or past conversations.
@@ -88,6 +91,9 @@ return [
         Assuming a renewal is approved because it was filed.
         Skipping the end date check during placement.
 
+        Source note
+        The OPT Recruiter Training Material says that H-4 dependants are not eligible to work. That is true for most H-4 holders, but since 2015 certain H-4 spouses of H-1B workers can apply for an EAD, which this lesson explains. The company documents do not cover the H-4 EAD itself, so this lesson is based on published government guidance and needs review and approval by HR and the training manager.
+
         Key takeaway
         An H-4 EAD can allow broad work authorization, but it has an end date and renewal rules. Record accurately and let HR confirm details.
         TEXT,
@@ -137,6 +143,9 @@ return [
         Ignoring the major when judging OPT job relevance. Remember to escalate rather than decide.
         Saving document copies on a personal device.
 
+        Source note
+        The company objection cheat sheet mentions the I-20 only when a candidate asks why it is needed, and suggests letting the candidate watermark copies For Verification Only. The company documents do not explain the form itself. This lesson is based on published government guidance and needs review and approval by HR and the training manager.
+
         Key takeaway
         The I-20 is the student's program record. It explains degree, dates and authorizations. Handle it carefully and only as your process requires.
         TEXT,
@@ -181,6 +190,9 @@ return [
         Assuming a receipt notice means approval.
         Promising a candidate their EAD will arrive by a certain date.
         Forgetting to follow up when the EAD is expected.
+
+        Source note
+        The company training documents do not cover Form I-765. This lesson is based on published government guidance and needs review and approval by HR and the training manager.
 
         Key takeaway
         Form I-765 is how candidates request work authorization. Until an EAD is approved and its start date arrives, initial OPT candidates cannot start work.
@@ -229,6 +241,9 @@ return [
         Promising a quick turnaround on the I-983.
         Giving incorrect job titles or locations that later conflict with the training plan.
 
+        Source note
+        The company training documents do not cover Form I-983. This lesson is based on published government guidance and needs review and approval by HR and the training manager.
+
         Key takeaway
         The I-983 is a formal STEM OPT training plan between the student, the employer and the school. Recruiters support it with accurate information and leave the rest to HR.
         TEXT,
@@ -272,6 +287,9 @@ return [
         Confusing the I-94 with the visa stamp.
         Making assumptions about status from an old I-94.
         Sending candidates to unofficial websites that charge fees.
+
+        Source note
+        The company training documents do not cover Form I-94. This lesson is based on published government guidance and needs review and approval by HR and the training manager.
 
         Key takeaway
         The I-94 records a person's admission and class of admission. Recruiters should understand it, but HR interprets it.

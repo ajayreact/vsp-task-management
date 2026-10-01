@@ -53,6 +53,10 @@ return [
         Hiding planned absences from the vendor.
         Giving travel advice.
 
+        From the company calling script
+        Near the end of the call, the OPT calling script asks: What is your notice period for the training and placement program? The Day 7 questionnaire records notice period or availability to start as immediate, or a number of weeks.
+        Company-specific process: training start dates and batch schedules are set by management. Verify with HR or authorized personnel before giving a candidate any date.
+
         Key takeaway
         Realistic availability avoids failed starts. Ask clearly, check against authorization, and keep it current.
         TEXT,
@@ -106,6 +110,10 @@ return [
         Encouraging candidates to quit without notice.
         Criticising current employers.
         Interpreting agreements or OPT rules.
+
+        From the company calling script
+        The Day 7 questionnaire asks: Are you currently working on a project? and, if yes, What is the project end date? Record the end date as a full date. It tells you when the candidate can realistically start, and whether they risk a gap in employment.
+        Company-specific process: if a candidate is employed by another company, follow the approved process before discussing a move. Verify with HR or authorized personnel.
 
         Key takeaway
         Understand project status, respect current commitments, and refer legal and status questions to the right people.
@@ -163,6 +171,10 @@ return [
         Promising a rate before approval.
         Sharing bill rates or margins.
         Calculating net pay for candidates.
+
+        From the company calling script
+        The Day 7 questionnaire records the expected hourly rate and whether it is W2 or C2C. For an OPT candidate, the rate is normally a W2 rate, because OPT candidates work as employees. If a candidate gives a C2C figure, ask what they mean, and record it accurately.
+        Company-specific process: approved pay ranges come from your lead. Verify with HR or authorized personnel before quoting any figure.
 
         Key takeaway
         Transparent, approved and accurately recorded rates prevent disputes and build trust.
@@ -222,6 +234,10 @@ return [
         Talking too fast.
         Using unclear local expressions.
 
+        From the company training material
+        The company calling materials model a polite, structured call: a greeting, a check that it is the right time, short questions one at a time, and a warm close, thank you, have a nice day. The objection cheat sheet adds the principle behind every call: international students are highly cautious because of visa scams, so recruiters must lead with transparency, empathy and proof of legitimacy.
+        Company-specific process: call recording, caller identity and calling hours follow team policy. Verify with HR or authorized personnel.
+
         Key takeaway
         Good calling communication is listening, clarity and tone. Practise them deliberately and every call improves.
         TEXT,
@@ -278,6 +294,13 @@ return [
         Forgetting written confirmation.
         Disappearing when there is no news.
         Following up too frequently.
+
+        From the company calling script
+        The OPT calling script builds follow-up into every call. If it is not the right time, note down the candidate's preferred time and call back then. If the candidate is interested, ask: What is your available time to talk with my sales manager? Then schedule that call and confirm it. Before closing, the script asks the candidate to refer friends who are looking for jobs.
+        The voicemail script
+        When the candidate does not answer, the script gives this voicemail: Hi, this is your name calling from VSP Group. This call is regarding a job opportunity for you. I would appreciate it if you could call me back at the number and extension. Thank you. Have a nice day.
+        Speak slowly, say the number twice, and send a short email or message afterwards so that the candidate has your number in writing.
+        Company-specific process: use the approved call-back number and extension for your team, and mention a referral bonus only if HR confirms that a referral program exists and what its terms are. The original script mentions an amount of seven hundred and fifty dollars. Verify with HR or authorized personnel.
 
         Key takeaway
         Timely, written and polite follow-up keeps candidates engaged and creates a clear record of every agreement.
@@ -341,6 +364,10 @@ return [
         Long, unstructured paragraphs.
         Sending documents insecurely.
 
+        From the company calling script
+        The OPT calling script says that when a candidate is happy with the opportunity, you send an email with the company details and ask them to send their most updated resume. The objection cheat sheet adds that when a candidate doubts the company, you email verification links, such as the company's website and LinkedIn page, so that they can check at their own pace.
+        Company-specific process: use the approved email template and company details. Verify with HR or authorized personnel.
+
         Key takeaway
         A clear, accurate and secure email is a professional record. Write it carefully and check it before sending.
         TEXT,
@@ -397,6 +424,10 @@ return [
         Generic copy-and-paste messages.
         Repeated follow-ups that feel like pressure.
         Requesting documents on LinkedIn.
+
+        From the company calling script
+        The Day 6 cold call starts from a LinkedIn or Dice profile, and the objection cheat sheet tells you to point doubtful candidates to the company's LinkedIn page with its active employees. Both depend on your own LinkedIn profile and the company page looking genuine and complete.
+        Company-specific process: use the company name and title approved for your profile. Verify with HR or authorized personnel.
 
         Key takeaway
         On LinkedIn, personal and respectful communication earns replies. Spam earns blocks.

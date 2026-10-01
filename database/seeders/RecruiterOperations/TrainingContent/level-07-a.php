@@ -54,6 +54,16 @@ return [
         Continuing when the candidate says it is a bad time.
         Calling at an inconvenient hour in the candidate's time zone.
 
+        From the company calling script
+        The OPT Recruiter Training Material gives the company's standard opening, under the heading How to speak with a consultant.
+        Recruiter: Greetings of the day! Hi, this is Kiran calling from VSP Group. Am I speaking to the candidate's name?
+        Recruiter: How are you doing?
+        Recruiter: This call is regarding a job opportunity for you. Is this the right time to speak with you?
+        If the candidate says it is not a good time, the script says: Sorry to disturb you. May I know what would be the right time to reach you? Then note down the time the candidate gives, and call back at exactly that time.
+        If the candidate says yes, continue to the professional introduction in the next lesson.
+        Practise this opening until you can say it slowly and naturally, using your own name. Never skip the right-time question. It is the permission step that the whole call depends on.
+        Company-specific process: use the company name, your caller identity and the call-back number approved for your team. Verify with HR or authorized personnel.
+
         Key takeaway
         A clear, polite and permission-based introduction earns you the next minute of the call. Prepare, slow down and respect the candidate's time.
         TEXT,
@@ -104,6 +114,13 @@ return [
         Using different names on different platforms.
         Describing the company in exaggerated terms.
         Requesting documents too early.
+
+        From the company calling script
+        After the candidate agrees to talk, the OPT calling script continues.
+        Recruiter: We are a U.S. IT consulting firm looking for consultants to place with our direct clients. Are you looking for any job opportunity or job change?
+        If the candidate says yes, you move to the screening questions. If the candidate says no, thank them, ask whether you may contact them in future, and record the answer.
+        The script also sets the professional close for every call: thank the candidate, and end with, Thank you, have a nice day.
+        Company-specific process: the description of the company as working with direct clients must match what management has approved. Verify with HR or authorized personnel before using it.
 
         Key takeaway
         Professionalism is visible in your identity, your words and your follow-through. Consistency builds trust before you even discuss a role.
@@ -160,6 +177,19 @@ return [
         Using the same generic pitch for everyone.
         Forgetting the next step.
 
+        From the company calling script: the Day 6 sixty-second cold call
+        The Calling script and Practice document gives this script for calling an F-1 student or graduate about a bench-marketing or direct-placement opportunity.
+        Recruiter: Hi, candidate's name, my name is your name from company name. I was reviewing your profile on LinkedIn or Dice and was really impressed by your technical background in, for example, data engineering or Java development. I know your time is valuable, so I will keep this brief. Do you have sixty seconds to talk about an active project opportunity?
+        Candidate: Sure. What is it about?
+        Recruiter: Great. We specialise in placing talented F-1 international graduates with clients across the U.S. Right now, we are building a developer pipeline for an upcoming project that fits your stack in, mention one or two core skills from their resume. I wanted to see if you are currently open to new opportunities.
+        Candidate: Yes, I am on OPT right now and looking.
+        Recruiter: Perfect. I would like to walk you through our placement process and check your timelines. Do you have five minutes right now to go over the details, or should I send a calendar invite for later today?
+        Notice the structure: name and source of the profile, a specific compliment, permission for sixty seconds, one sentence about the opportunity, one question, and a choice of next step.
+
+        What to change from the original script
+        The original script also says the company is completely E-Verified and has a dedicated legal team that handles STEM OPT extensions and H-1B sponsorships without any hiccups, and describes the clients as tier-1. Do not say these lines as written. No employer can promise that STEM OPT or H-1B filings will succeed, and an opening call is not the place for immigration claims. If the candidate asks about E-Verify or sponsorship, give only the facts approved by HR, for example: Yes, our company participates in E-Verify, and HR can share the details.
+        Company-specific process: E-Verify participation, client descriptions and sponsorship policy must be confirmed before you mention them. Verify with HR or authorized personnel.
+
         Key takeaway
         A great cold call is short, specific and honest, and it always ends with a question and a next step.
         TEXT,
@@ -207,6 +237,17 @@ return [
         Inventing details to impress candidates.
         Giving different answers on different calls.
         Answering E-Verify or sponsorship questions without approval.
+
+        From the company training material
+        The OPT Recruiter Training Material introduces the company like this. VSP Group is a fast-growing consulting and technology services company. Its CEO is Mr. Vikram Sagar Pasala. It is powered by a pool of talented IT and consulting professionals, with a focus on dedicated support for consultants. The calling script adds that the internal staff of more than one hundred people includes HR, legal, finance, marketing, account managers and client managers.
+
+        Facts that conflict in the source material
+        The company documents do not agree on several facts, so do not use any of them until HR confirms the current version.
+        Founding year. One page says the company was established in 2010. The calling script says 2018.
+        Headquarters. One page says the headquarters is in Atlanta, Georgia, with branches in Edison, New Jersey, and Dallas, Texas. The calling script says the headquarters is in New Jersey and Texas. The time zone page lists Texas as the headquarters.
+        Forbes recognition. One page says the company is ranked number fifty-seven on the Forbes list of America's Most Promising Companies. The calling script says the company was named one of America's Most Promising Companies by Forbes in 2024.
+        Clients. Both documents list direct clients, such as Accenture, Capgemini, Avanade, T-Mobile USA, Tesoro, HCL, Infosys, Apple and Pepsi. Client relationships change, and some clients do not allow their names to be used.
+        Company-specific process: use only the approved company introduction, with the confirmed founding year, headquarters, awards and client names. Verify with HR or authorized personnel. Candidates check these facts online, and one wrong fact can make a genuine company sound like a scam.
 
         Key takeaway
         Your company introduction must be accurate, approved and consistent. Honesty about what you know builds more trust than impressive claims.
@@ -262,6 +303,15 @@ return [
         Reading the job description word by word.
         Hiding the work mode or location until later.
         Describing a possible extension as guaranteed.
+
+        From the company calling script: the training and placement program
+        In the OPT calling script, after asking about technology, the recruiter explains the program. In plain words, the script says this.
+        We have multiple openings in IT development with our direct clients all over the U.S. You need to be open to relocation for the training and placement program. At our headquarters, you will get in-class training. We will give you an offer letter if you relocate to our head office. We will provide accommodation at the headquarters. The training period is about four to five weeks. Soon after training, we will prepare your resume and place you with our direct clients.
+        If the candidate asks, why VSP Group, the script lists: in-class training, a large marketing team with dedicated account managers, direct clients all over the U.S., internal staff of more than one hundred people, and H-1B and Green Card sponsorship.
+
+        How to explain this honestly
+        Describe each part as a process, not a promise. Training is offered. Marketing and placement are the goal, but no placement or start date is guaranteed. Sponsorship is decided case by case under company policy and government rules, and an H-1B selection is never guaranteed. An offer letter is issued by HR for a genuine position, not as a reward for relocating.
+        Company-specific process: the training location, duration, accommodation, offer letter terms, any cost to the candidate and the sponsorship policy must all be confirmed in writing before you describe them. Verify with HR or authorized personnel. For OPT candidates, HR and compliance decide how training and employment fit the candidate's work authorization.
 
         Key takeaway
         A clear and honest explanation helps candidates decide quickly and prevents problems later in the process.
@@ -327,6 +377,15 @@ return [
         Forgetting important topics such as availability.
         Ending without a clear next step.
 
+        From the company calling script: the Day 7 screening questionnaire
+        The Calling script and Practice document gives a questionnaire that trainers teach recruiters to copy into the applicant tracking system during every initial screening call. It has four parts.
+        Part one, basic technical and communication check. Current location, city and state. Relocation status: fully open, remote only, or local only. Total U.S. IT experience in years and months. Primary technical stack.
+        Part two, visa and work authorization status. Current status: F-1 CPT, F-1 initial OPT, F-1 STEM OPT, or other. Current university name. Graduation date, month and year. EAD card start date and end date. Remaining unemployment days, out of ninety or one hundred and fifty. Whether the current employer is E-Verified.
+        Part three, rate and availability. Expected hourly rate, W2 or C2C. Notice period or availability to start: immediate, or a number of weeks. Whether the candidate is currently on a project, and if so, the project end date.
+        Part four, interview integrity check. Whether the candidate will need H-1B sponsorship in the next lottery cycle. Whether the candidate is comfortable taking a live webcam technical coding assessment.
+        The OPT Recruiter Training Material asks a shorter set in this order: visa status, visa expiry date, when the candidate finished their masters, location, relocation, openness to relocate for training and projects, whether they need training and placement, and which technology interests them.
+        Company-specific process: ask the work authorization questions only in the approved wording, ask them of every candidate in the same way, and store answers only in the approved system. Verify with HR or authorized personnel.
+
         Key takeaway
         A structured screening call is efficient for you and reassuring for the candidate. Prepare the flow, cover every topic, and close professionally.
         TEXT,
@@ -376,6 +435,9 @@ return [
         Copying location from the profile without asking.
         Saying a candidate is local when they are not.
         Forgetting to update the record when the candidate moves.
+
+        From the company calling script
+        The OPT calling script asks simply, Location? The Day 7 questionnaire is more precise: current location, city and state. Always record both the city and the state, because many U.S. cities share names. For example, there is a Portland in Oregon and another in Maine.
 
         Key takeaway
         Accurate location information supports honest submissions, correct scheduling and accurate payroll.
