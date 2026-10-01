@@ -1,11 +1,6 @@
 import { DashboardPanel, PanelEmpty, PanelRow } from '@/components/admin/dashboard-panel';
 import { PageHeader } from '@/components/admin/page-header';
-import {
-    TrainingProgressBar,
-    TrainingStatusBadge,
-    TrainingSubNav,
-    formatTrainingDate,
-} from '@/components/recruiter-operations/training/training-ui';
+import { TrainingProgressBar, TrainingStatusBadge, TrainingSubNav, formatTrainingDate } from '@/components/recruiter-operations/training/training-ui';
 import { Button } from '@/components/ui/button';
 import RecruiterLayout from '@/layouts/recruiter-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -39,6 +34,7 @@ interface Counts {
 }
 
 interface Props {
+    isLearner: boolean;
     hasEmployeeProfile: boolean;
     counts: Counts | null;
     continueLearning: TrainingCard[];
@@ -50,7 +46,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Training', href: '/recruiter/training' },
 ];
 
-export default function TrainingDashboard({ hasEmployeeProfile, counts, continueLearning, can }: Props) {
+export default function TrainingDashboard({ isLearner, hasEmployeeProfile, counts, continueLearning, can }: Props) {
     const tiles = counts
         ? [
               { label: 'Assigned courses', value: counts.assigned, href: '/recruiter/training/my-training' },
@@ -68,19 +64,33 @@ export default function TrainingDashboard({ hasEmployeeProfile, counts, continue
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
                 <PageHeader
                     title="Training"
-                    description="Your recruiter courses. Read or listen to each lesson, then mark it complete."
+                    description={
+                        isLearner
+                            ? 'Your recruiter courses. Read or listen to each lesson, then mark it complete.'
+                            : 'Manage recruiter courses, assign training and follow team progress.'
+                    }
                     action={
-                        <Button asChild>
-                            <Link href="/recruiter/training/my-training">
-                                <BookOpen /> My training
-                            </Link>
-                        </Button>
+                        isLearner ? (
+                            <Button asChild>
+                                <Link href="/recruiter/training/my-training">
+                                    <BookOpen /> My training
+                                </Link>
+                            </Button>
+                        ) : can.manage ? (
+                            <Button asChild>
+                                <Link href="/recruiter/training/manage">
+                                    <Settings2 /> Manage courses
+                                </Link>
+                            </Button>
+                        ) : undefined
                     }
                 />
                 <TrainingSubNav />
 
-                {!hasEmployeeProfile && (
-                    <PanelEmpty>Training is assigned to employees. Your account has no employee profile, so there is nothing to learn here.</PanelEmpty>
+                {isLearner && !hasEmployeeProfile && (
+                    <PanelEmpty>
+                        Training is assigned to employees. Your account has no employee profile, so there is nothing to learn here.
+                    </PanelEmpty>
                 )}
 
                 {counts && (
@@ -109,33 +119,32 @@ export default function TrainingDashboard({ hasEmployeeProfile, counts, continue
                 )}
 
                 <div className="grid gap-4 lg:grid-cols-2">
-                    <DashboardPanel
-                        title="Continue learning"
-                        description="Courses you have not finished."
-                        icon={GraduationCap}
-                        tone="emerald"
-                    >
-                        {continueLearning.length > 0 ? (
-                            <div className="space-y-2">
-                                {continueLearning.map((card) => (
-                                    <PanelRow
-                                        key={card.id}
-                                        href={`/recruiter/training/courses/${card.course.id}`}
-                                        title={card.course.title}
-                                        meta={[
-                                            `${card.progress_percent}% · ${card.lessons_completed}/${card.lessons_counted} lessons`,
-                                            card.due_at ? `Due ${formatTrainingDate(card.due_at)}` : null,
-                                        ]
-                                            .filter(Boolean)
-                                            .join(' · ')}
-                                        badge={<TrainingStatusBadge status={card.status} label={card.status_label} />}
-                                    />
-                                ))}
-                            </div>
-                        ) : (
-                            <PanelEmpty>{hasEmployeeProfile ? 'Nothing waiting. New courses appear here when assigned.' : 'No training.'}</PanelEmpty>
-                        )}
-                    </DashboardPanel>
+                    {isLearner && (
+                        <DashboardPanel title="Continue learning" description="Courses you have not finished." icon={GraduationCap} tone="emerald">
+                            {continueLearning.length > 0 ? (
+                                <div className="space-y-2">
+                                    {continueLearning.map((card) => (
+                                        <PanelRow
+                                            key={card.id}
+                                            href={`/recruiter/training/courses/${card.course.id}`}
+                                            title={card.course.title}
+                                            meta={[
+                                                `${card.progress_percent}% · ${card.lessons_completed}/${card.lessons_counted} lessons`,
+                                                card.due_at ? `Due ${formatTrainingDate(card.due_at)}` : null,
+                                            ]
+                                                .filter(Boolean)
+                                                .join(' · ')}
+                                            badge={<TrainingStatusBadge status={card.status} label={card.status_label} />}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <PanelEmpty>
+                                    {hasEmployeeProfile ? 'Nothing waiting. New courses appear here when assigned.' : 'No training.'}
+                                </PanelEmpty>
+                            )}
+                        </DashboardPanel>
+                    )}
 
                     {(can.manage || can.assign || can.viewTeam) && (
                         <DashboardPanel title="Training administration" description="Tools for your role." icon={Settings2} tone="indigo">

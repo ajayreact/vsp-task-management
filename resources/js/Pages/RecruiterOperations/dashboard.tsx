@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import RecruiterLayout from '@/layouts/recruiter-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { CalendarClock, ClipboardCheck, GraduationCap, ListChecks, Users, UserCheck } from 'lucide-react';
+import { CalendarClock, ClipboardCheck, GraduationCap, ListChecks, UserCheck, Users } from 'lucide-react';
 
 interface UpcomingTask {
     id: number;
@@ -75,6 +75,7 @@ interface Props {
     myTasks: MyTasks | null;
     teamTasks: TeamTasks | null;
     todayActivities: TodayActivities | null;
+    trainingLearner: boolean;
     training: TrainingCounts | null;
     assessments: AssessmentCounts | null;
     awaitingReview: number | null;
@@ -108,7 +109,16 @@ function CountGrid({ items }: { items: { label: string; value: number; href: str
     );
 }
 
-export default function RecruiterDashboard({ hasEmployeeProfile, myTasks, teamTasks, todayActivities, training, assessments, awaitingReview }: Props) {
+export default function RecruiterDashboard({
+    hasEmployeeProfile,
+    myTasks,
+    teamTasks,
+    todayActivities,
+    trainingLearner,
+    training,
+    assessments,
+    awaitingReview,
+}: Props) {
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
@@ -185,7 +195,10 @@ export default function RecruiterDashboard({ hasEmployeeProfile, myTasks, teamTa
                             <div className="space-y-4">
                                 <div className="grid grid-cols-3 gap-3">
                                     <Stat label="Activities Today" value={String(todayActivities.count)} />
-                                    <Stat label="Reported Quantity" value={todayActivities.reported_quantity !== null ? String(todayActivities.reported_quantity) : '—'} />
+                                    <Stat
+                                        label="Reported Quantity"
+                                        value={todayActivities.reported_quantity !== null ? String(todayActivities.reported_quantity) : '—'}
+                                    />
                                     <Stat label="Recorded Duration" value={formatActivityDuration(todayActivities.recorded_minutes)} />
                                 </div>
 
@@ -218,16 +231,26 @@ export default function RecruiterDashboard({ hasEmployeeProfile, myTasks, teamTa
 
                     <DashboardPanel
                         title="Training"
-                        description="Courses assigned to you and your progress."
+                        description={
+                            trainingLearner ? 'Courses assigned to you and your progress.' : 'Recruiter courses, assignments and team progress.'
+                        }
                         icon={GraduationCap}
                         tone="emerald"
                         action={
                             <Button asChild variant="outline" size="sm">
-                                <Link href="/recruiter/training/my-training">My training</Link>
+                                {trainingLearner ? (
+                                    <Link href="/recruiter/training/my-training">My training</Link>
+                                ) : (
+                                    <Link href="/recruiter/training">Open training</Link>
+                                )}
                             </Button>
                         }
                     >
-                        {training ? (
+                        {!trainingLearner ? (
+                            <PanelEmpty>
+                                You manage recruiter training. Open Training to manage courses, assign training and follow team progress.
+                            </PanelEmpty>
+                        ) : training ? (
                             <CountGrid
                                 items={[
                                     { label: 'Assigned', value: training.assigned, href: '/recruiter/training/my-training' },
@@ -292,7 +315,10 @@ export default function RecruiterDashboard({ hasEmployeeProfile, myTasks, teamTa
                                     ]}
                                 />
                                 {awaitingReview !== null && awaitingReview > 0 && (
-                                    <Link href="/recruiter/assessments/results?result=pending_review" className="text-sm font-medium text-fuchsia-700 hover:underline">
+                                    <Link
+                                        href="/recruiter/assessments/results?result=pending_review"
+                                        className="text-sm font-medium text-fuchsia-700 hover:underline"
+                                    >
                                         {awaitingReview === 1 ? '1 attempt needs' : `${awaitingReview} attempts need`} manual review
                                     </Link>
                                 )}

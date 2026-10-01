@@ -20,6 +20,8 @@ use App\Modules\RecruiterOperations\Http\Controllers\TrainingLessonMediaControll
 use App\Modules\RecruiterOperations\Http\Controllers\TrainingTeamController;
 use App\Modules\RecruiterOperations\Http\Controllers\TrainingVersionAssessmentController;
 use App\Modules\RecruiterOperations\Http\Controllers\TrainingVersionController;
+use App\Modules\RecruiterOperations\Http\Middleware\EnsureTrainingLearner;
+use App\Modules\RecruiterOperations\Http\Middleware\ShareTrainingLearner;
 use App\Modules\RecruiterOperations\Models\Assessment;
 use App\Modules\RecruiterOperations\Models\AssessmentAssignment;
 use App\Modules\RecruiterOperations\Models\AssessmentQuestion;
@@ -86,15 +88,20 @@ Route::prefix('training')->name('training.')->where([
     'trainingVersion' => '[0-9]+',
     'trainingLesson' => '[0-9]+',
     'trainingAssignment' => '[0-9]+',
-])->group(function () {
-    // A recruiter's own learning. The assignment is always resolved from the
-    // signed-in person, never from the URL.
+])->middleware(ShareTrainingLearner::class)->group(function () {
+    // The overview serves learners and managers; it shows each only their side.
     Route::get('/', [TrainingLearnerController::class, 'dashboard'])->name('dashboard')->can('viewAny', TrainingCourse::class);
-    Route::get('/my-training', [TrainingLearnerController::class, 'myTraining'])->name('my')->can('viewAny', TrainingCourse::class);
-    Route::get('/courses/{trainingCourse}', [TrainingLearnerController::class, 'course'])->name('courses.show')->can('viewAny', TrainingCourse::class);
-    Route::get('/courses/{trainingCourse}/lessons/{trainingLesson}', [TrainingLearnerController::class, 'lesson'])->name('lessons.show')->can('viewAny', TrainingCourse::class);
-    Route::post('/courses/{trainingCourse}/lessons/{trainingLesson}/complete', [TrainingLearnerController::class, 'complete'])->name('lessons.complete')->can('viewAny', TrainingCourse::class);
-    Route::post('/courses/{trainingCourse}/lessons/{trainingLesson}/progress', [TrainingLearnerController::class, 'progress'])->name('lessons.progress')->can('viewAny', TrainingCourse::class);
+
+    // A recruiter's own learning. The assignment is always resolved from the
+    // signed-in person, never from the URL. Management-only users (Admin,
+    // Operations Head without a recruiter role) are refused.
+    Route::middleware(EnsureTrainingLearner::class)->group(function () {
+        Route::get('/my-training', [TrainingLearnerController::class, 'myTraining'])->name('my')->can('viewAny', TrainingCourse::class);
+        Route::get('/courses/{trainingCourse}', [TrainingLearnerController::class, 'course'])->name('courses.show')->can('viewAny', TrainingCourse::class);
+        Route::get('/courses/{trainingCourse}/lessons/{trainingLesson}', [TrainingLearnerController::class, 'lesson'])->name('lessons.show')->can('viewAny', TrainingCourse::class);
+        Route::post('/courses/{trainingCourse}/lessons/{trainingLesson}/complete', [TrainingLearnerController::class, 'complete'])->name('lessons.complete')->can('viewAny', TrainingCourse::class);
+        Route::post('/courses/{trainingCourse}/lessons/{trainingLesson}/progress', [TrainingLearnerController::class, 'progress'])->name('lessons.progress')->can('viewAny', TrainingCourse::class);
+    });
 
     Route::get('/lessons/{trainingLesson}/speech', [TrainingLessonMediaController::class, 'speech'])->name('lessons.speech')->can('listen', 'trainingLesson');
     Route::get('/lessons/{trainingLesson}/audio', [TrainingLessonMediaController::class, 'audio'])->name('lessons.audio')->can('listen', 'trainingLesson');

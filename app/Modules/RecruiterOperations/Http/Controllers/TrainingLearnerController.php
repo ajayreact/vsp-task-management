@@ -13,6 +13,7 @@ use App\Modules\RecruiterOperations\Models\TrainingAssignment;
 use App\Modules\RecruiterOperations\Models\TrainingCourse;
 use App\Modules\RecruiterOperations\Models\TrainingLesson;
 use App\Modules\RecruiterOperations\Models\TrainingLessonCompletion;
+use App\Modules\RecruiterOperations\Services\RecruiterDirectory;
 use App\Modules\RecruiterOperations\Services\TrainingPresenter;
 use App\Modules\RecruiterOperations\Services\TrainingProgressService;
 use App\Modules\RecruiterOperations\Services\TrainingSummary;
@@ -34,6 +35,7 @@ class TrainingLearnerController extends Controller
         protected TrainingProgressService $progress,
         protected TrainingSummary $summary,
         protected TrainingPresenter $presenter,
+        protected RecruiterDirectory $directory,
     ) {}
 
     public function dashboard(Request $request): Response
@@ -41,10 +43,12 @@ class TrainingLearnerController extends Controller
         $this->authorize('viewAny', TrainingCourse::class);
 
         $user = $request->user();
-        $employee = $this->employee($user);
+        $isLearner = $this->directory->isTrainingLearner($user);
+        $employee = $isLearner ? $this->employee($user) : null;
         $assignments = $employee !== null ? $this->summary->assignmentsFor($employee) : collect();
 
         return Inertia::render('RecruiterOperations/training/dashboard', [
+            'isLearner' => $isLearner,
             'hasEmployeeProfile' => $employee !== null,
             'counts' => $employee !== null ? $this->summary->counts($assignments) : null,
             'continueLearning' => $assignments

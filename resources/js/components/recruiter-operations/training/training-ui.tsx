@@ -131,12 +131,12 @@ export function formatMinutes(minutes: number | null): string {
  */
 export function TrainingSubNav() {
     const { can } = usePermissions();
-    const { url } = usePage();
+    const { url, props } = usePage<{ trainingLearner?: boolean }>();
     const path = url.split('?')[0];
 
     const tabs = [
         { label: 'Overview', href: '/recruiter/training', exact: true, show: true },
-        { label: 'My Training', href: '/recruiter/training/my-training', show: true },
+        { label: 'My Training', href: '/recruiter/training/my-training', show: props.trainingLearner === true },
         { label: 'Team Progress', href: '/recruiter/training/team', show: can('recruiter.team.view') },
         { label: 'Assignments', href: '/recruiter/training/assignments', show: can('recruiter.training.assign') },
         { label: 'Manage', href: '/recruiter/training/manage', show: can('recruiter.training.manage') },
@@ -153,7 +153,7 @@ export function TrainingSubNav() {
                         href={tab.href}
                         className={cn(
                             '-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors',
-                            active ? 'border-emerald-600 text-foreground' : 'text-muted-foreground hover:text-foreground border-transparent',
+                            active ? 'text-foreground border-emerald-600' : 'text-muted-foreground hover:text-foreground border-transparent',
                         )}
                         aria-current={active ? 'page' : undefined}
                     >

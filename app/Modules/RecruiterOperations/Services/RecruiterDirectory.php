@@ -3,6 +3,7 @@
 namespace App\Modules\RecruiterOperations\Services;
 
 use App\Modules\Core\Enums\Ability;
+use App\Modules\Core\Enums\SystemRole;
 use App\Modules\Core\Models\Employee;
 use App\Modules\Core\Models\User;
 use Illuminate\Support\Collection;
@@ -34,6 +35,28 @@ class RecruiterDirectory
         }
 
         return $this->recruiterUserIds()->contains($employee->user_id);
+    }
+
+    /**
+     * Whether this person takes recruiter training themselves. Admin and
+     * Operations Head run training without being learners unless they also
+     * hold a recruiter role.
+     *
+     * Decided from roles rather than the Gate: Operations Head passes every
+     * Gate check, and Recruiter Lead carries the same training permissions as
+     * Admin, so neither abilities nor policies can tell them apart.
+     */
+    public function isTrainingLearner(User $user): bool
+    {
+        if (! $user->can(Ability::RecruiterAccess->value)) {
+            return false;
+        }
+
+        if ($user->hasAnyRole([SystemRole::Recruiter->value, SystemRole::RecruiterLead->value])) {
+            return true;
+        }
+
+        return ! $user->hasAnyRole([SystemRole::Admin->value, SystemRole::SuperAdmin->value]);
     }
 
     /**
