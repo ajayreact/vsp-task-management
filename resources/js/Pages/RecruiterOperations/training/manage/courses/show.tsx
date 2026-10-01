@@ -1,7 +1,14 @@
-import InputError from '@/components/input-error';
 import { ConfirmDelete } from '@/components/admin/confirm-delete';
 import { PageHeader } from '@/components/admin/page-header';
-import { ConfirmPost, ContentStatusBadge, RequiredBadge, TrainingSubNav, formatMinutes, formatTrainingDate } from '@/components/recruiter-operations/training/training-ui';
+import InputError from '@/components/input-error';
+import {
+    ConfirmPost,
+    ContentStatusBadge,
+    RequiredBadge,
+    TrainingSubNav,
+    formatMinutes,
+    formatTrainingDate,
+} from '@/components/recruiter-operations/training/training-ui';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -94,7 +101,8 @@ function LinkedQuizzes({ version, options }: { version: SelectedVersion; options
             <CardHeader>
                 <CardTitle className="text-base">Quizzes</CardTitle>
                 <CardDescription>
-                    Recruiters assigned this version also receive these quizzes. The quiz version is fixed when linked; change it by creating a new course version.
+                    Recruiters assigned this version also receive these quizzes. The quiz version is fixed when linked; change it by creating a new
+                    course version.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -102,7 +110,10 @@ function LinkedQuizzes({ version, options }: { version: SelectedVersion; options
                 {version.quizzes.map((quiz) => (
                     <div key={quiz.id} className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
                         <div className="min-w-0">
-                            <Link href={`/recruiter/assessments/manage/${quiz.assessment_id}?version=${quiz.id}`} className="text-sm font-medium hover:underline">
+                            <Link
+                                href={`/recruiter/assessments/manage/${quiz.assessment_id}?version=${quiz.id}`}
+                                className="text-sm font-medium hover:underline"
+                            >
                                 {quiz.title}
                             </Link>
                             <div className="text-muted-foreground text-xs">
@@ -199,6 +210,75 @@ function VersionDetailsForm({ version }: { version: SelectedVersion }) {
     );
 }
 
+function LessonActions({
+    lesson,
+    index,
+    total,
+    editable,
+    onMove,
+    className,
+}: {
+    lesson: LessonRow;
+    index: number;
+    total: number;
+    editable: boolean;
+    onMove: (lessonId: number, direction: 'up' | 'down') => void;
+    className?: string;
+}) {
+    return (
+        <div className={cn('flex shrink-0 justify-end gap-1', className)}>
+            {editable && (
+                <>
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-8"
+                        aria-label="Move up"
+                        disabled={index === 0}
+                        onClick={() => onMove(lesson.id, 'up')}
+                    >
+                        <ArrowUp />
+                    </Button>
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-8"
+                        aria-label="Move down"
+                        disabled={index === total - 1}
+                        onClick={() => onMove(lesson.id, 'down')}
+                    >
+                        <ArrowDown />
+                    </Button>
+                </>
+            )}
+            <Button asChild size="icon" variant="ghost" className="size-8" aria-label="Preview">
+                <Link href={`/recruiter/training/manage/lessons/${lesson.id}`}>
+                    <Eye />
+                </Link>
+            </Button>
+            {editable && (
+                <>
+                    <Button asChild size="icon" variant="ghost" className="size-8" aria-label="Edit">
+                        <Link href={`/recruiter/training/manage/lessons/${lesson.id}/edit`}>
+                            <Pencil />
+                        </Link>
+                    </Button>
+                    <ConfirmDelete
+                        trigger={
+                            <Button size="icon" variant="ghost" aria-label="Delete" className="text-destructive size-8">
+                                <Trash2 />
+                            </Button>
+                        }
+                        title="Delete this lesson?"
+                        description="The lesson and its file are removed from this draft."
+                        url={`/recruiter/training/manage/lessons/${lesson.id}`}
+                    />
+                </>
+            )}
+        </div>
+    );
+}
+
 export default function ManageTrainingCourse({ course, versions, selectedVersion, can, quizOptions }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Recruiter Operations', href: '/recruiter' },
@@ -219,7 +299,7 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
         <RecruiterLayout breadcrumbs={breadcrumbs}>
             <Head title={course.title} />
 
-            <div className="flex min-w-0 max-w-full flex-1 flex-col gap-6 p-4 md:p-6">
+            <div className="flex max-w-full min-w-0 flex-1 flex-col gap-6 p-4 md:p-6">
                 <TrainingSubNav />
                 <PageHeader
                     title={course.title}
@@ -272,7 +352,7 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
                     }
                 />
 
-                <div className="grid gap-6 xl:grid-cols-[18rem_1fr]">
+                <div className="grid gap-6 2xl:grid-cols-[18rem_minmax(0,1fr)]">
                     <Card className="h-fit">
                         <CardHeader>
                             <CardTitle className="text-base">Versions</CardTitle>
@@ -399,97 +479,105 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
                                         </Button>
                                     )}
                                 </CardHeader>
-                                <CardContent className="overflow-x-auto">
-                                    <Table className="min-w-max">
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead className="w-12">#</TableHead>
-                                                <TableHead>Lesson</TableHead>
-                                                <TableHead>Material</TableHead>
-                                                <TableHead>Duration</TableHead>
-                                                <TableHead>Required</TableHead>
-                                                <TableHead className="text-right">Actions</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {lessons.length === 0 && (
-                                                <TableRow>
-                                                    <TableCell colSpan={6} className="text-muted-foreground py-10 text-center">
-                                                        No lessons yet.{editable ? ' Add at least one lesson before publishing.' : ''}
-                                                    </TableCell>
-                                                </TableRow>
-                                            )}
-                                            {lessons.map((lesson, index) => (
-                                                <TableRow key={lesson.id}>
-                                                    <TableCell className="text-muted-foreground text-sm tabular-nums">{index + 1}</TableCell>
-                                                    <TableCell>
-                                                        <Link href={`/recruiter/training/manage/lessons/${lesson.id}`} className="font-medium hover:underline">
-                                                            {lesson.title}
-                                                        </Link>
-                                                        {!lesson.has_body && <p className="text-muted-foreground text-xs">No written content yet</p>}
-                                                    </TableCell>
-                                                    <TableCell className="text-sm">
-                                                        {lesson.content_type_label}
-                                                        {lesson.has_file ? ' · file attached' : ''}
-                                                    </TableCell>
-                                                    <TableCell className="text-sm">{formatMinutes(lesson.duration_minutes)}</TableCell>
-                                                    <TableCell>
-                                                        <RequiredBadge required={lesson.is_required} />
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        <div className="flex justify-end gap-1">
-                                                            {editable && (
-                                                                <>
-                                                                    <Button
-                                                                        size="icon"
-                                                                        variant="ghost"
-                                                                        aria-label="Move up"
-                                                                        disabled={index === 0}
-                                                                        onClick={() => move(lesson.id, 'up')}
-                                                                    >
-                                                                        <ArrowUp />
-                                                                    </Button>
-                                                                    <Button
-                                                                        size="icon"
-                                                                        variant="ghost"
-                                                                        aria-label="Move down"
-                                                                        disabled={index === lessons.length - 1}
-                                                                        onClick={() => move(lesson.id, 'down')}
-                                                                    >
-                                                                        <ArrowDown />
-                                                                    </Button>
-                                                                </>
-                                                            )}
-                                                            <Button asChild size="icon" variant="ghost" aria-label="Preview">
-                                                                <Link href={`/recruiter/training/manage/lessons/${lesson.id}`}>
-                                                                    <Eye />
+                                <CardContent>
+                                    {lessons.length === 0 ? (
+                                        <p className="text-muted-foreground py-10 text-center text-sm">
+                                            No lessons yet.{editable ? ' Add at least one lesson before publishing.' : ''}
+                                        </p>
+                                    ) : (
+                                        <>
+                                            <Table className="hidden table-fixed xl:table [&_td]:px-3 [&_th]:px-3">
+                                                <colgroup>
+                                                    <col className="w-10" />
+                                                    <col />
+                                                    <col className="w-28" />
+                                                    <col className="w-28" />
+                                                    <col className="w-28" />
+                                                    <col className={editable ? 'w-[12.5rem]' : 'w-24'} />
+                                                </colgroup>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>#</TableHead>
+                                                        <TableHead>Lesson</TableHead>
+                                                        <TableHead>Material</TableHead>
+                                                        <TableHead>Duration</TableHead>
+                                                        <TableHead>Required</TableHead>
+                                                        <TableHead className="text-right">Actions</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {lessons.map((lesson, index) => (
+                                                        <TableRow key={lesson.id}>
+                                                            <TableCell className="text-muted-foreground text-sm tabular-nums">{index + 1}</TableCell>
+                                                            <TableCell className="break-words">
+                                                                <Link
+                                                                    href={`/recruiter/training/manage/lessons/${lesson.id}`}
+                                                                    className="font-medium hover:underline"
+                                                                >
+                                                                    {lesson.title}
                                                                 </Link>
-                                                            </Button>
-                                                            {editable && (
-                                                                <>
-                                                                    <Button asChild size="icon" variant="ghost" aria-label="Edit">
-                                                                        <Link href={`/recruiter/training/manage/lessons/${lesson.id}/edit`}>
-                                                                            <Pencil />
-                                                                        </Link>
-                                                                    </Button>
-                                                                    <ConfirmDelete
-                                                                        trigger={
-                                                                            <Button size="icon" variant="ghost" aria-label="Delete" className="text-destructive">
-                                                                                <Trash2 />
-                                                                            </Button>
-                                                                        }
-                                                                        title="Delete this lesson?"
-                                                                        description="The lesson and its file are removed from this draft."
-                                                                        url={`/recruiter/training/manage/lessons/${lesson.id}`}
-                                                                    />
-                                                                </>
+                                                                {!lesson.has_body && (
+                                                                    <p className="text-muted-foreground text-xs">No written content yet</p>
+                                                                )}
+                                                            </TableCell>
+                                                            <TableCell className="text-sm">
+                                                                {lesson.content_type_label}
+                                                                {lesson.has_file && <p className="text-muted-foreground text-xs">File attached</p>}
+                                                            </TableCell>
+                                                            <TableCell className="text-sm">{formatMinutes(lesson.duration_minutes)}</TableCell>
+                                                            <TableCell>
+                                                                <RequiredBadge required={lesson.is_required} />
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <LessonActions
+                                                                    lesson={lesson}
+                                                                    index={index}
+                                                                    total={lessons.length}
+                                                                    editable={editable}
+                                                                    onMove={move}
+                                                                />
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+
+                                            <ul className="divide-border divide-y xl:hidden">
+                                                {lessons.map((lesson, index) => (
+                                                    <li key={lesson.id} className="flex gap-3 py-3">
+                                                        <span className="text-muted-foreground w-6 shrink-0 text-sm tabular-nums">{index + 1}</span>
+                                                        <div className="min-w-0 flex-1 space-y-1.5">
+                                                            <Link
+                                                                href={`/recruiter/training/manage/lessons/${lesson.id}`}
+                                                                className="block font-medium break-words hover:underline"
+                                                            >
+                                                                {lesson.title}
+                                                            </Link>
+                                                            <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                                                                <span>
+                                                                    {lesson.content_type_label}
+                                                                    {lesson.has_file ? ' · file attached' : ''}
+                                                                </span>
+                                                                <span>{formatMinutes(lesson.duration_minutes)}</span>
+                                                                <RequiredBadge required={lesson.is_required} />
+                                                            </div>
+                                                            {!lesson.has_body && (
+                                                                <p className="text-muted-foreground text-xs">No written content yet</p>
                                                             )}
+                                                            <LessonActions
+                                                                lesson={lesson}
+                                                                index={index}
+                                                                total={lessons.length}
+                                                                editable={editable}
+                                                                onMove={move}
+                                                                className="justify-start"
+                                                            />
                                                         </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </>
+                                    )}
                                 </CardContent>
                             </Card>
 
