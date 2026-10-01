@@ -229,6 +229,16 @@ export const recruiterAttendanceNavItems: NavItem[] = [
     },
 ];
 
+const RECRUITER_ROLES = ['recruiter', 'recruiter-lead'];
+
+/**
+ * A recruiter whose other roles, if any, are only the base employee role. Anyone
+ * who also holds a management or custom role keeps their full navigation.
+ */
+export function isRecruiterOnly(roles: string[]): boolean {
+    return roles.some((role) => RECRUITER_ROLES.includes(role)) && roles.every((role) => RECRUITER_ROLES.includes(role) || role === 'employee');
+}
+
 /** @deprecated Use adminNavItems + taskNavItems. Kept so older imports keep working. */
 export const staffMenuItems: NavItem[] = [...adminNavItems, ...taskNavItems];
 
@@ -247,6 +257,7 @@ export function staffNavGroups(): NavGroup[] {
         {
             title: 'Task Management',
             anyPermission: ['tasks.access'],
+            hideForRecruiterOnly: true,
             items: taskNavItems,
         },
         {

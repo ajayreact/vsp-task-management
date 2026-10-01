@@ -23,6 +23,8 @@ export interface NavGroup {
     items: NavItem[];
     /** Hide the whole section unless the user holds at least one of these. */
     anyPermission?: string[];
+    /** Hide the whole section for users whose only roles are recruiter roles (plus the base employee role). */
+    hideForRecruiterOnly?: boolean;
 }
 
 export interface NavItem {

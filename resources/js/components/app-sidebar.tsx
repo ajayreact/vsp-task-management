@@ -32,7 +32,13 @@ export function AppSidebar({ groups = staffNavGroups(), homeUrl = '/dashboard', 
 
             <SidebarContent className="gap-6 px-2 py-4">
                 {groups.map((group) => (
-                    <NavMain key={group.title} items={group.items} label={group.title} anyPermission={group.anyPermission} />
+                    <NavMain
+                        key={group.title}
+                        items={group.items}
+                        label={group.title}
+                        anyPermission={group.anyPermission}
+                        hideForRecruiterOnly={group.hideForRecruiterOnly}
+                    />
                 ))}
             </SidebarContent>
 

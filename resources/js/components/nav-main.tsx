@@ -1,15 +1,30 @@
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { usePermissions } from '@/hooks/use-permissions';
+import { isRecruiterOnly } from '@/lib/navigation';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 
-export function NavMain({ items = [], label = 'Platform', anyPermission }: { items: NavItem[]; label?: string; anyPermission?: string[] }) {
+export function NavMain({
+    items = [],
+    label = 'Platform',
+    anyPermission,
+    hideForRecruiterOnly = false,
+}: {
+    items: NavItem[];
+    label?: string;
+    anyPermission?: string[];
+    hideForRecruiterOnly?: boolean;
+}) {
     const page = usePage<SharedData>();
     const { auth } = page.props;
-    const { can, canAny, hasRole } = usePermissions();
+    const { can, canAny, hasRole, roles } = usePermissions();
     const isAdmin = hasRole('super-admin') || hasRole('admin');
 
     if (!isAdmin && !canAny(anyPermission)) {
+        return null;
+    }
+
+    if (hideForRecruiterOnly && isRecruiterOnly(roles)) {
         return null;
     }
 
