@@ -29,6 +29,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  *
  * @property int $id
  * @property int $course_version_id
+ * @property string|null $module
  * @property string $title
  * @property string $slug
  * @property string|null $description
@@ -63,6 +64,7 @@ class TrainingLesson extends Model implements HasMedia
      * @var list<string>
      */
     protected $fillable = [
+        'module',
         'title',
         'description',
         'content_type',
@@ -161,7 +163,7 @@ class TrainingLesson extends Model implements HasMedia
     {
         return LogOptions::defaults()
             ->useLogName('recruiter-training')
-            ->logOnly(['course_version_id', 'title', 'sort_order', 'content_type', 'is_required', 'external_url', 'compliance_status', 'compliance_reviewed_by_user_id', 'compliance_note'])
+            ->logOnly(['course_version_id', 'module', 'title', 'sort_order', 'content_type', 'is_required', 'external_url', 'compliance_status', 'compliance_reviewed_by_user_id', 'compliance_note'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

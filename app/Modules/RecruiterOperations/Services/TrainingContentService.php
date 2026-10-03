@@ -375,7 +375,7 @@ class TrainingContentService
     // Lessons
 
     /**
-     * @param  array{title: string, description?: string|null, content_type: string, body?: string|null, duration_minutes?: int|null, is_required?: bool, external_url?: string|null}  $data
+     * @param  array{module?: string|null, title: string, description?: string|null, content_type: string, body?: string|null, duration_minutes?: int|null, is_required?: bool, external_url?: string|null}  $data
      */
     public function createLesson(TrainingCourseVersion $version, array $data, ?UploadedFile $file, User $actor): TrainingLesson
     {
@@ -408,7 +408,7 @@ class TrainingContentService
     }
 
     /**
-     * @param  array{title: string, description?: string|null, content_type: string, body?: string|null, duration_minutes?: int|null, is_required?: bool, external_url?: string|null}  $data
+     * @param  array{module?: string|null, title: string, description?: string|null, content_type: string, body?: string|null, duration_minutes?: int|null, is_required?: bool, external_url?: string|null}  $data
      */
     public function updateLesson(TrainingLesson $lesson, array $data, ?UploadedFile $file, User $actor): TrainingLesson
     {
@@ -544,7 +544,7 @@ class TrainingContentService
             throw ValidationException::withMessages(['external_url' => 'Add the link to the external resource.']);
         }
 
-        return [
+        $attributes = [
             'title' => $data['title'],
             'description' => $data['description'] ?? null,
             'content_type' => $type,
@@ -553,6 +553,13 @@ class TrainingContentService
             'is_required' => (bool) ($data['is_required'] ?? true),
             'external_url' => $data['external_url'] ?? null,
         ];
+
+        if (array_key_exists('module', $data)) {
+            $module = trim((string) $data['module']);
+            $attributes['module'] = $module === '' ? null : $module;
+        }
+
+        return $attributes;
     }
 
     protected function attachFile(TrainingLesson $lesson, UploadedFile $file, User $actor): void

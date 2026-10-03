@@ -8,7 +8,7 @@ import { Head } from '@inertiajs/react';
 interface Props {
     contentTypes: TrainingContentTypeOption[];
     maxUploadKilobytes: number;
-    version: { id: number; label: string; status: string; course: { id: number; title: string } };
+    version: { id: number; label: string; status: string; course: { id: number; title: string }; modules: string[] };
     lesson: TrainingLessonData;
 }
 
@@ -32,7 +32,9 @@ export default function EditTrainingLesson({ contentTypes, maxUploadKilobytes, v
                 <TrainingLessonForm
                     contentTypes={contentTypes}
                     maxUploadKilobytes={maxUploadKilobytes}
+                    moduleOptions={version.modules}
                     initial={{
+                        module: lesson.module ?? '',
                         title: lesson.title,
                         description: lesson.description ?? '',
                         content_type: lesson.content_type,

@@ -33,6 +33,7 @@ class TrainingLessonRequest extends FormRequest
         }
 
         return [
+            'module' => ['nullable', 'string', 'max:150'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
             'content_type' => ['required', Rule::enum(TrainingLessonContentType::class)],

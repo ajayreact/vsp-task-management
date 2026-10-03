@@ -125,7 +125,7 @@ class TrainingLessonController extends Controller
     }
 
     /**
-     * @return array{id: int, label: string, status: string, course: array{id: int, title: string}}
+     * @return array{id: int, label: string, status: string, course: array{id: int, title: string}, modules: list<string>}
      */
     protected function versionSummary(TrainingCourseVersion $version): array
     {
@@ -134,6 +134,7 @@ class TrainingLessonController extends Controller
             'label' => $version->label(),
             'status' => $version->status->value,
             'course' => ['id' => $version->course->id, 'title' => $version->course->title],
+            'modules' => $version->lessons()->whereNotNull('module')->pluck('module')->unique()->values()->all(),
         ];
     }
 }

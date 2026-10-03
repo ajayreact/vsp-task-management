@@ -168,6 +168,7 @@ class TrainingCourseController extends Controller
                 'is_current' => $selected->id === $trainingCourse->current_version_id,
                 'lessons' => $selected->lessons->map(fn (TrainingLesson $lesson) => [
                     'id' => $lesson->id,
+                    'module' => $lesson->module,
                     'title' => $lesson->title,
                     'content_type' => $lesson->content_type->value,
                     'content_type_label' => $lesson->content_type->label(),

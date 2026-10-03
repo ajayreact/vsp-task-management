@@ -19,6 +19,7 @@ export interface TrainingContentTypeOption {
 }
 
 export type TrainingLessonFormValues = {
+    module: string;
     title: string;
     description: string;
     content_type: string;
@@ -35,12 +36,15 @@ export function TrainingLessonForm({
     initial,
     existingFile,
     structuredContentUrl,
+    moduleOptions = [],
     action,
     method,
     submitLabel,
     cancelUrl,
 }: {
     contentTypes: TrainingContentTypeOption[];
+    /** Modules already used in this version, offered as suggestions. */
+    moduleOptions?: string[];
     maxUploadKilobytes: number;
     initial: TrainingLessonFormValues;
     existingFile?: TrainingLessonFile | null;
@@ -110,6 +114,28 @@ export function TrainingLessonForm({
                         <Label htmlFor="title">Title</Label>
                         <Input id="title" value={data.title} onChange={(e) => setData('title', e.target.value)} required maxLength={255} />
                         <InputError message={errors.title} />
+                    </div>
+
+                    <div className="grid gap-2 sm:col-span-2">
+                        <Label htmlFor="module">Module</Label>
+                        <Input
+                            id="module"
+                            value={data.module}
+                            onChange={(e) => setData('module', e.target.value)}
+                            maxLength={150}
+                            list="training-module-options"
+                            placeholder="Optional, e.g. Before OPT"
+                        />
+                        <datalist id="training-module-options">
+                            {moduleOptions.map((option) => (
+                                <option key={option} value={option} />
+                            ))}
+                        </datalist>
+                        <p className="text-muted-foreground text-xs">
+                            Consecutive lessons with the same module are grouped under one module tab on the recruiter&apos;s course page. Leave
+                            empty to group the lesson under the course.
+                        </p>
+                        <InputError message={errors.module} />
                     </div>
 
                     <div className="grid gap-2 sm:col-span-2">

@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { AlertCircle, Headphones, Info, LoaderCircle, Pause, Play, RotateCcw, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { getBlob, getJson } from './training-http';
 
 export interface TrainingVoiceOption {
@@ -82,6 +82,9 @@ function normaliseLocale(locale: string): string {
 
 const LANGUAGE_NAMES: Record<string, string> = { te: 'Telugu' };
 
+/** Fired when a player starts, so any other player on the page pauses. */
+const PLAY_EVENT = 'recruiter-training:audio-play';
+
 function speechSupported(): boolean {
     return typeof window !== 'undefined' && 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
 }
@@ -97,6 +100,7 @@ function speechSupported(): boolean {
  * Listening never completes a lesson; that stays an explicit button.
  */
 export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0, onPositionReport }: Props) {
+    const playerId = useId();
     const english = language === 'en';
     const voices = audio.voices_by_language?.[language] ?? (english ? audio.voices : []);
     const hasText = audio.has_text_by_language?.[language] ?? (english ? audio.has_text : false);
@@ -493,6 +497,7 @@ export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0
             return;
         }
 
+        window.dispatchEvent(new CustomEvent(PLAY_EVENT, { detail: playerId }));
         setError(null);
 
         const total = totalSeconds();
@@ -524,7 +529,7 @@ export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0
         } catch {
             fail('The lesson audio could not be played.');
         }
-    }, [available, ensureAudioElement, fail, loadSpeech, segmentAt, speakFrom, status, totalSeconds, unsupported]);
+    }, [available, ensureAudioElement, fail, loadSpeech, playerId, segmentAt, speakFrom, status, totalSeconds, unsupported]);
 
     const pause = useCallback(() => {
         if (payloadRef.current?.delivery === 'device') {
@@ -540,6 +545,24 @@ export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0
 
         report();
     }, [report, stopTick, updatePosition]);
+
+    const pauseRef = useRef(pause);
+
+    useEffect(() => {
+        pauseRef.current = pause;
+    }, [pause]);
+
+    useEffect(() => {
+        const onOtherPlay = (event: Event) => {
+            if ((event as CustomEvent<string>).detail !== playerId && playingRef.current) {
+                pauseRef.current();
+            }
+        };
+
+        window.addEventListener(PLAY_EVENT, onOtherPlay);
+
+        return () => window.removeEventListener(PLAY_EVENT, onOtherPlay);
+    }, [playerId]);
 
     const seekTo = useCallback(
         (seconds: number) => {
@@ -737,11 +760,11 @@ export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <label htmlFor="training-voice" className="text-muted-foreground text-xs">
+                    <label htmlFor={`${playerId}-voice`} className="text-muted-foreground text-xs">
                         Voice
                     </label>
                     <Select value={voiceKey} onValueChange={changeVoice} disabled={isLoading}>
-                        <SelectTrigger id="training-voice" className="h-8 w-48 bg-white/80" aria-label="Voice">
+                        <SelectTrigger id={`${playerId}-voice`} className="h-8 w-48 max-w-[60vw] bg-white/80" aria-label="Voice">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -826,11 +849,11 @@ export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <label htmlFor="training-speed" className="text-muted-foreground text-xs">
+                    <label htmlFor={`${playerId}-speed`} className="text-muted-foreground text-xs">
                         Speed
                     </label>
                     <Select value={String(speed)} onValueChange={(value) => changeSpeed(Number(value))}>
-                        <SelectTrigger id="training-speed" className="h-8 w-24 bg-white/80" aria-label="Playback speed">
+                        <SelectTrigger id={`${playerId}-speed`} className="h-8 w-24 bg-white/80" aria-label="Playback speed">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>

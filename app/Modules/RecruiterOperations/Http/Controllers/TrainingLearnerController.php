@@ -15,6 +15,7 @@ use App\Modules\RecruiterOperations\Models\TrainingLesson;
 use App\Modules\RecruiterOperations\Models\TrainingLessonCompletion;
 use App\Modules\RecruiterOperations\Services\RecruiterDirectory;
 use App\Modules\RecruiterOperations\Services\TrainingPresenter;
+use App\Modules\RecruiterOperations\Services\TrainingProgressCalculator;
 use App\Modules\RecruiterOperations\Services\TrainingProgressService;
 use App\Modules\RecruiterOperations\Services\TrainingSummary;
 use Illuminate\Http\JsonResponse;
@@ -92,12 +93,18 @@ class TrainingLearnerController extends Controller
 
         $employee = $this->employee($request->user());
         $assignment = $this->assignmentOr404($trainingCourse, $employee);
-        $assignment->load(['version.lessons.media', 'completions']);
+        $assignment->load(['version.lessons.media', 'version.lessons.contents', 'completions']);
+        $version = $assignment->version;
+
+        foreach ($version->lessons as $lesson) {
+            $lesson->setRelation('version', $version);
+        }
 
         $progress = $this->progress->progressFor($assignment);
         $completions = $assignment->completions->keyBy('lesson_id');
         $resume = $this->progress->resumeLesson($assignment);
         $status = $assignment->effectiveStatus();
+        $counted = TrainingProgressCalculator::countedLessonIds($version->lessons);
 
         return Inertia::render('RecruiterOperations/training/course', [
             'course' => [
@@ -119,28 +126,27 @@ class TrainingLearnerController extends Controller
                 'started_at' => $assignment->started_at?->toIso8601String(),
                 'completed_at' => $assignment->completed_at?->toIso8601String(),
             ],
-            'progress' => [
-                'percent' => $progress['percent'],
-                'completed' => $progress['completed'],
-                'counted' => $progress['counted'],
-                'total' => $progress['total'],
-            ],
-            'lessons' => $assignment->version->lessons->map(function (TrainingLesson $lesson) use ($completions) {
+            'progress' => $this->progressPayload($progress),
+            'modules' => $this->presenter->modules($version->lessons, $trainingCourse->title),
+            'lessons' => $version->lessons->map(function (TrainingLesson $lesson) use ($completions, $counted, $trainingCourse) {
                 /** @var TrainingLessonCompletion|null $completion */
                 $completion = $completions->get($lesson->id);
 
                 return [
-                    'id' => $lesson->id,
-                    'title' => $lesson->title,
-                    'description' => $lesson->description,
-                    'content_type' => $lesson->content_type->value,
-                    'content_type_label' => $lesson->content_type->label(),
-                    'duration_minutes' => $lesson->duration_minutes,
-                    'is_required' => $lesson->is_required,
+                    ...$this->presenter->lesson($lesson),
+                    'counted' => in_array($lesson->id, $counted, true),
                     'started' => $completion?->started_at !== null,
                     'completed' => $completion?->completed_at !== null,
+                    'completed_at' => $completion?->completed_at?->toIso8601String(),
+                    'audio_progress_seconds' => (int) ($completion->audio_progress_seconds ?? 0),
+                    'audio' => $this->presenter->lessonAudio($lesson),
+                    'urls' => [
+                        'complete' => route('recruiter.training.lessons.complete', [$trainingCourse, $lesson]),
+                        'progress' => route('recruiter.training.lessons.progress', [$trainingCourse, $lesson]),
+                    ],
                 ];
             })->values()->all(),
+            'audio' => $this->presenter->audioSettings(),
             'resumeLessonId' => $resume?->id,
             'history' => $this->history($trainingCourse, $employee, $assignment),
             'quizzes' => $this->quizzes($assignment),
@@ -195,7 +201,12 @@ class TrainingLearnerController extends Controller
         ]);
     }
 
-    public function complete(Request $request, TrainingCourse $trainingCourse, TrainingLesson $trainingLesson): RedirectResponse
+    /**
+     * The explicit "Mark Lesson Complete". The course page calls it in the
+     * background and gets the new progress back as JSON, staying where it is;
+     * a plain form post (the single lesson page) moves on to the next lesson.
+     */
+    public function complete(Request $request, TrainingCourse $trainingCourse, TrainingLesson $trainingLesson): RedirectResponse|JsonResponse
     {
         $this->authorize('viewAny', TrainingCourse::class);
 
@@ -204,8 +215,26 @@ class TrainingLearnerController extends Controller
         abort_unless($trainingLesson->course_version_id === $assignment->course_version_id, 404);
 
         $wasCompleted = $assignment->isCompleted();
-        $this->progress->completeLesson($assignment, $trainingLesson, $user);
+        $completion = $this->progress->completeLesson($assignment, $trainingLesson, $user);
         $assignment->refresh();
+
+        if ($request->wantsJson()) {
+            $status = $assignment->effectiveStatus();
+
+            return response()->json([
+                'lesson_id' => $trainingLesson->id,
+                'completed' => true,
+                'completed_at' => $completion->completed_at?->toIso8601String(),
+                'progress' => $this->progressPayload($this->progress->progressFor($assignment)),
+                'assignment' => [
+                    'status' => $status->value,
+                    'status_label' => $status->label(),
+                    'completed_at' => $assignment->completed_at?->toIso8601String(),
+                ],
+                'course_completed' => $assignment->isCompleted(),
+                'message' => ! $wasCompleted && $assignment->isCompleted() ? 'Course completed. Well done!' : 'Lesson marked complete.',
+            ]);
+        }
 
         if (! $wasCompleted && $assignment->isCompleted()) {
             return to_route('recruiter.training.courses.show', $trainingCourse)
@@ -248,6 +277,21 @@ class TrainingLearnerController extends Controller
             'time_spent_seconds' => (int) $completion->time_spent_seconds,
             'completed' => $completion->completed_at !== null,
         ]);
+    }
+
+    /**
+     * @param  array{total: int, counted: int, completed: int, percent: int, completed_lesson_ids: list<int>}  $progress
+     * @return array{percent: int, completed: int, counted: int, total: int, remaining: int}
+     */
+    protected function progressPayload(array $progress): array
+    {
+        return [
+            'percent' => $progress['percent'],
+            'completed' => $progress['completed'],
+            'counted' => $progress['counted'],
+            'total' => $progress['total'],
+            'remaining' => max(0, $progress['counted'] - $progress['completed']),
+        ];
     }
 
     protected function employee(User $user): ?Employee

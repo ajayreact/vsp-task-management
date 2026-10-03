@@ -11,6 +11,7 @@ export interface TrainingLessonFile {
 
 export interface TrainingLessonData {
     id: number;
+    module: string | null;
     title: string;
     description: string | null;
     body: string | null;
@@ -51,7 +52,15 @@ function formatBytes(bytes: number): string {
  * the chosen language (English when none is given), as text, never HTML;
  * files come from the authorized lesson file route.
  */
-export function TrainingLessonContent({ lesson, language }: { lesson: TrainingLessonData; language?: LessonLanguage | null }) {
+export function TrainingLessonContent({
+    lesson,
+    language,
+    headingLevel,
+}: {
+    lesson: TrainingLessonData;
+    language?: LessonLanguage | null;
+    headingLevel?: 'h2' | 'h3' | 'h4';
+}) {
     const externalUrl = safeHttpUrl(lesson.external_url);
     const file = lesson.file;
     const shown = language ?? lesson.languages.find((item) => item.canonical) ?? null;
@@ -62,7 +71,7 @@ export function TrainingLessonContent({ lesson, language }: { lesson: TrainingLe
             {lesson.description && <p className="text-muted-foreground text-base leading-relaxed">{lesson.description}</p>}
 
             {file && lesson.content_type === 'video' && (
-                <video controls preload="metadata" className="w-full rounded-xl border bg-black" src={file.url}>
+                <video controls preload="none" className="w-full rounded-xl border bg-black" src={file.url}>
                     Your browser cannot play this video.{' '}
                     <a href={file.url} className="underline">
                         Open the video
@@ -73,13 +82,13 @@ export function TrainingLessonContent({ lesson, language }: { lesson: TrainingLe
 
             {file && lesson.content_type === 'image' && (
                 <a href={file.url} target="_blank" rel="noopener noreferrer" className="block">
-                    <img src={file.url} alt={lesson.title} className="max-h-[32rem] w-full rounded-xl border object-contain" />
+                    <img src={file.url} alt={lesson.title} loading="lazy" className="max-h-[32rem] w-full rounded-xl border object-contain" />
                 </a>
             )}
 
             {file && lesson.content_type === 'pdf' && (
                 <div className="space-y-2">
-                    <iframe src={file.url} title={`${lesson.title} (PDF)`} className="h-[36rem] w-full rounded-xl border bg-white" />
+                    <iframe src={file.url} title={`${lesson.title} (PDF)`} loading="lazy" className="h-[36rem] w-full rounded-xl border bg-white" />
                     <Button asChild variant="outline" size="sm">
                         <a href={file.url} target="_blank" rel="noopener noreferrer">
                             <FileText /> Open PDF in a new tab ({formatBytes(file.size)})
@@ -104,7 +113,7 @@ export function TrainingLessonContent({ lesson, language }: { lesson: TrainingLe
             )}
 
             {sections.length > 0 ? (
-                <LessonSections sections={sections} lang={shown?.code} />
+                <LessonSections sections={sections} lang={shown?.code} headingLevel={headingLevel} />
             ) : (
                 !file &&
                 !externalUrl && <p className="text-muted-foreground text-sm italic">The written content for this lesson has not been added yet.</p>

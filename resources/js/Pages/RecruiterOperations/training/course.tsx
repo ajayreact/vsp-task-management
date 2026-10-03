@@ -1,5 +1,15 @@
-import { PageHeader } from '@/components/admin/page-header';
 import { ResultBadge } from '@/components/recruiter-operations/assessments/assessment-ui';
+import { TrainingAudioPlayer, type TrainingAudioConfig } from '@/components/recruiter-operations/training/training-audio-player';
+import {
+    BackToModulesButton,
+    ModuleTabs,
+    scrollToAnchor,
+    useScrollSpy,
+    type CourseModule,
+} from '@/components/recruiter-operations/training/training-course-navigation';
+import { postJson } from '@/components/recruiter-operations/training/training-http';
+import { resolveLessonLanguage, TrainingLanguageSelect, useTrainingLanguage } from '@/components/recruiter-operations/training/training-language';
+import { TrainingLessonContent, type TrainingLessonData } from '@/components/recruiter-operations/training/training-lesson-content';
 import {
     RequiredBadge,
     TrainingProgressBar,
@@ -8,168 +18,410 @@ import {
     formatTrainingDate,
 } from '@/components/recruiter-operations/training/training-ui';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import RecruiterLayout from '@/layouts/recruiter-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
-import { CheckCircle2, Circle, CircleDot, Play } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { CheckCircle2, Info, LoaderCircle, PartyPopper, Play } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
-interface LessonRow {
-    id: number;
-    title: string;
-    description: string | null;
-    content_type: string;
-    content_type_label: string;
-    duration_minutes: number | null;
-    is_required: boolean;
+interface CourseLesson extends TrainingLessonData {
+    counted: boolean;
     started: boolean;
     completed: boolean;
+    completed_at: string | null;
+    audio_progress_seconds: number;
+    audio: { has_text_by_language: Record<string, boolean>; speech_url: string; has_text: boolean };
+    urls: { complete: string; progress: string };
+}
+
+interface Progress {
+    percent: number;
+    completed: number;
+    counted: number;
+    total: number;
+    remaining: number;
+}
+
+interface Assignment {
+    status: string;
+    status_label: string;
+    assigned_at: string;
+    due_at: string | null;
+    started_at: string | null;
+    completed_at: string | null;
+}
+
+interface CompleteResponse {
+    lesson_id: number;
+    completed_at: string | null;
+    progress: Progress;
+    assignment: { status: string; status_label: string; completed_at: string | null };
+    course_completed: boolean;
+    message: string;
 }
 
 interface Props {
     course: { id: number; title: string; description: string | null; category: string | null };
     version: { label: string; description: string | null; estimated_minutes: number | null };
-    assignment: {
-        status: string;
-        status_label: string;
-        assigned_at: string;
-        due_at: string | null;
-        started_at: string | null;
-        completed_at: string | null;
-    };
-    progress: { percent: number; completed: number; counted: number; total: number };
-    lessons: LessonRow[];
+    assignment: Assignment;
+    progress: Progress;
+    modules: CourseModule[];
+    lessons: CourseLesson[];
+    audio: Omit<TrainingAudioConfig, 'speech_url' | 'has_text' | 'has_text_by_language'>;
     resumeLessonId: number | null;
     history: { version: string; completed_at: string | null }[];
     quizzes: { id: number; title: string; status_label: string; result: string | null; result_label: string | null }[];
 }
 
-export default function TrainingCourse({ course, version, assignment, progress, lessons, resumeLessonId, history, quizzes }: Props) {
+const HEARTBEAT_MS = 60000;
+const START_AFTER_MS = 4000;
+/** Pixels from the top of the window at which a lesson counts as the one being read. */
+const READING_LINE = 280;
+
+const lessonAnchor = (id: number) => `lesson-${id}`;
+
+/**
+ * Completions saved on this page, by course. Back and Forward remount the page
+ * from the props stored in that history entry, which predate them.
+ */
+const savedCompletions = new Map<number, { lessons: Record<number, string | null>; progress: Progress; assignment: CompleteResponse['assignment'] }>();
+
+/**
+ * The whole course on one page: every lesson of the assigned version, in
+ * order, grouped into modules with sticky tabs. Completing a lesson is an
+ * explicit button that saves in the background; the recruiter stays where
+ * they are. Listening never completes a lesson.
+ */
+export default function TrainingCourse({
+    course,
+    version,
+    assignment: initialAssignment,
+    progress: initialProgress,
+    modules,
+    lessons: initialLessons,
+    audio,
+    history,
+    quizzes,
+}: Props) {
+    const saved = savedCompletions.get(course.id);
+    const [lessons, setLessons] = useState(() =>
+        initialLessons.map((lesson) =>
+            saved && lesson.id in saved.lessons && !lesson.completed
+                ? { ...lesson, started: true, completed: true, completed_at: saved.lessons[lesson.id] }
+                : lesson,
+        ),
+    );
+    const [progress, setProgress] = useState(() => (saved && saved.progress.completed > initialProgress.completed ? saved.progress : initialProgress));
+    const [assignment, setAssignment] = useState(() =>
+        saved && saved.progress.completed > initialProgress.completed ? { ...initialAssignment, ...saved.assignment } : initialAssignment,
+    );
+    const [completing, setCompleting] = useState<number | null>(null);
+    const [chosenLanguage, chooseLanguage] = useTrainingLanguage();
+
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Recruiter Operations', href: '/recruiter' },
         { title: 'My Training', href: '/recruiter/training/my-training' },
         { title: course.title, href: `/recruiter/training/courses/${course.id}` },
     ];
 
-    const completed = assignment.status === 'completed';
-    const started = assignment.started_at !== null || progress.completed > 0;
+    const lessonsById = useMemo(() => new Map(lessons.map((lesson) => [lesson.id, lesson])), [lessons]);
+    const positions = useMemo(() => new Map(lessons.map((lesson, index) => [lesson.id, index + 1])), [lessons]);
+    const moduleAnchors = useMemo(() => modules.map((module) => module.anchor), [modules]);
+    const lessonAnchors = useMemo(() => lessons.map((lesson) => lessonAnchor(lesson.id)), [lessons]);
+    const activeModule = useScrollSpy(moduleAnchors);
+    const currentLessonAnchor = useScrollSpy(lessonAnchors, READING_LINE);
+    const pageLanguages = lessons.find((lesson) => lesson.languages.length > 1)?.languages ?? [];
+    const courseCompleted = assignment.status === 'completed';
+
+    const moduleProgress = useMemo(() => {
+        const result: Record<string, { completed: number; counted: number }> = {};
+
+        for (const module of modules) {
+            const items = module.lesson_ids.map((id) => lessonsById.get(id)).filter((lesson): lesson is CourseLesson => !!lesson);
+            const counted = items.some((lesson) => lesson.counted) ? items.filter((lesson) => lesson.counted) : items;
+            result[module.anchor] = { completed: counted.filter((lesson) => lesson.completed).length, counted: counted.length };
+        }
+
+        return result;
+    }, [modules, lessonsById]);
+
+    const firstIncomplete = lessons.find((lesson) => lesson.counted && !lesson.completed) ?? lessons.find((lesson) => !lesson.completed);
+    const resumeId = progress.completed > 0 || assignment.started_at ? (firstIncomplete?.id ?? null) : null;
+
+    // Module navigation. Inertia treats hash-only changes as replacements, so the
+    // history entry is pushed natively (carrying Inertia's state) and Inertia's
+    // current URL is then updated, otherwise its scroll bookkeeping strips the hash.
+    // Inertia throttles scroll saves, so the exact position is recorded on the
+    // entry being left before the new one is pushed.
+    const selectModule = useCallback((anchor: string) => {
+        const position = { top: window.scrollY, left: window.scrollX };
+        if (scrollToAnchor(anchor) && window.location.hash !== `#${anchor}`) {
+            const url = `${window.location.pathname}${window.location.search}#${anchor}`;
+            window.history.replaceState({ ...window.history.state, documentScrollPosition: position }, '', window.location.href);
+            window.history.pushState(window.history.state, '', url);
+            router.replace({ url, preserveScroll: true, preserveState: true });
+        }
+    }, []);
+
+    useEffect(() => {
+        const anchor = decodeURIComponent(window.location.hash.slice(1));
+        const restoring = window.history.state?.documentScrollPosition !== undefined;
+
+        if (anchor && !restoring) {
+            scrollToAnchor(anchor, 'auto');
+        }
+    }, []);
+
+    // Progress reports: which lesson is being read and for how long. Informational only.
+    const currentLessonId = currentLessonAnchor ? Number(currentLessonAnchor.replace('lesson-', '')) : null;
+    const currentRef = useRef<number | null>(null);
+    const lastBeatRef = useRef(Date.now());
+    const startedRef = useRef(new Set(initialLessons.filter((lesson) => lesson.started).map((lesson) => lesson.id)));
+
+    const report = useCallback(
+        (lessonId: number, extra: { audio_seconds?: number; spent_seconds?: number }, keepalive = false) => {
+            const lesson = lessonsById.get(lessonId);
+
+            if (!lesson) {
+                return;
+            }
+
+            postJson(lesson.urls.progress, extra, keepalive).catch(() => {
+                // Progress reporting is best effort.
+            });
+        },
+        [lessonsById],
+    );
+
+    const beat = useCallback(
+        (keepalive = false) => {
+            const now = Date.now();
+            const spent = Math.round((now - lastBeatRef.current) / 1000);
+            lastBeatRef.current = now;
+
+            if (currentRef.current !== null && document.visibilityState === 'visible' && spent > 0) {
+                report(currentRef.current, { spent_seconds: Math.min(spent, 300) }, keepalive);
+            }
+        },
+        [report],
+    );
+
+    useEffect(() => {
+        if (currentLessonId === null || currentRef.current === currentLessonId) {
+            return;
+        }
+
+        beat();
+        currentRef.current = currentLessonId;
+
+        if (startedRef.current.has(currentLessonId)) {
+            return;
+        }
+
+        const timer = window.setTimeout(() => {
+            if (currentRef.current === currentLessonId && !startedRef.current.has(currentLessonId)) {
+                startedRef.current.add(currentLessonId);
+                report(currentLessonId, { spent_seconds: 0 });
+            }
+        }, START_AFTER_MS);
+
+        return () => window.clearTimeout(timer);
+    }, [beat, currentLessonId, report]);
+
+    useEffect(() => {
+        lastBeatRef.current = Date.now();
+        const timer = window.setInterval(() => beat(), HEARTBEAT_MS);
+
+        return () => {
+            window.clearInterval(timer);
+            beat(true);
+        };
+    }, [beat]);
+
+    const markComplete = async (lesson: CourseLesson) => {
+        setCompleting(lesson.id);
+
+        try {
+            const result = await postJson<CompleteResponse>(lesson.urls.complete, {});
+
+            if (result) {
+                const previous = savedCompletions.get(course.id);
+                savedCompletions.set(course.id, {
+                    lessons: { ...(previous?.lessons ?? {}), [lesson.id]: result.completed_at },
+                    progress: result.progress,
+                    assignment: result.assignment,
+                });
+                startedRef.current.add(lesson.id);
+                setLessons((current) =>
+                    current.map((item) => (item.id === lesson.id ? { ...item, started: true, completed: true, completed_at: result.completed_at } : item)),
+                );
+                setProgress(result.progress);
+                setAssignment((current) => ({ ...current, ...result.assignment, started_at: current.started_at ?? new Date().toISOString() }));
+                toast.success(result.message);
+            }
+        } catch (caught) {
+            toast.error(caught instanceof Error ? caught.message : 'The lesson could not be marked complete. Please try again.');
+        } finally {
+            setCompleting(null);
+        }
+    };
 
     return (
-        <RecruiterLayout breadcrumbs={breadcrumbs}>
+        <RecruiterLayout breadcrumbs={breadcrumbs} contentClassName="overflow-x-clip">
             <Head title={course.title} />
 
-            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
-                <PageHeader
-                    title={course.title}
-                    description={course.description ?? undefined}
-                    action={
-                        resumeLessonId ? (
-                            <Button asChild>
-                                <Link href={`/recruiter/training/courses/${course.id}/lessons/${resumeLessonId}`}>
-                                    <Play /> {completed ? 'Review lessons' : started ? 'Continue where you stopped' : 'Start course'}
-                                </Link>
-                            </Button>
-                        ) : undefined
-                    }
-                />
-
-                <div className="grid gap-4 lg:grid-cols-3">
-                    <Card className="lg:col-span-2">
-                        <CardHeader>
-                            <CardTitle>Lessons</CardTitle>
-                            <CardDescription>
-                                {progress.counted === progress.total
-                                    ? 'Complete every lesson to finish the course.'
-                                    : 'Complete the required lessons to finish the course. Optional lessons are extra reading.'}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {lessons.length === 0 ? (
-                                <p className="text-muted-foreground text-sm">This course has no lessons.</p>
-                            ) : (
-                                <ol className="divide-y">
-                                    {lessons.map((lesson, index) => (
-                                        <li key={lesson.id}>
-                                            <Link
-                                                href={`/recruiter/training/courses/${course.id}/lessons/${lesson.id}`}
-                                                className="hover:bg-muted/50 -mx-2 flex items-start gap-3 rounded-lg px-2 py-3"
-                                            >
-                                                <span className="mt-0.5" aria-hidden>
-                                                    {lesson.completed ? (
-                                                        <CheckCircle2 className="size-5 text-emerald-600" />
-                                                    ) : lesson.started ? (
-                                                        <CircleDot className="size-5 text-sky-600" />
-                                                    ) : (
-                                                        <Circle className="text-muted-foreground size-5" />
-                                                    )}
-                                                </span>
-                                                <span className="min-w-0 flex-1">
-                                                    <span className="block text-sm font-medium">
-                                                        {index + 1}. {lesson.title}
-                                                    </span>
-                                                    <span className="text-muted-foreground block text-xs">
-                                                        {[lesson.content_type_label, lesson.duration_minutes ? `${lesson.duration_minutes} min` : null]
-                                                            .filter(Boolean)
-                                                            .join(' · ')}
-                                                        {lesson.completed ? ' · Completed' : lesson.started ? ' · Started' : ''}
-                                                    </span>
-                                                </span>
-                                                <RequiredBadge required={lesson.is_required} />
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ol>
+            <div className="flex flex-1 flex-col">
+                <header className="mx-auto w-full max-w-4xl space-y-5 px-4 pt-6 pb-5 md:px-6">
+                    <div className="space-y-2">
+                        <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                            {course.category && <span>{course.category}</span>}
+                            {course.category && <span aria-hidden>·</span>}
+                            <span>{version.label}</span>
+                            {version.estimated_minutes ? (
+                                <>
+                                    <span aria-hidden>·</span>
+                                    <span>{formatMinutes(version.estimated_minutes)}</span>
+                                </>
+                            ) : null}
+                            {assignment.due_at && (
+                                <>
+                                    <span aria-hidden>·</span>
+                                    <span className={assignment.status === 'overdue' ? 'text-destructive font-medium' : undefined}>
+                                        Due {formatTrainingDate(assignment.due_at)}
+                                    </span>
+                                </>
                             )}
-                        </CardContent>
-                    </Card>
+                        </div>
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                            <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{course.title}</h1>
+                            <TrainingStatusBadge status={assignment.status} label={assignment.status_label} />
+                        </div>
+                        {course.description && <p className="text-muted-foreground max-w-3xl leading-relaxed">{course.description}</p>}
+                    </div>
 
-                    <div className="space-y-4">
-                        <Card>
-                            <CardHeader>
-                                <div className="flex items-center justify-between gap-2">
-                                    <CardTitle>Your progress</CardTitle>
-                                    <TrainingStatusBadge status={assignment.status} label={assignment.status_label} />
+                    <div className="bg-muted/40 space-y-3 rounded-xl p-4" data-testid="course-progress">
+                        <div className="flex flex-wrap items-baseline justify-between gap-2">
+                            <span className="text-sm font-medium">Progress</span>
+                            <span className="text-muted-foreground text-sm">
+                                {progress.completed} of {progress.counted} lessons completed
+                            </span>
+                        </div>
+                        <TrainingProgressBar percent={progress.percent} label="Course progress" />
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <dl className="flex gap-6 text-sm">
+                                <div>
+                                    <dt className="text-muted-foreground text-xs">Completed</dt>
+                                    <dd className="font-semibold tabular-nums">{progress.completed}</dd>
                                 </div>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                                <TrainingProgressBar percent={progress.percent} label="Course progress" />
-                                <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm">
-                                    <dt className="text-muted-foreground">Lessons completed</dt>
-                                    <dd className="text-right">
-                                        {progress.completed}/{progress.counted}
-                                    </dd>
-                                    <dt className="text-muted-foreground">Estimated time</dt>
-                                    <dd className="text-right">{formatMinutes(version.estimated_minutes)}</dd>
-                                    <dt className="text-muted-foreground">Assigned</dt>
-                                    <dd className="text-right">{formatTrainingDate(assignment.assigned_at)}</dd>
-                                    <dt className="text-muted-foreground">Due</dt>
-                                    <dd className={assignment.status === 'overdue' ? 'text-destructive text-right font-medium' : 'text-right'}>
-                                        {formatTrainingDate(assignment.due_at)}
-                                    </dd>
-                                    {assignment.completed_at && (
-                                        <>
-                                            <dt className="text-muted-foreground">Completed</dt>
-                                            <dd className="text-right">{formatTrainingDate(assignment.completed_at)}</dd>
-                                        </>
-                                    )}
-                                    <dt className="text-muted-foreground">Version</dt>
-                                    <dd className="text-right">{version.label}</dd>
-                                </dl>
-                            </CardContent>
-                        </Card>
+                                <div>
+                                    <dt className="text-muted-foreground text-xs">Remaining</dt>
+                                    <dd className="font-semibold tabular-nums">{progress.remaining}</dd>
+                                </div>
+                            </dl>
+                            <div className="flex flex-wrap items-center gap-3">
+                                {pageLanguages.length > 1 && (
+                                    <TrainingLanguageSelect languages={pageLanguages} value={chosenLanguage} onChange={chooseLanguage} />
+                                )}
+                                {resumeId && !courseCompleted && (
+                                    <Button size="sm" onClick={() => scrollToAnchor(lessonAnchor(resumeId))}>
+                                        <Play /> Continue where you stopped
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                        Scroll through the lessons in order. Listening to the audio does not complete a lesson: press “Mark Lesson Complete” when
+                        you have read or listened to it.
+                    </p>
+                </header>
 
-                        {quizzes.length > 0 && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Quizzes</CardTitle>
-                                    <CardDescription>Quizzes that go with this course.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-2">
+                {modules.length > 0 && <ModuleTabs modules={modules} active={activeModule} progress={moduleProgress} onSelect={selectModule} />}
+
+                <div className="mx-auto w-full max-w-4xl space-y-14 px-4 pt-8 pb-24 md:px-6">
+                    {lessons.length === 0 && <p className="text-muted-foreground text-sm">This course has no lessons.</p>}
+
+                    {modules.map((module) => {
+                        const counts = moduleProgress[module.anchor];
+                        const percent = counts && counts.counted > 0 ? (counts.completed * 100) / counts.counted : 0;
+
+                        return (
+                            <section key={module.anchor} id={module.anchor} aria-labelledby={`${module.anchor}-title`} data-testid="course-module">
+                                <div className="mb-8 space-y-2 border-b pb-4">
+                                    <p className="text-xs font-semibold tracking-wider text-emerald-700 uppercase dark:text-emerald-300">
+                                        Module {module.number}
+                                    </p>
+                                    <h2 id={`${module.anchor}-title`} className="text-xl font-semibold tracking-tight md:text-2xl">
+                                        {module.title}
+                                    </h2>
+                                    {counts && (
+                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                                            <span className="text-muted-foreground text-sm">
+                                                {counts.completed} of {counts.counted} lessons completed
+                                            </span>
+                                            <TrainingProgressBar percent={percent} label={`${module.title} progress`} className="max-w-xs flex-1" />
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="space-y-12">
+                                    {module.lesson_ids.map((id) => {
+                                        const lesson = lessonsById.get(id);
+
+                                        return lesson ? (
+                                            <CourseLessonArticle
+                                                key={lesson.id}
+                                                lesson={lesson}
+                                                position={positions.get(lesson.id) ?? 0}
+                                                total={lessons.length}
+                                                chosenLanguage={chosenLanguage}
+                                                audio={audio}
+                                                completing={completing === lesson.id}
+                                                onComplete={() => markComplete(lesson)}
+                                                onAudioPosition={(seconds) => report(lesson.id, { audio_seconds: seconds })}
+                                            />
+                                        ) : null;
+                                    })}
+                                </div>
+                            </section>
+                        );
+                    })}
+
+                    {lessons.length > 0 && (
+                        <section aria-labelledby="course-completion-title" className="bg-muted/40 space-y-4 rounded-xl p-5" data-testid="course-summary">
+                            <div className="flex items-start gap-3">
+                                {courseCompleted ? (
+                                    <PartyPopper className="mt-0.5 size-6 shrink-0 text-emerald-600" />
+                                ) : (
+                                    <CheckCircle2 className="text-muted-foreground mt-0.5 size-6 shrink-0" />
+                                )}
+                                <div className="space-y-1">
+                                    <h2 id="course-completion-title" className="text-lg font-semibold">
+                                        {courseCompleted ? 'Course completed' : 'Course completion'}
+                                    </h2>
+                                    <p className="text-muted-foreground text-sm">
+                                        {courseCompleted
+                                            ? `You completed this course${assignment.completed_at ? ` on ${formatTrainingDate(assignment.completed_at)}` : ''}. You can come back to any lesson at any time.`
+                                            : `${progress.completed} of ${progress.counted} lessons completed, ${progress.remaining} remaining.${progress.counted < progress.total ? ' Optional lessons are extra reading and do not count.' : ''}`}
+                                    </p>
+                                </div>
+                            </div>
+                            <TrainingProgressBar percent={progress.percent} label="Course progress" />
+                            {!courseCompleted && firstIncomplete && (
+                                <Button variant="outline" size="sm" onClick={() => scrollToAnchor(lessonAnchor(firstIncomplete.id))}>
+                                    Go to the next lesson to complete: {firstIncomplete.title}
+                                </Button>
+                            )}
+
+                            {quizzes.length > 0 && (
+                                <div className="space-y-2 pt-2">
+                                    <h3 className="text-sm font-semibold">Quizzes for this course</h3>
                                     {quizzes.map((quiz) => (
                                         <Link
                                             key={quiz.id}
                                             href={`/recruiter/assessments/${quiz.id}`}
-                                            className="hover:bg-muted/50 flex items-center justify-between gap-2 rounded-lg border px-3 py-2"
+                                            className="bg-background hover:bg-muted/50 flex items-center justify-between gap-2 rounded-lg px-3 py-2"
                                         >
                                             <span className="min-w-0">
                                                 <span className="block text-sm font-medium">{quiz.title}</span>
@@ -178,42 +430,120 @@ export default function TrainingCourse({ course, version, assignment, progress, 
                                             <ResultBadge result={quiz.result} label={quiz.result_label} />
                                         </Link>
                                     ))}
-                                </CardContent>
-                            </Card>
-                        )}
+                                </div>
+                            )}
 
-                        {(course.category || version.description) && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>About this course</CardTitle>
-                                </CardHeader>
-                                <CardContent className="text-muted-foreground space-y-2 text-sm">
-                                    {course.category && <p>{course.category}</p>}
-                                    {version.description && <p className="whitespace-pre-line">{version.description}</p>}
-                                </CardContent>
-                            </Card>
-                        )}
+                            {history.length > 0 && (
+                                <div className="space-y-1 pt-2 text-sm">
+                                    <h3 className="font-semibold">Earlier versions completed</h3>
+                                    {history.map((entry) => (
+                                        <p key={entry.version} className="text-muted-foreground flex justify-between">
+                                            <span>{entry.version}</span>
+                                            <span>{formatTrainingDate(entry.completed_at)}</span>
+                                        </p>
+                                    ))}
+                                </div>
+                            )}
+                        </section>
+                    )}
+                </div>
 
-                        {history.length > 0 && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Earlier versions completed</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <ul className="space-y-1 text-sm">
-                                        {history.map((entry) => (
-                                            <li key={entry.version} className="flex justify-between">
-                                                <span>{entry.version}</span>
-                                                <span className="text-muted-foreground">{formatTrainingDate(entry.completed_at)}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </CardContent>
-                            </Card>
+                <BackToModulesButton />
+            </div>
+        </RecruiterLayout>
+    );
+}
+
+function CourseLessonArticle({
+    lesson,
+    position,
+    total,
+    chosenLanguage,
+    audio,
+    completing,
+    onComplete,
+    onAudioPosition,
+}: {
+    lesson: CourseLesson;
+    position: number;
+    total: number;
+    chosenLanguage: string;
+    audio: Props['audio'];
+    completing: boolean;
+    onComplete: () => void;
+    onAudioPosition: (seconds: number) => void;
+}) {
+    const { shown, fellBack } = resolveLessonLanguage(lesson.languages, chosenLanguage);
+    const chosen = lesson.languages.find((item) => item.code === chosenLanguage);
+    const language = shown?.code ?? 'en';
+    const audioConfig: TrainingAudioConfig = { ...audio, ...lesson.audio };
+
+    return (
+        <article id={lessonAnchor(lesson.id)} aria-labelledby={`${lessonAnchor(lesson.id)}-title`} className="space-y-5" data-testid="course-lesson">
+            <header className="space-y-2">
+                <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                    <span>
+                        Lesson {position} of {total}
+                    </span>
+                    {lesson.duration_minutes && (
+                        <>
+                            <span aria-hidden>·</span>
+                            <span>{lesson.duration_minutes} min</span>
+                        </>
+                    )}
+                </div>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                    <h3 id={`${lessonAnchor(lesson.id)}-title`} className="text-xl font-semibold tracking-tight">
+                        {lesson.title}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                        {!lesson.is_required && <RequiredBadge required={false} />}
+                        {lesson.completed && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600/10 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                                <CheckCircle2 className="size-3.5" /> Completed
+                            </span>
                         )}
                     </div>
                 </div>
-            </div>
-        </RecruiterLayout>
+                {fellBack && chosen && (
+                    <p className="text-muted-foreground flex items-start gap-2 text-sm" role="status">
+                        <Info className="mt-0.5 size-4 shrink-0" />
+                        {chosen.label} not available — showing English
+                    </p>
+                )}
+                {!fellBack && shown && !shown.canonical && shown.outdated && (
+                    <p className="flex items-start gap-2 text-sm text-amber-700 dark:text-amber-300" role="status">
+                        <Info className="mt-0.5 size-4 shrink-0" />
+                        The English lesson was updated after this translation. Check the English version for the latest content.
+                    </p>
+                )}
+            </header>
+
+            <TrainingAudioPlayer
+                key={`${lesson.id}-${language}`}
+                audio={audioConfig}
+                language={language}
+                initialSeconds={lesson.audio_progress_seconds}
+                onPositionReport={onAudioPosition}
+            />
+
+            <TrainingLessonContent lesson={lesson} language={shown} headingLevel="h4" />
+
+            <footer className="flex flex-wrap items-center justify-end gap-3 border-t pt-4">
+                {lesson.completed ? (
+                    <p className="flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-300" role="status">
+                        <CheckCircle2 className="size-5" /> Lesson Completed
+                        {lesson.completed_at && (
+                            <span className="text-muted-foreground font-normal">· {formatTrainingDate(lesson.completed_at)}</span>
+                        )}
+                    </p>
+                ) : (
+                    <Button onClick={onComplete} disabled={completing} className="bg-emerald-600 text-white hover:bg-emerald-700">
+                        {completing ? <LoaderCircle className="animate-spin" /> : <CheckCircle2 />}
+                        Mark Lesson Complete
+                    </Button>
+                )}
+            </footer>
+        </article>
     );
 }

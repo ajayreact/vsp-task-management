@@ -259,18 +259,18 @@ const STYLES: Record<string, { icon: LucideIcon; box: string; iconBox: string }>
     },
 };
 
-function SectionCard({ section, children }: { section: LessonSection; children: ReactNode }) {
+function SectionCard({ section, headingLevel: Heading = 'h2', children }: { section: LessonSection; headingLevel?: 'h2' | 'h3' | 'h4'; children: ReactNode }) {
     const style = STYLES[section.kind] ?? STYLES.content;
     const Icon = style.icon;
 
     return (
         <section className={cn('rounded-xl border p-4 md:p-5', style.box)} aria-label={section.heading}>
-            <h2 className="mb-3 flex items-center gap-2.5 text-base font-semibold tracking-tight">
+            <Heading className="mb-3 flex items-center gap-2.5 text-base font-semibold tracking-tight">
                 <span className={cn('flex size-7 shrink-0 items-center justify-center rounded-lg', style.iconBox)}>
                     <Icon className="size-4" />
                 </span>
                 <span className="min-w-0">{section.heading}</span>
-            </h2>
+            </Heading>
             {children}
         </section>
     );
@@ -280,11 +280,11 @@ function SectionCard({ section, children }: { section: LessonSection; children: 
  * A structured lesson: one card per section, styled by its kind. Text is
  * rendered as text, never as HTML.
  */
-export function LessonSections({ sections, lang }: { sections: LessonSection[]; lang?: string }) {
+export function LessonSections({ sections, lang, headingLevel }: { sections: LessonSection[]; lang?: string; headingLevel?: 'h2' | 'h3' | 'h4' }) {
     return (
         <div lang={lang} className="text-foreground space-y-4 text-[15px] leading-7 break-words">
             {sections.map((section, index) => (
-                <SectionCard key={`${index}-${section.heading}`} section={section}>
+                <SectionCard key={`${index}-${section.heading}`} section={section} headingLevel={headingLevel}>
                     <LessonBlocks body={section.body} kind={section.kind} />
                 </SectionCard>
             ))}

@@ -6,6 +6,7 @@ use App\Modules\Core\Models\User;
 use App\Modules\RecruiterOperations\Enums\TrainingLanguage;
 use App\Modules\RecruiterOperations\Models\TrainingAssignment;
 use App\Modules\RecruiterOperations\Models\TrainingLesson;
+use Illuminate\Support\Str;
 
 /**
  * Shapes training records for the pages. Private files and audio are only
@@ -28,6 +29,7 @@ class TrainingPresenter
 
         return [
             'id' => $lesson->id,
+            'module' => $lesson->module,
             'title' => $lesson->title,
             'description' => $lesson->description,
             'body' => $lesson->body,
@@ -90,22 +92,86 @@ class TrainingPresenter
      */
     public function audio(TrainingLesson $lesson): array
     {
+        return [...$this->audioSettings(), ...$this->lessonAudio($lesson)];
+    }
+
+    /**
+     * The audio settings every lesson shares: delivery and voices.
+     *
+     * @return array{delivery: string, voices: list<array{key: string, label: string, locale: string, flag: string}>, voices_by_language: array<string, list<array{key: string, label: string, locale: string, flag: string}>>}
+     */
+    public function audioSettings(): array
+    {
         $voicesByLanguage = [];
-        $hasText = [];
 
         foreach (TrainingLanguage::cases() as $language) {
             $voicesByLanguage[$language->value] = $this->speech->voiceOptions($language);
-            $hasText[$language->value] = $this->speech->lessonText($lesson, $language) !== '';
         }
 
         return [
             'delivery' => $this->speech->delivery()->value,
             'voices' => $this->speech->voiceOptions(),
             'voices_by_language' => $voicesByLanguage,
+        ];
+    }
+
+    /**
+     * What is specific to one lesson's audio: where to fetch it and which
+     * languages have text to read.
+     *
+     * @return array{has_text_by_language: array<string, bool>, speech_url: string, has_text: bool}
+     */
+    public function lessonAudio(TrainingLesson $lesson): array
+    {
+        $hasText = [];
+
+        foreach (TrainingLanguage::cases() as $language) {
+            $hasText[$language->value] = $this->speech->lessonText($lesson, $language) !== '';
+        }
+
+        return [
             'has_text_by_language' => $hasText,
             'speech_url' => route('recruiter.training.lessons.speech', $lesson),
             'has_text' => $hasText[TrainingLanguage::default()->value],
         ];
+    }
+
+    /**
+     * Groups lessons, in order, into the modules of the course page:
+     * consecutive lessons with the same module form one module, and lessons
+     * without one are grouped under the course title. Each module has a
+     * unique anchor for the page's module tabs.
+     *
+     * @param  iterable<TrainingLesson>  $lessons
+     * @return list<array{anchor: string, title: string, number: int, lesson_ids: list<int>}>
+     */
+    public function modules(iterable $lessons, string $courseTitle): array
+    {
+        $modules = [];
+        $anchors = [];
+        $current = null;
+
+        foreach ($lessons as $lesson) {
+            $title = filled($lesson->module) ? trim((string) $lesson->module) : $courseTitle;
+
+            if ($current === null || $modules[$current]['title'] !== $title) {
+                $base = 'module-'.(Str::slug($title) ?: (string) (count($modules) + 1));
+                $anchor = $base;
+                $suffix = 2;
+
+                while (in_array($anchor, $anchors, true)) {
+                    $anchor = $base.'-'.$suffix++;
+                }
+
+                $anchors[] = $anchor;
+                $modules[] = ['anchor' => $anchor, 'title' => $title, 'number' => count($modules) + 1, 'lesson_ids' => []];
+                $current = count($modules) - 1;
+            }
+
+            $modules[$current]['lesson_ids'][] = $lesson->id;
+        }
+
+        return $modules;
     }
 
     /**

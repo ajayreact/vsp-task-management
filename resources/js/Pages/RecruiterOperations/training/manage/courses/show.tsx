@@ -38,6 +38,7 @@ interface VersionRow {
 
 interface LessonRow {
     id: number;
+    module: string | null;
     title: string;
     content_type: string;
     content_type_label: string;
@@ -568,6 +569,7 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
                                                         <TableRow key={lesson.id}>
                                                             <TableCell className="text-muted-foreground text-sm tabular-nums">{index + 1}</TableCell>
                                                             <TableCell className="break-words">
+                                                                {lesson.module && <p className="text-muted-foreground text-xs">{lesson.module}</p>}
                                                                 <Link
                                                                     href={`/recruiter/training/manage/lessons/${lesson.id}`}
                                                                     className="font-medium hover:underline"
@@ -610,6 +612,7 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
                                                     <li key={lesson.id} className="flex gap-3 py-3">
                                                         <span className="text-muted-foreground w-6 shrink-0 text-sm tabular-nums">{index + 1}</span>
                                                         <div className="min-w-0 flex-1 space-y-1.5">
+                                                            {lesson.module && <p className="text-muted-foreground text-xs">{lesson.module}</p>}
                                                             <Link
                                                                 href={`/recruiter/training/manage/lessons/${lesson.id}`}
                                                                 className="block font-medium break-words hover:underline"

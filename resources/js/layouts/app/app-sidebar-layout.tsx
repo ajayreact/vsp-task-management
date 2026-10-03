@@ -12,16 +12,18 @@ import { type BreadcrumbItem } from '@/types';
 export interface AppSidebarLayoutProps extends AppSidebarProps {
     children: React.ReactNode;
     breadcrumbs?: BreadcrumbItem[];
+    /** Extra classes for the main content area, e.g. overflow-x-clip so sticky elements stick to the window. */
+    contentClassName?: string;
 }
 
-export default function AppSidebarLayout({ children, breadcrumbs = [], ...sidebar }: AppSidebarLayoutProps) {
+export default function AppSidebarLayout({ children, breadcrumbs = [], contentClassName, ...sidebar }: AppSidebarLayoutProps) {
     useNotificationSoundConfig();
 
     return (
         <AppShell variant="sidebar">
             <NotificationProvider />
             <AppSidebar {...sidebar} />
-            <AppContent variant="sidebar">
+            <AppContent variant="sidebar" className={contentClassName}>
                 <AppSidebarHeader breadcrumbs={breadcrumbs} />
                 <DesktopNotificationPrompt />
                 {children}
