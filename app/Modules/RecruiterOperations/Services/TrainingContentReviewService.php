@@ -228,13 +228,19 @@ class TrainingContentReviewService
         $levels = array_map('intval', (array) config('recruiter-training.compliance_review.levels', []));
         /** @var list<string> $phrases */
         $phrases = array_map(fn ($phrase) => mb_strtolower((string) $phrase), (array) config('recruiter-training.compliance_review.phrases', []));
+        /** @var list<string> $titles */
+        $titles = array_map(fn ($title) => mb_strtolower((string) $title), (array) config('recruiter-training.compliance_review.lessons', []));
 
-        $flagged = $this->draftLessons()->filter(function (TrainingLesson $lesson) use ($levels, $phrases) {
+        $flagged = $this->draftLessons()->filter(function (TrainingLesson $lesson) use ($levels, $phrases, $titles) {
             if ($lesson->compliance_status !== null) {
                 return false;
             }
 
             if (in_array($lesson->version->course->category->level_number ?? null, $levels, true)) {
+                return true;
+            }
+
+            if (in_array(mb_strtolower($lesson->title), $titles, true)) {
                 return true;
             }
 

@@ -410,7 +410,7 @@ test('structuring never edits a published version: it works on a new draft and k
 
 test('the redesigned lessons have English and Telugu for every required sample, with an objective first and a takeaway', function () {
     $redesigned = RecruiterTrainingContent::redesigned();
-    $samples = [1 => 'State Abbreviations & Codes', 2 => 'OPT', 4 => 'Reading Job Descriptions', 7 => '60-Second Cold Call', 10 => 'Scenario: Calling'];
+    $samples = [1 => 'State Abbreviations & Codes', 2 => 'OPT', 5 => 'Reading Job Descriptions', 7 => '60-Second Cold Call', 10 => 'Scenario: Calling'];
 
     foreach ($samples as $level => $title) {
         expect($redesigned[$level][$title] ?? null)->not->toBeNull("Level {$level} {$title}");

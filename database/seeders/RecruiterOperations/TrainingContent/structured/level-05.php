@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Redesigned Level 4 lessons. English follows the existing source-aligned
+ * Redesigned Level 5 lessons. English follows the existing source-aligned
  * lesson (Job Description Analysis_US_IT_Recruitment_Training); Telugu is its
  * translation and ships as "needs review".
  */
 
 return [
-    'level' => 4,
+    'level' => 5,
     'lessons' => [
         'Reading Job Descriptions' => [
             'en' => [

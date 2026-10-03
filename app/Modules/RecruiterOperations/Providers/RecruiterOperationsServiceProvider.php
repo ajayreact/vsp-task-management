@@ -6,6 +6,8 @@ use App\Modules\Core\Enums\Ability;
 use App\Modules\RecruiterOperations\Console\MoveTrainingAssignmentsToLiveVersion;
 use App\Modules\RecruiterOperations\Console\PopulateRecruiterTrainingContent;
 use App\Modules\RecruiterOperations\Console\FlagRecruiterTrainingReviews;
+use App\Modules\RecruiterOperations\Console\RemoveRecruiterTrainingNotes;
+use App\Modules\RecruiterOperations\Console\RenumberRecruiterTrainingLevels;
 use App\Modules\RecruiterOperations\Console\StructureRecruiterTrainingContent;
 use App\Modules\RecruiterOperations\Models\Assessment;
 use App\Modules\RecruiterOperations\Models\AssessmentAssignment;
@@ -62,7 +64,7 @@ class RecruiterOperationsServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(database_path('migrations/recruiter'));
 
         if ($this->app->runningInConsole()) {
-            $this->commands([PopulateRecruiterTrainingContent::class, MoveTrainingAssignmentsToLiveVersion::class, StructureRecruiterTrainingContent::class, FlagRecruiterTrainingReviews::class]);
+            $this->commands([PopulateRecruiterTrainingContent::class, MoveTrainingAssignmentsToLiveVersion::class, StructureRecruiterTrainingContent::class, FlagRecruiterTrainingReviews::class, RenumberRecruiterTrainingLevels::class, RemoveRecruiterTrainingNotes::class]);
         }
 
         Gate::policy(RecruiterTask::class, RecruiterTaskPolicy::class);

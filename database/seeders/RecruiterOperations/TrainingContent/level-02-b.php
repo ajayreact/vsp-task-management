@@ -5,9 +5,6 @@ return [
     'course' => 'Immigration & Work Authorization',
     'lessons' => [
         'H-4' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. Verify current requirements and follow company and HR processes.
-
         Learning objective
         Understand H-4 dependent status and why an H-4 holder generally cannot work without separate authorization.
 
@@ -51,9 +48,6 @@ return [
         TEXT,
 
         'H-4 EAD' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. Eligibility rules can change. Verify current requirements and follow HR processes.
-
         Learning objective
         Understand the H-4 EAD, who may hold one at a high level, and how to record it correctly.
 
@@ -99,9 +93,6 @@ return [
         TEXT,
 
         'I-20' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. Follow company and HR processes for any document requests.
-
         Learning objective
         Understand Form I-20, the information on it that matters for OPT recruiting, and how to handle it responsibly.
 
@@ -151,9 +142,6 @@ return [
         TEXT,
 
         'I-765' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. Filing details, fees and timelines change. Candidates should rely on their DSO and official sources.
-
         Learning objective
         Understand Form I-765, the application for employment authorization, and how its status affects candidate availability.
 
@@ -199,9 +187,6 @@ return [
         TEXT,
 
         'I-983' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. I-983 obligations belong to the employer, the student and the school. Follow HR and compliance processes.
-
         Learning objective
         Understand Form I-983, the STEM OPT training plan, and the recruiter's limited role in relation to it.
 
@@ -249,9 +234,6 @@ return [
         TEXT,
 
         'I-94' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. Follow HR processes for any document review.
-
         Learning objective
         Understand the I-94 arrival and departure record and why HR may use it.
 

@@ -178,9 +178,6 @@ return [
         TEXT,
 
         'Visa Status' => <<<'TEXT'
-        Important note
-        This lesson covers recruiter awareness only. It is not legal advice. Recruiters do not decide work authorization. Verify current requirements, follow company policy, and confirm with HR or compliance.
-
         Learning objective
         Ask about work authorization respectfully and consistently using approved questions, and record answers accurately.
 
@@ -338,9 +335,6 @@ return [
         TEXT,
 
         'EAD Dates' => <<<'TEXT'
-        Important note
-        This lesson covers recruiter awareness only, not legal advice. HR verifies employment authorization documents. Follow company policy and confirm with HR or compliance.
-
         Learning objective
         Record EAD start and end dates accurately, and use them to plan submissions and start dates responsibly.
 

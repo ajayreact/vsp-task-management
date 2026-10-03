@@ -2,470 +2,437 @@
 
 return [
     'level' => 6,
-    'course' => 'OPT Recruiter Process & Sourcing Strategy',
+    'course' => 'Sourcing & Resume Screening',
     'lessons' => [
-        'Payroll Handoff' => <<<'TEXT'
-        Important note
-        Payroll, tax and benefits rules vary by state and situation. Recruiters do not give tax or payroll advice. Follow company policy and confirm with payroll or HR.
-
+        'Search Strategy' => <<<'TEXT'
         Learning objective
-        Understand what information payroll needs from the recruiting team and why accuracy matters.
+        Plan a structured search strategy for each requirement, so that you find the best candidates quickly and do not waste time on random searching.
 
         What you need to know
-        Payroll pays the consultant correctly and on time, and applies the right taxes and withholdings. Payroll depends on accurate information from recruiting and HR. A small error, such as a wrong work state or rate, can cause incorrect pay or tax problems for the consultant and the company.
+        A search strategy is a plan that answers three questions: who you are looking for, where you will look, and in what order. It comes directly from your requirement analysis in Level 4.
 
-        Information payroll usually needs from recruiting
-        The consultant's legal name and contact details.
-        The approved pay rate or salary, and whether it is hourly or annual.
-        The engagement type, such as W2 hourly or W2 salaried.
-        The start date.
-        The work location, including the state and city where the consultant physically works.
-        The home address, if different, for example when the consultant works remotely.
-        The pay period and timesheet process, as defined by your company.
-        Any approved overtime rules or special terms.
+        Step one, define the ideal candidate
+        Write two or three sentences describing the ideal candidate: title, primary skills, experience level, location, work authorization fit and any domain experience. This is your target profile.
 
-        Why the work state matters
-        State income tax, unemployment insurance and some local taxes depend on where the consultant works and lives. If a consultant moves, or a remote consultant works from a different state, payroll needs to know before the change. Lesson 9 covers work-state information in more detail.
+        Step two, choose your sources in order
+        Internal database first, because these candidates already know your company.
+        Referrals and your professional network.
+        LinkedIn and job boards such as Dice.
+        University networks and student communities, for recent graduates.
+        Professional groups.
+        The best order depends on the role. For entry-level OPT roles, university and student channels may come earlier.
 
-        Timesheets
-        Many hourly consultants submit timesheets, sometimes on the client's system and sometimes on the company's system. Make sure the consultant knows which process to use, and pass any questions to payroll.
+        Step three, prepare keywords
+        Use your title keywords, primary skill keywords and secondary keywords from the requirement analysis. Plan your Boolean strings before you start.
 
-        Handling consultant questions
-        Questions about net pay, withholding, W-4 choices, deductions and tax refunds should go to payroll. You can say: That is a great question for our payroll team. I will connect you with them.
+        Step four, set targets and time limits
+        Decide how many qualified candidates you need, for example three strong submissions.
+        Set a time limit for each source, for example thirty minutes, before moving to the next.
+        Track results, so that you know which sources work best for which roles.
+
+        Step five, review and adjust
+        After each source, ask yourself: Am I finding the right people? If not, adjust your keywords, location or sources.
+        If you find no matches after trying all sources, discuss the requirement with your lead. The requirement may need clarification, or it may not be a good fit for your candidate pool.
 
         Practical example
-        Your candidate will start on June 3, working hybrid from Charlotte, North Carolina, at the approved W2 hourly rate. She will temporarily live in South Carolina for the first month before moving to Charlotte. You include both addresses and the planned move date in the payroll handoff and flag it for payroll's attention.
+        For the running Java requirement, your target profile is: a Java backend developer with three or more years of Java, Spring Boot, REST and SQL, in or willing to relocate to Charlotte, whose work authorization matches the requirement. Your plan is internal database for twenty minutes, LinkedIn for thirty minutes, Dice for thirty minutes, and university alumni networks for twenty minutes. Your target is three strong submissions by the end of the day.
 
         Recruiter checklist
-        Send complete, accurate payroll information.
-        Include the actual work state and home address.
-        Report changes in location or rate immediately.
-        Refer pay and tax questions to payroll.
+        Write a target profile for every requirement.
+        Choose sources and order them.
+        Prepare keywords in advance.
+        Set targets and time limits.
+        Review results and adjust.
 
         Common mistakes
-        Recording the client's headquarters instead of the actual work location.
-        Not reporting a consultant's move.
-        Giving tax advice.
+        Searching without a target profile.
+        Spending all your time on one source.
+        Not tracking which sources work.
 
         From the company training material
-        The OPT Recruiter Roles and Responsibilities document describes payroll follow-up: follow up with active candidates about the required payroll hours, track payroll status, coordinate with the Accountant or HR when payroll information is needed, and escalate payment or payroll issues to the OPT Head. The OPT Head monitors the required minimum hours and payroll status with the Accountant and USA HR.
-        Company-specific process: the End-to-End Business Process document refers to payroll amounts and taxes being collected before payroll is run. Recruiters do not collect, request or handle any money from candidates. Any question about who funds payroll goes to HR, the Accountant and the OPT Head, and needs review by qualified counsel. Verify with HR or authorized personnel.
+        The Day 5 recruiter workflow puts sourcing after three steps: read the entire requirement, extract the location, duration, rate, skills, dates and client, and prioritise must-have against preferred criteria. Only then do you source, which the training defines as searching the right channels using targeted keywords. Its six sources of recruitment are job boards, professional network, vendor network, groups, internal database and direct communication. The US MNC Staffing document adds the order for staffing requirements: your hotlist first, then a mass mail to your vendor list, then a portal posting and a C2C search, and finally select the best one or two resumes.
 
         Key takeaway
-        Payroll can only be accurate if your handoff is accurate. Send complete details and report changes immediately.
+        A clear search strategy turns sourcing into a repeatable process that delivers results faster.
         TEXT,
 
-        'Follow-Up' => <<<'TEXT'
+        'Primary Keywords' => <<<'TEXT'
         Learning objective
-        Follow up consistently with candidates and vendors at each stage, and after placement, to keep the process moving and relationships strong.
+        Identify the primary keywords for a requirement and use them correctly in searches.
 
         What you need to know
-        Many placements are lost because nobody followed up. Feedback is delayed, interviews are not scheduled, candidates accept other offers, and problems after the start are not noticed. Good follow-up is planned, regular and respectful.
+        Primary keywords are the words that must appear in a suitable candidate's profile or resume. They come from the must-have skills and the core job title. Usually there are only three to five.
+        If a profile does not contain a primary keyword, the candidate is unlikely to meet the requirement.
 
-        Follow-up stages
-        After outreach: a polite reminder if there is no reply after a few business days.
-        After screening: send the job description and next steps.
-        After submission: ask the vendor for feedback within one or two business days, and update the candidate.
-        After the interview: collect feedback from the candidate the same day, and ask the vendor for client feedback.
-        After the offer: track onboarding progress.
-        After the start: check in on the first day, after the first week, and regularly after that.
+        How to identify primary keywords
+        Look for skills in the job title, the summary and the required qualifications.
+        Look for skills repeated in the responsibilities.
+        Ask: Would the client reject a candidate without this skill? If yes, it is primary.
 
-        Follow-up with placed consultants
-        Ask how the project is going and whether there are any concerns.
-        Pass concerns to the right team, such as account management or HR.
-        Note important dates, such as contract end dates and authorization end dates, and alert the right team early.
-        Ask for referrals, at the right time.
+        Examples
+        For a Java Developer role: Java, Spring Boot, REST, and SQL.
+        For a Data Analyst role: SQL, Excel, and Tableau or Power BI.
+        For a QA Automation Engineer role: Selenium, Java or Python, and test automation.
+        For a Data Engineer role: Python or Scala, Spark, SQL, and a cloud platform such as AWS.
 
-        Using reminders
-        Set reminders in your company's system for every follow-up.
-        Plan follow-ups in the U.S. business day of the person you are contacting.
-        Record the outcome of each follow-up.
+        Variations and synonyms
+        Candidates describe skills in different ways. Include common variations.
+        Spring Boot, Springboot and Spring.
+        REST, RESTful and REST API.
+        JavaScript and JS.
+        Machine learning and ML.
+        Continuous integration and CI.
+        Search for the main term and its variations together, using OR in Boolean search.
 
-        Tone of follow-up
-        Friendly and brief.
-        Specific: mention the role and date.
-        Never pushy or guilt-inducing.
+        Using primary keywords in searches
+        Combine primary keywords with AND, so that every result includes all of them.
+        Do not add too many primary keywords. Four strong primary keywords usually work better than ten.
+        Check a sample of results to make sure the keywords are finding relevant people.
+
+        Keywords are not enough
+        A keyword on a resume does not prove experience. A candidate may list a skill they used briefly in a class. Use keywords to find candidates, then verify skills on a call.
 
         Practical example
-        Two days after submission, you email the vendor: Following up on the Java developer submission on Monday for the Charlotte role. Could you share any client feedback? You then message the candidate: The vendor is still waiting for client feedback. I will update you by Thursday.
+        For the running Java requirement, your primary keywords are Java, Spring Boot, REST and SQL. Your search is: Java AND, in brackets, Spring Boot OR Springboot, AND, in brackets, REST OR RESTful, AND SQL. You then read the top profiles to confirm real project experience.
 
         Recruiter checklist
-        Set reminders for every stage.
-        Follow up within one or two business days.
-        Update candidates even when there is no news.
-        Keep in touch after placement.
+        Choose three to five primary keywords from the must-haves.
+        Include common variations.
+        Combine with AND.
+        Verify on a call.
 
         Common mistakes
-        Waiting for others to update you.
-        Following up too often, which annoys people.
-        Forgetting placed consultants.
+        Using every listed skill as a primary keyword.
+        Ignoring spelling variations.
+        Treating a keyword match as proof of experience.
 
         From the company training material
-        Follow-up appears in almost every part of the company's OPT recruiter role. Bench candidate follow-up means regular communication with candidates on the bench, keeping resumes and profiles updated, and tracking submissions, interviews, client responses, requirements and placement progress, in coordination with Bench Sales. Candidate relationship management means regular updates on profile marketing, interviews, payroll and placement. The final step of the end-to-end process is that the OPT recruiter and OPT Head continue monitoring the candidate. The US MNC Staffing document adds that after each submission you follow up for feedback from the BDM.
+        The Job Description Analysis training's Data Architect example gives a model list of high-value keywords: AWS, Solution Architect, Enterprise Architect, API Gateway, Lambda, VPC, CloudFront, security architecture, Python and Java. It also warns: validate years of experience against the requirement instead of matching keywords alone. Keywords find candidates. They do not prove a match.
 
         Key takeaway
-        Planned, friendly follow-up keeps the process moving and builds long-term relationships.
+        Primary keywords define the core match. Keep the list short, include variations, and always verify.
         TEXT,
 
-        'LinkedIn Sourcing' => <<<'TEXT'
+        'Secondary Keywords' => <<<'TEXT'
         Learning objective
-        Source OPT candidates on LinkedIn using education, skills and graduation filters, with professional and personal outreach.
+        Use secondary keywords to rank and refine search results without excluding good candidates.
 
         What you need to know
-        LinkedIn is one of the most important sourcing channels for OPT candidates, because students and recent graduates are often active there. Level 5 covered LinkedIn basics. This lesson focuses on OPT-specific techniques.
+        Secondary keywords come from preferred skills, supporting tools, domain experience and certifications. They are useful, but a candidate without them may still qualify.
+        Use secondary keywords to rank candidates, to narrow very large result lists, and to highlight strengths in submissions.
 
-        Search techniques for OPT candidates
-        Search by school, using universities with strong computer science, engineering, data and business analytics programs.
-        Search by degree, such as Master of Science in Computer Science, Information Systems, Data Science or Business Analytics.
-        Use graduation year to find recent and upcoming graduates.
-        Combine with skills and keywords from the requirement.
-        Look for internships, academic projects, research and capstone projects, which show practical skills.
-        Many students state that they are open to work or seeking full-time roles.
+        Examples
+        For a Java Developer role: Kafka, AWS, Docker, Kubernetes, microservices, banking and Agile.
+        For a Data Analyst role: Python, Snowflake, healthcare and statistics.
+        For a QA Automation role: Cucumber, Jenkins, API testing and performance testing.
 
-        Respectful use of profile information
-        Use only what candidates have chosen to share publicly or with connections.
-        Do not assume work authorization from a profile. Ask approved questions during screening.
-        Do not filter or judge by name, photo or nationality.
+        How to use secondary keywords
+        Start with primary keywords only. If results are manageable, review them and score candidates on secondary keywords.
+        If results are too many, add one secondary keyword at a time to narrow the list.
+        Use OR between secondary keywords to find candidates with at least one of them, for example, in brackets, Kafka OR AWS OR Docker.
+        Record which secondary skills each shortlisted candidate has. Mention them in the submission summary.
 
-        Writing outreach messages
-        Mention their school, degree or project.
-        Explain the role briefly, with location and work mode.
-        Introduce yourself and your company honestly.
-        Ask a simple question, such as whether they would be open to a short call.
-        Keep it short and professional.
+        Domain keywords
+        Domain keywords, such as banking, insurance, healthcare, retail or telecom, can be powerful differentiators. Clients often favour candidates who know their industry. But domain is rarely a must-have for entry-level OPT roles, so do not exclude candidates without it unless the requirement demands it.
 
-        Example message
-        Hello Priya, I noticed your master's project on microservices using Spring Boot at your university. I am a recruiter with our company, and I am working on a Java developer role with a banking client in Charlotte, hybrid three days a week. Would you be open to a short call this week to discuss it?
-
-        Building your presence
-        A complete, professional profile with your real name, photo, role and company builds trust.
-        Sharing helpful posts about job search tips or open roles attracts candidates to you.
+        Over-filtering
+        Adding too many secondary keywords with AND can shrink your results to almost nothing and hide good candidates. If you find yourself with very few results, remove secondary keywords first.
 
         Practical example
-        For a junior data engineer role, you search for recent master's graduates in data science from several universities with Python, SQL and Spark skills. You find twenty profiles with relevant projects, send personalised messages to fifteen, and receive seven replies.
+        Your Java search with primary keywords returns two hundred profiles in the Charlotte area. You add, AND, in brackets, Kafka OR AWS, which narrows it to sixty. You review the top twenty, shortlist five, and note that three have Kafka and two have AWS.
 
         Recruiter checklist
-        Search by school, degree, graduation year and skills.
-        Review projects and internships.
-        Write personal, honest messages.
-        Keep a professional profile.
+        Keep secondary keywords separate from primary keywords.
+        Add them one at a time when narrowing.
+        Use OR to find any of several preferred skills.
+        Highlight them in submissions.
 
         Common mistakes
-        Assuming status from profiles.
-        Sending the same message to everyone.
-        Using an incomplete or anonymous profile.
+        Using secondary keywords with AND from the start.
+        Rejecting candidates without bonus skills.
+        Forgetting to mention bonus skills in the submission.
 
         From the company training material
-        The OPT Recruiter Training Material lists LinkedIn, Facebook and Twitter as the social networking sources for OPT candidates. The Day 6 cold call script starts from a profile found on LinkedIn or Dice and mentions one or two of the candidate's core skills.
+        The Job Description Analysis training separates primary skills from secondary or preferred skills. In its Java and AWS example, Spring, Spring Boot and Spring Security are preferred and Terraform is a plus. These are secondary keywords: use them to rank candidates who already have Core Java and AWS, not to remove candidates who lack them.
 
         Key takeaway
-        LinkedIn connects you with OPT candidates at the right moment. Search smartly and write personally and honestly.
+        Secondary keywords help you rank and stand out. Use them to refine, not to exclude.
         TEXT,
 
-        'University Sourcing' => <<<'TEXT'
+        'Boolean Search Basics' => <<<'TEXT'
         Learning objective
-        Understand how universities can be a source of OPT candidates, and how to engage with them professionally and within their rules.
+        Learn the basic Boolean operators and how to build simple, effective search strings for LinkedIn, job boards and internal databases.
 
         What you need to know
-        Universities produce new graduates every semester. Many international students in STEM fields look for jobs during their final semester and after graduation. Universities have career centers, international student offices, student organisations, job portals and alumni networks. Level 8 covers university outreach in more depth.
+        Boolean search uses special words, called operators, to combine keywords. Most recruiting platforms support it, although each platform has small differences. Check the help pages of your tools.
 
-        Ways to engage with universities
-        Career center job portals, where employers can post approved roles.
-        Career fairs and employer events, where allowed.
-        Student organisations, such as computer science or data science clubs, following their rules.
-        Alumni networks, through LinkedIn and alumni groups.
-        Faculty or department contacts, only through approved channels.
+        The main operators
+        AND. Every result must contain both terms. Java AND Spring finds profiles with both words.
+        OR. Results may contain either term. Developer OR Engineer finds profiles with either word. Use OR for synonyms and variations.
+        NOT. Excludes a term. Java NOT JavaScript removes profiles that mention JavaScript. Use NOT carefully, because it can remove good candidates.
+        Quotation marks. Search for an exact phrase. Quote Spring Boot, end quote, finds that exact phrase rather than the two words anywhere.
+        Brackets. Group terms. Java AND, open bracket, Spring OR Hibernate, close bracket, means Java plus at least one of the two.
 
-        University rules
-        Every university has its own policies for employers and recruiters. Some restrict staffing agencies or third-party recruiters. Some require registration and approval before posting jobs. Always read and follow these rules. If you are not sure, ask your lead. Never misrepresent your company type to gain access.
+        Building a search string step by step
+        Start with the title group, using OR. For example, open bracket, Java Developer in quotation marks, OR Java Engineer in quotation marks, OR Backend Developer in quotation marks, close bracket.
+        Add the primary skill groups, using AND between groups and OR inside groups. For example, AND, open bracket, Spring Boot in quotation marks, OR Springboot, close bracket, AND, open bracket, REST OR RESTful, close bracket, AND SQL.
+        Add secondary skills only if needed.
+        Add NOT terms only to remove clearly irrelevant results, such as NOT intern if you need experienced candidates and the platform allows it.
 
-        What universities and students value
-        Honest descriptions of roles and the staffing model.
-        Real, current openings.
-        Respect for student time and privacy.
-        No fees charged to students.
-        Professional behaviour at events and online.
-
-        Planning around the academic calendar
-        Final semesters: students start searching early.
-        Graduation in May and December: large groups become available.
-        Summer: some students are in internships or CPT.
+        Tips
+        Write operators in capital letters. Many platforms require it.
+        Test your string and read a sample of results.
+        Save strings that work, for reuse.
+        Keep strings readable. Very long strings are hard to fix.
 
         Practical example
-        Your company is registered on a university's career portal. Before graduation season, you post two approved junior roles with honest descriptions, including the staffing model and work locations. Students apply through the portal. You screen them using your standard process and follow up promptly.
+        For the running Java requirement, your LinkedIn string is: open bracket, Java Developer in quotation marks, OR Java Engineer in quotation marks, OR Backend Engineer in quotation marks, close bracket, AND, open bracket, Spring Boot in quotation marks, OR Springboot, close bracket, AND, open bracket, REST OR RESTful, close bracket. You add the Charlotte location filter separately.
 
         Recruiter checklist
-        Learn each university's recruiter policies.
-        Use approved channels only.
-        Describe the staffing model honestly.
-        Plan around graduation seasons.
+        Group synonyms with OR inside brackets.
+        Connect groups with AND.
+        Use quotation marks for exact phrases.
+        Use NOT sparingly.
+        Test and save strings.
 
         Common mistakes
-        Emailing faculty or students without permission.
-        Hiding that your company is a staffing company.
-        Posting roles that do not exist.
+        Forgetting brackets, which changes the meaning.
+        Overusing NOT.
+        Using lower-case operators on platforms that need capitals.
 
         Source note
-        The company training documents do not cover university sourcing. This lesson is based on general recruiting practice and university rules, and it needs review and approval by the training manager before any recruiter contacts a university on the company's behalf.
+        The company training documents do not cover Boolean search. This lesson is based on general recruiting practice and needs review and approval by the training manager. Ask a senior recruiter which search strings your team uses on each portal.
 
         Key takeaway
-        Universities are valuable partners. Follow their rules, be transparent, and engage at the right time.
+        A few Boolean operators make searches precise. Build strings in groups, test them, and refine.
         TEXT,
 
-        'STEM Programs' => <<<'TEXT'
-        Important note
-        STEM OPT rules are set by the U.S. government and can change. Recruiters do not determine eligibility. Verify current requirements and refer questions to HR and the candidate's DSO.
-
+        'Resume Screening' => <<<'TEXT'
         Learning objective
-        Understand why STEM degree programs matter in OPT recruiting and how to recognise relevant programs at an awareness level.
+        Learn a structured method for screening resumes quickly and fairly against a requirement.
 
         What you need to know
-        STEM means science, technology, engineering and mathematics. Students who graduate from eligible STEM degree programs may be able to apply for a STEM OPT extension after their initial OPT, which can extend their work authorization. This is why STEM graduates are important for longer IT projects.
+        Resume screening means reviewing a resume to decide whether a candidate is worth a call for a specific requirement. Good screening is fast but careful. A typical first screen takes two to three minutes, followed by a deeper review for promising resumes.
 
-        Common STEM-related programs in IT recruiting
-        Computer Science.
-        Information Technology and Information Systems, depending on the program.
-        Computer Engineering and Electrical Engineering.
-        Data Science, Data Analytics and Business Analytics, depending on the program.
-        Software Engineering.
-        Cybersecurity.
-        Mathematics and Statistics.
-        Whether a specific degree is STEM eligible depends on the official program classification, not the program name. The DSO and the I-20 can confirm the classification. Recruiters should not assume.
+        A structured screening method
+        Step one. Check the must-haves first: primary skills, minimum experience, location fit and work mode.
+        Step two. Check relevant experience: projects using the required technologies, recent use, and responsibility level.
+        Step three. Check education: degree, major and graduation date, which matter for OPT candidates.
+        Step four. Check consistency: dates, titles and locations should make sense together.
+        Step five. Note preferred skills and domain experience.
+        Step six. Note questions to ask on the call.
+        Step seven. Decide: call now, keep for later, or not suitable for this requirement.
 
-        Why it matters to recruiters
-        Longer projects may suit candidates who could be eligible for STEM OPT.
-        STEM OPT requires an employer that is enrolled in E-Verify and a training plan using Form I-983, so the employer and HR must be involved.
-        Recruiters should know whether their company supports STEM OPT, according to company policy.
+        Reading OPT candidate resumes
+        OPT candidates' resumes often include academic projects, internships, CPT roles, graduate assistant jobs and work experience from their home country. Read each entry carefully, note what type of experience it is, and consider how the client may view it.
+        Look for specific details: what they built, which technologies they used, and what results they achieved.
 
-        How to talk about it with candidates
-        Ask about the degree and major during screening.
-        If a candidate asks whether they qualify for STEM OPT, say: That depends on your program classification and current rules. Your DSO is the best person to confirm.
-        If a candidate asks whether your company supports STEM OPT, share only the approved company position.
+        Fair screening
+        Screen every resume against the same requirement criteria.
+        Do not judge candidates by name, nationality, photo, age, gender or other personal characteristics. These are not job criteria, and discrimination is illegal.
+        Do not make assumptions about work authorization from a resume. Ask the approved questions on the call.
+
+        Red flags to note, not to judge
+        Large unexplained gaps.
+        Overlapping full-time jobs.
+        Very long skill lists without supporting project details.
+        Inconsistent dates between the resume and LinkedIn.
+        These are questions to ask politely on a call, not reasons to accuse a candidate.
 
         Practical example
-        A candidate has a master's in Business Analytics and asks whether she can get STEM OPT. You reply: Some business analytics programs are classified as STEM and some are not. Please confirm with your DSO. Our HR team can explain our company's process once you have that confirmation.
+        You screen a resume for the running Java requirement. It shows a master's in computer science, two years of Java with Spring Boot and REST at a company in India, a U.S. internship using Java and Kafka, and an expected graduation date. Must-haves are mostly met, with experience slightly under three years. You note questions about Spring Boot depth and SQL, and you decide to call.
 
         Recruiter checklist
-        Note degree and major accurately.
-        Do not assume STEM eligibility.
-        Know your company's position on STEM OPT.
-        Refer eligibility questions to the DSO and HR.
+        Check must-haves first.
+        Review experience, education and consistency.
+        Note questions for the call.
+        Screen everyone by the same criteria.
 
         Common mistakes
-        Telling candidates they qualify for STEM OPT.
-        Assuming all IT-related degrees are STEM.
-        Forgetting the employer requirements for STEM OPT.
+        Spending ten minutes on a resume that fails a must-have.
+        Judging candidates on personal characteristics.
+        Treating red flags as proof of dishonesty.
 
-        From the company training material
-        The OPT Recruiter Training Material says OPT is valid for twelve months and can be extended by twenty-four months, a total of thirty-six months, and that MBA students have OPT for twelve months only. The extension applies only to degrees on the official STEM list, so an MBA without a STEM-designated program code does not qualify. The Day 7 questionnaire records whether a candidate is on initial OPT or STEM OPT and whether their current employer is E-Verified, which is required for STEM OPT.
+        From the company training material: what to check
+        The Job Description Analysis training lists what to check on every resume.
+        Required skills. Check primary and secondary skills against the JD.
+        Experience. Verify relevant years, projects and responsibilities.
+        Contact details. Confirm that the candidate's contact information is complete and usable.
+        Domain experience. Look for relevant industry or domain exposure.
+        LinkedIn. Review it for consistency and additional professional context.
+        Customised resume. Identify job-specific tailoring and relevant keywords.
+        References and checks. Follow company process for reference and background checks.
+        Public professional information. Use approved, lawful sources and avoid unsupported conclusions.
+
+        The company resume screening checklist
+        The training also gives a systematic checklist for every candidate: key qualifications and skills; relevant work experience; education and certifications; achievements and accomplishments; culture-fit indicators relevant to the role; job history and tenure pattern; formatting and readability; grammar and spelling; LinkedIn profile; and referrals and recommendations.
+        Its key takeaway is: screen the complete resume, not just keyword matches.
 
         Key takeaway
-        STEM programs matter for longer authorization, but eligibility is decided by official rules. Know the basics and refer the details.
+        Screen in a consistent order, starting with must-haves. Be fast, fair and curious, and save your questions for the call.
         TEXT,
 
-        'International Student Communities' => <<<'TEXT'
+        'Required Skills' => <<<'TEXT'
         Learning objective
-        Engage professionally and respectfully with international student communities as a sourcing channel.
+        Verify required skills on a resume and on a call, so that you submit only candidates who truly have them.
 
         What you need to know
-        International students often form communities to share job search tips, housing information and support. These may include student associations at universities, online forums, social media groups and messaging groups. Many OPT candidates find opportunities through these communities. Recruiters can engage with them, but must do so respectfully and within each community's rules.
+        Required skills are the must-have technical skills in a requirement. Most client rejections happen because a candidate does not have the depth expected in one or more required skills. Your job is to confirm both presence and depth.
 
-        Types of communities
-        University international student associations.
-        Cultural or regional student associations at universities.
-        Online groups focused on OPT, STEM OPT and job searching.
-        Professional groups for students in specific fields.
-        Alumni groups.
+        On the resume
+        Look for each required skill in the skills section and, more importantly, in the project descriptions.
+        A skill listed only in the skills section, with no project using it, is weak evidence.
+        Note when and where each skill was used. Recent use matters more than use years ago.
+        Note the context: professional work, internship or academic project.
 
-        How to engage respectfully
-        Read the community's rules before posting. Many groups ban job posts or recruiters, or allow them only in specific threads.
-        Ask the administrator for permission if needed.
-        Post real roles with honest descriptions, including the staffing model and locations.
-        Do not spam, repost repeatedly or send unrequested private messages to every member.
-        Respond to questions politely and accurately.
+        On the call
+        Ask open questions about each required skill.
+        Which projects did you use Spring Boot in, and what did you build?
+        How did you design your REST APIs?
+        Which databases did you use, and what kind of SQL did you write?
+        What problems did you face, and how did you solve them?
+        Listen for specific answers, real examples and confidence. Vague answers suggest limited experience.
 
-        Fairness and non-discrimination
-        Engaging with a community is about reaching candidates, not selecting by nationality or origin. Treat every candidate fairly, regardless of where they found the role. Do not post roles restricted by nationality or origin. Work authorization requirements must come from the requirement, not from personal assumptions.
+        Rating skill depth
+        Strong. Used professionally for a significant period, with clear examples.
+        Moderate. Used in some projects or internships, with reasonable examples.
+        Basic. Studied or used briefly, with general answers.
+        Record your rating for each required skill.
 
-        Building trust
-        Students in these communities often share experiences of recruiters and companies. One poor interaction can damage your company's reputation. Professional, helpful and honest behaviour builds trust and referrals.
+        Be honest about gaps
+        If a candidate has a basic level in a required skill, the submission is likely to fail. Either do not submit, or ask the vendor whether the client would consider them, describing the gap honestly.
+
+        You are not the technical interviewer
+        Recruiters do not need to test skills deeply. Your goal is to confirm that the candidate has real, relevant experience, and to avoid obvious mismatches. The client's technical interview does the deep evaluation.
 
         Practical example
-        An online group for international students in data analytics allows job posts on Fridays. You post one approved role with a clear title, location, work mode, duration, an honest note that your company is a staffing company, and how to apply. Several students contact you. You screen them using your standard process.
+        A candidate lists SQL on her resume. On the call, she explains that she wrote complex joins and stored procedures for a reporting module in her last job, and describes how she optimised a slow query. You rate her SQL as strong and mention the reporting work in your submission summary.
 
         Recruiter checklist
-        Follow every community's rules.
-        Post honest, real roles.
-        Treat all candidates fairly.
-        Avoid spam and unrequested messages.
+        Find each required skill in real projects.
+        Ask open questions about each one.
+        Rate depth and record it.
+        Be honest about gaps.
 
         Common mistakes
-        Posting in groups that do not allow recruiters.
-        Exaggerating roles to attract attention.
-        Selecting candidates by origin.
+        Accepting skills listed without project evidence.
+        Asking yes-or-no questions such as Do you know Java?
+        Hiding gaps from the vendor.
 
         From the company training material
-        The OPT Recruiter Training Material names desiOPT and simplyOPT, portals aimed at OPT candidates, and social networking sites such as Facebook. The calling materials warn that international students are highly cautious because of visa scams. In student communities, introduce yourself and your company fully, and never post fee or offer letter claims.
+        The Job Description Analysis training says to check primary and secondary skills against the JD, and to prioritise must-have skills and verify actual project experience. For the Data Architect example, its screening focus is to look for architecture governance together with AWS cloud architecture, security and integration experience, and to check enterprise-scale infrastructure or application design and stakeholder management. A candidate with only one of these areas is not a match, however many AWS keywords the resume contains.
 
         Key takeaway
-        International student communities can be valuable, but only when you engage respectfully, honestly and fairly.
+        Required skills must be real and deep enough. Verify each one with specific questions and honest ratings.
         TEXT,
 
-        'Professional Groups' => <<<'TEXT'
+        'Relevant Experience' => <<<'TEXT'
         Learning objective
-        Use professional groups and associations as a channel to find skilled candidates and build long-term relationships.
+        Judge how relevant a candidate's experience is to a requirement, beyond simple years of experience.
 
         What you need to know
-        Professional groups bring together people with shared skills or interests, such as developers, data professionals, testers or cloud engineers. They include online groups, user groups, meetups, and professional associations. Members are often interested in learning and career growth, which makes them good long-term contacts.
+        Relevant experience is experience that closely matches the role's work, technologies and environment. Two candidates with the same years of experience can be very different in relevance. A candidate with two years of directly relevant backend Java work may be stronger than one with four years of unrelated support work.
 
-        Types of professional groups
-        Technology user groups, for example Java, Python or cloud user groups.
-        Online communities for developers and data professionals.
-        Meetups and local technology events.
-        Women in technology and other inclusion-focused groups.
-        Professional associations with student chapters.
+        Measures of relevance
+        Similar work. Did they do the same kind of tasks, such as building APIs or writing ETL pipelines?
+        Same technologies. Did they use the required technologies, and how recently?
+        Similar environment. Did they work in Agile teams, in large organisations, or in the same domain?
+        Similar responsibility. Did they build features independently, or mainly assist others?
+        Recency. Have they used these skills in the last one or two years?
 
-        How recruiters can add value
-        Share useful information, such as interview tips or market trends.
-        Attend events to learn about technologies, not only to recruit.
-        Support members by answering career questions honestly.
-        Post real roles only where allowed.
+        Experience types for OPT candidates
+        Full-time professional experience, in the U.S. or abroad.
+        Internships and CPT roles.
+        Graduate assistant or research roles.
+        Academic projects and capstone projects.
+        Freelance or volunteer projects.
+        Describe each one accurately. Never present an academic project as a job.
 
-        Group etiquette
-        Read and follow group rules.
-        Do not post the same message in many groups at once.
-        Do not message every member privately.
-        Be clear that you are a recruiter.
-        Never pressure members.
+        How clients view different experience
+        Some clients count only professional experience toward a years requirement. Others value strong internships and projects, especially for entry-level roles. When unclear, ask the vendor.
 
-        Learning from groups
-        Professional groups help you understand technologies, common job titles, popular tools and candidate expectations. This makes you a better recruiter for technical requirements.
+        Questions to ask
+        Which of your roles is most similar to this one?
+        What were your main responsibilities in that role?
+        How large was your team, and what was your part?
+        When did you last use this technology?
 
         Practical example
-        You join a local Java user group's online community. You read discussions for a few weeks, learning about Spring Boot and microservices topics. When the group holds its monthly jobs thread, you post the Charlotte Java role with honest details. Two members respond, and one is a strong fit.
+        Two candidates apply for the running Java requirement. Candidate A has four years of Java, but mainly in production support with little development. Candidate B has two years and six months of Java development building Spring Boot microservices. You judge Candidate B as more relevant, and you ask the vendor whether two and a half years of directly relevant development would be considered.
 
         Recruiter checklist
-        Join groups relevant to your requirements.
-        Follow group rules.
-        Add value, not only job posts.
-        Learn from discussions.
+        Look beyond years to the type of work.
+        Check recency and responsibility.
+        Describe every type of experience honestly.
+        Ask the vendor how they count internships and projects.
 
         Common mistakes
-        Joining only to spam job posts.
-        Hiding your recruiter identity.
-        Ignoring group rules.
+        Choosing candidates by years only.
+        Overlooking strong internships.
+        Presenting projects as professional experience.
 
         From the company training material
-        The Job Description Analysis training says to share requirements through relevant professional or Yahoo groups, where appropriate. Yahoo Groups closed in 2020. Today, use only the LinkedIn groups and professional communities your team lead approves.
+        The Job Description Analysis training says to verify relevant years, projects and responsibilities. Its Java and AWS example shows how clients weigh this. The client's scoring framework gives ten percent to years of direct web development, thirty percent to development tools and skill levels, twenty-five percent to roles and project experience, fifteen percent to SDLC knowledge and experience, meaning the software development life cycle, and twenty percent to rate. Years alone count for only a tenth of the score. The training's tip is to use a client's stated scoring criteria as an additional screening guide, not as a substitute for reading the full requirement.
 
         Key takeaway
-        Professional groups are long-term relationship channels. Participate respectfully, learn, and post real roles where allowed.
+        Relevance matters more than raw years. Look at what the candidate actually did, and describe it honestly.
         TEXT,
 
-        'Referrals' => <<<'TEXT'
+        'Project Experience' => <<<'TEXT'
         Learning objective
-        Generate and handle referrals professionally, so that they become a reliable source of quality OPT candidates.
+        Learn how to read and discuss project experience, especially for OPT and early-career candidates.
 
         What you need to know
-        A referral is a candidate recommended by someone who knows them, such as a placed consultant, a candidate, a classmate or a colleague. Referred candidates are often more trustworthy, better prepared and more likely to respond. Many OPT candidates know classmates with similar skills and timelines.
+        Project descriptions on a resume show what a candidate actually built. For OPT candidates, projects from internships, CPT roles, academic programs and earlier jobs are often the best evidence of skill.
 
-        Who can refer
-        Placed consultants who are happy with your company.
-        Candidates you screened, even if they were not placed.
-        Your professional network.
-        Internal colleagues.
+        What a strong project description includes
+        The project name or purpose, such as a payment processing service or a sales dashboard.
+        The candidate's role and responsibilities.
+        The technologies used.
+        The scale or complexity, such as number of users, data volume or team size.
+        Results or impact, such as reduced processing time or improved accuracy.
 
-        How to ask for referrals
-        Ask at the right time, for example after a successful placement or a positive conversation.
-        Be specific: I am looking for QA automation testers with Selenium and Java who graduated recently. Do you know anyone?
-        Make it easy: share a short description they can forward.
-        Mention any approved referral program your company has. Do not promise rewards that are not in an official program.
+        Questions to ask about projects
+        What was the goal of the project?
+        What exactly did you build or do yourself?
+        Which technologies did you use, and why?
+        What was the hardest problem, and how did you solve it?
+        How did you test and deploy it?
+        Who did you work with?
+        Was this a professional, internship or academic project?
 
-        Handling referred candidates
-        Thank the person who referred them.
-        Contact the referred candidate promptly and mention who referred them, if the referrer agreed.
-        Screen them with the same process as everyone else. A referral is not a guarantee.
-        Keep the referrer updated in general terms, without sharing private details.
+        Listening for real experience
+        Real experience sounds specific. Candidates mention particular challenges, decisions and details.
+        Limited experience sounds general and repeats textbook definitions.
+        If a candidate cannot explain a project on their resume, note it. The client's interviewer will ask the same questions.
 
-        Privacy
-        Do not share one candidate's information with another.
-        Ask the referred candidate for their own consent before submitting them.
-        Never pressure anyone to share contacts.
+        Academic projects
+        Academic projects can be valuable, especially for entry-level roles. They show learning and practical application. Present them honestly as academic projects in your summary. Many clients appreciate strong capstone or thesis projects using relevant technologies.
 
-        Practical example
-        A consultant you placed six months ago is happy with her project. You ask whether she knows any recent graduates with data skills. She refers two classmates. You thank her, contact both classmates, screen them using your normal process, and keep her informed that you have spoken with them.
-
-        Recruiter checklist
-        Ask for referrals at good moments.
-        Be specific about the skills you need.
-        Treat referred candidates with the same process.
-        Respect privacy and official referral programs.
-
-        Common mistakes
-        Promising referral bonuses that are not official.
-        Skipping screening for referred candidates.
-        Sharing candidate details with referrers.
-
-        From the company training material
-        The OPT calling script asks every interested candidate to refer friends who are looking for a job, and says that the more friends they refer, the more benefits they receive. It mentions a referral amount of seven hundred and fifty dollars. Company-specific process: mention a referral bonus only if HR confirms the program, the amount and the conditions in writing. Verify with HR or authorized personnel.
-
-        Key takeaway
-        Referrals are built on trust. Ask well, respond quickly, and treat everyone with the same fair process.
-        TEXT,
-
-        'Recruitment Partnerships' => <<<'TEXT'
-        Learning objective
-        Understand how recruitment partnerships support OPT sourcing and how to work with partners professionally and within company policy.
-
-        What you need to know
-        A recruitment partnership is a working relationship with another organisation that helps you reach candidates or requirements. Partners might include vendors, other staffing companies, training organisations, professional associations or university career programs. Partnerships are usually set up by management, with agreed terms.
-
-        Types of partnerships
-        Vendor partnerships for requirements.
-        Subcontracting partnerships, where another company provides candidates under an agreement.
-        University and career center relationships.
-        Professional association or community partnerships.
-        Training organisation partnerships, where graduates of training programs are introduced.
-
-        Recruiter responsibilities with partners
-        Know which partnerships your company has and the agreed terms.
-        Follow the agreed process for sharing requirements or candidates.
-        Share only the information allowed by the agreement and company policy.
-        Protect candidate privacy, and obtain consent before sharing details.
-        Escalate any partner issue to your lead.
-
-        What recruiters should not do
-        Do not make new partnership agreements yourself unless authorised.
-        Do not share confidential client details with partners.
-        Do not accept candidates from unknown partners without approval.
-        Do not accept or offer payments or gifts outside company policy.
-
-        Quality and risk
-        Candidates from partners must go through the same screening and interest confirmation process.
-        Watch for warning signs, such as inconsistent resumes or unclear authorization information. Escalate concerns.
-        Never accept a partner's assurance in place of your own screening.
+        Using projects in submissions
+        Choose one or two projects that best match the requirement's responsibilities.
+        Summarise them clearly in your submission notes.
+        Never add details that the candidate did not tell you.
 
         Practical example
-        Your company has a partnership with a training organisation that prepares graduates in QA testing. The partner shares three candidate profiles with consent forms. You screen each candidate using your standard process. One is a strong fit. You confirm interest and consent directly with her before submitting.
+        A candidate's resume mentions a capstone project: an order management system using Spring Boot, REST APIs and PostgreSQL. On the call, he explains the API design, how he handled concurrent orders, and the tests he wrote. You describe this as a strong academic project in your summary, alongside his eight-month internship using Java.
 
         Recruiter checklist
-        Know your company's approved partners.
-        Follow the agreed process.
-        Screen partner candidates fully.
-        Escalate concerns and new partnership ideas.
+        Ask about goal, role, technologies, challenges and results.
+        Listen for specific details.
+        Label project types accurately.
+        Highlight the best-matching projects.
 
         Common mistakes
-        Creating informal partnerships without approval.
-        Skipping screening for partner candidates.
-        Sharing client information with partners.
+        Skipping project questions.
+        Presenting academic projects as jobs.
+        Ignoring candidates who cannot explain their own projects.
 
         From the company training material
-        The company business plan describes four core functions: OPT candidate services, bench sales and profile marketing, account management, and HR, operations and finance. It lists the business opportunities the division works with: offer letters, recurring payroll, C2C or Corp-to-Corp marketing, bench sales, paid training, job support, resume services and other candidate services. As the division grows, it plans to expand vendor and client relationships and add account managers and bench sales recruiters.
-        For an OPT recruiter, the most important partnership is internal. You hand interested candidates to the Bench Sales team for profile marketing, and you coordinate with Account Managers on requirements. Profiles are shared only through authorized channels.
-        Company-specific process: which services are offered to which candidates, and on what terms, is decided by management and must be reviewed by HR and legal. Never describe a paid service as a way to get work authorization. Verify with HR or authorized personnel.
+        In the Java and AWS example's scoring framework, roles and project experience carry twenty-five percent of the score, more than years of experience. The Job Description Analysis training repeats the point in its key takeaways: prioritise must-have skills and verify actual project experience. Ask what the candidate built, which part was theirs, and which tools they used, and compare the answers with the client's primary duties.
 
         Key takeaway
-        Partnerships extend your reach, but they work only within approved terms and the same quality standards.
+        Projects are the clearest evidence of skill. Explore them on every call, and describe them truthfully.
         TEXT,
     ],
 ];

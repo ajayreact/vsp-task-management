@@ -29,7 +29,7 @@ class RecruiterTrainingCurriculumSeeder extends Seeder
     public function run(): void
     {
         DB::transaction(function () {
-            foreach ($this->curriculum() as $level => $definition) {
+            foreach (static::curriculum() as $level => $definition) {
                 $category = $this->category($level, $definition['name'], $definition['summary']);
                 $this->course($category, $definition['course'], $definition['note'], $definition['lessons']);
             }
@@ -113,7 +113,7 @@ class RecruiterTrainingCurriculumSeeder extends Seeder
     /**
      * @return array<int, array{name: string, summary: string, course: string, note: string, lessons: list<string>}>
      */
-    protected function curriculum(): array
+    public static function curriculum(): array
     {
         $outline = 'Draft outline. Lesson content must be written and reviewed by an authorized training manager before publishing.';
         $reviewed = $outline.' Immigration, tax and legal topics must be checked against current official sources; recruiters do not make legal or tax determinations.';
@@ -165,6 +165,33 @@ class RecruiterTrainingCurriculumSeeder extends Seeder
                 ],
             ],
             3 => [
+                'name' => 'OPT Recruiter Process & Sourcing Strategy',
+                'summary' => 'The OPT recruiter workflow from requirement to payroll handoff, and where OPT candidates are found.',
+                'course' => 'OPT Recruiter Process & Sourcing Strategy',
+                'note' => $outline,
+                'lessons' => [
+                    'OPT Recruiter Workflow',
+                    'Requirement Analysis',
+                    'Search Strategy',
+                    'Candidate Sourcing',
+                    'Initial Screening',
+                    'Candidate Communication',
+                    'Interest Confirmation',
+                    'Documentation Handoff',
+                    'Offer Process',
+                    'Onboarding Handoff',
+                    'Payroll Handoff',
+                    'Follow-Up',
+                    'LinkedIn Sourcing',
+                    'University Sourcing',
+                    'STEM Programs',
+                    'International Student Communities',
+                    'Professional Groups',
+                    'Referrals',
+                    'Recruitment Partnerships',
+                ],
+            ],
+            4 => [
                 'name' => 'U.S. IT Staffing & Payroll Fundamentals',
                 'summary' => 'How U.S. IT staffing works and the payroll terms recruiters hear every day.',
                 'course' => 'U.S. IT Staffing & Payroll Fundamentals',
@@ -202,7 +229,7 @@ class RecruiterTrainingCurriculumSeeder extends Seeder
                     'U.S. Staffing Terminology',
                 ],
             ],
-            4 => [
+            5 => [
                 'name' => 'Job Requirement Analysis',
                 'summary' => 'Reading a job description and capturing location, duration, rate, skills, dates, client and responsibilities.',
                 'course' => 'Job Requirement Analysis',
@@ -230,7 +257,7 @@ class RecruiterTrainingCurriculumSeeder extends Seeder
                     'Requirement Prioritization',
                 ],
             ],
-            5 => [
+            6 => [
                 'name' => 'Sourcing & Resume Screening',
                 'summary' => 'Where to find candidates, how to search, and how to compare a resume with a job description.',
                 'course' => 'Sourcing & Resume Screening',
@@ -259,33 +286,6 @@ class RecruiterTrainingCurriculumSeeder extends Seeder
                     'LinkedIn Review',
                     'Job History',
                     'Resume vs JD Comparison',
-                ],
-            ],
-            6 => [
-                'name' => 'OPT Recruiter Process & Sourcing Strategy',
-                'summary' => 'The OPT recruiter workflow from requirement to payroll handoff, and where OPT candidates are found.',
-                'course' => 'OPT Recruiter Process & Sourcing Strategy',
-                'note' => $outline,
-                'lessons' => [
-                    'OPT Recruiter Workflow',
-                    'Requirement Analysis',
-                    'Search Strategy',
-                    'Candidate Sourcing',
-                    'Initial Screening',
-                    'Candidate Communication',
-                    'Interest Confirmation',
-                    'Documentation Handoff',
-                    'Offer Process',
-                    'Onboarding Handoff',
-                    'Payroll Handoff',
-                    'Follow-Up',
-                    'LinkedIn Sourcing',
-                    'University Sourcing',
-                    'STEM Programs',
-                    'International Student Communities',
-                    'Professional Groups',
-                    'Referrals',
-                    'Recruitment Partnerships',
                 ],
             ],
             7 => [

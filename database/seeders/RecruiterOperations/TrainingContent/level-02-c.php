@@ -5,9 +5,6 @@ return [
     'course' => 'Immigration & Work Authorization',
     'lessons' => [
         'I-9' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. Form I-9 is completed by the employee and the employer's authorized staff. Follow HR and compliance processes.
-
         Learning objective
         Understand Form I-9, Employment Eligibility Verification, and the boundaries recruiters must respect around it.
 
@@ -55,9 +52,6 @@ return [
         TEXT,
 
         'E-Verify' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. E-Verify is operated by the employer's authorized staff. Follow HR and compliance processes.
-
         Learning objective
         Understand E-Verify, why it matters for STEM OPT, and the rules recruiters must not break.
 
@@ -103,9 +97,6 @@ return [
         TEXT,
 
         'SEVIS' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. Only the student and their DSO manage SEVIS records.
-
         Learning objective
         Understand what SEVIS is and how it connects F-1 students, schools and OPT employment.
 
@@ -150,9 +141,6 @@ return [
         TEXT,
 
         'DSO' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice.
-
         Learning objective
         Understand who the Designated School Official is and why the DSO is the right contact for a student's status questions.
 
@@ -202,9 +190,6 @@ return [
         TEXT,
 
         'Employment & Work Authorization Basics' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. Verify current requirements and follow company and HR processes.
-
         Learning objective
         Bring together the core ideas of U.S. work authorization, including dates, Social Security Numbers and unemployment, so that you can screen candidates accurately and safely.
 
@@ -268,9 +253,6 @@ return [
         TEXT,
 
         'Recruiter Compliance Boundaries' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. It explains where your role ends and when you must escalate.
-
         Learning objective
         Know exactly what recruiters may do and must not do in immigration and work authorization matters, and when to verify or escalate.
 

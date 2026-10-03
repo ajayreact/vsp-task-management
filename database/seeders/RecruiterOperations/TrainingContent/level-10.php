@@ -236,9 +236,6 @@ return [
         TEXT,
 
         'Scenario: Immigration Boundary Scenarios' => <<<'TEXT'
-        Important note
-        These scenarios are for practising compliance boundaries. They are not legal advice. In real situations, follow company policy, refer questions to HR, compliance or the candidate's DSO, and escalate when uncertain.
-
         Learning objective
         Practise recognising immigration-related questions that fall outside a recruiter's role, and responding with appropriate referrals and escalation.
 

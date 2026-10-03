@@ -2,505 +2,480 @@
 
 return [
     'level' => 4,
-    'course' => 'Job Requirement Analysis',
+    'course' => 'U.S. IT Staffing & Payroll Fundamentals',
     'lessons' => [
-        'Location' => <<<'TEXT'
+        'Contract' => <<<'TEXT'
         Learning objective
-        Read the location in a requirement accurately and understand how location affects sourcing, candidate interest and payroll.
+        Understand contract roles in U.S. IT staffing and the details recruiters must confirm for every contract requirement.
 
         What you need to know
-        The location tells you where the work will be done. It is usually written as city and state, for example Charlotte, NC. It may also name a specific office, campus or ZIP code.
-        Location affects which candidates are suitable, whether relocation is needed, which time zone applies, and which state's payroll rules apply.
+        A contract role is work for a defined or estimated period, such as six months, twelve months or the length of a project. Contract roles are the most common engagement type in U.S. IT staffing.
+        The consultant is usually employed by the staffing company or another employer in the chain, not by the end client.
+        Contracts are often extended when the project continues, but extensions are never guaranteed.
 
-        Location phrases you will see
-        Local only means the client wants candidates who already live within commuting distance.
-        Locals preferred means local candidates have an advantage, but others may be considered.
-        Open to relocation means the client will consider candidates who move before the start date.
-        Relocation assistance means the employer may help with moving costs. Confirm the details before mentioning this.
-        Multiple locations means the role could be based in any of several listed cities.
+        Key contract details
+        Duration, for example twelve months with possible extension.
+        Start date.
+        Rate, usually hourly.
+        Location and work mode.
+        Hours per week, usually forty.
+        Overtime policy, if any.
+        Interview process.
 
         From the company training material
-        The Job Description Analysis training lists location as the first mandatory detail to capture before sourcing: the city and state, whether the role is onsite, remote or hybrid, and any local requirement. Its two examples show why. The Data Architect role is in McLean, Virginia, day-one onsite. The Java and AWS role in Draper, Utah, is ninety percent remote, but Utah local with a driving licence, so a remote candidate in Texas would not qualify.
+        The Job Description Analysis training defines a contract as a fixed-term position that may include an extension, and reminds recruiters that work authorization requirements depend on the client and the engagement.
+        The OPT Recruiter Training Material describes two kinds of contract.
+        Contract, Independent, also called 1099. The candidate works as a contractor for a company for the contract period. In January, the company sends the candidate Form 1099 showing the amount earned in the previous year. The candidate then files a tax return with the Internal Revenue Service, called the IRS, and pays both the employee and the employer share of taxes.
+        Contract, Corp to Corp. A contract between two companies, the client and a vendor. The vendor's consultant works with the client, and the client pays the vendor, sending the vendor a Form 1099.
+        The US MNC Staffing document adds that 1099 arrangements apply only to Green Card holders, U.S. citizens and TN visa holders. They are not used for OPT or STEM OPT candidates, who work as W2 employees.
 
-        How to analyse location
-        Confirm the city and state.
-        Identify the time zone.
-        Check the nearest major city, if the location is a suburb.
-        Check the local or relocation rules.
-        Combine this with the work mode, covered in the next lesson.
+        Why OPT candidates take contract roles
+        Contract roles can offer quicker starts and practical U.S. experience related to the degree, which OPT candidates value. Whether a specific contract arrangement suits a candidate's OPT or STEM OPT situation is a question for HR and the candidate's DSO.
 
-        Discussing location with candidates
-        Ask for the candidate's current city and state.
-        If relocation is needed, ask: Are you open to relocating to this city, and how soon could you move?
-        Ask about commute expectations for hybrid and onsite roles.
-        Never tell a vendor a candidate is local when they are not.
+        How to explain a contract role
+        This is a twelve-month contract with our client in Atlanta. The client has indicated it may be extended, but extensions depend on the project and are not guaranteed. You would be on our payroll as your employer.
+        Use language like this only if every part is true for the role.
 
-        Location and handoffs
-        The work location is essential information for HR and payroll. Record the exact work city and state, not only the client's headquarters.
+        Contract endings
+        Contracts may end early if a project is cancelled or budgets change. Prepare candidates honestly for this possibility and explain what support your company offers, using approved information.
 
         Practical example
-        The running example is in Charlotte, NC, hybrid. A candidate lives in Raleigh, North Carolina. You know Raleigh is about two and a half to three hours' drive from Charlotte, so a daily commute is not realistic for three office days a week. You ask whether he would relocate to the Charlotte area before the start date. He agrees, so you record that he is relocating, with a planned move date.
+        A requirement says six months, with possible extension. A candidate asks: Is this a long-term job? You answer honestly: It is a six-month contract. The client mentions a possible extension, but that is not guaranteed. You record that the candidate understands the duration.
 
         Recruiter checklist
-        Confirm city, state, time zone and local rules.
-        Ask candidates for their current city and relocation willingness.
-        Record the exact work location for handoffs.
+        Confirm duration, extension wording and start date.
+        Explain the contract nature honestly.
+        Record that the candidate understood the terms.
 
         Common mistakes
-        Assuming a candidate in the same state is local.
-        Describing a relocating candidate as local.
-        Recording the client's headquarters instead of the actual work site.
+        Describing a contract as permanent.
+        Promising an extension.
+        Forgetting to confirm hours and overtime policy.
 
         Key takeaway
-        Location decides who can realistically do the role. Analyse it carefully and be honest about relocation.
+        Contract roles are time-bound. Be clear and honest about duration and extensions so candidates make informed decisions.
         TEXT,
 
-        'Remote / Hybrid / Onsite' => <<<'TEXT'
+        'Contract-to-Hire / CTH' => <<<'TEXT'
         Learning objective
-        Understand the three work modes, the details to confirm for each, and how they affect candidates and payroll.
+        Understand contract-to-hire roles and how to set accurate expectations with candidates.
 
         What you need to know
-        Onsite means the consultant works at the client location every working day.
-        Hybrid means the consultant works some days onsite and some days remotely, for example three days in the office and two from home.
-        Remote means the consultant works from home or another approved location, without regular office attendance.
+        Contract-to-hire, also written as CTH or C2H, means the consultant starts on a contract, and the client may offer a permanent position after a period such as three, six or twelve months.
+        During the contract period, the consultant is usually employed by the staffing company or another employer in the chain. If the client converts the consultant, the consultant becomes the client's direct employee.
+        Conversion is not guaranteed. It depends on performance, budget and the client's needs.
 
-        Details to confirm for each mode
-        Onsite. The exact address area, office hours, and whether there is any flexibility.
-        Hybrid. The number of onsite days, whether those days are fixed, and whether this might change.
-        Remote. Whether the consultant must live in a specific state or time zone, whether occasional travel to the office is needed, and the required working hours.
+        Important considerations
+        Clients deciding on conversion may consider the candidate's work authorization and whether the client will sponsor. Some clients do not sponsor visas, which may affect conversion for some candidates. Do not speculate. Share only information confirmed by the client or vendor.
+        Conversion may involve a conversion fee or agreement between the client and your company. These are business terms handled by management.
+        After conversion, salary and benefits are set by the client.
 
         From the company training material
-        The training's examples show how precise a work mode can be. The Data Architect role is day-one onsite, with three days onsite and two remote. Day-one onsite means the consultant must be in the office from the very first day, so relocation must be complete before the start. The Java and AWS role is ninety percent remote, with possible in-person meetings, and the consultant must be based in Utah.
+        The Job Description Analysis training defines contract-to-hire as a role that starts as a contract and may convert to permanent employment after the agreed period.
+        The OPT Recruiter Training Material describes two versions.
+        Contract to Hire, Independent, or 1099. The candidate first works as a contractor and is later hired as a full-time, permanent employee. In January, the company sends a Form 1099 for the contract period and a Form W-2 for the wages earned after the hire, and the candidate files a tax return using both.
+        Contract to Hire, Corp to Corp. The vendor's consultant works with the client on contract for a period and is later hired as the client's permanent employee. The client sends the vendor a Form 1099 for the contract period.
+        For OPT candidates, the contract period is normally on W2 with the staffing company, not 1099.
 
-        Remote does not mean location-free
-        Many remote roles restrict where the consultant may live, for example remote within the U.S. only, or remote, but must be in Eastern or Central Time.
-        Some remote roles require travel to the office for the first week or for quarterly meetings.
-        The state where a remote consultant works affects payroll and taxes. Always record it.
+        How to explain CTH to candidates
+        This role starts as a six-month contract on our payroll. The client may consider converting you to a full-time employee after that, based on performance and their needs. Conversion is not guaranteed.
+        Use this only when it reflects the actual requirement.
 
-        Work mode changes
-        Clients sometimes change work modes, for example from remote to hybrid. Ask the vendor how likely changes are, and make sure candidates understand that the client sets the policy.
-
-        Discussing work mode with candidates
-        Describe the mode exactly as the client defines it.
-        Ask whether the candidate is comfortable with it.
-        For hybrid roles, confirm they can commute or will relocate.
-        For remote roles, confirm their home state and time zone.
+        Questions candidates ask
+        Will they definitely convert me? Answer: Conversion depends on the client, so I cannot guarantee it.
+        Will they sponsor my visa after conversion? Answer: I will check whether the client has shared their sponsorship policy. Do not guess.
+        What salary will I get after conversion? Answer: That is decided by the client at the time of conversion.
 
         Practical example
-        The running example is hybrid, three days onsite in Charlotte. A candidate says she prefers remote work but would accept hybrid if the commute is reasonable. You confirm she lives in Charlotte, record her acceptance of three onsite days, and note her preference in case a remote role comes up later.
+        A requirement is labelled CTH, six months, in Phoenix. A candidate on STEM OPT is excited about conversion. You explain that conversion is the client's decision, and you ask the vendor whether the client has a sponsorship policy for conversions. You share only the answer you receive.
 
         Recruiter checklist
-        Confirm the exact work mode and number of onsite days.
-        For remote roles, confirm location restrictions and travel.
-        Record the consultant's working state.
+        Confirm the contract period and conversion wording.
+        Never guarantee conversion.
+        Ask the vendor about client policies when candidates ask.
+        Record exactly what the candidate was told.
 
         Common mistakes
-        Telling a candidate a hybrid role is mostly remote.
-        Assuming remote roles have no state restrictions.
-        Not recording the working state for remote consultants.
+        Selling CTH as a guaranteed full-time job.
+        Guessing about sponsorship after conversion.
+        Discussing conversion fees with candidates.
 
         Key takeaway
-        Work mode decides daily life for the consultant. Confirm the details exactly and record where the work will happen.
+        Contract-to-hire offers a possible path to permanent work, but conversion is never guaranteed. Set honest expectations from the start.
         TEXT,
 
-        'Duration' => <<<'TEXT'
+        'Full-Time / Permanent' => <<<'TEXT'
         Learning objective
-        Understand duration in contract requirements and how to explain it honestly to candidates.
+        Understand full-time permanent roles and how they differ from contract roles for recruiters and candidates.
 
         What you need to know
-        Duration is the expected length of a contract, such as three months, six months, twelve months, or long term. It is usually an estimate based on the project, not a promise.
-        Duration may be followed by phrases such as with possible extension, likely to extend, or contract-to-hire.
+        A full-time or permanent role, sometimes called a direct hire or FTE role, means the candidate is hired directly by the company as its own employee, with no fixed end date.
+        Pay is usually an annual salary rather than an hourly rate.
+        Employees typically receive benefits such as health insurance, paid time off and retirement plans. The details are set by the employer.
+
+        Full-time with the client
+        In a direct hire placement, the staffing company helps the client find the person, but the client becomes the employer. The staffing company usually earns a placement fee. The candidate goes on the client's payroll.
+
+        Full-time with your company
+        Some staffing companies hire consultants as full-time salaried employees of the staffing company and place them on client projects. In this case, your company is the employer and runs payroll. Always know which model applies to the role you are discussing.
 
         From the company training material
-        The Job Description Analysis training defines duration as the contract length and possible extension. The US MNC Staffing document also tells recruiters to note the duration of the project and its type, such as full-time, contract or long term, when first studying a requirement.
+        The Job Description Analysis training defines full-time or permanent as direct-hire employment with the client or employer. The OPT Recruiter Training Material calls this W2 salary with benefits: a full-time, permanent job where the employee is paid a salary and may receive benefits such as a joining bonus, vacation, holidays, workers' compensation, relocation expenses, leave encashment, an individual retirement account called an IRA, health, vision, dental and life insurance, a 401k retirement plan, education benefits and other retirement plans.
+        The handout also says the company usually pays the candidate when there is no job or between projects. Company-specific process: pay between projects and every benefit listed depend on company policy and the individual offer. Verify with HR or authorized personnel before mentioning any benefit to a candidate.
 
-        Reading duration phrases
-        Six months plus, or six months with extension, means the client expects at least six months and may extend.
-        Long term usually means more than a year, but this is not guaranteed.
-        Short term, under three months, may suit few OPT candidates, because short roles can create gaps in employment.
-        Contract-to-hire after six months means possible conversion to permanent after that time.
+        Key details to confirm
+        Employer name.
+        Salary range or offer amount.
+        Benefits overview, from approved information.
+        Location and work mode.
+        Start date.
+        Any sponsorship policy the employer has shared.
 
-        Why duration matters for OPT candidates
-        OPT and STEM OPT candidates have authorization end dates and unemployment limits. A short contract may end with a gap before the next role. Candidates will want to understand the expected duration. Answer honestly, and refer status questions to their DSO and your HR.
-        Compare the duration with the candidate's EAD end date. If a twelve-month contract extends beyond the EAD end date, note this for HR. HR decides how to proceed, for example if STEM OPT applies.
-
-        Explaining duration
-        Use the client's words and add honest context: This is a twelve-month contract. The vendor says extensions are common on this project, but they depend on the client's needs and budget.
-
-        Early endings
-        Contracts may end early. Projects get cancelled, budgets change and clients reorganise. Do not hide this possibility.
+        Why this matters for OPT candidates
+        OPT candidates must report their employer, and STEM OPT has specific employer requirements. A full-time role with a STEM OPT-eligible employer may be attractive, but eligibility is decided by HR and the employer, not the recruiter.
 
         Practical example
-        The running example is twelve months with possible extension. A candidate's OPT EAD ends in seven months, and she has a STEM degree. You note that the contract extends beyond her current EAD end date, and you flag this for HR in your handoff. You do not tell her what to file or promise anything about STEM OPT.
+        A client requests a full-time direct hire data engineer in Seattle with a salary range. A candidate asks whether the client will sponsor H-1B. You check with the vendor, who says the client does not sponsor. You share this honestly, and the candidate decides whether to proceed.
 
         Recruiter checklist
-        Record the duration and any extension wording.
-        Compare duration with work authorization end dates.
-        Explain duration honestly.
+        Confirm whether the employer is the client or your company.
+        Express salary as annual unless told otherwise.
+        Share sponsorship information only when confirmed.
 
         Common mistakes
-        Presenting an estimated duration as a guarantee.
-        Ignoring a gap between the contract length and the EAD end date.
-        Promising extensions.
+        Confusing a direct hire role with a contract role.
+        Converting an hourly rate to salary incorrectly in front of a candidate.
+        Promising benefits details that you have not confirmed.
 
         Key takeaway
-        Duration is an estimate. Explain it honestly and compare it with the candidate's authorization dates.
+        Full-time roles are permanent employment with a named employer. Know who the employer is and confirm salary, benefits and policies before discussing them.
         TEXT,
 
-        'Rate' => <<<'TEXT'
-        Important note
-        Rates are business information. Share only approved pay rates with candidates.
-
+        'W2' => <<<'TEXT'
         Learning objective
-        Interpret the rate in a requirement and use it to judge whether the requirement is workable for your candidates.
+        Understand what W2 employment means in U.S. IT staffing and why most OPT candidates work on W2.
 
         What you need to know
-        Most contract requirements include a rate, usually hourly. Read it carefully to understand what it represents.
-        It may be the bill rate offered to your company by the vendor.
-        It may be marked W2, C2C or 1099, which changes how it is used.
-        It may be all-inclusive, meaning no extra payments for expenses.
-        It may be a maximum, often written as up to a certain amount.
+        In staffing conversations, W2 means the consultant is an employee of the staffing company or another employer, and is paid through that employer's payroll. The term comes from Form W-2, the annual wage statement that employers give employees. The form is covered in a later lesson.
+        With W2 employment, the employer withholds taxes from pay, pays employer payroll taxes, and handles payroll reporting.
+
+        W2 hourly and W2 salary
+        W2 hourly means the consultant is paid for each hour worked at an hourly rate.
+        W2 salary means the consultant receives a fixed annual salary paid in regular instalments.
+        Which applies depends on the employer and the role.
 
         From the company training material
-        The Job Description Analysis training lists rate as a mandatory detail: the pay or rate details and the conditions attached to them. Its Java and AWS example uses a client scoring framework in which rate counts for twenty percent of the candidate's score. So rate is not only a business detail. It directly affects whether a candidate is selected.
+        The OPT Recruiter Training Material explains W2 this way. On W2, the candidate works as an employee of a company. The employer takes care of the employee and of employee taxes. In January, the employer sends the employee a Form W-2 showing the previous year's wages and deductions, and the employee files a tax return with the IRS.
+        The handout lists who can work on W2: U.S. citizens, Green Card holders, EAD holders, TN holders, OPT, CPT, H-1B and L-1, among others.
+        It also describes three W2 types.
+        W2 salary with benefits. A full-time, permanent job with a salary and benefits.
+        W2 hourly with benefits. A full-time but temporary job, paid by the hour, with benefits. When the contract ends, the employee needs another assignment.
+        W2 hourly with no benefits. A full-time, temporary job, paid by the hour, without benefits.
+        The US MNC Staffing document adds that W2 applies to the company's own bench consultants, and that for W2 consultants the company bears insurance claims, taxes, overheads and some benefits.
 
-        Using the rate in your analysis
-        Compare the rate with the skills and experience required. A senior role with a very low rate may be hard to fill.
-        Ask your lead what pay rate your company can offer consultants for this requirement.
-        Compare the approved pay rate with typical candidate expectations for the skill set and location.
-        Note any requirement where the rate makes a match unlikely, and discuss it with your lead before spending a lot of time.
+        Why W2 matters for OPT candidates
+        OPT and STEM OPT candidates usually work as employees. STEM OPT specifically requires a genuine employer-employee relationship with an E-Verify employer that has signed the I-983 training plan.
+        For these reasons, most OPT recruiting involves W2 employment. Your company's policy decides which arrangements are allowed for which candidates.
 
-        Location and rate
-        Rates and salaries vary across the U.S. Roles in high-cost areas, such as the San Francisco Bay Area or New York City, often pay more than similar roles elsewhere. Candidates may expect more when relocating to expensive cities.
+        What candidates may ask
+        Will taxes be deducted? Yes, the employer withholds taxes based on the candidate's information and current rules. Payroll explains the details.
+        Will I get benefits? Benefits depend on the employer's policy. Share only approved information.
+        What is the difference between W2 and C2C? The next lesson explains C2C.
 
-        Discussing rate with candidates
-        Ask for expectations first.
-        Share only the approved pay rate.
-        Make clear whether the rate is hourly W2 or another arrangement.
-        If a candidate's expectation is above the approved range, say so honestly. Do not promise that you can negotiate more unless your lead agrees.
-        Never share the bill rate unless your company allows it.
+        How a W2 rate is discussed
+        A W2 hourly rate is the rate paid to the consultant before taxes. It is lower than the bill rate the client pays, because the employer covers payroll taxes, insurance and other costs from the difference.
 
         Practical example
-        The running example's vendor header gives a bill rate. Your lead confirms the W2 pay rate range for consultants. A candidate expects a rate above the range. You say: The approved range for this role is below your expectation. Would you like to be considered at the top of this range, or should I look for roles closer to your expectation? You record his decision.
+        A candidate asks: Is this W2 or C2C? You confirm with your lead that the role is W2 hourly with your company as employer. You explain: You will be on our payroll as our employee. Taxes are withheld from your pay, and our payroll team will guide you through the setup.
 
         Recruiter checklist
-        Identify what kind of rate the requirement shows.
-        Get the approved pay rate from your lead.
-        Compare rate with skills, experience and location.
-        Be honest when expectations do not match.
+        Know whether the role is W2 hourly or W2 salary.
+        Know who the W2 employer is.
+        Refer tax questions to payroll.
 
         Common mistakes
-        Quoting the vendor's rate as the candidate's pay.
-        Agreeing to a candidate's rate without approval.
-        Ignoring an unworkable rate until after submission.
+        Calling a role W2 without confirming.
+        Giving tax advice.
+        Comparing W2 and C2C rates without explaining the cost difference.
 
         Key takeaway
-        The rate shows whether a requirement is workable. Use approved pay rates only, and address gaps in expectations early.
+        W2 means the consultant is an employee on payroll with taxes withheld. It is the usual arrangement for OPT and STEM OPT candidates.
         TEXT,
 
-        'Start Date' => <<<'TEXT'
+        'C2C' => <<<'TEXT'
         Learning objective
-        Understand start dates in requirements and how to check that a candidate can realistically start on time.
+        Understand Corp-to-Corp arrangements and why recruiters must treat them carefully for OPT candidates.
 
         What you need to know
-        The start date is when the client wants the consultant to begin. It may be exact, such as June 3, or general, such as immediate, within two weeks, or ASAP.
-        Clients often move start dates, and onboarding steps such as background checks can take time. Treat the start date as a target, and plan for the steps needed to reach it.
+        C2C stands for Corp-to-Corp. In a C2C arrangement, your company contracts with another company, rather than paying the consultant directly as an employee. The consultant is usually employed by, or owns, that other company.
+        The other company invoices your company. It handles the consultant's pay and taxes.
+        C2C rates are usually higher than W2 rates, because the other company covers payroll taxes, insurance and other costs itself.
+
+        C2C and work authorization
+        Many C2C consultants are H-1B workers employed by another consulting company, or are citizens or green card holders with their own companies.
+        For OPT candidates, the situation is different. STEM OPT requires a genuine employer-employee relationship with an E-Verify employer that signs the I-983. Arrangements in which an OPT or STEM OPT candidate works through their own company, or through a chain that does not meet these requirements, can create serious compliance risks.
+        Recruiters never decide whether an arrangement is allowed. Follow company policy and escalate.
+
+        1099
+        You may also hear 1099, which refers to an independent contractor paid without tax withholding, named after the tax form used. Like C2C, this is not a typical arrangement for OPT candidates. Follow company policy.
 
         From the company training material
-        The Job Description Analysis training calls this detail dates: the expected start date and end date. Capture both. The end date, together with the duration, tells you whether the assignment will run past the candidate's EAD end date.
+        The US MNC Staffing document lists three payment types in recruiting. W2 is for the company's own bench consultants. C2C, Corp to Corp, is for other vendors' bench consultants. 1099 is only for Green Card holders, U.S. citizens and TN holders.
+        The OPT Recruiter Training Material explains Corp to Corp as a contract between one company, the client, and another company, the vendor. The vendor's consultant works with the client, and the client sends the vendor a Form 1099. In daily work, this means C2C is how you work with another employer's consultant: you call that employer, agree the rate, and sign the paperwork with the employer, not the consultant.
+        The company business plan also lists C2C marketing as a service line, meaning marketing profiles to client partners under C2C engagement models. Company-specific process: which consultants may be marketed under C2C is decided by management and compliance.
 
-        What can affect a candidate's start date
-        Work authorization. The candidate's EAD must be valid on the start date. A candidate whose EAD starts after the client's date cannot begin earlier.
-        Notice period. A candidate who is currently working may need to give notice to their current employer, often two weeks in the U.S.
-        Relocation. Moving to a new city takes time.
-        Onboarding. Background checks, drug tests if required, documentation and equipment setup take time.
-        Personal plans. Travel, graduation ceremonies or family commitments.
-
-        Questions to ask candidates
-        When is the earliest date you could start?
-        Do you need to give notice to a current employer?
-        If relocation is needed, when could you move?
-        Is your work authorization valid from that date? Use your company's approved wording.
-
-        Using start dates in prioritisation
-        Urgent start dates mean the client may move quickly. Candidates available immediately are valuable for these requirements.
-        A candidate who cannot meet the start date may still be worth discussing with the vendor if they are a strong match. Be honest about their availability.
+        What to do when C2C comes up
+        If a requirement is C2C only, check with your lead whether your company can participate and under which arrangement.
+        If an OPT candidate asks for C2C, explain politely that your company's process for OPT candidates is the approved arrangement, and refer questions to HR.
+        Never suggest that a candidate set up a company to work C2C.
 
         Practical example
-        The running example needs someone within two weeks. A strong candidate's EAD starts in three weeks. You tell the vendor honestly: Strong match, available to start in three weeks, on the EAD start date. The vendor checks with the client, who agrees to wait. You record the confirmed start date.
+        A vendor sends a requirement that says C2C only. You ask your lead how your company handles C2C requirements and which consultants are eligible. You submit only candidates and arrangements that your company has approved.
 
         Recruiter checklist
-        Record the client's start date and how flexible it is.
-        Check the candidate's earliest realistic start date.
-        Compare it with the EAD start date.
-        Be honest with the vendor about availability.
+        Know your company's policy on C2C and 1099.
+        Never place an OPT candidate on an arrangement without HR approval.
+        Escalate C2C questions.
 
         Common mistakes
-        Promising a start date before the EAD is valid.
-        Forgetting notice periods or relocation time.
-        Not telling the vendor about availability limits.
+        Treating C2C and W2 rates as directly comparable.
+        Suggesting C2C to OPT candidates.
+        Assuming a requirement's C2C label decides the arrangement for your consultant.
 
         Key takeaway
-        The start date is a target. Check every factor that affects it, and never promise a start before the candidate is authorized.
+        C2C is a business-to-business arrangement. For OPT and STEM OPT candidates it raises compliance questions, so always follow company policy and escalate.
         TEXT,
 
-        'Client' => <<<'TEXT'
+        'Rate Structures' => <<<'TEXT'
         Learning objective
-        Learn to identify the client in a requirement, understand the vendor chain, and use client knowledge in your analysis.
+        Understand the common rate terms in U.S. IT staffing and how to discuss rates professionally with candidates.
 
         What you need to know
-        In requirement analysis, client means the end client, the organisation where the consultant will work. The requirement may name the client, describe it, or hide it.
-        Between the client and your company there may be one or more vendors, such as a prime vendor or an implementation partner.
+        Bill rate is what the client or vendor pays for the consultant's time, usually per hour.
+        Pay rate is what the consultant receives, before taxes for W2 employees.
+        Margin or spread is the difference between bill rate and pay rate. It covers employer taxes, insurance, overheads and the company's profit.
+        Each layer in a vendor chain keeps part of the bill rate, so the rate reaching the consultant depends on the chain.
+
+        Common rate types
+        W2 hourly rate, paid to an employee for each hour worked.
+        W2 salary, a fixed annual amount.
+        C2C hourly rate, paid to another company.
+        All-inclusive rate, which means the rate includes expenses, with nothing extra for travel or other costs.
+        Overtime rate, if overtime is allowed and paid.
+
+        Hourly and annual equivalents
+        A full-time year is often estimated at about two thousand eighty working hours, which is forty hours a week for fifty-two weeks. An hourly rate of fifty dollars is roughly one hundred four thousand dollars a year before taxes, if every hour is paid. Real pay depends on holidays, leave and actual hours, so use this only as a rough comparison.
+
+        Rate split
+        Some companies describe pay as a percentage split of the bill rate, for example a stated percentage to the consultant. This is a company-specific practice. Explain it only using your company's approved terms.
 
         From the company training material
-        The Job Description Analysis training says to capture the client name or client information, where permitted. The US MNC Staffing document explains that requirements arrive from the client or from a preferred vendor, also called the Tier 1 layer, through the BDM, and that client names and project details are protected by the NDA.
+        The US MNC Staffing document teaches recruiters to discuss the rate with W2 consultants directly, and with the employer for C2C consultants, to negotiate the rate, and to send a written rate confirmation before submission. It mentions keeping a minimum margin of five dollars for the company. Company-specific process: margin rules are set by management, and you should never mention margins to consultants or employers. The calling script's screening questionnaire also records the candidate's expected hourly rate, W2 or C2C.
 
-        What to identify about the client
-        The client name, if shared, and the industry.
-        The vendor chain: who sent the requirement, and who that vendor works for.
-        The client's interview style, if known from previous requirements.
-        Any client rules, such as no duplicate submissions, maximum submissions per vendor, required forms, or background checks.
-        The client's sponsorship policy or work authorization restrictions, if stated.
-
-        Why the client matters
-        Different clients have different expectations. Some are known for detailed technical interviews. Some require long background checks. Some prefer local candidates strongly.
-        Knowing the client helps you prepare candidates and set realistic expectations.
-        If a candidate has worked at the same client before, or has already applied there, the submission may be affected. Always ask.
-
-        Information sharing
-        Share the client name with candidates only when your process allows.
-        Never contact the end client directly about a requirement that came through a vendor, unless your company has authorised this. Going around a vendor can damage relationships and breach agreements.
+        Discussing rates with candidates
+        Ask for the candidate's expected rate or salary and whether it is W2.
+        Share the pay rate approved by your team.
+        Never share bill rates or margins with candidates unless your company allows it.
+        Explain the reasons for differences calmly. Level 7 covers rate objections.
 
         Practical example
-        The running example came from an implementation partner working for a large bank. You note: end client, the bank; vendor, the implementation partner. Your team's notes show this bank usually conducts two technical rounds on video with cameras on. You prepare candidates for this, and you ask each one whether they have applied to this bank in the last six months.
+        A candidate says: The vendor posted this role at seventy dollars an hour, but you are offering forty-five on W2. You explain: The posted rate is the bill rate in the chain, which covers several companies, employer taxes and costs. The forty-five dollar W2 rate is your pay before taxes. You stay calm and factual.
 
         Recruiter checklist
-        Identify the end client and the vendor chain.
-        Note client rules and interview patterns.
-        Ask candidates about previous applications to the client.
-        Respect the vendor relationship.
+        Know the pay rate approved for the role.
+        Protect bill rates and margins.
+        Use rough annual conversions only for comparison.
 
         Common mistakes
-        Confusing the vendor with the end client.
-        Contacting the end client directly.
-        Missing a duplicate submission.
+        Sharing bill rates with candidates.
+        Promising a rate before it is approved.
+        Comparing C2C and W2 rates as if they are equal.
 
         Key takeaway
-        Knowing the client and the vendor chain helps you prepare candidates and avoid costly mistakes.
+        Rates have layers. Know the approved pay rate, protect business information, and explain differences professionally.
         TEXT,
 
-        'Must-Have vs Preferred' => <<<'TEXT'
+        'Gross Pay' => <<<'TEXT'
         Learning objective
-        Separate must-have requirements from preferred ones, and use this separation to shortlist candidates fairly and efficiently.
+        Understand gross pay and how it is calculated for hourly and salaried employees.
 
         What you need to know
-        Most job descriptions mix essential requirements with optional ones. Clients reject candidates who miss must-have requirements, but often accept candidates who miss some preferred ones. Recruiters who confuse the two either reject good candidates or submit unsuitable ones.
+        Gross pay is the total amount an employee earns in a pay period before any taxes or deductions are taken out.
+        For an hourly employee, gross pay equals hours worked multiplied by the hourly rate, plus any overtime or other earnings.
+        For a salaried employee, gross pay equals the annual salary divided by the number of pay periods in the year.
 
-        From the company training material
-        In the Day 5 workflow, this is the Prioritize step: separate must-have from preferred criteria. The key takeaways add: prioritise must-have skills and verify actual project experience. In the training's Java and AWS example, Core Java and JEE are must-haves, while Spring, Spring Boot and Spring Security are marked preferred, and Terraform is a plus.
+        Examples
+        A consultant paid fifty dollars an hour who works eighty hours in a two-week pay period has a gross pay of four thousand dollars for that period.
+        An employee with an annual salary of ninety-six thousand dollars, paid twice a month, has a gross pay of four thousand dollars per pay period, because there are twenty-four pay periods in the year.
 
-        Signals of must-have requirements
-        Words such as required, must have, minimum, mandatory and essential.
-        Skills in the job title, summary and responsibilities, as well as the skills list.
-        Location rules such as local only.
-        Work authorization restrictions.
-        Required certifications or clearances.
+        What can be included in gross pay
+        Regular pay for hours worked or salary.
+        Overtime pay, if eligible.
+        Holiday or paid leave pay, if the employer provides it.
+        Bonuses or other earnings, if any.
 
-        Signals of preferred requirements
-        Words such as preferred, nice to have, plus, bonus, desired and familiarity.
-        Skills mentioned only once, at the end of a list.
-        Domain experience listed as an advantage.
+        Timesheets and hourly gross pay
+        For hourly consultants, gross pay depends on approved timesheets. If a timesheet is late or incorrect, pay can be delayed or wrong. Remind consultants to submit timesheets on time according to the client's and your payroll team's process.
 
-        Building a requirement scorecard
-        Write the must-haves as a short list, usually three to six items.
-        Write the preferred items as a second list.
-        For each candidate, check every must-have first. If any is missing, stop and consider whether to ask the vendor.
-        Then count the preferred items the candidate has, to rank strong candidates.
-
-        When the JD is unclear
-        Some JDs list everything as required. Ask the vendor: Which three skills are the most important for this client? Vendors appreciate recruiters who ask focused questions.
+        Why recruiters should understand gross pay
+        Candidates often compare offers using gross numbers. When you discuss an hourly rate or salary, you are discussing gross pay. Make sure candidates understand that their take-home pay, called net pay, will be lower after taxes and deductions.
 
         Practical example
-        For the running example, your must-haves are three or more years of Java, Spring Boot, REST APIs, SQL, and the ability to work hybrid in Charlotte. Your preferred items are Kafka, AWS and banking domain experience. Candidate one meets every must-have and has Kafka. Candidate two meets every must-have and has AWS and banking experience. Candidate three has strong AWS and Kafka, but only basic Spring Boot. You submit candidates one and two, and you do not submit candidate three, because a must-have is missing.
+        A candidate asks how much she will receive every two weeks at a forty-dollar hourly W2 rate. You explain that if she works eighty hours in a two-week period, her gross pay would be three thousand two hundred dollars before taxes and deductions, and that payroll can explain her net pay.
 
         Recruiter checklist
-        Separate must-haves from preferred items for every requirement.
-        Check must-haves first for every candidate.
-        Use preferred items to rank candidates.
-        Ask the vendor when everything appears required.
+        Speak about rates and salaries as gross amounts.
+        Remind hourly consultants that timesheets drive pay.
+        Refer net pay questions to payroll.
 
         Common mistakes
-        Rejecting a strong candidate for missing a preferred skill.
-        Submitting a candidate who misses a must-have because they have many bonus skills.
+        Presenting gross pay as take-home pay.
+        Calculating with the wrong number of pay periods.
+
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover gross pay. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
 
         Key takeaway
-        Must-haves decide who qualifies. Preferred items decide who stands out. Keep the two lists separate.
+        Gross pay is earnings before deductions. Be clear that it is not the amount the consultant takes home.
         TEXT,
 
-        'Work Authorization Check' => <<<'TEXT'
-        Important note
-        This lesson is about awareness and process. It is not legal advice. Use only your company's approved screening questions.
-
+        'Net Pay' => <<<'TEXT'
         Learning objective
-        Learn how to read work authorization rules in a requirement and check candidates against them using approved, consistent questions.
+        Understand net pay, why it differs from gross pay, and how to answer candidate questions about take-home pay.
 
         What you need to know
-        Many requirements include work authorization rules. You will see phrases such as these.
-        No sponsorship, or must be authorized to work without sponsorship.
-        Citizens and green card holders only, sometimes written as USC and GC only.
-        No OPT or STEM OPT, or no H-1B.
-        OPT and STEM OPT accepted.
-        Some government or defence roles require U.S. citizenship and security clearance.
+        Net pay, often called take-home pay, is the amount an employee actually receives after all taxes and deductions are subtracted from gross pay.
+        Net pay equals gross pay minus taxes minus other deductions.
 
-        From the company training material: the recruiter checkpoint
-        The Job Description Analysis training has a dedicated slide called Work Authorization, Recruiter Checkpoint. Its rule is: always read the actual requirement and confirm client-specific eligibility.
-        Do not assume. Visa eligibility can vary by client, role, contract type and conversion terms.
-        Capture the requirement. Record any stated restrictions, such as No H-1B, No CPT or OPT, or citizen-only language.
-        Confirm before submission. When wording is unclear, verify with the Account Manager or BDM before presenting the candidate.
-        Document accurately. Do not alter or misrepresent a candidate's work authorization.
-        The training's Java and AWS example includes the note that stated visa restrictions must be verified. The US MNC Staffing document also tells recruiters to note which visa statuses the client is looking for, such as Green Card, OPT, EAD, H-1B or U.S. citizen.
+        Common deductions
+        Federal income tax withholding.
+        Social Security and Medicare taxes, together called FICA, where they apply.
+        State income tax, in states that have one.
+        Local taxes in some cities or counties.
+        Benefit deductions, such as the employee's share of health insurance, if enrolled.
+        Retirement contributions, if the employee chooses them.
 
-        Why requirements include these rules
-        Some clients do not sponsor visas or prefer not to employ candidates who may need sponsorship later. Some government contracts legally require citizenship. Whatever the reason, the rule is set by the client. Recruiters must follow it.
+        Why net pay varies
+        Net pay depends on the employee's W-4 choices, the work state, the local area, benefit elections, and the employee's tax situation. For some F-1 students who are nonresident aliens for tax purposes, certain taxes may not apply. Payroll decides this based on the rules. Recruiters never estimate it.
+        Two people with the same gross pay can have different net pay.
 
-        How to check
-        Read the work authorization rule before sourcing.
-        Ask every candidate the same approved questions, such as: Are you currently authorized to work in the U.S.? and Will you now or in the future require sponsorship for employment visa status?
-        Record the candidate's answer and their current authorization type and dates, through the approved process.
-        Compare the answer with the requirement's rule.
-        If the rule is unclear, ask the vendor, for example: Does the client accept candidates on STEM OPT?
+        Pay stubs
+        Each pay period, employees receive a pay stub, also called a pay statement, that lists gross pay, each deduction and net pay. Encourage consultants to review their stubs and to contact payroll with questions.
 
-        What not to do
-        Do not submit a candidate whose authorization does not meet the requirement, even if they are otherwise excellent.
-        Do not describe a candidate's authorization inaccurately to fit a requirement.
-        Do not ask about national origin, citizenship country, religion or other protected characteristics.
-        Do not treat candidates differently because of their name, accent or background.
-        Do not interpret documents yourself. HR handles verification.
+        Recruiter role
+        Be clear that rates and salaries are gross amounts.
+        Do not promise a specific net amount.
+        Refer net pay questions to payroll, with the consultant's work state and start date in your handoff, because these affect withholding.
 
         Practical example
-        A requirement says: No OPT, must not require sponsorship. Your best Java candidate is on STEM OPT. You do not submit her for this requirement. You note the restriction, keep her for other requirements, and look for candidates who meet this one.
+        A consultant says: My offer was forty dollars an hour, but my pay is much less. You explain that the offer was a gross rate, and taxes and deductions are subtracted before payment. You connect him with payroll to review his pay stub in detail.
 
         Recruiter checklist
-        Read work authorization rules before sourcing.
-        Use the same approved questions with every candidate.
-        Record authorization type and dates accurately.
-        Ask the vendor when rules are unclear.
+        Distinguish gross from net in every pay conversation.
+        Avoid estimating taxes.
+        Route pay stub questions to payroll.
 
         Common mistakes
-        Submitting candidates who do not meet the stated rule.
-        Asking non-approved or discriminatory questions.
-        Changing a candidate's stated status in a submission.
+        Promising take-home amounts.
+        Guessing which taxes apply to an OPT consultant.
+
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover net pay. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
 
         Key takeaway
-        Work authorization rules are set by the client. Check every candidate consistently, record accurately, and never misrepresent.
+        Net pay is what remains after taxes and deductions. Payroll calculates it, and recruiters set honest expectations.
         TEXT,
 
-        'Requirement → Search Keywords' => <<<'TEXT'
+        'Federal Income Tax' => <<<'TEXT'
         Learning objective
-        Turn an analysed requirement into search keywords and a practical sourcing strategy.
+        Understand at a basic level what federal income tax is and how it appears in payroll.
 
         What you need to know
-        After analysing a requirement, your next step is to find matching candidates. Good searching starts with good keywords. Keywords come directly from your analysis: titles, primary skills, secondary skills, domain, location and other filters.
+        Federal income tax is a tax on income collected by the U.S. federal government through the Internal Revenue Service, known as the IRS.
+        The U.S. uses a progressive system. Higher portions of income are taxed at higher rates. Rates and brackets can change from year to year.
+        Employers do not decide how much federal income tax a person owes for the year. Employers withhold an estimated amount from each paycheck, based on the employee's Form W-4 and IRS rules.
+        After the year ends, individuals file a tax return to calculate the actual tax owed. They may receive a refund or owe more.
 
-        From the company training material
-        The Job Description Analysis training states the goal directly: convert the JD into searchable keywords and objective screening criteria. For its Data Architect example, it lists the high-value keywords as AWS, Solution Architect, Enterprise Architect, API Gateway, Lambda, VPC, CloudFront, security architecture, Python and Java. Notice that the list mixes titles, platforms, services and languages. That is exactly the pattern to follow in the steps below.
+        Residency for tax purposes
+        For tax purposes, the U.S. classifies people as residents or nonresidents. This tax residency is different from immigration status. Many F-1 students are treated as nonresident aliens for tax purposes for a period of years, which affects how their taxes are calculated and which forms they file. Some may be covered by tax treaties between the U.S. and their home country.
+        These are complex rules. Payroll and tax professionals handle them. Recruiters should simply know that differences exist and avoid comparisons between consultants.
 
-        Step one, list title keywords
-        Write the main title and similar titles. For example, Java Developer, Java Engineer, Software Engineer Java, Backend Developer and Spring Boot Developer.
+        State and federal
+        Federal income tax applies across the country. Most states also have their own income tax, but some states do not. A few cities and counties have local income taxes. This is why the work state matters.
 
-        Step two, list primary skill keywords
-        These are the must-have skills. For example, Java, Spring Boot, REST API and SQL. Include common variations, such as Spring and Springboot, REST and RESTful, and Microservices and Micro services.
-
-        Step three, list secondary and bonus keywords
-        For example, Kafka, AWS and banking. Use these to narrow or rank results, not to exclude everyone.
-
-        Step four, add filters
-        Location, such as Charlotte or North Carolina, or a radius from the city.
-        Experience level, such as years of experience filters on job boards.
-        Work authorization, where the platform allows it and your company process approves it.
-        Recent activity, such as profiles updated in the last thirty days.
-
-        Step five, plan your sources
-        Decide where to search first: your internal database, LinkedIn, job boards such as Dice, university networks for recent graduates, and referrals. Level 5 covers each source.
-
-        Step six, build search strings
-        Combine keywords with AND, OR and NOT, called Boolean search, which Level 5 covers in detail. For example: Java AND Spring Boot AND, in brackets, REST OR RESTful, AND SQL.
-
-        Review and adjust
-        If you get too many results, add a secondary skill or narrow the location.
-        If you get too few results, use more title variations or widen the location.
-        Read a few profiles from the results to check that your keywords are finding the right people.
+        Recruiter role
+        Know that federal income tax is withheld from W2 pay.
+        Never estimate a candidate's tax.
+        Never advise on filing, refunds or treaties.
+        Provide accurate work location and start date details to payroll.
 
         Practical example
-        For the running example, your plan is: search the internal database first for Java, Spring Boot and SQL profiles in North Carolina; then search LinkedIn for Java Developer or Backend Engineer with Spring Boot in the Charlotte area; then search Dice for recently updated profiles; and finally ask colleagues for referrals.
+        A consultant asks: Should I claim exemption on my W-4? You do not answer. You respond: Payroll and a qualified tax professional can guide you on that. I will connect you with payroll.
 
         Recruiter checklist
-        Build title, primary and secondary keyword lists from your analysis.
-        Include common spelling variations.
-        Plan the order of sources.
-        Adjust searches based on results.
+        Refer all tax questions to payroll.
+        Remember that tax residency is not immigration status.
+        Ensure the work state is correct in your handoff.
 
         Common mistakes
-        Searching with too many keywords, which removes good candidates.
-        Forgetting spelling variations.
-        Using bonus skills as must-have filters.
+        Telling a consultant they will get a refund.
+        Advising on W-4 choices.
+
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover federal income tax beyond the annual tax return. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
 
         Key takeaway
-        Your analysis becomes your search. Clear keyword lists and a source plan lead to faster, better shortlists.
+        Federal income tax is withheld from pay based on the W-4 and IRS rules. Know the concept and leave every tax question to payroll.
         TEXT,
 
-        'Requirement Prioritization' => <<<'TEXT'
+        'Withholding' => <<<'TEXT'
         Learning objective
-        Learn how to decide which requirements deserve your time first, so that your effort produces the most placements.
+        Understand payroll withholding, what is commonly withheld, and why accurate employee information matters.
 
         What you need to know
-        Recruiters often receive more requirements than they can work on at once. Spending equal time on every requirement is not effective. Prioritise requirements that you have the best chance of filling, with clear information and responsive partners.
+        Withholding means the employer takes certain taxes out of an employee's pay and sends them to the government on the employee's behalf.
+        Withholding happens every pay period for W2 employees. It does not normally happen for C2C or 1099 arrangements, where the other company or person handles their own taxes.
 
-        From the company training material
-        The US MNC Staffing document explains that the BDM assigns each requirement to a recruiter based on technology or skill set, so your priorities usually start with what the BDM has assigned to you. The Job Description Analysis training adds a final piece of advice: ask senior recruiters for role-specific screening practices, and observe how they analyse requirements.
+        Common withholdings
+        Federal income tax, based on the employee's Form W-4.
+        Social Security and Medicare taxes, together called FICA, where they apply.
+        State income tax, in states with an income tax, often based on a state withholding form.
+        Local taxes, in certain cities or counties.
+        Some states also require employee contributions for programmes such as disability or unemployment insurance.
 
-        Factors that increase priority
-        Clear and complete requirement details.
-        Skills that match candidates you have or can find quickly.
-        A workable rate.
-        Work authorization rules that fit your candidate pool, such as OPT accepted.
-        An urgent but realistic start date.
-        A responsive vendor with a good history of feedback.
-        Multiple openings for the same role.
-        Instructions from your team lead about key clients.
+        What affects withholding
+        The employee's W-4 and any state forms.
+        The work state and, sometimes, the home state if they are different.
+        The pay amount and pay frequency.
+        Special rules for certain workers, such as nonresident aliens for tax purposes, which payroll applies.
 
-        Factors that decrease priority
-        Vague requirements with long, unrelated skill lists.
-        A rate that does not match the experience required.
-        Restrictions that exclude most of your candidates.
-        Vendors who rarely respond or give feedback.
-        Requirements that many other companies are already submitting to, with strict submission limits.
+        Why accuracy matters
+        If the work state is wrong, the wrong state's tax may be withheld. Correcting this later can be complicated for the consultant and the company.
+        If the start date or rate is wrong, pay and withholding will be wrong.
+        If the employee's name or Social Security Number is wrong, tax reporting will be wrong.
 
-        A simple priority method
-        High priority. Clear requirement, good fit with your pool, workable rate, responsive vendor. Work on it immediately.
-        Medium priority. Some gaps or uncertainty. Clarify with the vendor, then work on it.
-        Low priority. Poor fit or unclear. Do a quick search, and spend more time only if you find a strong match.
-        Always follow your team lead's instructions where they set priorities.
-
-        Time management
-        Set aside focused time for your high-priority requirements during the U.S. morning, when vendors and candidates are most responsive.
-        Track your submissions and follow-ups for each requirement.
-        Review priorities at least once a day, because new information changes them.
+        Recruiter role
+        Provide payroll with accurate work state, work city, start date, rate and employee details.
+        Tell consultants that payroll will guide them through tax forms.
+        Never suggest withholding choices.
 
         Practical example
-        You have three requirements: the running Java example, which is clear, OPT-friendly and urgent; a senior architect role with a low rate; and a vague data role from a vendor who has not responded to your last three submissions. You work on the Java requirement first, ask your lead about the architect rate, and do a quick search for the data role before clarifying it with the vendor.
+        A consultant lives in New Jersey but will work onsite in New York. You record both the home address and the work location in your handoff, and you note this clearly, because payroll needs both to set up withholding correctly.
 
         Recruiter checklist
-        Score each requirement on clarity, fit, rate, restrictions, urgency and vendor quality.
-        Work on high-priority requirements first.
-        Review priorities daily with your lead.
+        Record both home and work locations when they differ.
+        Double-check start date and rate.
+        Leave tax setup to payroll.
 
         Common mistakes
-        Working on requirements in the order they arrive.
-        Spending hours on requirements with no realistic chance.
+        Recording only the client's headquarters as the work location.
+        Telling a consultant how to fill in withholding forms.
+
+        Source note
+        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover withholding. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
 
         Key takeaway
-        Prioritise by your real chance of success. Focus your best time on clear, workable requirements.
+        Withholding is how taxes are collected from each paycheck. Your accurate handoff makes it correct from day one.
         TEXT,
     ],
 ];

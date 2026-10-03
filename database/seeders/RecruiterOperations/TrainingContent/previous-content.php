@@ -44,7 +44,7 @@ return [
         'Employment & Work Authorization Basics' => ['aaa4ec3346d078c392b85255cbc15828e1269c91bb33a7208789edd2a2d09787'],
         'Recruiter Compliance Boundaries' => ['ab7667d1c9c8c603e91f95e0d28c71d0e9b30315771ac8b96677fe5a33f93977'],
     ],
-    3 => [
+    4 => [
         'U.S. IT Staffing Basics' => ['c70eb76315746c331cdf8c606858cf1ef4992731a1287eb41f6d6704a3f491b5'],
         'Staffing Agency vs Direct Employer' => ['b5697e93299daa325017e0734d5f08db76e473d0243729155ac79c29bc3dce68'],
         'Client' => ['f23d139e70abe778a465cd3b83f704ddd60899c1de00b7c656545e1e5f6c6926'],
@@ -76,7 +76,7 @@ return [
         'Pay Period' => ['05321793743115b913864029b43fd108a926a1890362bd6f499eacb0ced92c73'],
         'U.S. Staffing Terminology' => ['b951c3c5d9b843c6b73f45c2c4d621c6f21c7b9496ed32b5e8e433ef65f60cf9'],
     ],
-    4 => [
+    5 => [
         'Understanding Requirements' => ['ab0533fca425beacc8d56d0eafe180efdafc0b65f681314eacdf9de8a1de1a37'],
         'Reading Job Descriptions' => ['0a41bb661ad69e12b2b2c77fa801dab0d63733a35dfcf85d2ce81bc8a5b3dbd7'],
         'Job Title' => ['c547d727b2ef27c7305b96109461e0563331ea6b0bc9e0968e45e4d734ddbaec'],
@@ -98,7 +98,7 @@ return [
         'Requirement → Search Keywords' => ['8a94ec39566b958a006db4824ea7aa83627726ca8eedad1d83da5c2965b80409'],
         'Requirement Prioritization' => ['a55617bd51905eeefa3022ebee8525779d92f34be919af807449ee018680a52f'],
     ],
-    5 => [
+    6 => [
         'LinkedIn' => ['5ee1b1c28d2c34aad9e4849cf427ec586fbafea15771952f9dfec84112052320'],
         'Dice' => ['48f83fc6f6e5f7256a989db1b5c786349700fd29d6abab37a1f1f5bd12b8d70d'],
         'Job Boards' => ['3b9147005b151cdf1eabef6b3559b589b2e97b3cc0a6b43ba55064cf3256a8f0'],
@@ -123,7 +123,7 @@ return [
         'Job History' => ['6d54ad97aa53eb1127f8126f8931e205bce8dad3a95269126d5cb8cc4e0545ca'],
         'Resume vs JD Comparison' => ['878ad0a6886417c0f9cc83c58e76c6c3e67c119b81a638230ab38d6bf4be67fa'],
     ],
-    6 => [
+    3 => [
         'OPT Recruiter Workflow' => ['d62eff959a51893c044408360ba8d8e05644f8f25401403c768bb48f89c03f53'],
         'Requirement Analysis' => ['4aee8772e33d691c44fb9129bb956ab52db5d706686fd5668e5bbe2d86ce7726'],
         'Search Strategy' => ['c5732f0d649828db15149776bd7f508f7713b8e4eaea447662dea9c8ebe28f9a'],

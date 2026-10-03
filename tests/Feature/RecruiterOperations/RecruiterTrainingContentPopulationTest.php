@@ -86,11 +86,21 @@ test('the written content is plain, speakable text without answer keys', functio
     }
 });
 
-test('immigration and payroll lessons carry the awareness note, and calling lessons flag company-specific statements', function () {
+test('no lesson carries an important note, and calling lessons flag company-specific statements', function () {
     $content = collect(RecruiterTrainingContent::all())->keyBy('level');
 
-    foreach ($content[2]['lessons'] as $title => $body) {
-        expect($body)->toStartWith('Important note', "{$title} is missing the awareness note");
+    foreach ($content as $entry) {
+        foreach ($entry['lessons'] as $title => $body) {
+            expect(mb_strtolower($body))->not->toContain('important note', "{$title} still has an important note");
+        }
+    }
+
+    foreach (RecruiterTrainingContent::redesigned() as $lessons) {
+        foreach ($lessons as $title => $languages) {
+            foreach ($languages as $sections) {
+                expect(collect($sections)->pluck('kind')->all())->not->toContain('note', "{$title} still has a note section");
+            }
+        }
     }
 
     $calling = implode("\n", $content[7]['lessons']);
@@ -123,6 +133,34 @@ test('the command fills every empty lesson without creating, removing or renamin
         expect($course->category->level_number)->toBe($level)
             ->and($course->versions()->sole()->lessons()->count())->toBe(count($definition['lessons']));
     }
+});
+
+test('the level command moves levels to the curriculum order without touching courses or lessons', function () {
+    $opt = courseForLevel(3)->category;
+    $staffing = courseForLevel(4)->category;
+    $opt->forceFill(['name' => 'Level 6 - OPT Recruiter Process & Sourcing Strategy', 'slug' => 'level-6-opt-recruiter-process-sourcing-strategy', 'level_number' => 6, 'sort_order' => 6])->save();
+    $staffing->forceFill(['name' => 'Level 3 - U.S. IT Staffing & Payroll Fundamentals', 'slug' => 'level-3-us-it-staffing-payroll-fundamentals', 'level_number' => 3, 'sort_order' => 3])->save();
+    $lessons = TrainingLesson::query()->orderBy('id')->get(['id', 'course_version_id', 'title', 'body'])->toArray();
+    $counts = [TrainingCategory::query()->count(), TrainingCourse::query()->count(), TrainingCourseVersion::query()->count()];
+
+    $this->artisan('recruiter:training-levels', ['--dry-run' => true])->expectsOutputToContain('Would renumber: 2')->assertSuccessful();
+    expect($opt->fresh()->level_number)->toBe(6);
+
+    $this->artisan('recruiter:training-levels')->expectsOutputToContain('Renumbered: 2')->assertSuccessful();
+    $this->artisan('recruiter:training-levels')->expectsOutputToContain('Renumbered: 0')->assertSuccessful();
+
+    expect($opt->fresh()->only(['name', 'slug', 'level_number', 'sort_order']))->toBe([
+        'name' => 'Level 3 - OPT Recruiter Process & Sourcing Strategy',
+        'slug' => 'level-3-opt-recruiter-process-sourcing-strategy',
+        'level_number' => 3,
+        'sort_order' => 3,
+    ])
+        ->and($staffing->fresh()->level_number)->toBe(4)
+        ->and(TrainingLesson::query()->orderBy('id')->get(['id', 'course_version_id', 'title', 'body'])->toArray())->toBe($lessons)
+        ->and([TrainingCategory::query()->count(), TrainingCourse::query()->count(), TrainingCourseVersion::query()->count()])->toBe($counts);
+
+    $this->seed(RecruiterTrainingCurriculumSeeder::class);
+    expect(TrainingCategory::query()->count())->toBe($counts[0]);
 });
 
 test('a dry run reports the changes but saves nothing', function () {
@@ -253,9 +291,9 @@ test('the normal run never replaces earlier generated content', function () {
 
 test('refresh replaces earlier generated content in place and keeps every identifier and record', function () {
     $recruiter = contentPopulationEmployee(SystemRole::Recruiter);
-    $course = courseForLevel(4);
+    $course = courseForLevel(5);
     $version = $course->versions()->sole();
-    [$lessons, $previous] = earlierGeneratedLessons($version, 4, 3);
+    [$lessons, $previous] = earlierGeneratedLessons($version, 5, 3);
     $assignment = TrainingAssignment::factory()->forVersion($version)->forEmployee($recruiter)->create();
     $completion = new TrainingLessonCompletion;
     $completion->forceFill(['assignment_id' => $assignment->id, 'lesson_id' => $lessons[0]->id, 'started_at' => now()])->save();
@@ -266,7 +304,7 @@ test('refresh replaces earlier generated content in place and keeps every identi
     $countsBefore = $counts();
 
     $report = collect(app(TrainingContentPopulator::class)->populate(RecruiterTrainingContent::all(), previous: $previous))->keyBy('lesson');
-    $expected = collect(RecruiterTrainingContent::all())->keyBy('level')[4]['lessons'];
+    $expected = collect(RecruiterTrainingContent::all())->keyBy('level')[5]['lessons'];
 
     foreach ($lessons as $lesson) {
         expect($report[$lesson->title]['status'])->toBe(TrainingContentPopulator::REFRESHED)

@@ -445,3 +445,35 @@ test('reviewing the draft changes nothing for a recruiter on Version 1', functio
     expect(TrainingAssignment::query()->where('employee_id', $recruiter->id)->sole()->course_version_id)->toBe($v1->id)
         ->and(TrainingLessonCompletion::query()->sole()->only(['lesson_id', 'completed_at']))->toEqual($completion);
 });
+
+// 16. Removing the important note
+
+test('the important note is removed from draft lessons only, and translations stay current', function () {
+    ['lead' => $lead, 'v1' => $v1, 'v2' => $v2, 'first' => $first] = reviewFixture();
+    $contents = app(TrainingLessonContentService::class);
+    $note = ['kind' => 'note', 'heading' => 'Important Note', 'body' => 'This lesson is not legal advice.'];
+    $teluguNote = ['kind' => 'note', 'heading' => 'ముఖ్య గమనిక', 'body' => 'ఇది legal advice కాదు.'];
+    $contents->save($first, TrainingLanguage::English, [$note, ...reviewEnglish('OPT')], $lead->user);
+    $contents->save($first->refresh(), TrainingLanguage::Telugu, [$teluguNote, ...reviewTelugu()], $lead->user);
+    $plain = TrainingLesson::factory()->forVersion($v2, 3)->create(['title' => 'EAD', 'description' => null, 'body' => "Important note\nThis lesson is not legal advice.\n\nLearning objective\nKnow the EAD."]);
+    $published = $v1->lessons()->orderBy('sort_order')->first();
+    $published->forceFill(['body' => "Important note\nNot legal advice.\n\n".$published->body])->save();
+    $publishedBefore = $published->fresh()->body;
+
+    $this->artisan('recruiter:training-remove-notes')->expectsOutputToContain('--as=')->assertFailed();
+    $this->artisan('recruiter:training-remove-notes', ['--dry-run' => true])->expectsOutputToContain('Would update: 2')->assertSuccessful();
+    expect($first->fresh()->contentIn(TrainingLanguage::English)->sections)->toHaveCount(4);
+
+    $this->artisan('recruiter:training-remove-notes', ['--as' => $lead->user->email])->expectsOutputToContain('Lessons updated: 2')->assertSuccessful();
+    $this->artisan('recruiter:training-remove-notes', ['--as' => $lead->user->email])->expectsOutputToContain('Lessons updated: 0')->assertSuccessful();
+
+    $first = $first->fresh();
+    $telugu = $first->contentIn(TrainingLanguage::Telugu);
+
+    expect(collect($first->contentIn(TrainingLanguage::English)->sections)->pluck('kind')->all())->toBe(['objective', 'content', 'takeaway'])
+        ->and(collect($telugu->sections)->pluck('kind')->all())->toBe(['objective', 'content', 'takeaway'])
+        ->and($contents->isOutdated($first, $telugu))->toBeFalse()
+        ->and($first->body)->not->toContain('Important Note')
+        ->and($plain->fresh()->body)->toBe("Learning objective\nKnow the EAD.")
+        ->and($published->fresh()->body)->toBe($publishedBefore);
+});

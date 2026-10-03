@@ -17,11 +17,6 @@ return [
                     'body' => 'Understand Optional Practical Training, the work authorization behind most OPT recruiting, and the key dates a recruiter must track.',
                 ],
                 [
-                    'kind' => 'note',
-                    'heading' => 'Important Note',
-                    'body' => 'This lesson is for recruiter awareness only. It is not legal advice. Immigration rules can change, so verify current requirements with HR or the company\'s authorized compliance resource, and follow company processes.',
-                ],
-                [
                     'kind' => 'content',
                     'heading' => 'What You Need to Know',
                     'body' => <<<'TEXT'
@@ -108,11 +103,6 @@ return [
                     'kind' => 'objective',
                     'heading' => 'నేర్చుకునే లక్ష్యం',
                     'body' => 'ఎక్కువ OPT recruiting కి ఆధారమైన work authorization అయిన Optional Practical Training ను, మరియు Recruiter తప్పకుండా track చేయాల్సిన ముఖ్యమైన dates ను అర్థం చేసుకోండి.',
-                ],
-                [
-                    'kind' => 'note',
-                    'heading' => 'ముఖ్య గమనిక',
-                    'body' => 'ఈ lesson Recruiter awareness కోసం మాత్రమే. ఇది legal advice కాదు. Immigration rules మారవచ్చు, కాబట్టి ప్రస్తుత requirements ను HR లేదా company authorized compliance resource తో verify చేయండి, company processes ను పాటించండి.',
                 ],
                 [
                     'kind' => 'content',

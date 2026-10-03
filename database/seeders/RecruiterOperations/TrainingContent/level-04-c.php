@@ -1,13 +1,10 @@
 <?php
 
 return [
-    'level' => 3,
+    'level' => 4,
     'course' => 'U.S. IT Staffing & Payroll Fundamentals',
     'lessons' => [
         'Social Security' => <<<'TEXT'
-        Important note
-        This lesson builds payroll awareness. It is not tax advice. Rates and limits change each year. Payroll applies the current rules.
-
         Learning objective
         Understand Social Security tax as a payroll concept, and why it may not apply the same way to every consultant.
 
@@ -44,9 +41,6 @@ return [
         TEXT,
 
         'Medicare' => <<<'TEXT'
-        Important note
-        This lesson builds payroll awareness. It is not tax advice. Payroll applies current rates and rules.
-
         Learning objective
         Understand Medicare tax as a payroll concept and how it relates to Social Security and FICA.
 
@@ -82,9 +76,6 @@ return [
         TEXT,
 
         'FICA' => <<<'TEXT'
-        Important note
-        This lesson builds payroll awareness. It is not tax advice.
-
         Learning objective
         Understand FICA and how it combines Social Security and Medicare taxes in payroll.
 
@@ -122,9 +113,6 @@ return [
         TEXT,
 
         'FUTA' => <<<'TEXT'
-        Important note
-        This lesson builds payroll awareness. It is not tax advice.
-
         Learning objective
         Understand FUTA as an employer-paid payroll tax and how it fits into staffing costs.
 
@@ -158,9 +146,6 @@ return [
         TEXT,
 
         'SUTA/SUI' => <<<'TEXT'
-        Important note
-        This lesson builds payroll awareness. It is not tax advice. State rules vary and change.
-
         Learning objective
         Understand state unemployment insurance taxes and why the work state matters for payroll.
 
@@ -197,9 +182,6 @@ return [
         TEXT,
 
         'W-4' => <<<'TEXT'
-        Important note
-        This lesson builds payroll awareness. It is not tax advice. Recruiters never help complete a W-4.
-
         Learning objective
         Understand Form W-4 and the recruiter's limited role around it.
 
@@ -235,9 +217,6 @@ return [
         TEXT,
 
         'W-2' => <<<'TEXT'
-        Important note
-        This lesson builds payroll awareness. It is not tax advice.
-
         Learning objective
         Understand Form W-2, the annual wage and tax statement, and how it differs from the term W2 used in staffing.
 
@@ -281,9 +260,6 @@ return [
         TEXT,
 
         'EIN' => <<<'TEXT'
-        Important note
-        This lesson builds awareness. Share company identifiers only as approved by HR or management.
-
         Learning objective
         Understand the Employer Identification Number and when it comes up in staffing.
 
@@ -325,9 +301,6 @@ return [
         TEXT,
 
         'Pay Period' => <<<'TEXT'
-        Important note
-        This lesson builds payroll awareness. Your company's payroll calendar is the source of truth.
-
         Learning objective
         Understand pay periods and pay frequencies, and how to explain pay timing accurately to consultants.
 

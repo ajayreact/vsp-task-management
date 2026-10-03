@@ -2,501 +2,464 @@
 
 return [
     'level' => 3,
-    'course' => 'U.S. IT Staffing & Payroll Fundamentals',
+    'course' => 'OPT Recruiter Process & Sourcing Strategy',
     'lessons' => [
-        'Contract' => <<<'TEXT'
+        'Payroll Handoff' => <<<'TEXT'
         Learning objective
-        Understand contract roles in U.S. IT staffing and the details recruiters must confirm for every contract requirement.
+        Understand what information payroll needs from the recruiting team and why accuracy matters.
 
         What you need to know
-        A contract role is work for a defined or estimated period, such as six months, twelve months or the length of a project. Contract roles are the most common engagement type in U.S. IT staffing.
-        The consultant is usually employed by the staffing company or another employer in the chain, not by the end client.
-        Contracts are often extended when the project continues, but extensions are never guaranteed.
+        Payroll pays the consultant correctly and on time, and applies the right taxes and withholdings. Payroll depends on accurate information from recruiting and HR. A small error, such as a wrong work state or rate, can cause incorrect pay or tax problems for the consultant and the company.
 
-        Key contract details
-        Duration, for example twelve months with possible extension.
-        Start date.
-        Rate, usually hourly.
-        Location and work mode.
-        Hours per week, usually forty.
-        Overtime policy, if any.
-        Interview process.
+        Information payroll usually needs from recruiting
+        The consultant's legal name and contact details.
+        The approved pay rate or salary, and whether it is hourly or annual.
+        The engagement type, such as W2 hourly or W2 salaried.
+        The start date.
+        The work location, including the state and city where the consultant physically works.
+        The home address, if different, for example when the consultant works remotely.
+        The pay period and timesheet process, as defined by your company.
+        Any approved overtime rules or special terms.
 
-        From the company training material
-        The Job Description Analysis training defines a contract as a fixed-term position that may include an extension, and reminds recruiters that work authorization requirements depend on the client and the engagement.
-        The OPT Recruiter Training Material describes two kinds of contract.
-        Contract, Independent, also called 1099. The candidate works as a contractor for a company for the contract period. In January, the company sends the candidate Form 1099 showing the amount earned in the previous year. The candidate then files a tax return with the Internal Revenue Service, called the IRS, and pays both the employee and the employer share of taxes.
-        Contract, Corp to Corp. A contract between two companies, the client and a vendor. The vendor's consultant works with the client, and the client pays the vendor, sending the vendor a Form 1099.
-        The US MNC Staffing document adds that 1099 arrangements apply only to Green Card holders, U.S. citizens and TN visa holders. They are not used for OPT or STEM OPT candidates, who work as W2 employees.
+        Why the work state matters
+        State income tax, unemployment insurance and some local taxes depend on where the consultant works and lives. If a consultant moves, or a remote consultant works from a different state, payroll needs to know before the change. Lesson 9 covers work-state information in more detail.
 
-        Why OPT candidates take contract roles
-        Contract roles can offer quicker starts and practical U.S. experience related to the degree, which OPT candidates value. Whether a specific contract arrangement suits a candidate's OPT or STEM OPT situation is a question for HR and the candidate's DSO.
+        Timesheets
+        Many hourly consultants submit timesheets, sometimes on the client's system and sometimes on the company's system. Make sure the consultant knows which process to use, and pass any questions to payroll.
 
-        How to explain a contract role
-        This is a twelve-month contract with our client in Atlanta. The client has indicated it may be extended, but extensions depend on the project and are not guaranteed. You would be on our payroll as your employer.
-        Use language like this only if every part is true for the role.
-
-        Contract endings
-        Contracts may end early if a project is cancelled or budgets change. Prepare candidates honestly for this possibility and explain what support your company offers, using approved information.
+        Handling consultant questions
+        Questions about net pay, withholding, W-4 choices, deductions and tax refunds should go to payroll. You can say: That is a great question for our payroll team. I will connect you with them.
 
         Practical example
-        A requirement says six months, with possible extension. A candidate asks: Is this a long-term job? You answer honestly: It is a six-month contract. The client mentions a possible extension, but that is not guaranteed. You record that the candidate understands the duration.
+        Your candidate will start on June 3, working hybrid from Charlotte, North Carolina, at the approved W2 hourly rate. She will temporarily live in South Carolina for the first month before moving to Charlotte. You include both addresses and the planned move date in the payroll handoff and flag it for payroll's attention.
 
         Recruiter checklist
-        Confirm duration, extension wording and start date.
-        Explain the contract nature honestly.
-        Record that the candidate understood the terms.
+        Send complete, accurate payroll information.
+        Include the actual work state and home address.
+        Report changes in location or rate immediately.
+        Refer pay and tax questions to payroll.
 
         Common mistakes
-        Describing a contract as permanent.
-        Promising an extension.
-        Forgetting to confirm hours and overtime policy.
-
-        Key takeaway
-        Contract roles are time-bound. Be clear and honest about duration and extensions so candidates make informed decisions.
-        TEXT,
-
-        'Contract-to-Hire / CTH' => <<<'TEXT'
-        Learning objective
-        Understand contract-to-hire roles and how to set accurate expectations with candidates.
-
-        What you need to know
-        Contract-to-hire, also written as CTH or C2H, means the consultant starts on a contract, and the client may offer a permanent position after a period such as three, six or twelve months.
-        During the contract period, the consultant is usually employed by the staffing company or another employer in the chain. If the client converts the consultant, the consultant becomes the client's direct employee.
-        Conversion is not guaranteed. It depends on performance, budget and the client's needs.
-
-        Important considerations
-        Clients deciding on conversion may consider the candidate's work authorization and whether the client will sponsor. Some clients do not sponsor visas, which may affect conversion for some candidates. Do not speculate. Share only information confirmed by the client or vendor.
-        Conversion may involve a conversion fee or agreement between the client and your company. These are business terms handled by management.
-        After conversion, salary and benefits are set by the client.
-
-        From the company training material
-        The Job Description Analysis training defines contract-to-hire as a role that starts as a contract and may convert to permanent employment after the agreed period.
-        The OPT Recruiter Training Material describes two versions.
-        Contract to Hire, Independent, or 1099. The candidate first works as a contractor and is later hired as a full-time, permanent employee. In January, the company sends a Form 1099 for the contract period and a Form W-2 for the wages earned after the hire, and the candidate files a tax return using both.
-        Contract to Hire, Corp to Corp. The vendor's consultant works with the client on contract for a period and is later hired as the client's permanent employee. The client sends the vendor a Form 1099 for the contract period.
-        For OPT candidates, the contract period is normally on W2 with the staffing company, not 1099.
-
-        How to explain CTH to candidates
-        This role starts as a six-month contract on our payroll. The client may consider converting you to a full-time employee after that, based on performance and their needs. Conversion is not guaranteed.
-        Use this only when it reflects the actual requirement.
-
-        Questions candidates ask
-        Will they definitely convert me? Answer: Conversion depends on the client, so I cannot guarantee it.
-        Will they sponsor my visa after conversion? Answer: I will check whether the client has shared their sponsorship policy. Do not guess.
-        What salary will I get after conversion? Answer: That is decided by the client at the time of conversion.
-
-        Practical example
-        A requirement is labelled CTH, six months, in Phoenix. A candidate on STEM OPT is excited about conversion. You explain that conversion is the client's decision, and you ask the vendor whether the client has a sponsorship policy for conversions. You share only the answer you receive.
-
-        Recruiter checklist
-        Confirm the contract period and conversion wording.
-        Never guarantee conversion.
-        Ask the vendor about client policies when candidates ask.
-        Record exactly what the candidate was told.
-
-        Common mistakes
-        Selling CTH as a guaranteed full-time job.
-        Guessing about sponsorship after conversion.
-        Discussing conversion fees with candidates.
-
-        Key takeaway
-        Contract-to-hire offers a possible path to permanent work, but conversion is never guaranteed. Set honest expectations from the start.
-        TEXT,
-
-        'Full-Time / Permanent' => <<<'TEXT'
-        Learning objective
-        Understand full-time permanent roles and how they differ from contract roles for recruiters and candidates.
-
-        What you need to know
-        A full-time or permanent role, sometimes called a direct hire or FTE role, means the candidate is hired directly by the company as its own employee, with no fixed end date.
-        Pay is usually an annual salary rather than an hourly rate.
-        Employees typically receive benefits such as health insurance, paid time off and retirement plans. The details are set by the employer.
-
-        Full-time with the client
-        In a direct hire placement, the staffing company helps the client find the person, but the client becomes the employer. The staffing company usually earns a placement fee. The candidate goes on the client's payroll.
-
-        Full-time with your company
-        Some staffing companies hire consultants as full-time salaried employees of the staffing company and place them on client projects. In this case, your company is the employer and runs payroll. Always know which model applies to the role you are discussing.
-
-        From the company training material
-        The Job Description Analysis training defines full-time or permanent as direct-hire employment with the client or employer. The OPT Recruiter Training Material calls this W2 salary with benefits: a full-time, permanent job where the employee is paid a salary and may receive benefits such as a joining bonus, vacation, holidays, workers' compensation, relocation expenses, leave encashment, an individual retirement account called an IRA, health, vision, dental and life insurance, a 401k retirement plan, education benefits and other retirement plans.
-        The handout also says the company usually pays the candidate when there is no job or between projects. Company-specific process: pay between projects and every benefit listed depend on company policy and the individual offer. Verify with HR or authorized personnel before mentioning any benefit to a candidate.
-
-        Key details to confirm
-        Employer name.
-        Salary range or offer amount.
-        Benefits overview, from approved information.
-        Location and work mode.
-        Start date.
-        Any sponsorship policy the employer has shared.
-
-        Why this matters for OPT candidates
-        OPT candidates must report their employer, and STEM OPT has specific employer requirements. A full-time role with a STEM OPT-eligible employer may be attractive, but eligibility is decided by HR and the employer, not the recruiter.
-
-        Practical example
-        A client requests a full-time direct hire data engineer in Seattle with a salary range. A candidate asks whether the client will sponsor H-1B. You check with the vendor, who says the client does not sponsor. You share this honestly, and the candidate decides whether to proceed.
-
-        Recruiter checklist
-        Confirm whether the employer is the client or your company.
-        Express salary as annual unless told otherwise.
-        Share sponsorship information only when confirmed.
-
-        Common mistakes
-        Confusing a direct hire role with a contract role.
-        Converting an hourly rate to salary incorrectly in front of a candidate.
-        Promising benefits details that you have not confirmed.
-
-        Key takeaway
-        Full-time roles are permanent employment with a named employer. Know who the employer is and confirm salary, benefits and policies before discussing them.
-        TEXT,
-
-        'W2' => <<<'TEXT'
-        Important note
-        This lesson builds payroll awareness. It is not tax advice. Follow your payroll team's guidance.
-
-        Learning objective
-        Understand what W2 employment means in U.S. IT staffing and why most OPT candidates work on W2.
-
-        What you need to know
-        In staffing conversations, W2 means the consultant is an employee of the staffing company or another employer, and is paid through that employer's payroll. The term comes from Form W-2, the annual wage statement that employers give employees. The form is covered in a later lesson.
-        With W2 employment, the employer withholds taxes from pay, pays employer payroll taxes, and handles payroll reporting.
-
-        W2 hourly and W2 salary
-        W2 hourly means the consultant is paid for each hour worked at an hourly rate.
-        W2 salary means the consultant receives a fixed annual salary paid in regular instalments.
-        Which applies depends on the employer and the role.
-
-        From the company training material
-        The OPT Recruiter Training Material explains W2 this way. On W2, the candidate works as an employee of a company. The employer takes care of the employee and of employee taxes. In January, the employer sends the employee a Form W-2 showing the previous year's wages and deductions, and the employee files a tax return with the IRS.
-        The handout lists who can work on W2: U.S. citizens, Green Card holders, EAD holders, TN holders, OPT, CPT, H-1B and L-1, among others.
-        It also describes three W2 types.
-        W2 salary with benefits. A full-time, permanent job with a salary and benefits.
-        W2 hourly with benefits. A full-time but temporary job, paid by the hour, with benefits. When the contract ends, the employee needs another assignment.
-        W2 hourly with no benefits. A full-time, temporary job, paid by the hour, without benefits.
-        The US MNC Staffing document adds that W2 applies to the company's own bench consultants, and that for W2 consultants the company bears insurance claims, taxes, overheads and some benefits.
-
-        Why W2 matters for OPT candidates
-        OPT and STEM OPT candidates usually work as employees. STEM OPT specifically requires a genuine employer-employee relationship with an E-Verify employer that has signed the I-983 training plan.
-        For these reasons, most OPT recruiting involves W2 employment. Your company's policy decides which arrangements are allowed for which candidates.
-
-        What candidates may ask
-        Will taxes be deducted? Yes, the employer withholds taxes based on the candidate's information and current rules. Payroll explains the details.
-        Will I get benefits? Benefits depend on the employer's policy. Share only approved information.
-        What is the difference between W2 and C2C? The next lesson explains C2C.
-
-        How a W2 rate is discussed
-        A W2 hourly rate is the rate paid to the consultant before taxes. It is lower than the bill rate the client pays, because the employer covers payroll taxes, insurance and other costs from the difference.
-
-        Practical example
-        A candidate asks: Is this W2 or C2C? You confirm with your lead that the role is W2 hourly with your company as employer. You explain: You will be on our payroll as our employee. Taxes are withheld from your pay, and our payroll team will guide you through the setup.
-
-        Recruiter checklist
-        Know whether the role is W2 hourly or W2 salary.
-        Know who the W2 employer is.
-        Refer tax questions to payroll.
-
-        Common mistakes
-        Calling a role W2 without confirming.
+        Recording the client's headquarters instead of the actual work location.
+        Not reporting a consultant's move.
         Giving tax advice.
-        Comparing W2 and C2C rates without explaining the cost difference.
-
-        Key takeaway
-        W2 means the consultant is an employee on payroll with taxes withheld. It is the usual arrangement for OPT and STEM OPT candidates.
-        TEXT,
-
-        'C2C' => <<<'TEXT'
-        Important note
-        This lesson builds awareness. It is not legal or tax advice. Follow your company's policy on which arrangements are allowed.
-
-        Learning objective
-        Understand Corp-to-Corp arrangements and why recruiters must treat them carefully for OPT candidates.
-
-        What you need to know
-        C2C stands for Corp-to-Corp. In a C2C arrangement, your company contracts with another company, rather than paying the consultant directly as an employee. The consultant is usually employed by, or owns, that other company.
-        The other company invoices your company. It handles the consultant's pay and taxes.
-        C2C rates are usually higher than W2 rates, because the other company covers payroll taxes, insurance and other costs itself.
-
-        C2C and work authorization
-        Many C2C consultants are H-1B workers employed by another consulting company, or are citizens or green card holders with their own companies.
-        For OPT candidates, the situation is different. STEM OPT requires a genuine employer-employee relationship with an E-Verify employer that signs the I-983. Arrangements in which an OPT or STEM OPT candidate works through their own company, or through a chain that does not meet these requirements, can create serious compliance risks.
-        Recruiters never decide whether an arrangement is allowed. Follow company policy and escalate.
-
-        1099
-        You may also hear 1099, which refers to an independent contractor paid without tax withholding, named after the tax form used. Like C2C, this is not a typical arrangement for OPT candidates. Follow company policy.
 
         From the company training material
-        The US MNC Staffing document lists three payment types in recruiting. W2 is for the company's own bench consultants. C2C, Corp to Corp, is for other vendors' bench consultants. 1099 is only for Green Card holders, U.S. citizens and TN holders.
-        The OPT Recruiter Training Material explains Corp to Corp as a contract between one company, the client, and another company, the vendor. The vendor's consultant works with the client, and the client sends the vendor a Form 1099. In daily work, this means C2C is how you work with another employer's consultant: you call that employer, agree the rate, and sign the paperwork with the employer, not the consultant.
-        The company business plan also lists C2C marketing as a service line, meaning marketing profiles to client partners under C2C engagement models. Company-specific process: which consultants may be marketed under C2C is decided by management and compliance.
-
-        What to do when C2C comes up
-        If a requirement is C2C only, check with your lead whether your company can participate and under which arrangement.
-        If an OPT candidate asks for C2C, explain politely that your company's process for OPT candidates is the approved arrangement, and refer questions to HR.
-        Never suggest that a candidate set up a company to work C2C.
-
-        Practical example
-        A vendor sends a requirement that says C2C only. You ask your lead how your company handles C2C requirements and which consultants are eligible. You submit only candidates and arrangements that your company has approved.
-
-        Recruiter checklist
-        Know your company's policy on C2C and 1099.
-        Never place an OPT candidate on an arrangement without HR approval.
-        Escalate C2C questions.
-
-        Common mistakes
-        Treating C2C and W2 rates as directly comparable.
-        Suggesting C2C to OPT candidates.
-        Assuming a requirement's C2C label decides the arrangement for your consultant.
+        The OPT Recruiter Roles and Responsibilities document describes payroll follow-up: follow up with active candidates about the required payroll hours, track payroll status, coordinate with the Accountant or HR when payroll information is needed, and escalate payment or payroll issues to the OPT Head. The OPT Head monitors the required minimum hours and payroll status with the Accountant and USA HR.
+        Company-specific process: the End-to-End Business Process document refers to payroll amounts and taxes being collected before payroll is run. Recruiters do not collect, request or handle any money from candidates. Any question about who funds payroll goes to HR, the Accountant and the OPT Head, and needs review by qualified counsel. Verify with HR or authorized personnel.
 
         Key takeaway
-        C2C is a business-to-business arrangement. For OPT and STEM OPT candidates it raises compliance questions, so always follow company policy and escalate.
+        Payroll can only be accurate if your handoff is accurate. Send complete details and report changes immediately.
         TEXT,
 
-        'Rate Structures' => <<<'TEXT'
-        Important note
-        Rates and margins are business information. Share only what your company allows.
-
+        'Follow-Up' => <<<'TEXT'
         Learning objective
-        Understand the common rate terms in U.S. IT staffing and how to discuss rates professionally with candidates.
+        Follow up consistently with candidates and vendors at each stage, and after placement, to keep the process moving and relationships strong.
 
         What you need to know
-        Bill rate is what the client or vendor pays for the consultant's time, usually per hour.
-        Pay rate is what the consultant receives, before taxes for W2 employees.
-        Margin or spread is the difference between bill rate and pay rate. It covers employer taxes, insurance, overheads and the company's profit.
-        Each layer in a vendor chain keeps part of the bill rate, so the rate reaching the consultant depends on the chain.
+        Many placements are lost because nobody followed up. Feedback is delayed, interviews are not scheduled, candidates accept other offers, and problems after the start are not noticed. Good follow-up is planned, regular and respectful.
 
-        Common rate types
-        W2 hourly rate, paid to an employee for each hour worked.
-        W2 salary, a fixed annual amount.
-        C2C hourly rate, paid to another company.
-        All-inclusive rate, which means the rate includes expenses, with nothing extra for travel or other costs.
-        Overtime rate, if overtime is allowed and paid.
+        Follow-up stages
+        After outreach: a polite reminder if there is no reply after a few business days.
+        After screening: send the job description and next steps.
+        After submission: ask the vendor for feedback within one or two business days, and update the candidate.
+        After the interview: collect feedback from the candidate the same day, and ask the vendor for client feedback.
+        After the offer: track onboarding progress.
+        After the start: check in on the first day, after the first week, and regularly after that.
 
-        Hourly and annual equivalents
-        A full-time year is often estimated at about two thousand eighty working hours, which is forty hours a week for fifty-two weeks. An hourly rate of fifty dollars is roughly one hundred four thousand dollars a year before taxes, if every hour is paid. Real pay depends on holidays, leave and actual hours, so use this only as a rough comparison.
+        Follow-up with placed consultants
+        Ask how the project is going and whether there are any concerns.
+        Pass concerns to the right team, such as account management or HR.
+        Note important dates, such as contract end dates and authorization end dates, and alert the right team early.
+        Ask for referrals, at the right time.
 
-        Rate split
-        Some companies describe pay as a percentage split of the bill rate, for example a stated percentage to the consultant. This is a company-specific practice. Explain it only using your company's approved terms.
+        Using reminders
+        Set reminders in your company's system for every follow-up.
+        Plan follow-ups in the U.S. business day of the person you are contacting.
+        Record the outcome of each follow-up.
+
+        Tone of follow-up
+        Friendly and brief.
+        Specific: mention the role and date.
+        Never pushy or guilt-inducing.
+
+        Practical example
+        Two days after submission, you email the vendor: Following up on the Java developer submission on Monday for the Charlotte role. Could you share any client feedback? You then message the candidate: The vendor is still waiting for client feedback. I will update you by Thursday.
+
+        Recruiter checklist
+        Set reminders for every stage.
+        Follow up within one or two business days.
+        Update candidates even when there is no news.
+        Keep in touch after placement.
+
+        Common mistakes
+        Waiting for others to update you.
+        Following up too often, which annoys people.
+        Forgetting placed consultants.
 
         From the company training material
-        The US MNC Staffing document teaches recruiters to discuss the rate with W2 consultants directly, and with the employer for C2C consultants, to negotiate the rate, and to send a written rate confirmation before submission. It mentions keeping a minimum margin of five dollars for the company. Company-specific process: margin rules are set by management, and you should never mention margins to consultants or employers. The calling script's screening questionnaire also records the candidate's expected hourly rate, W2 or C2C.
-
-        Discussing rates with candidates
-        Ask for the candidate's expected rate or salary and whether it is W2.
-        Share the pay rate approved by your team.
-        Never share bill rates or margins with candidates unless your company allows it.
-        Explain the reasons for differences calmly. Level 7 covers rate objections.
-
-        Practical example
-        A candidate says: The vendor posted this role at seventy dollars an hour, but you are offering forty-five on W2. You explain: The posted rate is the bill rate in the chain, which covers several companies, employer taxes and costs. The forty-five dollar W2 rate is your pay before taxes. You stay calm and factual.
-
-        Recruiter checklist
-        Know the pay rate approved for the role.
-        Protect bill rates and margins.
-        Use rough annual conversions only for comparison.
-
-        Common mistakes
-        Sharing bill rates with candidates.
-        Promising a rate before it is approved.
-        Comparing C2C and W2 rates as if they are equal.
+        Follow-up appears in almost every part of the company's OPT recruiter role. Bench candidate follow-up means regular communication with candidates on the bench, keeping resumes and profiles updated, and tracking submissions, interviews, client responses, requirements and placement progress, in coordination with Bench Sales. Candidate relationship management means regular updates on profile marketing, interviews, payroll and placement. The final step of the end-to-end process is that the OPT recruiter and OPT Head continue monitoring the candidate. The US MNC Staffing document adds that after each submission you follow up for feedback from the BDM.
 
         Key takeaway
-        Rates have layers. Know the approved pay rate, protect business information, and explain differences professionally.
+        Planned, friendly follow-up keeps the process moving and builds long-term relationships.
         TEXT,
 
-        'Gross Pay' => <<<'TEXT'
-        Important note
-        This lesson builds payroll awareness. It is not tax advice.
-
+        'LinkedIn Sourcing' => <<<'TEXT'
         Learning objective
-        Understand gross pay and how it is calculated for hourly and salaried employees.
+        Source OPT candidates on LinkedIn using education, skills and graduation filters, with professional and personal outreach.
 
         What you need to know
-        Gross pay is the total amount an employee earns in a pay period before any taxes or deductions are taken out.
-        For an hourly employee, gross pay equals hours worked multiplied by the hourly rate, plus any overtime or other earnings.
-        For a salaried employee, gross pay equals the annual salary divided by the number of pay periods in the year.
+        LinkedIn is one of the most important sourcing channels for OPT candidates, because students and recent graduates are often active there. Level 5 covered LinkedIn basics. This lesson focuses on OPT-specific techniques.
 
-        Examples
-        A consultant paid fifty dollars an hour who works eighty hours in a two-week pay period has a gross pay of four thousand dollars for that period.
-        An employee with an annual salary of ninety-six thousand dollars, paid twice a month, has a gross pay of four thousand dollars per pay period, because there are twenty-four pay periods in the year.
+        Search techniques for OPT candidates
+        Search by school, using universities with strong computer science, engineering, data and business analytics programs.
+        Search by degree, such as Master of Science in Computer Science, Information Systems, Data Science or Business Analytics.
+        Use graduation year to find recent and upcoming graduates.
+        Combine with skills and keywords from the requirement.
+        Look for internships, academic projects, research and capstone projects, which show practical skills.
+        Many students state that they are open to work or seeking full-time roles.
 
-        What can be included in gross pay
-        Regular pay for hours worked or salary.
-        Overtime pay, if eligible.
-        Holiday or paid leave pay, if the employer provides it.
-        Bonuses or other earnings, if any.
+        Respectful use of profile information
+        Use only what candidates have chosen to share publicly or with connections.
+        Do not assume work authorization from a profile. Ask approved questions during screening.
+        Do not filter or judge by name, photo or nationality.
 
-        Timesheets and hourly gross pay
-        For hourly consultants, gross pay depends on approved timesheets. If a timesheet is late or incorrect, pay can be delayed or wrong. Remind consultants to submit timesheets on time according to the client's and your payroll team's process.
+        Writing outreach messages
+        Mention their school, degree or project.
+        Explain the role briefly, with location and work mode.
+        Introduce yourself and your company honestly.
+        Ask a simple question, such as whether they would be open to a short call.
+        Keep it short and professional.
 
-        Why recruiters should understand gross pay
-        Candidates often compare offers using gross numbers. When you discuss an hourly rate or salary, you are discussing gross pay. Make sure candidates understand that their take-home pay, called net pay, will be lower after taxes and deductions.
+        Example message
+        Hello Priya, I noticed your master's project on microservices using Spring Boot at your university. I am a recruiter with our company, and I am working on a Java developer role with a banking client in Charlotte, hybrid three days a week. Would you be open to a short call this week to discuss it?
+
+        Building your presence
+        A complete, professional profile with your real name, photo, role and company builds trust.
+        Sharing helpful posts about job search tips or open roles attracts candidates to you.
 
         Practical example
-        A candidate asks how much she will receive every two weeks at a forty-dollar hourly W2 rate. You explain that if she works eighty hours in a two-week period, her gross pay would be three thousand two hundred dollars before taxes and deductions, and that payroll can explain her net pay.
+        For a junior data engineer role, you search for recent master's graduates in data science from several universities with Python, SQL and Spark skills. You find twenty profiles with relevant projects, send personalised messages to fifteen, and receive seven replies.
 
         Recruiter checklist
-        Speak about rates and salaries as gross amounts.
-        Remind hourly consultants that timesheets drive pay.
-        Refer net pay questions to payroll.
+        Search by school, degree, graduation year and skills.
+        Review projects and internships.
+        Write personal, honest messages.
+        Keep a professional profile.
 
         Common mistakes
-        Presenting gross pay as take-home pay.
-        Calculating with the wrong number of pay periods.
+        Assuming status from profiles.
+        Sending the same message to everyone.
+        Using an incomplete or anonymous profile.
 
-        Source note
-        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover gross pay. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
+        From the company training material
+        The OPT Recruiter Training Material lists LinkedIn, Facebook and Twitter as the social networking sources for OPT candidates. The Day 6 cold call script starts from a profile found on LinkedIn or Dice and mentions one or two of the candidate's core skills.
 
         Key takeaway
-        Gross pay is earnings before deductions. Be clear that it is not the amount the consultant takes home.
+        LinkedIn connects you with OPT candidates at the right moment. Search smartly and write personally and honestly.
         TEXT,
 
-        'Net Pay' => <<<'TEXT'
-        Important note
-        This lesson builds payroll awareness. It is not tax advice. Payroll calculates net pay.
-
+        'University Sourcing' => <<<'TEXT'
         Learning objective
-        Understand net pay, why it differs from gross pay, and how to answer candidate questions about take-home pay.
+        Understand how universities can be a source of OPT candidates, and how to engage with them professionally and within their rules.
 
         What you need to know
-        Net pay, often called take-home pay, is the amount an employee actually receives after all taxes and deductions are subtracted from gross pay.
-        Net pay equals gross pay minus taxes minus other deductions.
+        Universities produce new graduates every semester. Many international students in STEM fields look for jobs during their final semester and after graduation. Universities have career centers, international student offices, student organisations, job portals and alumni networks. Level 8 covers university outreach in more depth.
 
-        Common deductions
-        Federal income tax withholding.
-        Social Security and Medicare taxes, together called FICA, where they apply.
-        State income tax, in states that have one.
-        Local taxes in some cities or counties.
-        Benefit deductions, such as the employee's share of health insurance, if enrolled.
-        Retirement contributions, if the employee chooses them.
+        Ways to engage with universities
+        Career center job portals, where employers can post approved roles.
+        Career fairs and employer events, where allowed.
+        Student organisations, such as computer science or data science clubs, following their rules.
+        Alumni networks, through LinkedIn and alumni groups.
+        Faculty or department contacts, only through approved channels.
 
-        Why net pay varies
-        Net pay depends on the employee's W-4 choices, the work state, the local area, benefit elections, and the employee's tax situation. For some F-1 students who are nonresident aliens for tax purposes, certain taxes may not apply. Payroll decides this based on the rules. Recruiters never estimate it.
-        Two people with the same gross pay can have different net pay.
+        University rules
+        Every university has its own policies for employers and recruiters. Some restrict staffing agencies or third-party recruiters. Some require registration and approval before posting jobs. Always read and follow these rules. If you are not sure, ask your lead. Never misrepresent your company type to gain access.
 
-        Pay stubs
-        Each pay period, employees receive a pay stub, also called a pay statement, that lists gross pay, each deduction and net pay. Encourage consultants to review their stubs and to contact payroll with questions.
+        What universities and students value
+        Honest descriptions of roles and the staffing model.
+        Real, current openings.
+        Respect for student time and privacy.
+        No fees charged to students.
+        Professional behaviour at events and online.
 
-        Recruiter role
-        Be clear that rates and salaries are gross amounts.
-        Do not promise a specific net amount.
-        Refer net pay questions to payroll, with the consultant's work state and start date in your handoff, because these affect withholding.
+        Planning around the academic calendar
+        Final semesters: students start searching early.
+        Graduation in May and December: large groups become available.
+        Summer: some students are in internships or CPT.
 
         Practical example
-        A consultant says: My offer was forty dollars an hour, but my pay is much less. You explain that the offer was a gross rate, and taxes and deductions are subtracted before payment. You connect him with payroll to review his pay stub in detail.
+        Your company is registered on a university's career portal. Before graduation season, you post two approved junior roles with honest descriptions, including the staffing model and work locations. Students apply through the portal. You screen them using your standard process and follow up promptly.
 
         Recruiter checklist
-        Distinguish gross from net in every pay conversation.
-        Avoid estimating taxes.
-        Route pay stub questions to payroll.
+        Learn each university's recruiter policies.
+        Use approved channels only.
+        Describe the staffing model honestly.
+        Plan around graduation seasons.
 
         Common mistakes
-        Promising take-home amounts.
-        Guessing which taxes apply to an OPT consultant.
+        Emailing faculty or students without permission.
+        Hiding that your company is a staffing company.
+        Posting roles that do not exist.
 
         Source note
-        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover net pay. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
+        The company training documents do not cover university sourcing. This lesson is based on general recruiting practice and university rules, and it needs review and approval by the training manager before any recruiter contacts a university on the company's behalf.
 
         Key takeaway
-        Net pay is what remains after taxes and deductions. Payroll calculates it, and recruiters set honest expectations.
+        Universities are valuable partners. Follow their rules, be transparent, and engage at the right time.
         TEXT,
 
-        'Federal Income Tax' => <<<'TEXT'
-        Important note
-        This lesson builds awareness only. It is not tax advice. Recruiters never give tax guidance. Refer tax questions to payroll or a qualified tax professional.
-
+        'STEM Programs' => <<<'TEXT'
         Learning objective
-        Understand at a basic level what federal income tax is and how it appears in payroll.
+        Understand why STEM degree programs matter in OPT recruiting and how to recognise relevant programs at an awareness level.
 
         What you need to know
-        Federal income tax is a tax on income collected by the U.S. federal government through the Internal Revenue Service, known as the IRS.
-        The U.S. uses a progressive system. Higher portions of income are taxed at higher rates. Rates and brackets can change from year to year.
-        Employers do not decide how much federal income tax a person owes for the year. Employers withhold an estimated amount from each paycheck, based on the employee's Form W-4 and IRS rules.
-        After the year ends, individuals file a tax return to calculate the actual tax owed. They may receive a refund or owe more.
+        STEM means science, technology, engineering and mathematics. Students who graduate from eligible STEM degree programs may be able to apply for a STEM OPT extension after their initial OPT, which can extend their work authorization. This is why STEM graduates are important for longer IT projects.
 
-        Residency for tax purposes
-        For tax purposes, the U.S. classifies people as residents or nonresidents. This tax residency is different from immigration status. Many F-1 students are treated as nonresident aliens for tax purposes for a period of years, which affects how their taxes are calculated and which forms they file. Some may be covered by tax treaties between the U.S. and their home country.
-        These are complex rules. Payroll and tax professionals handle them. Recruiters should simply know that differences exist and avoid comparisons between consultants.
+        Common STEM-related programs in IT recruiting
+        Computer Science.
+        Information Technology and Information Systems, depending on the program.
+        Computer Engineering and Electrical Engineering.
+        Data Science, Data Analytics and Business Analytics, depending on the program.
+        Software Engineering.
+        Cybersecurity.
+        Mathematics and Statistics.
+        Whether a specific degree is STEM eligible depends on the official program classification, not the program name. The DSO and the I-20 can confirm the classification. Recruiters should not assume.
 
-        State and federal
-        Federal income tax applies across the country. Most states also have their own income tax, but some states do not. A few cities and counties have local income taxes. This is why the work state matters.
+        Why it matters to recruiters
+        Longer projects may suit candidates who could be eligible for STEM OPT.
+        STEM OPT requires an employer that is enrolled in E-Verify and a training plan using Form I-983, so the employer and HR must be involved.
+        Recruiters should know whether their company supports STEM OPT, according to company policy.
 
-        Recruiter role
-        Know that federal income tax is withheld from W2 pay.
-        Never estimate a candidate's tax.
-        Never advise on filing, refunds or treaties.
-        Provide accurate work location and start date details to payroll.
+        How to talk about it with candidates
+        Ask about the degree and major during screening.
+        If a candidate asks whether they qualify for STEM OPT, say: That depends on your program classification and current rules. Your DSO is the best person to confirm.
+        If a candidate asks whether your company supports STEM OPT, share only the approved company position.
 
         Practical example
-        A consultant asks: Should I claim exemption on my W-4? You do not answer. You respond: Payroll and a qualified tax professional can guide you on that. I will connect you with payroll.
+        A candidate has a master's in Business Analytics and asks whether she can get STEM OPT. You reply: Some business analytics programs are classified as STEM and some are not. Please confirm with your DSO. Our HR team can explain our company's process once you have that confirmation.
 
         Recruiter checklist
-        Refer all tax questions to payroll.
-        Remember that tax residency is not immigration status.
-        Ensure the work state is correct in your handoff.
+        Note degree and major accurately.
+        Do not assume STEM eligibility.
+        Know your company's position on STEM OPT.
+        Refer eligibility questions to the DSO and HR.
 
         Common mistakes
-        Telling a consultant they will get a refund.
-        Advising on W-4 choices.
+        Telling candidates they qualify for STEM OPT.
+        Assuming all IT-related degrees are STEM.
+        Forgetting the employer requirements for STEM OPT.
 
-        Source note
-        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover federal income tax beyond the annual tax return. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
+        From the company training material
+        The OPT Recruiter Training Material says OPT is valid for twelve months and can be extended by twenty-four months, a total of thirty-six months, and that MBA students have OPT for twelve months only. The extension applies only to degrees on the official STEM list, so an MBA without a STEM-designated program code does not qualify. The Day 7 questionnaire records whether a candidate is on initial OPT or STEM OPT and whether their current employer is E-Verified, which is required for STEM OPT.
 
         Key takeaway
-        Federal income tax is withheld from pay based on the W-4 and IRS rules. Know the concept and leave every tax question to payroll.
+        STEM programs matter for longer authorization, but eligibility is decided by official rules. Know the basics and refer the details.
         TEXT,
 
-        'Withholding' => <<<'TEXT'
-        Important note
-        This lesson builds payroll awareness. It is not tax advice.
-
+        'International Student Communities' => <<<'TEXT'
         Learning objective
-        Understand payroll withholding, what is commonly withheld, and why accurate employee information matters.
+        Engage professionally and respectfully with international student communities as a sourcing channel.
 
         What you need to know
-        Withholding means the employer takes certain taxes out of an employee's pay and sends them to the government on the employee's behalf.
-        Withholding happens every pay period for W2 employees. It does not normally happen for C2C or 1099 arrangements, where the other company or person handles their own taxes.
+        International students often form communities to share job search tips, housing information and support. These may include student associations at universities, online forums, social media groups and messaging groups. Many OPT candidates find opportunities through these communities. Recruiters can engage with them, but must do so respectfully and within each community's rules.
 
-        Common withholdings
-        Federal income tax, based on the employee's Form W-4.
-        Social Security and Medicare taxes, together called FICA, where they apply.
-        State income tax, in states with an income tax, often based on a state withholding form.
-        Local taxes, in certain cities or counties.
-        Some states also require employee contributions for programmes such as disability or unemployment insurance.
+        Types of communities
+        University international student associations.
+        Cultural or regional student associations at universities.
+        Online groups focused on OPT, STEM OPT and job searching.
+        Professional groups for students in specific fields.
+        Alumni groups.
 
-        What affects withholding
-        The employee's W-4 and any state forms.
-        The work state and, sometimes, the home state if they are different.
-        The pay amount and pay frequency.
-        Special rules for certain workers, such as nonresident aliens for tax purposes, which payroll applies.
+        How to engage respectfully
+        Read the community's rules before posting. Many groups ban job posts or recruiters, or allow them only in specific threads.
+        Ask the administrator for permission if needed.
+        Post real roles with honest descriptions, including the staffing model and locations.
+        Do not spam, repost repeatedly or send unrequested private messages to every member.
+        Respond to questions politely and accurately.
 
-        Why accuracy matters
-        If the work state is wrong, the wrong state's tax may be withheld. Correcting this later can be complicated for the consultant and the company.
-        If the start date or rate is wrong, pay and withholding will be wrong.
-        If the employee's name or Social Security Number is wrong, tax reporting will be wrong.
+        Fairness and non-discrimination
+        Engaging with a community is about reaching candidates, not selecting by nationality or origin. Treat every candidate fairly, regardless of where they found the role. Do not post roles restricted by nationality or origin. Work authorization requirements must come from the requirement, not from personal assumptions.
 
-        Recruiter role
-        Provide payroll with accurate work state, work city, start date, rate and employee details.
-        Tell consultants that payroll will guide them through tax forms.
-        Never suggest withholding choices.
+        Building trust
+        Students in these communities often share experiences of recruiters and companies. One poor interaction can damage your company's reputation. Professional, helpful and honest behaviour builds trust and referrals.
 
         Practical example
-        A consultant lives in New Jersey but will work onsite in New York. You record both the home address and the work location in your handoff, and you note this clearly, because payroll needs both to set up withholding correctly.
+        An online group for international students in data analytics allows job posts on Fridays. You post one approved role with a clear title, location, work mode, duration, an honest note that your company is a staffing company, and how to apply. Several students contact you. You screen them using your standard process.
 
         Recruiter checklist
-        Record both home and work locations when they differ.
-        Double-check start date and rate.
-        Leave tax setup to payroll.
+        Follow every community's rules.
+        Post honest, real roles.
+        Treat all candidates fairly.
+        Avoid spam and unrequested messages.
 
         Common mistakes
-        Recording only the client's headquarters as the work location.
-        Telling a consultant how to fill in withholding forms.
+        Posting in groups that do not allow recruiters.
+        Exaggerating roles to attract attention.
+        Selecting candidates by origin.
 
-        Source note
-        The company training documents explain W2, 1099 and Corp-to-Corp arrangements and the Form W-2, but they do not cover withholding. This lesson is based on published IRS and government guidance and needs review and approval by payroll and the training manager.
+        From the company training material
+        The OPT Recruiter Training Material names desiOPT and simplyOPT, portals aimed at OPT candidates, and social networking sites such as Facebook. The calling materials warn that international students are highly cautious because of visa scams. In student communities, introduce yourself and your company fully, and never post fee or offer letter claims.
 
         Key takeaway
-        Withholding is how taxes are collected from each paycheck. Your accurate handoff makes it correct from day one.
+        International student communities can be valuable, but only when you engage respectfully, honestly and fairly.
+        TEXT,
+
+        'Professional Groups' => <<<'TEXT'
+        Learning objective
+        Use professional groups and associations as a channel to find skilled candidates and build long-term relationships.
+
+        What you need to know
+        Professional groups bring together people with shared skills or interests, such as developers, data professionals, testers or cloud engineers. They include online groups, user groups, meetups, and professional associations. Members are often interested in learning and career growth, which makes them good long-term contacts.
+
+        Types of professional groups
+        Technology user groups, for example Java, Python or cloud user groups.
+        Online communities for developers and data professionals.
+        Meetups and local technology events.
+        Women in technology and other inclusion-focused groups.
+        Professional associations with student chapters.
+
+        How recruiters can add value
+        Share useful information, such as interview tips or market trends.
+        Attend events to learn about technologies, not only to recruit.
+        Support members by answering career questions honestly.
+        Post real roles only where allowed.
+
+        Group etiquette
+        Read and follow group rules.
+        Do not post the same message in many groups at once.
+        Do not message every member privately.
+        Be clear that you are a recruiter.
+        Never pressure members.
+
+        Learning from groups
+        Professional groups help you understand technologies, common job titles, popular tools and candidate expectations. This makes you a better recruiter for technical requirements.
+
+        Practical example
+        You join a local Java user group's online community. You read discussions for a few weeks, learning about Spring Boot and microservices topics. When the group holds its monthly jobs thread, you post the Charlotte Java role with honest details. Two members respond, and one is a strong fit.
+
+        Recruiter checklist
+        Join groups relevant to your requirements.
+        Follow group rules.
+        Add value, not only job posts.
+        Learn from discussions.
+
+        Common mistakes
+        Joining only to spam job posts.
+        Hiding your recruiter identity.
+        Ignoring group rules.
+
+        From the company training material
+        The Job Description Analysis training says to share requirements through relevant professional or Yahoo groups, where appropriate. Yahoo Groups closed in 2020. Today, use only the LinkedIn groups and professional communities your team lead approves.
+
+        Key takeaway
+        Professional groups are long-term relationship channels. Participate respectfully, learn, and post real roles where allowed.
+        TEXT,
+
+        'Referrals' => <<<'TEXT'
+        Learning objective
+        Generate and handle referrals professionally, so that they become a reliable source of quality OPT candidates.
+
+        What you need to know
+        A referral is a candidate recommended by someone who knows them, such as a placed consultant, a candidate, a classmate or a colleague. Referred candidates are often more trustworthy, better prepared and more likely to respond. Many OPT candidates know classmates with similar skills and timelines.
+
+        Who can refer
+        Placed consultants who are happy with your company.
+        Candidates you screened, even if they were not placed.
+        Your professional network.
+        Internal colleagues.
+
+        How to ask for referrals
+        Ask at the right time, for example after a successful placement or a positive conversation.
+        Be specific: I am looking for QA automation testers with Selenium and Java who graduated recently. Do you know anyone?
+        Make it easy: share a short description they can forward.
+        Mention any approved referral program your company has. Do not promise rewards that are not in an official program.
+
+        Handling referred candidates
+        Thank the person who referred them.
+        Contact the referred candidate promptly and mention who referred them, if the referrer agreed.
+        Screen them with the same process as everyone else. A referral is not a guarantee.
+        Keep the referrer updated in general terms, without sharing private details.
+
+        Privacy
+        Do not share one candidate's information with another.
+        Ask the referred candidate for their own consent before submitting them.
+        Never pressure anyone to share contacts.
+
+        Practical example
+        A consultant you placed six months ago is happy with her project. You ask whether she knows any recent graduates with data skills. She refers two classmates. You thank her, contact both classmates, screen them using your normal process, and keep her informed that you have spoken with them.
+
+        Recruiter checklist
+        Ask for referrals at good moments.
+        Be specific about the skills you need.
+        Treat referred candidates with the same process.
+        Respect privacy and official referral programs.
+
+        Common mistakes
+        Promising referral bonuses that are not official.
+        Skipping screening for referred candidates.
+        Sharing candidate details with referrers.
+
+        From the company training material
+        The OPT calling script asks every interested candidate to refer friends who are looking for a job, and says that the more friends they refer, the more benefits they receive. It mentions a referral amount of seven hundred and fifty dollars. Company-specific process: mention a referral bonus only if HR confirms the program, the amount and the conditions in writing. Verify with HR or authorized personnel.
+
+        Key takeaway
+        Referrals are built on trust. Ask well, respond quickly, and treat everyone with the same fair process.
+        TEXT,
+
+        'Recruitment Partnerships' => <<<'TEXT'
+        Learning objective
+        Understand how recruitment partnerships support OPT sourcing and how to work with partners professionally and within company policy.
+
+        What you need to know
+        A recruitment partnership is a working relationship with another organisation that helps you reach candidates or requirements. Partners might include vendors, other staffing companies, training organisations, professional associations or university career programs. Partnerships are usually set up by management, with agreed terms.
+
+        Types of partnerships
+        Vendor partnerships for requirements.
+        Subcontracting partnerships, where another company provides candidates under an agreement.
+        University and career center relationships.
+        Professional association or community partnerships.
+        Training organisation partnerships, where graduates of training programs are introduced.
+
+        Recruiter responsibilities with partners
+        Know which partnerships your company has and the agreed terms.
+        Follow the agreed process for sharing requirements or candidates.
+        Share only the information allowed by the agreement and company policy.
+        Protect candidate privacy, and obtain consent before sharing details.
+        Escalate any partner issue to your lead.
+
+        What recruiters should not do
+        Do not make new partnership agreements yourself unless authorised.
+        Do not share confidential client details with partners.
+        Do not accept candidates from unknown partners without approval.
+        Do not accept or offer payments or gifts outside company policy.
+
+        Quality and risk
+        Candidates from partners must go through the same screening and interest confirmation process.
+        Watch for warning signs, such as inconsistent resumes or unclear authorization information. Escalate concerns.
+        Never accept a partner's assurance in place of your own screening.
+
+        Practical example
+        Your company has a partnership with a training organisation that prepares graduates in QA testing. The partner shares three candidate profiles with consent forms. You screen each candidate using your standard process. One is a strong fit. You confirm interest and consent directly with her before submitting.
+
+        Recruiter checklist
+        Know your company's approved partners.
+        Follow the agreed process.
+        Screen partner candidates fully.
+        Escalate concerns and new partnership ideas.
+
+        Common mistakes
+        Creating informal partnerships without approval.
+        Skipping screening for partner candidates.
+        Sharing client information with partners.
+
+        From the company training material
+        The company business plan describes four core functions: OPT candidate services, bench sales and profile marketing, account management, and HR, operations and finance. It lists the business opportunities the division works with: offer letters, recurring payroll, C2C or Corp-to-Corp marketing, bench sales, paid training, job support, resume services and other candidate services. As the division grows, it plans to expand vendor and client relationships and add account managers and bench sales recruiters.
+        For an OPT recruiter, the most important partnership is internal. You hand interested candidates to the Bench Sales team for profile marketing, and you coordinate with Account Managers on requirements. Profiles are shared only through authorized channels.
+        Company-specific process: which services are offered to which candidates, and on what terms, is decided by management and must be reviewed by HR and legal. Never describe a paid service as a way to get work authorization. Verify with HR or authorized personnel.
+
+        Key takeaway
+        Partnerships extend your reach, but they work only within approved terms and the same quality standards.
         TEXT,
     ],
 ];

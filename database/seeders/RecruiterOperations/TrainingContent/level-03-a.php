@@ -2,523 +2,552 @@
 
 return [
     'level' => 3,
-    'course' => 'U.S. IT Staffing & Payroll Fundamentals',
+    'course' => 'OPT Recruiter Process & Sourcing Strategy',
     'lessons' => [
-        'U.S. IT Staffing Basics' => <<<'TEXT'
+        'OPT Recruiter Workflow' => <<<'TEXT'
         Learning objective
-        Understand how the U.S. IT staffing industry works, who the main parties are, and where an OPT recruiter fits in.
+        Understand the complete OPT recruiter workflow, from receiving a requirement to handing off a placed consultant, and the responsibilities at each stage.
 
         What you need to know
-        U.S. companies often need IT professionals quickly, for a project or for a fixed period, or they want to try someone before hiring permanently. Staffing companies fill these needs by finding, screening and supplying qualified professionals.
-        IT staffing covers roles such as software developers, Java and .NET developers, data engineers, data analysts, business analysts, quality assurance testers, cloud and DevOps engineers, and project managers.
+        An OPT recruiter helps OPT and STEM OPT candidates find U.S. IT roles that match their education and skills, and ensures that every step is accurate, honest and well documented. The workflow below is the backbone of your daily work. The following lessons explain each stage.
 
-        The main parties
-        The end client is the company where the work is actually done, for example a bank or a retailer.
-        A vendor or implementation partner may sit between the end client and your company.
-        Your company is the staffing company. It may be the employer of the consultant.
-        The consultant is the professional who does the work.
+        The workflow stages
+        Requirement analysis. Understand the role, the must-haves, location, rate, start date and work authorization rules.
+        Search strategy. Plan where and how to find candidates.
+        Candidate sourcing. Find candidates through approved channels.
+        Initial screening. Confirm skills, experience, location, availability and work authorization using approved questions.
+        Candidate communication. Explain the role clearly and honestly.
+        Interest confirmation. Confirm the candidate's interest and consent for the specific submission.
+        Submission and interviews. Submit accurate profiles, schedule and prepare for interviews.
+        Offer process. Communicate selection and offer details accurately.
+        Documentation handoff. Pass information to HR for documentation.
+        Onboarding handoff. Support HR during onboarding.
+        Payroll handoff. Pass accurate pay and location details to payroll.
+        Follow-up. Stay in touch through the first days and beyond.
 
-        The staffing lifecycle
-        A requirement is received from a client or vendor.
-        The recruiter analyses the requirement.
-        The recruiter sources and screens candidates.
-        A qualified candidate is submitted.
-        The client interviews the candidate.
-        The client selects the candidate and an offer or confirmation follows.
-        Onboarding, documentation and payroll setup happen.
-        The consultant starts the project, and the company supports them until the assignment ends.
+        A typical day
+        Before the U.S. business day starts, review new requirements and priorities with your lead.
+        In the U.S. morning, call candidates, screen and submit.
+        In the middle of the day, follow up with vendors on feedback and schedule interviews.
+        Later, prepare candidates for interviews, update records and plan the next day.
+        Throughout the day, record every important interaction in approved systems.
 
-        From the company training material: the three parts of US staffing
-        The US MNC Staffing document divides staffing into three parts.
-        Recruiting, defined as sourcing consultants to the client's requirements, or providing resources to meet the client's needs. This is your main role.
-        Sales or marketing, defined as marketing the company's bench consultants to vendors and clients.
-        Business development, handled by Business Development Managers, called BDMs, senior recruiters and leadership. Business development collects requirements from clients or from preferred vendors and assigns them to the right recruiter or team, based on technology or skill set.
-
-        The recruiting process in the company material
-        The same document teaches seven steps. Receive the requirement from the BDM. Understand the requirement. Fetch resumes. Call the consultant. Call the consultant's employer, if they have one. Complete the submission. Follow up on the submission feedback.
-        The Job Description Analysis training summarises the same flow in four steps: get the requirement from the Account Manager or BDM, identify sources, identify qualified people, and communicate with them. Later lessons teach each step in detail.
-
-        Types of engagement
-        Contract means work for a fixed or estimated period.
-        Contract-to-hire means a contract that may convert to a permanent role.
-        Full-time or permanent means the client hires the person directly.
-        These are covered in detail in later lessons.
-
-        Where OPT recruiters fit
-        OPT recruiters focus on candidates who are on, or about to be on, OPT or STEM OPT. They help these candidates find U.S. IT roles that match their degree and skills, and they hand off accurate information to HR and payroll.
+        Recruiter responsibilities across the workflow
+        Accuracy in every record and submission.
+        Honesty with candidates, vendors and clients.
+        Respect for compliance boundaries and approved processes.
+        Timely communication and follow-up.
+        Escalation when anything is unclear or risky.
 
         Practical example
-        A vendor sends a requirement for a junior Python developer in Dallas for twelve months. You identify an OPT candidate with a computer science master's degree and Python project experience. You screen her, confirm details, submit her through your team's process, and track the interview and outcome.
+        On Monday you receive the running Java requirement. You analyse it, plan your search, find five candidates, screen three, confirm two are interested and consent to submission, and submit both. On Wednesday one is interviewed. On Friday she is selected. You communicate the offer through your company process, hand off to HR and payroll, and stay in touch until her first day.
 
         Recruiter checklist
-        Know who the end client, vendor and employer are for every requirement.
-        Follow the lifecycle step by step without skipping screening or documentation.
-        Keep clear records at every step.
+        Follow every stage in order.
+        Record each step in approved systems.
+        Escalate risks early.
 
         Common mistakes
-        Confusing the vendor with the end client.
-        Submitting candidates before proper screening.
-        Forgetting that onboarding and payroll are part of a successful placement.
+        Skipping screening to submit faster.
+        Stopping work after the offer.
+        Keeping important details in personal notes only.
+
+        From the company training material: the OPT recruiter role
+        The OPT Recruiter Roles and Responsibilities document states the purpose of the role: the OPT recruiter manages the candidate relationship from initial sourcing through documentation, offer letter, verification, bench enrollment, profile marketing, payroll follow-up and ongoing candidate support. It lists eight responsibilities.
+        One, candidate sourcing. Identify and contact OPT and STEM OPT candidates, explain the available services and process clearly, and identify candidates interested in proceeding.
+        Two, document collection. Collect the required documents, check that they are complete and readable, submit them to the HR or verification team, and follow up for anything missing.
+        Three, offer letter coordination. After the required document review, coordinate with the OPT Head and HR, assist with offer letter processing, and keep status and documentation records.
+        Four, E-Verify follow-up. Coordinate with candidates on the required HR verification steps, follow up on anything pending, and escalate unresolved issues to the OPT Head or USA HR.
+        Five, profile marketing and bench enrollment. Ask eligible candidates whether they want their profile marketed, explain the bench and marketing process, add interested candidates to the bench pipeline after onboarding, and coordinate with the Bench Sales team.
+        Six, bench candidate follow-up. Stay in regular contact with bench candidates, keep resumes updated, and track submissions, interviews, client responses, requirements and placement progress.
+        Seven, payroll follow-up. Follow up with active candidates on required hours, track payroll status, coordinate with the Accountant or HR, and escalate payroll issues to the OPT Head.
+        Eight, candidate relationship management. Give regular updates on marketing, interviews, payroll and placement, and keep records current.
+        The company's end-to-end process
+        The company's End-to-End Business Process document gives the sequence: candidate sourcing; the OPT recruiter collects documents; the HR or verification team reviews them; genuine, valid and required documents are confirmed; an offer letter is issued; HR completes the required E-Verify process; the recruiter becomes eligible for any applicable incentive; the recruiter follows up with the candidate for payroll; payroll is processed by the Accountant and run; and the OPT recruiter and OPT Head continue monitoring the candidate.
+        Compliance review required
+        The company business plan describes offer letters as a paid service to candidates, and the process document describes payroll amounts and taxes being collected before payroll is run. These arrangements need written review by HR and qualified immigration counsel before any recruiter describes them to a candidate. OPT employment must be genuine, related to the degree, and paid by the employer for real work. Recruiters never collect money, never present an offer letter as something a candidate can buy, and refer every fee or payroll funding question to HR. Company-specific process: verify with HR or authorized personnel.
 
         Key takeaway
-        U.S. IT staffing connects client needs with qualified professionals through a clear lifecycle. Your accuracy at each step makes the placement succeed.
+        The OPT recruiter workflow is a chain. Every stage depends on the accuracy of the one before.
         TEXT,
 
-        'Staffing Agency vs Direct Employer' => <<<'TEXT'
+        'Requirement Analysis' => <<<'TEXT'
         Learning objective
-        Understand the difference between a staffing agency and a direct employer, and why the difference matters for candidates, payroll and work authorization.
+        Apply requirement analysis specifically for OPT recruiting, including work authorization fit, degree relevance awareness and start date planning.
 
         What you need to know
-        A direct employer hires people to work for its own business. For example, a bank hires a software engineer onto its own payroll.
-        A staffing agency, also called a staffing company or consulting company, recruits professionals and places them at client companies. In many U.S. IT arrangements, the staffing company is the legal employer. It runs payroll, while the consultant works on the client's project.
+        Level 4 taught the full method for analysing a job description. In OPT recruiting, three areas need extra attention.
 
-        How the two models compare
-        With a direct employer, the employee is on the client's payroll and follows the client's HR policies.
-        With a staffing agency, the consultant is often on the staffing company's payroll and follows its HR policies, while working on the client's project.
-        Interviews are usually conducted by the client in both models.
-        Benefits and pay are set by whoever is the employer.
+        Work authorization rules
+        Check whether the requirement accepts OPT and STEM OPT candidates. Some requirements say no OPT, or citizens and green card holders only. Respect these rules completely.
+        If the requirement does not say, ask the vendor before submitting OPT candidates.
+        Record the answer, so that the team does not need to ask again.
 
-        Why it matters for OPT candidates
-        OPT candidates must report their employer. Accurate information about who the employer is matters.
-        For STEM OPT, the employer must meet specific requirements, including E-Verify and the I-983 training plan, and must have a genuine employer-employee relationship with the student. Whether a particular arrangement fits is decided by HR and compliance, not by recruiters.
-        Candidates often ask: Who will be my employer? Answer accurately using approved company information.
+        Degree relevance awareness
+        OPT work must relate to the candidate's field of study. Recruiters do not decide this, but you should notice when a role may raise questions. For example, a sales role for a computer science graduate, or a highly specialised role unrelated to the candidate's major.
+        When in doubt, escalate to HR before submitting. Never change a job description to make it appear related.
+
+        Start date and authorization dates
+        Compare the requirement's start date and duration with typical OPT situations. A role starting immediately suits candidates with an active EAD. A role starting in two months may suit candidates whose EAD will start soon.
+        Note when a role's duration extends beyond a candidate's EAD end date, so that HR can review the situation.
+
+        Experience expectations
+        Many OPT candidates are early in their careers. Requirements asking for five or more years may be difficult. Requirements for junior or mid-level roles, or those accepting internships and projects, may be better fits. Ask the vendor how the client counts internship and academic experience.
+
+        Rate fit
+        Compare the approved pay rate with typical expectations for early-career candidates in that location and skill set.
+
+        Documenting your analysis
+        Write a short requirement summary including the role, must-haves, location and work mode, duration, start date, rate, and work authorization rule. Share it with your team so that everyone works from the same understanding.
+
+        Practical example
+        A requirement for a data analyst in Dallas does not mention work authorization. You ask the vendor, who confirms that the client accepts OPT and STEM OPT candidates. You add this to your summary: Data Analyst, Dallas, onsite, six months, SQL and Tableau required, OPT and STEM OPT accepted, start in three weeks.
+
+        Recruiter checklist
+        Confirm whether OPT and STEM OPT are accepted.
+        Escalate degree relevance questions to HR.
+        Compare start dates and durations with authorization dates.
+        Document your summary for the team.
+
+        Common mistakes
+        Assuming OPT is accepted because it is not mentioned.
+        Ignoring degree relevance.
+        Not sharing the analysis with the team.
 
         From the company training material
-        The US MNC Staffing document defines the employer simply as the consultant's company, the company whose payroll the consultant is on. When you call a consultant who already works for another company, that company is the employer, and the document teaches you to contact the employer as well before submitting, because the employer must agree to the rate and sign the paperwork.
-        The document also lists terms every recruiter must know before starting: consultant, employer, vendor, preferred vendor or Tier 1 layer, client, blue chip companies, implementation partner, types of visas, payment terms, NDA, NCA, right to represent and MSA. A blue chip company is a large, well-established and financially strong company. An implementation partner is a consulting firm delivering a project for the end client. The other terms are explained in the Vendor, Submission and U.S. Staffing Terminology lessons.
-
-        Explaining it to candidates
-        A simple explanation: Our company is your employer. We run your payroll and provide HR support. You will work on a project for our client, and the client will interview you. Use this only if it is true for your company and the role.
-
-        Practical example
-        A candidate asks: Will I be working for the bank or for you? You confirm with your team that your company is the employer of record for this role. You explain that the bank is the end client where she will work on the project, and your company handles her employment, payroll and HR.
-
-        Recruiter checklist
-        Know who the legal employer is for each role.
-        Explain the model honestly and simply.
-        Hand off employer-related immigration questions to HR.
-
-        Common mistakes
-        Telling a candidate they will be employed by the client when they will not.
-        Assuming every staffing arrangement suits STEM OPT.
-        Giving different explanations to different candidates for the same role.
+        The US MNC Staffing document says to study each requirement two or three times and note the client's location, the duration and type of project, the required skills and roles, and the visa statuses the client accepts, such as Green Card, OPT, EAD, H-1B or U.S. citizen. The Job Description Analysis training adds its work authorization checkpoint: do not assume, capture the stated restrictions, confirm unclear wording with the Account Manager or BDM, and document accurately.
 
         Key takeaway
-        Know who the employer is, explain it clearly, and let HR handle any immigration questions about the arrangement.
+        OPT requirement analysis adds authorization, degree and date checks to the standard method. Clarify early and document clearly.
         TEXT,
 
-        'Client' => <<<'TEXT'
+        'Search Strategy' => <<<'TEXT'
         Learning objective
-        Understand what the client is in U.S. IT staffing and how to handle client information professionally.
+        Build a search strategy designed for OPT and STEM OPT candidates, using the channels where they are most active.
 
         What you need to know
-        The client is the company that needs the work done and pays for it. In staffing, people usually mean the end client, the organisation where the consultant actually works, such as a bank, an insurance company, a retailer or a technology firm.
-        Sometimes your company works directly with the end client. Often there are one or more vendors in between.
+        OPT candidates are usually recent graduates or students close to graduation. They search for jobs differently from experienced professionals. Many are active on LinkedIn, university career platforms, student communities and job boards. Many rely on referrals from classmates and alumni.
 
-        Client information in a requirement
-        The client name may be shown, hidden, or described generally, for example a leading healthcare client.
-        Clients set the skills, experience, location, work mode, duration and interview process.
-        Some clients have strict rules about how candidates are submitted, how many submissions are allowed, and whether a candidate can be submitted by more than one company.
+        Channels to prioritise for OPT candidates
+        Your internal database, especially candidates who were waiting for EAD approval.
+        LinkedIn, searching by school, degree, graduation year and skills.
+        University networks, through approved career center channels and alumni connections.
+        Student and international student communities, following each community's rules.
+        Job boards, including those popular with recent graduates.
+        Referrals from placed consultants and candidates.
+        Level 6 later lessons and Level 8 cover university and community outreach in detail.
 
-        Confidentiality
-        Client names and requirement details are often confidential. Share them with candidates only as your company process allows.
-        Never post client requirements publicly without approval.
-        Never share one client's information with another client or vendor.
+        Timing your search
+        Graduation seasons in May and December create large groups of new OPT candidates.
+        Many candidates start their search before graduation and before receiving their EAD.
+        Plan ahead: build relationships with candidates whose EAD will start soon, so that they are ready when requirements arrive.
 
-        Duplicate submissions
-        If a candidate has already been submitted to the same client for the same role by another company, a second submission can create conflict and may disqualify the candidate. Always ask the candidate whether they have already applied or been submitted to that client.
+        Search filters for OPT candidates
+        Education: degree level, major and school.
+        Graduation date: recent or upcoming.
+        Skills: primary skills from the requirement.
+        Location: current city and willingness to relocate.
+        Avoid filtering by personal characteristics such as nationality, which is unfair and can be illegal.
+
+        Respecting authorization rules in searching
+        Only target OPT candidates for requirements that accept them.
+        Ask approved screening questions of everyone, rather than assuming status from a profile.
+
+        Practical example
+        For a junior QA automation role that accepts OPT, you search LinkedIn for recent master's graduates in computer science with Selenium and Java skills, graduating in the last twelve months. You also check your internal database for candidates whose EAD started recently, and you ask placed consultants whether they know classmates with testing experience.
+
+        Recruiter checklist
+        Choose channels where OPT candidates are active.
+        Plan around graduation seasons.
+        Filter by education, skills and location, not personal characteristics.
+        Target OPT candidates only for requirements that accept them.
+
+        Common mistakes
+        Using the same strategy as for senior professionals.
+        Filtering by nationality or name.
+        Contacting OPT candidates for roles that exclude OPT.
 
         From the company training material
-        The OPT Recruiter Training Material and the calling section list direct clients, naming Accenture, Capgemini, Avanade, iGate, T-Mobile USA, Tesoro, HCL, Infosys, Apple and Pepsi. Company-specific process: client relationships change, and some of these names may be implementation partners or past clients rather than current direct clients. Verify with HR or authorized personnel before you name any client to a candidate, and never say a candidate will work for a client before a real requirement and selection exist.
-
-        Client expectations
-        Clients expect accurate profiles, honest information, quick responses, and candidates who attend interviews on time.
-        A wrong submission damages the relationship for the whole team.
-
-        Practical example
-        A requirement says: Client, a top retail company in Minneapolis. A candidate asks for the client's name. Your process allows sharing the name only after the candidate agrees to be submitted. You explain this politely, confirm his interest, and then share the client name according to your process.
-
-        Recruiter checklist
-        Know the end client and the vendor chain for every requirement.
-        Follow confidentiality rules for client information.
-        Ask candidates about any previous applications to the same client.
-        Treat every submission as representing your company.
-
-        Common mistakes
-        Sharing client names or rates freely.
-        Submitting a candidate who was already submitted to the same client.
-        Overselling a candidate who does not match the requirement.
+        The OPT Recruiter Training Material says the OPT recruiter goes through portals, studies the competition to identify the best candidates in the market, and uses three source types: OPT job portals such as desiOPT, simplyOPT, Dice and Monster; the previous database; and social networking sites such as LinkedIn, Facebook and Twitter. From these, you collect the candidate's details and then call the candidate to ask for the rest.
 
         Key takeaway
-        The client is the reason the requirement exists. Protect their information, respect their rules, and send only accurate, qualified profiles.
+        OPT candidates are found where students and recent graduates gather. Plan around the academic calendar and stay fair and compliant.
         TEXT,
 
-        'Vendor' => <<<'TEXT'
+        'Candidate Sourcing' => <<<'TEXT'
         Learning objective
-        Understand the role of vendors in U.S. IT staffing and how to work with them professionally.
+        Source OPT candidates effectively and ethically, building a steady pipeline rather than searching from zero for every requirement.
 
         What you need to know
-        A vendor is a company in the supply chain between the end client and your company. Vendors receive requirements from the client, or from another vendor, and share them with staffing partners.
-        You will hear several related terms.
-        A prime vendor or managed service provider has a direct contract with the end client.
-        An implementation partner is a consulting firm delivering a project for the end client, which may need consultants.
-        A sub-vendor works under another vendor.
-        A vendor management system is an online platform some clients use to manage requirements and submissions.
+        Sourcing means finding potential candidates and starting professional conversations with them. Good OPT recruiters source continuously, not only when a requirement arrives, and they keep candidates engaged through the months between graduation and EAD approval.
+
+        Building a pipeline
+        Keep a list of candidates grouped by skills, such as Java, Python, data, QA and business analysis.
+        Note each candidate's EAD status and dates, as captured through approved questions.
+        Note their location and relocation preferences.
+        Record their expected rate or salary range.
+        Update the information whenever you speak to them.
+        This is your working pipeline in your company's approved system. It lets you respond to new requirements within hours.
+
+        Ethical sourcing
+        Use only approved and legitimate channels.
+        Follow platform terms of use.
+        Do not misrepresent yourself or your company.
+        Do not collect personal information you do not need.
+        Respect candidates who decline or ask not to be contacted.
+        Never ask a candidate for money yourself. If your company offers any paid service, it must follow the approved written company process, and it must never be presented as buying a job, an offer letter, work authorization or sponsorship. Candidates may ask about fees, because some have heard of fraudulent companies. Refer every fee question to HR.
+
+        What makes candidates respond
+        A personal message that refers to their actual skills or projects.
+        A real, specific role, not a vague promise.
+        A professional profile and a clear company identity.
+        Prompt and respectful follow-up.
+
+        Quality over quantity
+        Contacting hundreds of people with generic messages wastes time and damages your company's reputation. Contacting thirty well-matched candidates with personal messages usually produces more real conversations.
+
+        Practical example
+        Every week, you spend time contacting recent graduates in data analytics through LinkedIn and approved university channels. You record their skills, EAD status and location in your company system. When a data analyst requirement arrives on Thursday, you already have six engaged candidates to call that day.
+
+        Recruiter checklist
+        Source continuously, not only for open requirements.
+        Group candidates by skills and update their records.
+        Use legitimate channels and personal messages.
+        Respect candidate choices.
+
+        Common mistakes
+        Waiting for requirements before sourcing.
+        Sending generic messages to large lists.
+        Losing track of candidates whose EAD is pending.
 
         From the company training material
-        The US MNC Staffing document defines a vendor as the company or person that sends requirements to us, or that submits consultant details to us. So the word works in both directions: a vendor can be above you, sending requirements, or beside you, offering their own bench consultants.
-        A preferred vendor, also called the Tier 1 layer, is a vendor with a direct, approved relationship with the client. Requirements that come from a preferred vendor are closer to the client and are usually more reliable.
-        The document also teaches that recruiters send requirements to their vendor list, a practice called mass mailing, so that other vendors can offer matching consultants on a Corp to Corp basis. Agreements with vendors are usually covered by a Master Services Agreement, called an MSA.
-
-        The vendor chain
-        A common chain is end client, then prime vendor or implementation partner, then your company, then the consultant. Each layer has its own agreements and rates. The longer the chain, the lower the rate that reaches the consultant, and the more coordination is needed.
-
-        Working with vendors
-        Respond quickly and professionally to vendor requirements.
-        Read every requirement carefully, including submission rules.
-        Send complete, accurate profiles in the format the vendor requests.
-        Keep vendors updated on candidate availability and interview schedules.
-        Follow up politely on feedback.
-
-        Rules to respect
-        Many vendors require a right to represent, a written confirmation from the candidate that your company may submit them for a specific role. This prevents duplicate submissions.
-        Vendors may ask for specific details, such as work authorization type and location. Share only what your company process allows.
-
-        Practical example
-        A vendor emails a requirement for a QA automation engineer and asks for submissions with a right to represent within four hours. You shortlist two candidates, confirm their interest and availability, obtain written right to represent through your approved process, and submit both profiles with accurate summaries before the deadline.
-
-        Recruiter checklist
-        Identify where the vendor sits in the chain.
-        Follow the vendor's submission format and deadlines.
-        Obtain right to represent before submitting.
-        Keep a clear record of what was sent and when.
-
-        Common mistakes
-        Submitting without a right to represent.
-        Sending incomplete profiles.
-        Ignoring vendor instructions about formatting or deadlines.
+        The OPT Recruiter Roles and Responsibilities document defines sourcing as identifying and contacting OPT and STEM OPT candidates, explaining the available services and process clearly, and identifying the candidates interested in proceeding. The business plan sets a target of about twenty-five new candidates per month across the team. Company-specific process: individual targets are set by the OPT Head. Verify with HR or authorized personnel.
 
         Key takeaway
-        Vendors are partners in the chain to the client. Fast, accurate and rule-following submissions build trust and bring more requirements.
+        Continuous, ethical sourcing builds a ready pipeline of engaged OPT candidates for every new requirement.
         TEXT,
 
-        'Consultant' => <<<'TEXT'
+        'Initial Screening' => <<<'TEXT'
         Learning objective
-        Understand what a consultant is in U.S. IT staffing and how recruiters should support consultants throughout an assignment.
+        Conduct a structured initial screening for OPT candidates that confirms fit, follows approved questions and sets honest expectations.
 
         What you need to know
-        In U.S. IT staffing, a consultant is a professional placed at a client to work on a project. The word is used for contractors at every level, from junior developers to senior architects.
-        For OPT recruiters, consultants are usually recent graduates or early-career professionals on OPT or STEM OPT.
+        The initial screening is usually a phone or video call of fifteen to thirty minutes. Its goals are to confirm that the candidate meets the requirement's must-haves, to understand their situation and interest, and to decide whether to move forward. Level 7 covers calling techniques in detail. This lesson focuses on what to cover.
+
+        Screening areas
+        Introduction and permission to talk.
+        Current location and relocation willingness.
+        Education: degree, major, university and graduation or program end date.
+        Experience: relevant roles, projects and technologies, with depth.
+        Technical stack: primary and secondary skills.
+        Work authorization: using your company's approved questions, with type and dates.
+        Availability: earliest start date and notice period.
+        Rate or salary expectations.
+        Current interview activity, including any submissions to the same client.
+        Communication skills, assessed naturally through the conversation.
+
+        Approved questions
+        Use your company's approved screening script for work authorization. Ask every candidate the same questions in the same way. Record the answers accurately. Do not ask about protected characteristics such as national origin, religion, age, marital status or family plans.
+
+        Setting expectations
+        Explain the next steps clearly: I will review your profile against the requirement and, with your permission, submit you to the vendor. If the client is interested, they will schedule an interview.
+        Do not promise outcomes, rates you have not confirmed, sponsorship or start dates.
+
+        After the screening
+        Record notes in approved systems, the same day.
+        Send any promised information, such as the job description.
+        Decide: submit, ask the vendor, keep for future, or not suitable.
+
+        Practical example
+        You screen a candidate for the running Java requirement. She lives in Atlanta and will relocate to Charlotte. She has a master's in computer science finishing in May, with OPT approved and an EAD starting June 1. She has two years and ten months of Java and Spring Boot. She expects a rate within the approved range and can start on June 1. You explain next steps and ask whether she agrees to be submitted.
+
+        Recruiter checklist
+        Cover every screening area.
+        Use approved questions consistently.
+        Set clear, honest expectations.
+        Record notes the same day.
+
+        Common mistakes
+        Skipping work authorization or availability.
+        Asking non-approved personal questions.
+        Promising outcomes to keep the candidate interested.
 
         From the company training material
-        The US MNC Staffing document defines the consultant as the resource for the client's requirement, in other words, the person you are sourcing for the client's need. It also explains that W2 consultants are treated as the company's own bench consultants, and that for these consultants the company bears insurance claims, taxes, overheads and some benefits.
-
-        Consultant, candidate and employee
-        A candidate is someone being considered for a role.
-        A consultant is someone placed on a project.
-        An employee is someone on a company's payroll. A consultant may be your company's employee while working at a client.
-
-        What consultants expect
-        Clear information about the role, the client, the location, the rate or salary, and the start date.
-        Honest answers, even when the answer is I will check and get back to you.
-        Timely updates on interviews and decisions.
-        Support with onboarding, documentation and payroll questions, from the right teams.
-        Respectful treatment and privacy.
-
-        Recruiter responsibilities to consultants
-        Set honest expectations from the first call.
-        Keep consultants informed at each step.
-        Hand off accurately to HR and payroll.
-        Respond to messages within a reasonable time.
-        Escalate problems early instead of hiding them.
-
-        Consultant concerns
-        Consultants may worry about their work authorization dates, payroll timing, project continuation and future plans such as STEM OPT or H-1B. Listen carefully, record the concern, and hand it to the right team. Never promise outcomes you do not control.
-
-        Practical example
-        A consultant who started last week messages you: I have not received any information about my first pay date. You do not guess. You check with payroll, then reply with the confirmed pay schedule and the contact for future payroll questions.
-
-        Recruiter checklist
-        Treat consultants as long-term professional relationships.
-        Keep commitments small and keep them.
-        Route questions to the right team and follow up.
-
-        Common mistakes
-        Ignoring consultants once they are placed.
-        Promising project extensions or salary increases.
-        Answering payroll or immigration questions yourself.
+        Use the Day 7 OPT candidate screening questionnaire from the calling script for every initial screening call. It covers location, relocation, U.S. IT experience and stack; visa status, university, graduation date, EAD start and end dates, remaining unemployment days and whether the current employer is E-Verified; expected rate, notice period and current project; and future H-1B needs and readiness for a webcam coding assessment. Level 7 teaches each question in detail.
 
         Key takeaway
-        Consultants are the people your work serves. Honest communication and reliable follow-up keep them successful and loyal.
+        A structured screening gives you the facts you need, protects the candidate, and keeps your submissions accurate.
         TEXT,
 
-        'Requirement' => <<<'TEXT'
+        'Candidate Communication' => <<<'TEXT'
         Learning objective
-        Understand what a requirement is, the information it should contain, and how recruiters should respond to one.
+        Communicate with OPT candidates clearly, honestly and respectfully at every stage of the process.
 
         What you need to know
-        A requirement, often called a req or a job requirement, is a request from a client or vendor to fill a position. It is usually shared as a job description with extra staffing details.
+        OPT candidates are often navigating the U.S. job market for the first time, while also managing work authorization timelines. They may be anxious, receive many calls from different companies, and have questions about the staffing model. Clear and honest communication builds trust and reduces misunderstandings.
 
-        Information a good requirement contains
-        Job title and level.
-        Client or industry.
-        Location and work mode, meaning onsite, hybrid or remote.
-        Duration, for example twelve months with possible extension.
-        Engagement type, such as contract, contract-to-hire or full-time.
-        Rate or salary range, if shared.
+        Principles of good candidate communication
+        Clarity. Use simple language and explain staffing terms.
+        Honesty. Share facts, admit when you do not know, and never promise outcomes.
+        Respect. Be polite, patient and mindful of the candidate's time zone and schedule.
+        Consistency. Give the same information in calls, messages and emails.
+        Timeliness. Respond within a reasonable time, and update candidates even when there is no news.
+
+        Explaining the staffing model
+        Many candidates ask how staffing works. Explain simply who the employer is, who the client is, what the vendor does, and how the interview process works. Use only approved descriptions of your company.
+
+        Communicating difficult news
+        If a candidate is not selected, tell them promptly and kindly. Share feedback if the vendor provided it and your process allows.
+        If a requirement is cancelled, inform the candidate and explain that it was the client's decision.
+        If the rate cannot be increased, say so clearly.
+
+        Topics to handle carefully
+        Work authorization questions: answer only with approved information and refer details to HR and the DSO.
+        Sponsorship: share only your company's approved position.
+        Personal information: request only what your process requires.
+
+        Written communication
+        Use professional email with a clear subject line.
+        Summarise important calls in writing.
+        Avoid slang and abbreviations the candidate may not understand.
+        Never send sensitive documents through unofficial channels.
+
+        Practical example
+        A candidate you submitted three days ago messages you: Any update? You have no feedback yet. You reply: Thank you for checking. The vendor has not shared feedback yet. I followed up with them this morning and will let you know as soon as I hear back, or by Thursday at the latest.
+
+        Recruiter checklist
+        Explain clearly and simply.
+        Be honest, even when the news is not good.
+        Update candidates regularly.
+        Keep written records of important communication.
+
+        Common mistakes
+        Ignoring messages when there is no news.
+        Overpromising to keep candidates engaged.
+        Using jargon without explanation.
+
+        From the company training material
+        The OPT Recruiter Roles and Responsibilities document asks recruiters to explain the available services and process clearly, and to provide regular updates on profile marketing, interviews, payroll and placement. The objection cheat sheet reminds you why: international students are cautious because of visa scams, so lead with transparency, empathy and proof of legitimacy.
+
+        Key takeaway
+        Candidates remember how you communicated. Clear, honest and timely communication builds trust and long-term relationships.
+        TEXT,
+
+        'Interest Confirmation' => <<<'TEXT'
+        Learning objective
+        Confirm a candidate's genuine interest and consent before submitting them, and record it properly.
+
+        What you need to know
+        Submitting a candidate without real interest or consent causes serious problems. The candidate may decline an interview, the client may receive duplicate submissions from different companies, and your company's reputation suffers. Interest confirmation protects everyone.
+
+        What to confirm
+        The candidate understands the role, the client or industry, the location and work mode, the duration and the engagement type.
+        The candidate is comfortable with the approved pay rate or salary range.
+        The candidate's availability matches the start date.
+        The candidate has not already applied or been submitted to the same client for the same role.
+        The candidate agrees to be submitted by your company for this specific role.
+
+        Right to represent
+        Many vendors require a right to represent, called an RTR. This is a written confirmation from the candidate that your company may submit them for a specific requirement, often with the client, role and rate. The candidate usually confirms by email or a signed document.
+        Follow your company's exact RTR process. Never write or send an RTR on a candidate's behalf without their actual confirmation.
+
+        Checking for duplicates
+        Ask directly: Have you applied for this role or been submitted to this client by any other company in the last few months?
+        If yes, do not submit until you have discussed it with your lead and the vendor.
+
+        Recording interest
+        Record the date and time of confirmation, the role, the rate, and the method of consent in your company system.
+        Save the RTR in the approved location.
+
+        When interest is uncertain
+        If a candidate sounds unsure, ask what concerns them. Address the concern honestly, or agree not to submit. A hesitant candidate often declines later.
+
+        Practical example
+        Before submitting a candidate for the running Java requirement, you summarise the role, location, duration, W2 rate and start date. She confirms her interest and that she has not applied to this client. You send the RTR by email using your company template. She replies confirming it. You save the email and then submit.
+
+        Recruiter checklist
+        Summarise the role and terms before asking for consent.
+        Check for duplicate applications.
+        Obtain and save the RTR.
+        Do not submit without confirmed interest.
+
+        Common mistakes
+        Submitting before the candidate replies.
+        Treating a verbal maybe as consent.
+        Forgetting to check for duplicates.
+
+        From the company training material
+        The US MNC Staffing document requires a right to represent, which it calls R2R, before every submission, together with a written rate confirmation and the submission template. For consultants employed by another company, you also call the employer, confirm the rate, and sign an NDA and an NCA. The Day 5 workflow ends with the same rule: confirm interest and requirement fit before submission.
+
+        Key takeaway
+        Genuine interest and written consent come before every submission. They protect the candidate, the vendor and your company.
+        TEXT,
+
+        'Documentation Handoff' => <<<'TEXT'
+        Learning objective
+        Understand how recruiters hand off candidate information to HR for documentation, accurately and securely.
+
+        What you need to know
+        After a candidate is selected and accepts an offer, HR begins documentation. HR may need information and documents related to identity, work authorization, education and employment history, according to company policy and legal requirements. The recruiter's role is to pass accurate information and connect the candidate with HR.
+
+        Information recruiters typically hand off
+        Candidate's legal name, as it appears on official documents, and contact details.
+        Role, client, vendor and work location.
+        Start date and engagement type.
+        Approved pay rate or salary.
+        Work authorization type and dates, as recorded through approved screening.
+        Education details, including degree, major and program end date.
+        Any special notes, such as relocation plans or a pending STEM OPT application.
+        Any questions the candidate asked that HR must answer.
+
+        Documents
+        HR decides which documents to collect, when and how. Recruiters should not collect documents outside the approved process, and should never store document copies on personal devices or share them by personal messaging.
+        If your process asks recruiters to request certain documents at certain stages, follow it exactly.
+
+        Accuracy
+        Double-check the spelling of names, dates and locations.
+        Use the month name in dates to avoid format confusion.
+        Note anything uncertain clearly, rather than guessing.
+
+        Escalation
+        Inform HR immediately about anything inconsistent, such as different names on documents, unclear dates or a status change.
+        Do not try to resolve these issues yourself.
+
+        Practical example
+        Your candidate accepts the offer for the running Java requirement. You complete the handoff form in your company system with her legal name, role, client, vendor, work location in Charlotte, start date, rate, EAD type and dates, degree details and relocation date. You note that she asked about STEM OPT timing. You then introduce her to HR by email.
+
+        Recruiter checklist
+        Complete the handoff the same day as acceptance.
+        Use legal names and exact dates.
+        Use approved systems only.
+        Flag questions and inconsistencies to HR.
+
+        Common mistakes
+        Leaving fields blank or guessing.
+        Sending documents through personal apps.
+        Trying to resolve document issues yourself.
+
+        From the company training material
+        In the OPT Recruiter Roles and Responsibilities document, document collection has four parts: collect the required candidate documents, check that they are complete and readable, submit them to the appropriate HR or verification team, and follow up for missing documentation. The OPT Head document adds that documents are reviewed for completeness and validity, and that candidates who do not meet the required documentation criteria should not proceed. Your check is for completeness and readability only. Deciding whether a document is genuine and valid belongs to the HR or verification team.
+
+        Key takeaway
+        A clean documentation handoff starts onboarding on the right foot. Be accurate, secure and quick.
+        TEXT,
+
+        'Offer Process' => <<<'TEXT'
+        Learning objective
+        Understand the offer process for OPT candidates and how recruiters communicate offers accurately within company rules.
+
+        What you need to know
+        When a client selects a candidate, the vendor or client confirms the selection and the terms. Your company then makes an offer or confirmation to the candidate, according to company policy. The offer may be verbal first, followed by a written offer letter or employment agreement issued by HR or management.
+
+        Typical offer details
+        Job title.
+        Employer name.
+        Client and work location, and work mode.
         Start date.
-        Required skills and preferred skills.
-        Years of experience.
-        Responsibilities.
-        Work authorization requirements or restrictions.
-        Interview process and submission deadline.
+        Pay rate or salary, and pay frequency.
+        Engagement type, such as W2 contract or full-time.
+        Duration, for contracts.
+        Benefits, if applicable.
+        Conditions, such as background checks or documentation.
+
+        Recruiter responsibilities
+        Communicate the selection promptly and positively.
+        Share only the offer details approved by your company.
+        Confirm the candidate's acceptance and record it.
+        Pass the acceptance to HR so that formal documents can be issued.
+        Answer questions within your role, and refer legal, immigration or tax questions to HR.
+
+        What recruiters must not do
+        Do not change offer terms without approval.
+        Do not promise extras, such as sponsorship, bonuses or guaranteed extensions.
+        Do not create offer letters yourself unless your role allows it.
+        Do not pressure candidates to accept immediately.
+
+        Competing offers
+        OPT candidates may have several offers. If a candidate mentions a competing offer, listen, record it, and inform your lead. Do not criticise other companies. Focus on the facts of your offer.
+
+        Offer conditions and authorization
+        The start date must be on or after the candidate's work authorization start date. If there is any doubt, confirm with HR before finalising the date.
+
+        Practical example
+        The vendor confirms your candidate's selection at the approved rate, starting on June 3. You call the candidate, congratulate her, and share the approved details. She accepts. You confirm by email, record the acceptance, and notify HR to issue the formal offer letter. You remind her that onboarding steps will follow.
+
+        Recruiter checklist
+        Share only approved terms.
+        Confirm acceptance in writing.
+        Notify HR immediately.
+        Check the start date against authorization dates.
+
+        Common mistakes
+        Promising terms that are not in the approved offer.
+        Delaying the handoff to HR.
+        Ignoring a competing offer.
 
         From the company training material
-        The US MNC Staffing document says that understanding the requirement is the first and most important step in recruiting. It teaches you to study the requirement two or three times and note what the client needs: the platform or technology, the domain, the project location, the duration, any must-have or preferred conditions, the type of project, such as full-time, contract or long term, and the visa statuses the client accepts, such as Green Card, OPT, EAD, H-1B or U.S. citizen.
-        The Job Description Analysis training lists the mandatory details to capture before sourcing: location, duration, rate, skills, dates, the job description, the client and the roles and responsibilities. Level 4 teaches each of these in its own lesson.
-
-        Requirement priority
-        Not all requirements are equal. A requirement with a clear description, a responsive vendor, a realistic rate and an urgent start date is usually worth more effort than an unclear one. Level 4 covers prioritisation.
-
-        Responding to a requirement
-        Read the full requirement carefully.
-        Note the must-have skills, location, work mode and authorization rules.
-        Ask the vendor or your lead about anything unclear.
-        Search your database and sources for matching candidates.
-        Screen candidates before submitting.
-        Submit within the deadline, following the vendor's format.
-
-        Work authorization in requirements
-        Some requirements state no OPT, or only citizens and green card holders, or no sponsorship. Respect these restrictions. Do not submit candidates who do not meet them. If a restriction seems unclear, ask, do not assume.
-
-        Practical example
-        A requirement reads: Java developer, Charlotte, NC, hybrid, twelve months, Spring Boot and microservices required, Kafka preferred, start in two weeks. You note Java, Spring Boot and microservices as must-haves, Kafka as a bonus, and confirm hybrid attendance with candidates before submitting.
-
-        Recruiter checklist
-        Capture every key detail of the requirement in your notes.
-        Clarify unclear points before sourcing.
-        Respect work authorization restrictions.
-        Track the submission deadline.
-
-        Common mistakes
-        Skimming the requirement and missing restrictions.
-        Submitting candidates who do not match the must-have skills.
-        Missing the deadline.
+        The OPT Recruiter Roles and Responsibilities document describes offer letter coordination: after the required document review, coordinate with the OPT Head and HR, assist with offer letter processing, and maintain status and documentation records. The OPT Head oversees the process and keeps records of every offer letter issued.
+        The calling script says the company will give an offer letter if the candidate relocates to the head office for training. The business plan lists offer letters as a paid service. Company-specific process: an offer letter must describe a genuine position with real duties, pay and a work location, and it is issued only by HR. Never tell a candidate that an offer letter can be bought, and refer every question about cost to HR. Verify with HR or authorized personnel.
 
         Key takeaway
-        A requirement is the starting point of every placement. Read it fully, clarify doubts, and match candidates only to what it really asks for.
+        Offers must be accurate and approved. Communicate clearly, confirm in writing and hand off quickly.
         TEXT,
 
-        'Submission' => <<<'TEXT'
+        'Onboarding Handoff' => <<<'TEXT'
         Learning objective
-        Understand what a submission is and how to submit candidates accurately, completely and with proper consent.
+        Support a smooth onboarding by handing off to HR completely and staying in touch with the candidate until their first day.
 
         What you need to know
-        A submission means formally presenting a candidate to a vendor or client for a specific requirement. It usually includes the candidate's resume and a short summary, sometimes called a skill matrix or candidate summary.
+        Onboarding is the process of preparing a new consultant to start work. It is led by HR and may include offer letters, employment agreements, tax forms, employment verification, background checks, client onboarding forms, equipment and system access. Recruiters support onboarding by keeping the candidate engaged and informed.
 
-        Before submitting
-        The candidate has been screened.
-        The candidate is interested in this specific role.
-        The candidate has agreed to be submitted, usually in writing as a right to represent.
-        You have confirmed the candidate has not already been submitted to the same client for the same role.
-        You have confirmed location, work mode, availability and the rate or salary expectation.
-        The work authorization information matches the requirement, as recorded through approved questions.
+        The recruiter's role in onboarding
+        Introduce the candidate to the HR contact.
+        Make sure HR has the complete handoff information.
+        Remind the candidate of deadlines HR has given.
+        Answer simple process questions, and refer detailed questions to HR.
+        Inform HR and your lead immediately about any problems, such as delays or doubts.
+        Keep the vendor informed of progress, according to your process.
 
-        What a good submission includes
-        An updated resume, unchanged except for formatting allowed by your company.
-        A clear summary of how the candidate matches the must-have skills.
-        Current location and willingness to relocate if required.
-        Availability to start and to interview.
-        Any other details the vendor requires.
+        Common onboarding steps, at an awareness level
+        Offer letter and agreement signature.
+        Tax forms such as the W-4 and state forms, handled by payroll.
+        Form I-9 and, where applicable, E-Verify, handled by HR.
+        Background checks, which may include employment and education verification.
+        Client-specific forms or training.
+        Bank details for direct deposit.
+        Equipment and access setup.
 
-        From the company training material: the submission package
-        The US MNC Staffing document describes exactly what to collect before a submission.
-        If the consultant will work on your company's W2, discuss the rate with them, then send the requirement, the submission template and the right to represent, which the document calls the R2R.
-        If the consultant has an employer, call the employer, discuss and negotiate the rate, send a rate confirmation, and send the non-disclosure agreement, called the NDA, or the non-compete agreement, called the NCA, as your process requires.
-        Collect the completed submission template, the updated resume, the signed right to represent, the rate confirmation and, where there is an employer, the employer details and signed NDA or NCA.
-        Attach everything to one email with the requirement and send it to your BDM or resource manager, who submits to the client or vendor.
-        The document notes that rate negotiation should keep a minimum margin for the company. Company-specific process: margin rules are set by management. Never discuss margins with a consultant or an employer.
+        Common risks during onboarding
+        Delays in background checks.
+        Missing information or documents.
+        Candidate receiving another offer.
+        Changes to the start date by the client.
+        Relocation problems.
 
-        Honesty in submissions
-        Never add skills, projects or experience that the candidate does not have.
-        Never change dates, titles or education on a resume.
-        Never misrepresent work authorization.
-        Inaccurate submissions damage your company's reputation, can lead to terminated relationships, and can harm the candidate.
-
-        After submitting
-        Record the submission details, including date, client, vendor and role.
-        Inform the candidate that they were submitted.
-        Follow up with the vendor on feedback.
-        Prepare the candidate for any interview.
+        Staying in touch
+        Contact the candidate regularly during onboarding, without overwhelming them.
+        Confirm the start date, time, location or meeting link, and the first-day contact a few days before the start.
+        Call on the first day, or soon after, to check that everything went well.
 
         Practical example
-        You have a strong data analyst candidate for a requirement in Chicago. Before submitting, you confirm she is willing to work hybrid in Chicago, has not applied to this client before, and agrees in writing to be represented. You then submit her resume and a summary highlighting SQL, Python and Tableau, which are the must-have skills.
+        Your candidate's background check is taking longer than expected, and the start date is in three days. You inform your lead and the vendor early, so that the client can be told about a possible short delay. You keep the candidate informed and reassure her that HR is following up.
 
         Recruiter checklist
-        Screen, confirm interest and get consent before every submission.
-        Check for duplicates.
-        Keep the resume truthful.
-        Record and follow up.
+        Introduce the candidate to HR.
+        Track onboarding progress.
+        Escalate risks early.
+        Confirm first-day details.
 
         Common mistakes
-        Submitting without consent.
-        Editing a resume to add missing skills.
-        Not informing the candidate that they were submitted.
-
-        Key takeaway
-        Every submission represents your company. Make it accurate, consented and complete.
-        TEXT,
-
-        'Interview' => <<<'TEXT'
-        Learning objective
-        Understand the U.S. IT interview process and how recruiters prepare candidates and coordinate interviews professionally.
-
-        What you need to know
-        After a submission, the client may choose to interview the candidate. IT interviews often have several rounds.
-
-        Common interview types
-        A phone screen is a short call to check basic fit.
-        A video interview uses tools such as Microsoft Teams, Zoom or Webex, usually with the camera on.
-        A technical interview tests skills through questions, coding or problem solving.
-        A managerial or behavioural interview checks communication, teamwork and fit.
-        An in-person interview may be required for onsite or hybrid roles.
-
-        Scheduling
-        Confirm the interview date and time with the candidate in their own time zone and in the client's time zone.
-        Share the meeting link and the interviewer names if allowed.
-        Confirm again the day before and a few hours before.
-
-        Preparing the candidate
-        Review the job description and must-have skills with the candidate.
-        Remind them to test their internet, camera and microphone.
-        Advise a quiet, well-lit, professional setting.
-        Encourage them to prepare examples from their projects.
-        Remind them to join a few minutes early.
-        Remind them to answer honestly and to say I am not sure when they do not know something.
-
-        Interview integrity
-        Candidates must attend their own interviews and answer on their own. Any form of proxy interviewing, where someone else attends or answers for the candidate, is dishonest and can end relationships with clients. Report any suspicion through your company's process.
-        Many clients now require cameras on for this reason.
-
-        After the interview
-        Call the candidate to hear how it went.
-        Share feedback from the vendor or client when you receive it.
-        Keep the candidate informed if a decision is delayed.
-
-        Practical example
-        A client schedules a technical video interview for 1 PM Eastern on Tuesday. The candidate is in Austin, Texas, which is Central Time. You confirm 12 PM Central with the candidate, send the link, remind him to keep his camera on, and call him after the interview for feedback.
-
-        Recruiter checklist
-        Confirm times in both time zones.
-        Prepare the candidate on the role and technology.
-        Send reminders.
-        Debrief after every interview.
-
-        Common mistakes
-        Wrong time zone in the invitation.
-        No preparation call.
-        Not following up after the interview.
-
-        Source note
-        The company documents mention interviews in several places: the US MNC Staffing document says to follow up for feedback after submission, the Day 7 questionnaire asks whether the candidate is comfortable with a live webcam coding assessment, and the Java and AWS requirement in the Day 5 training includes a video interview. They do not describe interview preparation in detail, so the rest of this lesson needs review and approval by the training manager.
-
-        Key takeaway
-        Interviews decide placements. Clear scheduling, honest preparation and quick follow-up give your candidate the best fair chance.
-        TEXT,
-
-        'Placement' => <<<'TEXT'
-        Learning objective
-        Understand what a placement is and the steps between client selection and a successful start.
-
-        What you need to know
-        A placement happens when a client selects a candidate and the candidate begins the assignment or job. For a recruiter, the placement is the goal, but it is only successful if the consultant starts on time with correct documentation and payroll.
-
-        Steps after selection
-        The client or vendor confirms selection.
-        Rate, start date, location and work mode are confirmed.
-        An offer or confirmation is shared with the candidate according to your company process.
-        The candidate accepts.
-        Onboarding begins, including documentation, background checks if required, and employment verification steps handled by HR.
-        Payroll setup is completed.
-        The consultant starts and is supported in the first days.
-
-        Recruiter responsibilities at this stage
-        Communicate the selection quickly and accurately.
-        Confirm the candidate's acceptance.
-        Hand off complete information to HR and payroll: legal name, contact details, client, vendor, work location and state, start date, rate or salary, work authorization dates and any special notes.
-        Stay in touch until the consultant has started.
-
-        Risks that can stop a placement
-        Work authorization dates that do not cover the start date.
-        Missing documents.
-        Candidate backing out because of a competing offer.
-        Background check delays.
-        Unclear work location, which affects payroll and taxes.
-
-        Early warning
-        If you learn of any risk, inform your lead immediately. Early escalation often saves a placement.
-
-        Practical example
-        A candidate is selected for a role starting in ten days. Her EAD starts in eight days. You inform HR immediately, confirm all details, and keep in contact with her daily until her first day.
-
-        Recruiter checklist
-        Confirm all offer details in writing.
-        Complete the handoff to HR and payroll on time.
-        Check work authorization dates against the start date.
-        Stay in contact until day one.
-
-        Common mistakes
-        Celebrating too early and forgetting the handoff.
-        Leaving the work state blank.
-        Not checking the EAD start date against the job start date.
-
-        Source note
-        The company documents describe placement as the goal of the process: the OPT calling script says that after training the company prepares the resume and places the candidate with direct clients, and the business plan lists interviews and placement opportunities after bench enrollment and profile marketing. No placement is guaranteed. The rest of this lesson is based on general staffing practice and needs review and approval by the training manager.
-
-        Key takeaway
-        A placement is complete only when the consultant starts correctly. Hand off accurately, watch for risks, and stay involved until day one.
-        TEXT,
-
-        'Bench' => <<<'TEXT'
-        Learning objective
-        Understand what bench means in U.S. IT staffing and how bench consultants are supported.
-
-        What you need to know
-        In U.S. IT staffing, a consultant is on the bench when they are available and between projects. A company with consultants on the bench actively markets them to vendors and clients to find their next project.
-        Bench sales is the function of marketing these consultants. In your company it is a separate team from OPT recruiting.
-
-        Why bench matters
-        Consultants on the bench want to return to work quickly.
-        OPT and STEM OPT consultants also have limits on unemployment, which can make bench time stressful. Never advise on these limits. Refer the consultant to their DSO and HR.
-        Bench policies, including whether and how anyone is paid during bench time, are company-specific and may involve legal requirements. HR and management decide these. Recruiters do not discuss or promise bench pay.
-
-        How OPT recruiting and bench sales connect
-        OPT recruiters find and prepare candidates. In some companies, candidates who join are then marketed to clients by the bench sales team.
+        Disappearing after the offer.
+        Answering HR, tax or immigration questions yourself.
+        Informing the vendor of delays too late.
 
         From the company training material
-        The US MNC Staffing document defines sales or marketing as marketing the bench consultants, and describes W2 consultants as the company's own bench. The OPT Recruiter role description adds the OPT recruiter's part: ask eligible candidates whether they want their professional profile marketed for suitable IT opportunities, explain the bench and marketing process, add interested candidates to the bench pipeline after the required onboarding, keep their resumes and information updated, and coordinate with the Bench Sales team. The recruiter also tracks profile submissions, interviews, client responses, requirements and placement progress for each bench candidate.
-        Good handoffs between the two teams matter: accurate resumes, skills, availability, location preferences and work authorization dates.
-
-        Professional conduct
-        Never misrepresent a bench consultant's experience or skills to make them easier to place.
-        Never submit the same consultant to the same client through different routes.
-        Keep the consultant informed about submissions and interviews.
-
-        Practical example
-        A consultant's project ends next month. Your team lead asks you to prepare a clear summary of his skills, latest project, location preference and EAD end date for the bench sales team. You confirm each detail with him before handing it over.
-
-        Recruiter checklist
-        Understand your company's bench process and who owns it.
-        Hand off complete and accurate profiles.
-        Refer bench pay and status questions to HR.
-
-        Common mistakes
-        Promising a consultant how long they will be on the bench.
-        Discussing bench pay without HR guidance.
-        Passing outdated resumes to the bench sales team.
+        In the company process, onboarding includes the required E-Verify step, completed by HR after the offer letter. The OPT recruiter's part, called E-Verify follow-up, is to coordinate with candidates on the required HR verification steps, follow up on anything pending, and escalate unresolved issues to the OPT Head or USA HR. After onboarding, interested candidates can be enrolled on the bench for profile marketing.
 
         Key takeaway
-        The bench is the time between projects. Accurate handoffs and honest communication help consultants return to work quickly.
+        Onboarding is a team effort led by HR. Stay engaged, communicate early and keep the candidate confident.
         TEXT,
     ],
 ];

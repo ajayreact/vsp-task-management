@@ -5,9 +5,6 @@ return [
     'course' => 'Immigration & Work Authorization',
     'lessons' => [
         'F-1' => <<<'TEXT'
-        Important note
-        This lesson builds recruiter awareness. It is not legal advice. Immigration rules change, so always verify current requirements on official government sources and follow company and HR processes.
-
         Learning objective
         Understand what F-1 student status is, how it connects to OPT and STEM OPT, and what an OPT recruiter needs to know about it.
 
@@ -55,9 +52,6 @@ return [
         TEXT,
 
         'CPT' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. Verify current requirements and follow company and HR processes.
-
         Learning objective
         Understand Curricular Practical Training, how it differs from OPT, and how to discuss it accurately with candidates.
 
@@ -102,9 +96,6 @@ return [
         TEXT,
 
         'OPT' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. Immigration rules can change, so verify current requirements on official sources and follow company and HR processes.
-
         Learning objective
         Understand Optional Practical Training, the core work authorization behind most OPT recruiting, and the key dates recruiters must track.
 
@@ -156,9 +147,6 @@ return [
         TEXT,
 
         'STEM OPT' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. STEM OPT rules are detailed and can change. Verify current requirements and follow HR and compliance processes.
-
         Learning objective
         Understand the STEM OPT extension, the employer requirements that come with it, and the recruiter's role in supporting it.
 
@@ -207,9 +195,6 @@ return [
         TEXT,
 
         'EAD' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. Follow company and HR processes for handling documents.
-
         Learning objective
         Understand the Employment Authorization Document, what information on it matters to recruiters, and how to handle EAD information responsibly.
 
@@ -262,9 +247,6 @@ return [
         TEXT,
 
         'H-1B' => <<<'TEXT'
-        Important note
-        This lesson is for recruiter awareness only. It is not legal advice. H-1B rules, dates and fees change. Verify current requirements and follow company and HR processes.
-
         Learning objective
         Understand the H-1B classification at an awareness level, how it relates to OPT candidates, and why recruiters must never promise H-1B outcomes.
 

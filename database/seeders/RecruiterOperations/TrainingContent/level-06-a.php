@@ -2,555 +2,426 @@
 
 return [
     'level' => 6,
-    'course' => 'OPT Recruiter Process & Sourcing Strategy',
+    'course' => 'Sourcing & Resume Screening',
     'lessons' => [
-        'OPT Recruiter Workflow' => <<<'TEXT'
+        'LinkedIn' => <<<'TEXT'
         Learning objective
-        Understand the complete OPT recruiter workflow, from receiving a requirement to handing off a placed consultant, and the responsibilities at each stage.
+        Use LinkedIn professionally and effectively to find and engage OPT and early-career IT candidates.
 
         What you need to know
-        An OPT recruiter helps OPT and STEM OPT candidates find U.S. IT roles that match their education and skills, and ensures that every step is accurate, honest and well documented. The workflow below is the backbone of your daily work. The following lessons explain each stage.
+        LinkedIn is the largest professional networking platform used in the U.S. Most IT professionals and many international students have profiles. Recruiters use it to search for candidates, review experience, and send professional messages.
+        Your company may provide a basic account or a paid recruiter tool. Follow your company's rules and LinkedIn's terms of use.
 
-        The workflow stages
-        Requirement analysis. Understand the role, the must-haves, location, rate, start date and work authorization rules.
-        Search strategy. Plan where and how to find candidates.
-        Candidate sourcing. Find candidates through approved channels.
-        Initial screening. Confirm skills, experience, location, availability and work authorization using approved questions.
-        Candidate communication. Explain the role clearly and honestly.
-        Interest confirmation. Confirm the candidate's interest and consent for the specific submission.
-        Submission and interviews. Submit accurate profiles, schedule and prepare for interviews.
-        Offer process. Communicate selection and offer details accurately.
-        Documentation handoff. Pass information to HR for documentation.
-        Onboarding handoff. Support HR during onboarding.
-        Payroll handoff. Pass accurate pay and location details to payroll.
-        Follow-up. Stay in touch through the first days and beyond.
+        Your own profile
+        Candidates will look at your profile before replying. Keep it professional: a clear photo, your real name, your title as recruiter at your company, and a short summary of what you do. A professional profile builds trust and improves reply rates.
 
-        A typical day
-        Before the U.S. business day starts, review new requirements and priorities with your lead.
-        In the U.S. morning, call candidates, screen and submit.
-        In the middle of the day, follow up with vendors on feedback and schedule interviews.
-        Later, prepare candidates for interviews, update records and plan the next day.
-        Throughout the day, record every important interaction in approved systems.
+        Searching on LinkedIn
+        Search by title, skills, location, school and company.
+        Use the location filter for onsite or hybrid roles.
+        Use the school filter to find recent graduates of specific universities.
+        Look for profile phrases such as open to work, recent graduate, or master's in computer science.
+        Use Boolean search in the keyword box, covered later in this level.
 
-        Recruiter responsibilities across the workflow
-        Accuracy in every record and submission.
-        Honesty with candidates, vendors and clients.
-        Respect for compliance boundaries and approved processes.
-        Timely communication and follow-up.
-        Escalation when anything is unclear or risky.
+        Reviewing a profile
+        Read the headline, about section, experience, education, skills and recent activity.
+        Check that dates and titles make sense together.
+        Note projects and technologies that match your requirement.
+        Remember that a profile is a summary. Confirm everything on a call.
 
-        Practical example
-        On Monday you receive the running Java requirement. You analyse it, plan your search, find five candidates, screen three, confirm two are interested and consent to submission, and submit both. On Wednesday one is interviewed. On Friday she is selected. You communicate the offer through your company process, hand off to HR and payroll, and stay in touch until her first day.
+        Messaging candidates
+        Keep the first message short, personal and clear.
+        Mention the role, the location and work mode, and why their profile caught your attention.
+        Ask whether they are open to a short call.
+        Do not include sensitive questions, such as immigration details, in the first message.
+        Do not send the same message repeatedly. One polite follow-up is usually enough.
 
-        Recruiter checklist
-        Follow every stage in order.
-        Record each step in approved systems.
-        Escalate risks early.
+        Sample first message
+        Hello Priya, I am a recruiter with our company. I came across your profile and noticed your Java and Spring Boot project work. We have a twelve-month hybrid Java Developer role in Charlotte, North Carolina. Would you be open to a short call this week to discuss it?
 
-        Common mistakes
-        Skipping screening to submit faster.
-        Stopping work after the offer.
-        Keeping important details in personal notes only.
-
-        From the company training material: the OPT recruiter role
-        The OPT Recruiter Roles and Responsibilities document states the purpose of the role: the OPT recruiter manages the candidate relationship from initial sourcing through documentation, offer letter, verification, bench enrollment, profile marketing, payroll follow-up and ongoing candidate support. It lists eight responsibilities.
-        One, candidate sourcing. Identify and contact OPT and STEM OPT candidates, explain the available services and process clearly, and identify candidates interested in proceeding.
-        Two, document collection. Collect the required documents, check that they are complete and readable, submit them to the HR or verification team, and follow up for anything missing.
-        Three, offer letter coordination. After the required document review, coordinate with the OPT Head and HR, assist with offer letter processing, and keep status and documentation records.
-        Four, E-Verify follow-up. Coordinate with candidates on the required HR verification steps, follow up on anything pending, and escalate unresolved issues to the OPT Head or USA HR.
-        Five, profile marketing and bench enrollment. Ask eligible candidates whether they want their profile marketed, explain the bench and marketing process, add interested candidates to the bench pipeline after onboarding, and coordinate with the Bench Sales team.
-        Six, bench candidate follow-up. Stay in regular contact with bench candidates, keep resumes updated, and track submissions, interviews, client responses, requirements and placement progress.
-        Seven, payroll follow-up. Follow up with active candidates on required hours, track payroll status, coordinate with the Accountant or HR, and escalate payroll issues to the OPT Head.
-        Eight, candidate relationship management. Give regular updates on marketing, interviews, payroll and placement, and keep records current.
-        The company's end-to-end process
-        The company's End-to-End Business Process document gives the sequence: candidate sourcing; the OPT recruiter collects documents; the HR or verification team reviews them; genuine, valid and required documents are confirmed; an offer letter is issued; HR completes the required E-Verify process; the recruiter becomes eligible for any applicable incentive; the recruiter follows up with the candidate for payroll; payroll is processed by the Accountant and run; and the OPT recruiter and OPT Head continue monitoring the candidate.
-        Compliance review required
-        The company business plan describes offer letters as a paid service to candidates, and the process document describes payroll amounts and taxes being collected before payroll is run. These arrangements need written review by HR and qualified immigration counsel before any recruiter describes them to a candidate. OPT employment must be genuine, related to the degree, and paid by the employer for real work. Recruiters never collect money, never present an offer letter as something a candidate can buy, and refer every fee or payroll funding question to HR. Company-specific process: verify with HR or authorized personnel.
-
-        Key takeaway
-        The OPT recruiter workflow is a chain. Every stage depends on the accuracy of the one before.
-        TEXT,
-
-        'Requirement Analysis' => <<<'TEXT'
-        Learning objective
-        Apply requirement analysis specifically for OPT recruiting, including work authorization fit, degree relevance awareness and start date planning.
-
-        What you need to know
-        Level 4 taught the full method for analysing a job description. In OPT recruiting, three areas need extra attention.
-
-        Work authorization rules
-        Check whether the requirement accepts OPT and STEM OPT candidates. Some requirements say no OPT, or citizens and green card holders only. Respect these rules completely.
-        If the requirement does not say, ask the vendor before submitting OPT candidates.
-        Record the answer, so that the team does not need to ask again.
-
-        Degree relevance awareness
-        OPT work must relate to the candidate's field of study. Recruiters do not decide this, but you should notice when a role may raise questions. For example, a sales role for a computer science graduate, or a highly specialised role unrelated to the candidate's major.
-        When in doubt, escalate to HR before submitting. Never change a job description to make it appear related.
-
-        Start date and authorization dates
-        Compare the requirement's start date and duration with typical OPT situations. A role starting immediately suits candidates with an active EAD. A role starting in two months may suit candidates whose EAD will start soon.
-        Note when a role's duration extends beyond a candidate's EAD end date, so that HR can review the situation.
-
-        Experience expectations
-        Many OPT candidates are early in their careers. Requirements asking for five or more years may be difficult. Requirements for junior or mid-level roles, or those accepting internships and projects, may be better fits. Ask the vendor how the client counts internship and academic experience.
-
-        Rate fit
-        Compare the approved pay rate with typical expectations for early-career candidates in that location and skill set.
-
-        Documenting your analysis
-        Write a short requirement summary including the role, must-haves, location and work mode, duration, start date, rate, and work authorization rule. Share it with your team so that everyone works from the same understanding.
+        Respect and compliance
+        Do not copy and store profiles outside approved systems.
+        Do not use automated scraping tools unless your company has approved them and they comply with LinkedIn's terms.
+        Respect candidates who say no or ask not to be contacted.
 
         Practical example
-        A requirement for a data analyst in Dallas does not mention work authorization. You ask the vendor, who confirms that the client accepts OPT and STEM OPT candidates. You add this to your summary: Data Analyst, Dallas, onsite, six months, SQL and Tableau required, OPT and STEM OPT accepted, start in three weeks.
-
-        Recruiter checklist
-        Confirm whether OPT and STEM OPT are accepted.
-        Escalate degree relevance questions to HR.
-        Compare start dates and durations with authorization dates.
-        Document your summary for the team.
+        For the running Java requirement, you search LinkedIn for Java Developer with Spring Boot in the Charlotte area. You review twenty profiles, shortlist six with matching projects, and send each a personal message referencing their experience.
 
         Common mistakes
-        Assuming OPT is accepted because it is not mentioned.
-        Ignoring degree relevance.
-        Not sharing the analysis with the team.
+        Sending long, generic messages.
+        Asking for a resume and visa details in the first message.
+        Relying on the profile without confirming details on a call.
 
         From the company training material
-        The US MNC Staffing document says to study each requirement two or three times and note the client's location, the duration and type of project, the required skills and roles, and the visa statuses the client accepts, such as Green Card, OPT, EAD, H-1B or U.S. citizen. The Job Description Analysis training adds its work authorization checkpoint: do not assume, capture the stated restrictions, confirm unclear wording with the Account Manager or BDM, and document accurately.
+        The OPT Recruiter Training Material lists social networking sites, LinkedIn, Facebook and Twitter, as one of the three ways to source candidates, with job portals and the previous database. The calling script's sixty-second cold call opens with: I came across your profile on LinkedIn, so the message and the call should refer to what you actually saw on the profile.
 
         Key takeaway
-        OPT requirement analysis adds authorization, degree and date checks to the standard method. Clarify early and document clearly.
+        LinkedIn works best with a professional profile, targeted searches and short, personal messages.
         TEXT,
 
-        'Search Strategy' => <<<'TEXT'
+        'Dice' => <<<'TEXT'
         Learning objective
-        Build a search strategy designed for OPT and STEM OPT candidates, using the channels where they are most active.
+        Understand Dice as a U.S. technology job board and how to search it effectively for IT candidates.
 
         What you need to know
-        OPT candidates are usually recent graduates or students close to graduation. They search for jobs differently from experienced professionals. Many are active on LinkedIn, university career platforms, student communities and job boards. Many rely on referrals from classmates and alumni.
+        Dice is a U.S. job board focused on technology roles. Many IT professionals post resumes and profiles on Dice, and recruiters use it to search for candidates. Access to resume search usually requires a paid company account. Follow your company's account rules.
 
-        Channels to prioritise for OPT candidates
-        Your internal database, especially candidates who were waiting for EAD approval.
-        LinkedIn, searching by school, degree, graduation year and skills.
-        University networks, through approved career center channels and alumni connections.
-        Student and international student communities, following each community's rules.
-        Job boards, including those popular with recent graduates.
-        Referrals from placed consultants and candidates.
-        Level 6 later lessons and Level 8 cover university and community outreach in detail.
+        What you can find on Dice
+        Candidate profiles with skills, experience, location and preferences.
+        Uploaded resumes.
+        Information such as willingness to relocate and preferred employment types, when the candidate has shared it.
+        Profile activity dates, which show whether the candidate has been active recently.
 
-        Timing your search
-        Graduation seasons in May and December create large groups of new OPT candidates.
-        Many candidates start their search before graduation and before receiving their EAD.
-        Plan ahead: build relationships with candidates whose EAD will start soon, so that they are ready when requirements arrive.
+        Searching effectively
+        Start with your primary skills and title from the requirement analysis.
+        Add a location and radius for onsite or hybrid roles.
+        Filter by recent activity, for example profiles active in the last thirty days, so that you reach candidates who are currently looking.
+        Use Boolean search, covered later in this level.
+        Save useful searches, so that you can run them again for similar requirements.
 
-        Search filters for OPT candidates
-        Education: degree level, major and school.
-        Graduation date: recent or upcoming.
-        Skills: primary skills from the requirement.
-        Location: current city and willingness to relocate.
-        Avoid filtering by personal characteristics such as nationality, which is unfair and can be illegal.
+        Reviewing results
+        Read the profile summary and skills first.
+        Open the resume for candidates who look promising.
+        Compare it with your must-have list.
+        Note the profile's stated work authorization only as a starting point. Always confirm using your approved questions.
 
-        Respecting authorization rules in searching
-        Only target OPT candidates for requirements that accept them.
-        Ask approved screening questions of everyone, rather than assuming status from a profile.
+        Contacting candidates
+        Contact candidates through approved methods, such as the platform's messaging, email or phone, according to your company's process.
+        Introduce yourself and the role clearly.
+        Respect candidates who are not interested.
+
+        Data handling
+        Resumes downloaded from job boards contain personal information. Store them only in your company's approved systems, and do not share them outside your team.
 
         Practical example
-        For a junior QA automation role that accepts OPT, you search LinkedIn for recent master's graduates in computer science with Selenium and Java skills, graduating in the last twelve months. You also check your internal database for candidates whose EAD started recently, and you ask placed consultants whether they know classmates with testing experience.
+        For the running Java requirement, you search Dice for Java and Spring Boot within fifty miles of Charlotte, active in the last thirty days. You find twelve profiles, open eight resumes, and shortlist four that meet every must-have. You call them the same day, during U.S. business hours.
 
         Recruiter checklist
-        Choose channels where OPT candidates are active.
-        Plan around graduation seasons.
-        Filter by education, skills and location, not personal characteristics.
-        Target OPT candidates only for requirements that accept them.
+        Search with primary skills, title and location.
+        Filter for recent activity.
+        Confirm every detail on a call.
+        Store resumes only in approved systems.
 
         Common mistakes
-        Using the same strategy as for senior professionals.
-        Filtering by nationality or name.
-        Contacting OPT candidates for roles that exclude OPT.
+        Contacting candidates whose profiles have been inactive for a long time without checking their current situation.
+        Trusting profile fields without confirming them.
+        Saving resumes on personal devices.
 
         From the company training material
-        The OPT Recruiter Training Material says the OPT recruiter goes through portals, studies the competition to identify the best candidates in the market, and uses three source types: OPT job portals such as desiOPT, simplyOPT, Dice and Monster; the previous database; and social networking sites such as LinkedIn, Facebook and Twitter. From these, you collect the candidate's details and then call the candidate to ask for the rest.
+        Dice is named in all three company documents. The OPT Recruiter Training Material lists it as a job portal, the Job Description Analysis training describes job boards as Dice search and relevant job-posting channels, and the calling script's cold call refers to profiles found on LinkedIn or Dice. The US MNC Staffing document adds that if your hotlist and vendor mailing do not produce a match, you post the requirement in a portal and search portals for C2C consultants.
 
         Key takeaway
-        OPT candidates are found where students and recent graduates gather. Plan around the academic calendar and stay fair and compliant.
+        Dice is a strong source for active technology candidates. Search with focused keywords and recent activity, and confirm everything directly.
         TEXT,
 
-        'Candidate Sourcing' => <<<'TEXT'
+        'Job Boards' => <<<'TEXT'
         Learning objective
-        Source OPT candidates effectively and ethically, building a steady pipeline rather than searching from zero for every requirement.
+        Understand how U.S. job boards work as sourcing channels, and how to use them responsibly.
 
         What you need to know
-        Sourcing means finding potential candidates and starting professional conversations with them. Good OPT recruiters source continuously, not only when a requirement arrives, and they keep candidates engaged through the months between graduation and EAD approval.
+        Job boards are websites where companies post jobs and candidates post resumes. Besides Dice, recruiters in the U.S. often use boards such as Indeed, Monster, CareerBuilder and specialised sites. Some universities and student platforms also run job boards for their students and graduates.
 
-        Building a pipeline
-        Keep a list of candidates grouped by skills, such as Java, Python, data, QA and business analysis.
-        Note each candidate's EAD status and dates, as captured through approved questions.
-        Note their location and relocation preferences.
-        Record their expected rate or salary range.
-        Update the information whenever you speak to them.
-        This is your working pipeline in your company's approved system. It lets you respond to new requirements within hours.
+        Two ways to use job boards
+        Posting jobs. Your company posts a requirement, and interested candidates apply. This brings in candidates who are actively looking.
+        Searching resumes. Recruiters search the board's resume database for matching candidates. This usually requires a paid account.
 
-        Ethical sourcing
-        Use only approved and legitimate channels.
-        Follow platform terms of use.
-        Do not misrepresent yourself or your company.
-        Do not collect personal information you do not need.
-        Respect candidates who decline or ask not to be contacted.
-        Never ask a candidate for money yourself. If your company offers any paid service, it must follow the approved written company process, and it must never be presented as buying a job, an offer letter, work authorization or sponsorship. Candidates may ask about fees, because some have heard of fraudulent companies. Refer every fee question to HR.
+        Writing a good job posting
+        Use a clear title that candidates would search for.
+        Include the location, work mode, duration and engagement type.
+        List the must-have skills clearly, and the preferred skills separately.
+        Describe the responsibilities in simple language.
+        State any work authorization requirements accurately and consistently with company policy.
+        Do not include confidential client information unless allowed.
+        Do not include discriminatory language or requirements.
+        Include pay information where your company requires it or where local pay transparency laws apply.
 
-        What makes candidates respond
-        A personal message that refers to their actual skills or projects.
-        A real, specific role, not a vague promise.
-        A professional profile and a clear company identity.
-        Prompt and respectful follow-up.
+        Handling applications
+        Review applications quickly. Good candidates receive several calls.
+        Respond to suitable applicants within a day if you can.
+        Send a polite update to applicants who are not suitable, where your process allows.
 
-        Quality over quantity
-        Contacting hundreds of people with generic messages wastes time and damages your company's reputation. Contacting thirty well-matched candidates with personal messages usually produces more real conversations.
+        Responsible use
+        Follow each board's terms of use.
+        Use resumes only for recruiting purposes.
+        Store personal information in approved systems only.
+        Do not re-post resumes on other sites.
 
         Practical example
-        Every week, you spend time contacting recent graduates in data analytics through LinkedIn and approved university channels. You record their skills, EAD status and location in your company system. When a data analyst requirement arrives on Thursday, you already have six engaged candidates to call that day.
+        Your team posts the running Java requirement on a job board with a clear title, location, work mode, duration and must-have skills. Within a day, thirty people apply. You screen the applications against your must-have list, shortlist eight, and call them during U.S. business hours.
 
         Recruiter checklist
-        Source continuously, not only for open requirements.
-        Group candidates by skills and update their records.
-        Use legitimate channels and personal messages.
-        Respect candidate choices.
+        Write clear, accurate and fair job postings.
+        Respond quickly to suitable applicants.
+        Follow board terms and data handling rules.
 
         Common mistakes
-        Waiting for requirements before sourcing.
-        Sending generic messages to large lists.
-        Losing track of candidates whose EAD is pending.
+        Posting vague or copied job descriptions.
+        Letting applications sit for days.
+        Posting confidential client names without approval.
 
         From the company training material
-        The OPT Recruiter Roles and Responsibilities document defines sourcing as identifying and contacting OPT and STEM OPT candidates, explaining the available services and process clearly, and identifying the candidates interested in proceeding. The business plan sets a target of about twenty-five new candidates per month across the team. Company-specific process: individual targets are set by the OPT Head. Verify with HR or authorized personnel.
+        The OPT Recruiter Training Material names four job portals for OPT sourcing: desiOPT, simplyOPT, Dice and Monster. desiOPT and simplyOPT are portals aimed specifically at OPT candidates. The Job Description Analysis training lists job boards, meaning Dice search and relevant job-posting channels, as the first source of recruitment. Use only the portals your company holds approved accounts for, and follow each portal's terms.
 
         Key takeaway
-        Continuous, ethical sourcing builds a ready pipeline of engaged OPT candidates for every new requirement.
+        Job boards bring active candidates. Post clearly and fairly, respond quickly, and handle personal data responsibly.
         TEXT,
 
-        'Initial Screening' => <<<'TEXT'
+        'Professional Networks' => <<<'TEXT'
         Learning objective
-        Conduct a structured initial screening for OPT candidates that confirms fit, follows approved questions and sets honest expectations.
+        Learn how professional networks help you find candidates who are not actively applying, and how to build them over time.
 
         What you need to know
-        The initial screening is usually a phone or video call of fifteen to thirty minutes. Its goals are to confirm that the candidate meets the requirement's must-haves, to understand their situation and interest, and to decide whether to move forward. Level 7 covers calling techniques in detail. This lesson focuses on what to cover.
+        A professional network is the group of people you know through work: candidates, consultants, colleagues, vendors and industry contacts. A strong network brings referrals, introductions and candidates who trust you.
+        Many good candidates are not actively looking on job boards. They find opportunities through people they know.
 
-        Screening areas
-        Introduction and permission to talk.
-        Current location and relocation willingness.
-        Education: degree, major, university and graduation or program end date.
-        Experience: relevant roles, projects and technologies, with depth.
-        Technical stack: primary and secondary skills.
-        Work authorization: using your company's approved questions, with type and dates.
-        Availability: earliest start date and notice period.
-        Rate or salary expectations.
-        Current interview activity, including any submissions to the same client.
-        Communication skills, assessed naturally through the conversation.
+        Building your network
+        Treat every candidate professionally, even when they are not a fit today. They may be a fit tomorrow, or they may refer a friend.
+        Keep in touch with placed consultants. They often know other qualified people.
+        Connect professionally on LinkedIn with candidates you have spoken to, when appropriate.
+        Share useful and accurate information, such as relevant job openings, without spamming.
+        Attend virtual events or webinars, where your company supports this.
 
-        Approved questions
-        Use your company's approved screening script for work authorization. Ask every candidate the same questions in the same way. Record the answers accurately. Do not ask about protected characteristics such as national origin, religion, age, marital status or family plans.
+        Using your network
+        When you receive a requirement, think about who in your network has the right skills or may know someone who does.
+        Ask for introductions politely: Do you know anyone with Spring Boot experience who might be interested in a role in Charlotte?
+        Thank people who refer candidates, and keep them updated.
+        Follow your company's referral policy, if it has one.
 
-        Setting expectations
-        Explain the next steps clearly: I will review your profile against the requirement and, with your permission, submit you to the vendor. If the client is interested, they will schedule an interview.
-        Do not promise outcomes, rates you have not confirmed, sponsorship or start dates.
-
-        After the screening
-        Record notes in approved systems, the same day.
-        Send any promised information, such as the job description.
-        Decide: submit, ask the vendor, keep for future, or not suitable.
+        Network etiquette
+        Never share one person's details with another without permission.
+        Never pressure people for referrals.
+        Respect people who prefer not to be contacted.
+        Be honest about roles, so that your network trusts your messages.
 
         Practical example
-        You screen a candidate for the running Java requirement. She lives in Atlanta and will relocate to Charlotte. She has a master's in computer science finishing in May, with OPT approved and an EAD starting June 1. She has two years and ten months of Java and Spring Boot. She expects a rate within the approved range and can start on June 1. You explain next steps and ask whether she agrees to be submitted.
+        A consultant you placed six months ago mentions that his university classmate is graduating with a master's in computer science and has Java experience. With the classmate's permission, he shares her contact details. You contact her, mention the referral, and arrange a call.
 
         Recruiter checklist
-        Cover every screening area.
-        Use approved questions consistently.
-        Set clear, honest expectations.
-        Record notes the same day.
+        Treat every contact as a long-term relationship.
+        Ask for introductions politely and with permission.
+        Keep your network updated and thank referrers.
 
         Common mistakes
-        Skipping work authorization or availability.
-        Asking non-approved personal questions.
-        Promising outcomes to keep the candidate interested.
+        Contacting people only when you need something.
+        Sharing personal details without consent.
+        Sending frequent, irrelevant messages.
 
         From the company training material
-        Use the Day 7 OPT candidate screening questionnaire from the calling script for every initial screening call. It covers location, relocation, U.S. IT experience and stack; visa status, university, graduation date, EAD start and end dates, remaining unemployment days and whether the current employer is E-Verified; expected rate, notice period and current project; and future H-1B needs and readiness for a webcam coding assessment. Level 7 teaches each question in detail.
+        The Job Description Analysis training defines the professional network as friends, colleagues and recruiter networks, and its recruitment process includes your network as one of the places to identify candidates. The OPT calling script ends each call by asking for referrals: do you have friends who are looking for a job? Company-specific process: the script mentions a referral bonus. Verify with HR or authorized personnel whether a referral program exists and what its terms are before mentioning any amount.
 
         Key takeaway
-        A structured screening gives you the facts you need, protects the candidate, and keeps your submissions accurate.
+        Your network grows with every professional interaction. Invest in it consistently, and it will bring strong candidates.
         TEXT,
 
-        'Candidate Communication' => <<<'TEXT'
+        'Vendor Networks' => <<<'TEXT'
         Learning objective
-        Communicate with OPT candidates clearly, honestly and respectfully at every stage of the process.
+        Understand how vendor networks bring requirements to your company and how to maintain strong vendor relationships.
 
         What you need to know
-        OPT candidates are often navigating the U.S. job market for the first time, while also managing work authorization timelines. They may be anxious, receive many calls from different companies, and have questions about the staffing model. Clear and honest communication builds trust and reduces misunderstandings.
+        A vendor network is the set of vendors, implementation partners and prime suppliers that your company works with. These partners share requirements, accept submissions and pass feedback. The quality of your vendor relationships directly affects how many good requirements you receive.
 
-        Principles of good candidate communication
-        Clarity. Use simple language and explain staffing terms.
-        Honesty. Share facts, admit when you do not know, and never promise outcomes.
-        Respect. Be polite, patient and mindful of the candidate's time zone and schedule.
-        Consistency. Give the same information in calls, messages and emails.
-        Timeliness. Respond within a reasonable time, and update candidates even when there is no news.
+        How requirements arrive
+        By email distribution lists, where vendors send requirements to many partners at once.
+        Through vendor portals or vendor management systems.
+        Through direct contact with vendor recruiters or account managers.
+        Through calls from vendors with urgent needs.
 
-        Explaining the staffing model
-        Many candidates ask how staffing works. Explain simply who the employer is, who the client is, what the vendor does, and how the interview process works. Use only approved descriptions of your company.
+        What vendors value
+        Fast responses with qualified candidates.
+        Accurate profiles and honest information.
+        Candidates who attend interviews and accept offers they agreed to.
+        Clear communication about availability and rate.
+        Respect for their client relationship.
 
-        Communicating difficult news
-        If a candidate is not selected, tell them promptly and kindly. Share feedback if the vendor provided it and your process allows.
-        If a requirement is cancelled, inform the candidate and explain that it was the client's decision.
-        If the rate cannot be increased, say so clearly.
+        Building vendor trust
+        Send only well-matched candidates. Quality matters more than quantity.
+        Follow every submission instruction exactly.
+        Confirm interview schedules and send reminders.
+        Report any change, such as a candidate withdrawing, immediately.
+        Never go around a vendor to their client.
 
-        Topics to handle carefully
-        Work authorization questions: answer only with approved information and refer details to HR and the DSO.
-        Sponsorship: share only your company's approved position.
-        Personal information: request only what your process requires.
+        Vendor agreements
+        Your company signs agreements with vendors that cover rates, payment terms, non-solicitation and other rules. Recruiters do not need to know every detail, but you must follow any rules your lead shares, such as not contacting a vendor's client directly.
 
-        Written communication
-        Use professional email with a clear subject line.
-        Summarise important calls in writing.
-        Avoid slang and abbreviations the candidate may not understand.
-        Never send sensitive documents through unofficial channels.
+        Managing many vendors
+        Keep notes on each vendor: the clients they serve, the roles they usually send, their response speed and any special rules.
+        Follow your team's tracker for submissions to each vendor.
 
         Practical example
-        A candidate you submitted three days ago messages you: Any update? You have no feedback yet. You reply: Thank you for checking. The vendor has not shared feedback yet. I followed up with them this morning and will let you know as soon as I hear back, or by Thursday at the latest.
+        A vendor you have worked with for months sends an urgent requirement late in the U.S. afternoon. Because you know this vendor's client usually wants local candidates with banking experience, you quickly shortlist two local candidates with banking projects, confirm their interest, and submit within two hours. The vendor thanks you and sends another requirement the next day.
 
         Recruiter checklist
-        Explain clearly and simply.
-        Be honest, even when the news is not good.
-        Update candidates regularly.
-        Keep written records of important communication.
+        Respond quickly with well-matched candidates.
+        Follow submission instructions exactly.
+        Keep notes on each vendor.
+        Never bypass a vendor.
 
         Common mistakes
-        Ignoring messages when there is no news.
-        Overpromising to keep candidates engaged.
-        Using jargon without explanation.
+        Sending many weak profiles to look busy.
+        Ignoring vendor feedback.
+        Failing to report a candidate withdrawal.
 
         From the company training material
-        The OPT Recruiter Roles and Responsibilities document asks recruiters to explain the available services and process clearly, and to provide regular updates on profile marketing, interviews, payroll and placement. The objection cheat sheet reminds you why: international students are cautious because of visa scams, so lead with transparency, empathy and proof of legitimacy.
+        The Job Description Analysis training describes the vendor network in one line: send requirements to trusted vendors. The US MNC Staffing document describes how vendors are used when your own bench has no match. You send the requirement to your whole vendor list in a mass mail, and vendors reply with their consultants. You then call the vendor, who is the consultant's employer, to discuss the rate, request the employer details, and sign an NDA and an NCA before submitting. The document also mentions vendors' hotlists, which are lists of their available consultants.
 
         Key takeaway
-        Candidates remember how you communicated. Clear, honest and timely communication builds trust and long-term relationships.
+        Vendors bring the requirements. Reliable, accurate and respectful work earns their trust and their best opportunities.
         TEXT,
 
-        'Interest Confirmation' => <<<'TEXT'
+        'Professional Groups' => <<<'TEXT'
         Learning objective
-        Confirm a candidate's genuine interest and consent before submitting them, and record it properly.
+        Use professional groups and communities to find candidates, while respecting group rules and members' privacy.
 
         What you need to know
-        Submitting a candidate without real interest or consent causes serious problems. The candidate may decline an interview, the client may receive duplicate submissions from different companies, and your company's reputation suffers. Interest confirmation protects everyone.
+        Professional groups are online or offline communities built around a profession, technology or interest. Examples include LinkedIn groups, technology meetup groups, user groups for specific tools, alumni groups, and professional associations.
+        Many groups include early-career professionals and recent graduates, including international students.
 
-        What to confirm
-        The candidate understands the role, the client or industry, the location and work mode, the duration and the engagement type.
-        The candidate is comfortable with the approved pay rate or salary range.
-        The candidate's availability matches the start date.
-        The candidate has not already applied or been submitted to the same client for the same role.
-        The candidate agrees to be submitted by your company for this specific role.
+        Using groups for sourcing
+        Join groups related to the skills you recruit for, such as Java developers, data engineering or QA automation.
+        Read group rules before posting. Many groups do not allow job posts, or allow them only in specific threads.
+        Contribute helpful information when appropriate, rather than only posting jobs.
+        Post approved job openings only where the rules allow.
+        Respond professionally to members who show interest.
 
-        Right to represent
-        Many vendors require a right to represent, called an RTR. This is a written confirmation from the candidate that your company may submit them for a specific requirement, often with the client, role and rate. The candidate usually confirms by email or a signed document.
-        Follow your company's exact RTR process. Never write or send an RTR on a candidate's behalf without their actual confirmation.
+        Messaging group members
+        Contact members individually only when their profile matches a real requirement.
+        Mention the shared group as context: I noticed we are both members of the Spring Developers group.
+        Keep the message short, polite and relevant.
 
-        Checking for duplicates
-        Ask directly: Have you applied for this role or been submitted to this client by any other company in the last few months?
-        If yes, do not submit until you have discussed it with your lead and the vendor.
+        What to avoid
+        Do not spam groups with repeated posts.
+        Do not collect members' contact details in bulk.
+        Do not post confidential client information.
+        Do not misrepresent yourself as a group member for another purpose.
+        Respect members who decline.
 
-        Recording interest
-        Record the date and time of confirmation, the role, the rate, and the method of consent in your company system.
-        Save the RTR in the approved location.
-
-        When interest is uncertain
-        If a candidate sounds unsure, ask what concerns them. Address the concern honestly, or agree not to submit. A hesitant candidate often declines later.
+        Offline and virtual events
+        Technology meetups, webinars and conferences are good places to build relationships. Introduce yourself honestly as a recruiter. Focus on learning about people's work, not only on immediate roles.
 
         Practical example
-        Before submitting a candidate for the running Java requirement, you summarise the role, location, duration, W2 rate and start date. She confirms her interest and that she has not applied to this client. You send the RTR by email using your company template. She replies confirming it. You save the email and then submit.
+        You join a LinkedIn group for data engineering professionals. After reading the rules, you see job posts are allowed only on Fridays in a weekly thread. You post an approved, clear summary of a data engineer role in that thread. Two members message you, and you arrange calls.
 
         Recruiter checklist
-        Summarise the role and terms before asking for consent.
-        Check for duplicate applications.
-        Obtain and save the RTR.
-        Do not submit without confirmed interest.
+        Join relevant groups and read their rules.
+        Contribute before promoting.
+        Contact members individually only with relevant roles.
 
         Common mistakes
-        Submitting before the candidate replies.
-        Treating a verbal maybe as consent.
-        Forgetting to check for duplicates.
+        Breaking group rules by posting jobs everywhere.
+        Bulk messaging group members.
+        Posting confidential information.
 
         From the company training material
-        The US MNC Staffing document requires a right to represent, which it calls R2R, before every submission, together with a written rate confirmation and the submission template. For consultants employed by another company, you also call the employer, confirm the rate, and sign an NDA and an NCA. The Day 5 workflow ends with the same rule: confirm interest and requirement fit before submission.
+        The Job Description Analysis training says to share requirements through relevant professional or Yahoo groups, where appropriate. Yahoo Groups was closed in 2020, so today the same idea applies to approved LinkedIn groups, technology communities and professional associations. The group rules described in this lesson still apply.
 
         Key takeaway
-        Genuine interest and written consent come before every submission. They protect the candidate, the vendor and your company.
+        Professional groups are communities, not job boards. Respect their rules, add value, and contact people thoughtfully.
         TEXT,
 
-        'Documentation Handoff' => <<<'TEXT'
-        Important note
-        This lesson covers process awareness. Recruiters do not verify documents or make legal determinations. Follow HR and compliance processes.
-
+        'Internal Database' => <<<'TEXT'
         Learning objective
-        Understand how recruiters hand off candidate information to HR for documentation, accurately and securely.
+        Use your company's internal candidate database effectively as your first sourcing channel, and keep it accurate.
 
         What you need to know
-        After a candidate is selected and accepts an offer, HR begins documentation. HR may need information and documents related to identity, work authorization, education and employment history, according to company policy and legal requirements. The recruiter's role is to pass accurate information and connect the candidate with HR.
+        Your company stores information about candidates it has contacted in an internal system, often called an applicant tracking system or candidate database. It may include resumes, contact details, skills, notes from previous calls, submissions and outcomes.
+        Searching the internal database first is often the fastest way to fill a requirement, because these candidates already know your company.
 
-        Information recruiters typically hand off
-        Candidate's legal name, as it appears on official documents, and contact details.
-        Role, client, vendor and work location.
-        Start date and engagement type.
-        Approved pay rate or salary.
-        Work authorization type and dates, as recorded through approved screening.
-        Education details, including degree, major and program end date.
-        Any special notes, such as relocation plans or a pending STEM OPT application.
-        Any questions the candidate asked that HR must answer.
+        Searching the database
+        Search with your primary skills and title keywords.
+        Filter by location, availability and the date of last contact.
+        Read previous notes before contacting someone, so that you do not repeat questions or ignore earlier concerns.
+        Check the candidate's previous submissions, to avoid duplicate submissions to the same client.
 
-        Documents
-        HR decides which documents to collect, when and how. Recruiters should not collect documents outside the approved process, and should never store document copies on personal devices or share them by personal messaging.
-        If your process asks recruiters to request certain documents at certain stages, follow it exactly.
+        Updating the database
+        Update a candidate's record after every meaningful interaction.
+        Record the date, what was discussed, the current location, availability, rate expectations and work authorization type and dates, as captured through approved questions.
+        Upload the latest resume.
+        Record submissions, interviews and outcomes.
+        Note if a candidate does not want to be contacted, and respect it.
 
-        Accuracy
-        Double-check the spelling of names, dates and locations.
-        Use the month name in dates to avoid format confusion.
-        Note anything uncertain clearly, rather than guessing.
+        Data quality
+        A database is only useful if it is accurate. Old or incorrect information wastes time and can cause mistakes, such as contacting a candidate about a role they already rejected, or submitting an outdated resume.
+        Write notes that a teammate could understand without asking you.
 
-        Escalation
-        Inform HR immediately about anything inconsistent, such as different names on documents, unclear dates or a status change.
-        Do not try to resolve these issues yourself.
+        Privacy
+        Access only the information you need for your work.
+        Do not export or share candidate data outside approved systems.
+        Follow your company's data retention rules.
 
         Practical example
-        Your candidate accepts the offer for the running Java requirement. You complete the handoff form in your company system with her legal name, role, client, vendor, work location in Charlotte, start date, rate, EAD type and dates, degree details and relocation date. You note that she asked about STEM OPT timing. You then introduce her to HR by email.
+        For the running Java requirement, you search the internal database and find a candidate you spoke to three months ago. The notes say she was waiting for her EAD. You call her, confirm she has now received her EAD and is available, update her record with the new dates and her latest resume, and screen her for the role.
 
         Recruiter checklist
-        Complete the handoff the same day as acceptance.
-        Use legal names and exact dates.
-        Use approved systems only.
-        Flag questions and inconsistencies to HR.
+        Search the internal database before external sources.
+        Read previous notes before contacting candidates.
+        Update records after every interaction.
+        Protect candidate privacy.
 
         Common mistakes
-        Leaving fields blank or guessing.
-        Sending documents through personal apps.
-        Trying to resolve document issues yourself.
+        Skipping the database and starting with external searches.
+        Leaving notes incomplete or unclear.
+        Submitting outdated resumes.
 
         From the company training material
-        In the OPT Recruiter Roles and Responsibilities document, document collection has four parts: collect the required candidate documents, check that they are complete and readable, submit them to the appropriate HR or verification team, and follow up for missing documentation. The OPT Head document adds that documents are reviewed for completeness and validity, and that candidates who do not meet the required documentation criteria should not proceed. Your check is for completeness and readability only. Deciding whether a document is genuine and valid belongs to the HR or verification team.
+        The OPT Recruiter Training Material lists the previous database as one of the three sourcing methods. The Job Description Analysis training calls it the internal database: search previously qualified consultant profiles. The US MNC Staffing document sets the order for fetching resumes: first check your hotlist, meaning your own company's bench consultants; if there is no match, send a mass mail to your vendor list; if there is still no match, post the requirement in a portal and search for C2C consultants. Always search what you already have first.
 
         Key takeaway
-        A clean documentation handoff starts onboarding on the right foot. Be accurate, secure and quick.
+        Your internal database is a valuable shared asset. Search it first and keep it accurate for the whole team.
         TEXT,
 
-        'Offer Process' => <<<'TEXT'
+        'Direct Communication' => <<<'TEXT'
         Learning objective
-        Understand the offer process for OPT candidates and how recruiters communicate offers accurately within company rules.
+        Learn how to reach candidates directly and professionally by phone, email and messaging, and how to make the first contact count.
 
         What you need to know
-        When a client selects a candidate, the vendor or client confirms the selection and the terms. Your company then makes an offer or confirmation to the candidate, according to company policy. The offer may be verbal first, followed by a written offer letter or employment agreement issued by HR or management.
+        Direct communication means contacting a candidate yourself, rather than waiting for them to apply. It includes calls, emails, LinkedIn messages and text messages where your company allows them.
+        The first contact often decides whether a candidate engages with you. Be clear, polite and relevant.
 
-        Typical offer details
-        Job title.
-        Employer name.
-        Client and work location, and work mode.
-        Start date.
-        Pay rate or salary, and pay frequency.
-        Engagement type, such as W2 contract or full-time.
-        Duration, for contracts.
-        Benefits, if applicable.
-        Conditions, such as background checks or documentation.
+        Choosing the channel
+        Phone calls are fastest for screening and urgent requirements. Call during the candidate's local business hours or early evening.
+        Email works well for detailed information, such as a job description, and for candidates who prefer written communication.
+        LinkedIn messages work well for first contact with people you found on LinkedIn.
+        Text messages may be used for short scheduling updates if your company allows them and the candidate has agreed.
 
-        Recruiter responsibilities
-        Communicate the selection promptly and positively.
-        Share only the offer details approved by your company.
-        Confirm the candidate's acceptance and record it.
-        Pass the acceptance to HR so that formal documents can be issued.
-        Answer questions within your role, and refer legal, immigration or tax questions to HR.
+        The first call
+        Introduce yourself and your company.
+        Explain why you are calling and how you found them.
+        Ask whether it is a good time to talk.
+        Summarise the role in one or two sentences.
+        Ask whether they are interested in hearing more.
+        Level 7 covers calling in detail.
 
-        What recruiters must not do
-        Do not change offer terms without approval.
-        Do not promise extras, such as sponsorship, bonuses or guaranteed extensions.
-        Do not create offer letters yourself unless your role allows it.
-        Do not pressure candidates to accept immediately.
+        The first email
+        Use a clear subject line, such as Java Developer role, Charlotte, hybrid.
+        Introduce yourself and the role briefly.
+        Mention the key skills that match their profile.
+        Ask for a short call and offer two time options.
+        Include your name, title, company and contact details.
 
-        Competing offers
-        OPT candidates may have several offers. If a candidate mentions a competing offer, listen, record it, and inform your lead. Do not criticise other companies. Focus on the facts of your offer.
-
-        Offer conditions and authorization
-        The start date must be on or after the candidate's work authorization start date. If there is any doubt, confirm with HR before finalising the date.
+        Professional boundaries
+        Contact candidates at reasonable hours in their time zone.
+        Do not send many messages in a short time.
+        Respect requests to stop contacting.
+        Do not ask for sensitive information, such as a Social Security Number, through messages.
 
         Practical example
-        The vendor confirms your candidate's selection at the approved rate, starting on June 3. You call the candidate, congratulate her, and share the approved details. She accepts. You confirm by email, record the acceptance, and notify HR to issue the formal offer letter. You remind her that onboarding steps will follow.
+        You find a candidate on a job board whose resume matches the running Java requirement. It is 11 AM Eastern Time. You call her, introduce yourself, confirm she has five minutes, and summarise the role. She is interested, so you schedule a full screening call for that afternoon and email her the job description.
 
         Recruiter checklist
-        Share only approved terms.
-        Confirm acceptance in writing.
-        Notify HR immediately.
-        Check the start date against authorization dates.
+        Choose the right channel for the situation.
+        Introduce yourself clearly and ask for permission to continue.
+        Follow up in writing with key details.
+        Respect timing and boundaries.
 
         Common mistakes
-        Promising terms that are not in the approved offer.
-        Delaying the handoff to HR.
-        Ignoring a competing offer.
+        Starting with a long speech about the company.
+        Calling late at night in the candidate's time zone.
+        Requesting sensitive information by message.
 
         From the company training material
-        The OPT Recruiter Roles and Responsibilities document describes offer letter coordination: after the required document review, coordinate with the OPT Head and HR, assist with offer letter processing, and maintain status and documentation records. The OPT Head oversees the process and keeps records of every offer letter issued.
-        The calling script says the company will give an offer letter if the candidate relocates to the head office for training. The business plan lists offer letters as a paid service. Company-specific process: an offer letter must describe a genuine position with real duties, pay and a work location, and it is issued only by HR. Never tell a candidate that an offer letter can be bought, and refer every question about cost to HR. Verify with HR or authorized personnel.
+        The Job Description Analysis training describes direct communication as using approved messaging or messenger channels to reach potential candidates, and its recruitment process ends with communicate: discuss the opportunity, and confirm the candidate's interest and details. The OPT Recruiter Training Material's calling script, covered in Level 7, is the company's standard for these first calls.
 
         Key takeaway
-        Offers must be accurate and approved. Communicate clearly, confirm in writing and hand off quickly.
-        TEXT,
-
-        'Onboarding Handoff' => <<<'TEXT'
-        Learning objective
-        Support a smooth onboarding by handing off to HR completely and staying in touch with the candidate until their first day.
-
-        What you need to know
-        Onboarding is the process of preparing a new consultant to start work. It is led by HR and may include offer letters, employment agreements, tax forms, employment verification, background checks, client onboarding forms, equipment and system access. Recruiters support onboarding by keeping the candidate engaged and informed.
-
-        The recruiter's role in onboarding
-        Introduce the candidate to the HR contact.
-        Make sure HR has the complete handoff information.
-        Remind the candidate of deadlines HR has given.
-        Answer simple process questions, and refer detailed questions to HR.
-        Inform HR and your lead immediately about any problems, such as delays or doubts.
-        Keep the vendor informed of progress, according to your process.
-
-        Common onboarding steps, at an awareness level
-        Offer letter and agreement signature.
-        Tax forms such as the W-4 and state forms, handled by payroll.
-        Form I-9 and, where applicable, E-Verify, handled by HR.
-        Background checks, which may include employment and education verification.
-        Client-specific forms or training.
-        Bank details for direct deposit.
-        Equipment and access setup.
-
-        Common risks during onboarding
-        Delays in background checks.
-        Missing information or documents.
-        Candidate receiving another offer.
-        Changes to the start date by the client.
-        Relocation problems.
-
-        Staying in touch
-        Contact the candidate regularly during onboarding, without overwhelming them.
-        Confirm the start date, time, location or meeting link, and the first-day contact a few days before the start.
-        Call on the first day, or soon after, to check that everything went well.
-
-        Practical example
-        Your candidate's background check is taking longer than expected, and the start date is in three days. You inform your lead and the vendor early, so that the client can be told about a possible short delay. You keep the candidate informed and reassure her that HR is following up.
-
-        Recruiter checklist
-        Introduce the candidate to HR.
-        Track onboarding progress.
-        Escalate risks early.
-        Confirm first-day details.
-
-        Common mistakes
-        Disappearing after the offer.
-        Answering HR, tax or immigration questions yourself.
-        Informing the vendor of delays too late.
-
-        From the company training material
-        In the company process, onboarding includes the required E-Verify step, completed by HR after the offer letter. The OPT recruiter's part, called E-Verify follow-up, is to coordinate with candidates on the required HR verification steps, follow up on anything pending, and escalate unresolved issues to the OPT Head or USA HR. After onboarding, interested candidates can be enrolled on the bench for profile marketing.
-
-        Key takeaway
-        Onboarding is a team effort led by HR. Stay engaged, communicate early and keep the candidate confident.
+        Direct communication is powerful when it is timely, clear and respectful. Make every first contact professional.
         TEXT,
     ],
 ];

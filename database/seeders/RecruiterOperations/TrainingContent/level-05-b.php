@@ -2,437 +2,499 @@
 
 return [
     'level' => 5,
-    'course' => 'Sourcing & Resume Screening',
+    'course' => 'Job Requirement Analysis',
     'lessons' => [
-        'Search Strategy' => <<<'TEXT'
+        'Location' => <<<'TEXT'
         Learning objective
-        Plan a structured search strategy for each requirement, so that you find the best candidates quickly and do not waste time on random searching.
+        Read the location in a requirement accurately and understand how location affects sourcing, candidate interest and payroll.
 
         What you need to know
-        A search strategy is a plan that answers three questions: who you are looking for, where you will look, and in what order. It comes directly from your requirement analysis in Level 4.
+        The location tells you where the work will be done. It is usually written as city and state, for example Charlotte, NC. It may also name a specific office, campus or ZIP code.
+        Location affects which candidates are suitable, whether relocation is needed, which time zone applies, and which state's payroll rules apply.
 
-        Step one, define the ideal candidate
-        Write two or three sentences describing the ideal candidate: title, primary skills, experience level, location, work authorization fit and any domain experience. This is your target profile.
-
-        Step two, choose your sources in order
-        Internal database first, because these candidates already know your company.
-        Referrals and your professional network.
-        LinkedIn and job boards such as Dice.
-        University networks and student communities, for recent graduates.
-        Professional groups.
-        The best order depends on the role. For entry-level OPT roles, university and student channels may come earlier.
-
-        Step three, prepare keywords
-        Use your title keywords, primary skill keywords and secondary keywords from the requirement analysis. Plan your Boolean strings before you start.
-
-        Step four, set targets and time limits
-        Decide how many qualified candidates you need, for example three strong submissions.
-        Set a time limit for each source, for example thirty minutes, before moving to the next.
-        Track results, so that you know which sources work best for which roles.
-
-        Step five, review and adjust
-        After each source, ask yourself: Am I finding the right people? If not, adjust your keywords, location or sources.
-        If you find no matches after trying all sources, discuss the requirement with your lead. The requirement may need clarification, or it may not be a good fit for your candidate pool.
-
-        Practical example
-        For the running Java requirement, your target profile is: a Java backend developer with three or more years of Java, Spring Boot, REST and SQL, in or willing to relocate to Charlotte, whose work authorization matches the requirement. Your plan is internal database for twenty minutes, LinkedIn for thirty minutes, Dice for thirty minutes, and university alumni networks for twenty minutes. Your target is three strong submissions by the end of the day.
-
-        Recruiter checklist
-        Write a target profile for every requirement.
-        Choose sources and order them.
-        Prepare keywords in advance.
-        Set targets and time limits.
-        Review results and adjust.
-
-        Common mistakes
-        Searching without a target profile.
-        Spending all your time on one source.
-        Not tracking which sources work.
+        Location phrases you will see
+        Local only means the client wants candidates who already live within commuting distance.
+        Locals preferred means local candidates have an advantage, but others may be considered.
+        Open to relocation means the client will consider candidates who move before the start date.
+        Relocation assistance means the employer may help with moving costs. Confirm the details before mentioning this.
+        Multiple locations means the role could be based in any of several listed cities.
 
         From the company training material
-        The Day 5 recruiter workflow puts sourcing after three steps: read the entire requirement, extract the location, duration, rate, skills, dates and client, and prioritise must-have against preferred criteria. Only then do you source, which the training defines as searching the right channels using targeted keywords. Its six sources of recruitment are job boards, professional network, vendor network, groups, internal database and direct communication. The US MNC Staffing document adds the order for staffing requirements: your hotlist first, then a mass mail to your vendor list, then a portal posting and a C2C search, and finally select the best one or two resumes.
+        The Job Description Analysis training lists location as the first mandatory detail to capture before sourcing: the city and state, whether the role is onsite, remote or hybrid, and any local requirement. Its two examples show why. The Data Architect role is in McLean, Virginia, day-one onsite. The Java and AWS role in Draper, Utah, is ninety percent remote, but Utah local with a driving licence, so a remote candidate in Texas would not qualify.
 
-        Key takeaway
-        A clear search strategy turns sourcing into a repeatable process that delivers results faster.
-        TEXT,
+        How to analyse location
+        Confirm the city and state.
+        Identify the time zone.
+        Check the nearest major city, if the location is a suburb.
+        Check the local or relocation rules.
+        Combine this with the work mode, covered in the next lesson.
 
-        'Primary Keywords' => <<<'TEXT'
-        Learning objective
-        Identify the primary keywords for a requirement and use them correctly in searches.
+        Discussing location with candidates
+        Ask for the candidate's current city and state.
+        If relocation is needed, ask: Are you open to relocating to this city, and how soon could you move?
+        Ask about commute expectations for hybrid and onsite roles.
+        Never tell a vendor a candidate is local when they are not.
 
-        What you need to know
-        Primary keywords are the words that must appear in a suitable candidate's profile or resume. They come from the must-have skills and the core job title. Usually there are only three to five.
-        If a profile does not contain a primary keyword, the candidate is unlikely to meet the requirement.
-
-        How to identify primary keywords
-        Look for skills in the job title, the summary and the required qualifications.
-        Look for skills repeated in the responsibilities.
-        Ask: Would the client reject a candidate without this skill? If yes, it is primary.
-
-        Examples
-        For a Java Developer role: Java, Spring Boot, REST, and SQL.
-        For a Data Analyst role: SQL, Excel, and Tableau or Power BI.
-        For a QA Automation Engineer role: Selenium, Java or Python, and test automation.
-        For a Data Engineer role: Python or Scala, Spark, SQL, and a cloud platform such as AWS.
-
-        Variations and synonyms
-        Candidates describe skills in different ways. Include common variations.
-        Spring Boot, Springboot and Spring.
-        REST, RESTful and REST API.
-        JavaScript and JS.
-        Machine learning and ML.
-        Continuous integration and CI.
-        Search for the main term and its variations together, using OR in Boolean search.
-
-        Using primary keywords in searches
-        Combine primary keywords with AND, so that every result includes all of them.
-        Do not add too many primary keywords. Four strong primary keywords usually work better than ten.
-        Check a sample of results to make sure the keywords are finding relevant people.
-
-        Keywords are not enough
-        A keyword on a resume does not prove experience. A candidate may list a skill they used briefly in a class. Use keywords to find candidates, then verify skills on a call.
+        Location and handoffs
+        The work location is essential information for HR and payroll. Record the exact work city and state, not only the client's headquarters.
 
         Practical example
-        For the running Java requirement, your primary keywords are Java, Spring Boot, REST and SQL. Your search is: Java AND, in brackets, Spring Boot OR Springboot, AND, in brackets, REST OR RESTful, AND SQL. You then read the top profiles to confirm real project experience.
+        The running example is in Charlotte, NC, hybrid. A candidate lives in Raleigh, North Carolina. You know Raleigh is about two and a half to three hours' drive from Charlotte, so a daily commute is not realistic for three office days a week. You ask whether he would relocate to the Charlotte area before the start date. He agrees, so you record that he is relocating, with a planned move date.
 
         Recruiter checklist
-        Choose three to five primary keywords from the must-haves.
-        Include common variations.
-        Combine with AND.
-        Verify on a call.
+        Confirm city, state, time zone and local rules.
+        Ask candidates for their current city and relocation willingness.
+        Record the exact work location for handoffs.
 
         Common mistakes
-        Using every listed skill as a primary keyword.
-        Ignoring spelling variations.
-        Treating a keyword match as proof of experience.
+        Assuming a candidate in the same state is local.
+        Describing a relocating candidate as local.
+        Recording the client's headquarters instead of the actual work site.
+
+        Key takeaway
+        Location decides who can realistically do the role. Analyse it carefully and be honest about relocation.
+        TEXT,
+
+        'Remote / Hybrid / Onsite' => <<<'TEXT'
+        Learning objective
+        Understand the three work modes, the details to confirm for each, and how they affect candidates and payroll.
+
+        What you need to know
+        Onsite means the consultant works at the client location every working day.
+        Hybrid means the consultant works some days onsite and some days remotely, for example three days in the office and two from home.
+        Remote means the consultant works from home or another approved location, without regular office attendance.
+
+        Details to confirm for each mode
+        Onsite. The exact address area, office hours, and whether there is any flexibility.
+        Hybrid. The number of onsite days, whether those days are fixed, and whether this might change.
+        Remote. Whether the consultant must live in a specific state or time zone, whether occasional travel to the office is needed, and the required working hours.
 
         From the company training material
-        The Job Description Analysis training's Data Architect example gives a model list of high-value keywords: AWS, Solution Architect, Enterprise Architect, API Gateway, Lambda, VPC, CloudFront, security architecture, Python and Java. It also warns: validate years of experience against the requirement instead of matching keywords alone. Keywords find candidates. They do not prove a match.
+        The training's examples show how precise a work mode can be. The Data Architect role is day-one onsite, with three days onsite and two remote. Day-one onsite means the consultant must be in the office from the very first day, so relocation must be complete before the start. The Java and AWS role is ninety percent remote, with possible in-person meetings, and the consultant must be based in Utah.
 
-        Key takeaway
-        Primary keywords define the core match. Keep the list short, include variations, and always verify.
-        TEXT,
+        Remote does not mean location-free
+        Many remote roles restrict where the consultant may live, for example remote within the U.S. only, or remote, but must be in Eastern or Central Time.
+        Some remote roles require travel to the office for the first week or for quarterly meetings.
+        The state where a remote consultant works affects payroll and taxes. Always record it.
 
-        'Secondary Keywords' => <<<'TEXT'
-        Learning objective
-        Use secondary keywords to rank and refine search results without excluding good candidates.
+        Work mode changes
+        Clients sometimes change work modes, for example from remote to hybrid. Ask the vendor how likely changes are, and make sure candidates understand that the client sets the policy.
 
-        What you need to know
-        Secondary keywords come from preferred skills, supporting tools, domain experience and certifications. They are useful, but a candidate without them may still qualify.
-        Use secondary keywords to rank candidates, to narrow very large result lists, and to highlight strengths in submissions.
-
-        Examples
-        For a Java Developer role: Kafka, AWS, Docker, Kubernetes, microservices, banking and Agile.
-        For a Data Analyst role: Python, Snowflake, healthcare and statistics.
-        For a QA Automation role: Cucumber, Jenkins, API testing and performance testing.
-
-        How to use secondary keywords
-        Start with primary keywords only. If results are manageable, review them and score candidates on secondary keywords.
-        If results are too many, add one secondary keyword at a time to narrow the list.
-        Use OR between secondary keywords to find candidates with at least one of them, for example, in brackets, Kafka OR AWS OR Docker.
-        Record which secondary skills each shortlisted candidate has. Mention them in the submission summary.
-
-        Domain keywords
-        Domain keywords, such as banking, insurance, healthcare, retail or telecom, can be powerful differentiators. Clients often favour candidates who know their industry. But domain is rarely a must-have for entry-level OPT roles, so do not exclude candidates without it unless the requirement demands it.
-
-        Over-filtering
-        Adding too many secondary keywords with AND can shrink your results to almost nothing and hide good candidates. If you find yourself with very few results, remove secondary keywords first.
+        Discussing work mode with candidates
+        Describe the mode exactly as the client defines it.
+        Ask whether the candidate is comfortable with it.
+        For hybrid roles, confirm they can commute or will relocate.
+        For remote roles, confirm their home state and time zone.
 
         Practical example
-        Your Java search with primary keywords returns two hundred profiles in the Charlotte area. You add, AND, in brackets, Kafka OR AWS, which narrows it to sixty. You review the top twenty, shortlist five, and note that three have Kafka and two have AWS.
+        The running example is hybrid, three days onsite in Charlotte. A candidate says she prefers remote work but would accept hybrid if the commute is reasonable. You confirm she lives in Charlotte, record her acceptance of three onsite days, and note her preference in case a remote role comes up later.
 
         Recruiter checklist
-        Keep secondary keywords separate from primary keywords.
-        Add them one at a time when narrowing.
-        Use OR to find any of several preferred skills.
-        Highlight them in submissions.
+        Confirm the exact work mode and number of onsite days.
+        For remote roles, confirm location restrictions and travel.
+        Record the consultant's working state.
 
         Common mistakes
-        Using secondary keywords with AND from the start.
-        Rejecting candidates without bonus skills.
-        Forgetting to mention bonus skills in the submission.
+        Telling a candidate a hybrid role is mostly remote.
+        Assuming remote roles have no state restrictions.
+        Not recording the working state for remote consultants.
+
+        Key takeaway
+        Work mode decides daily life for the consultant. Confirm the details exactly and record where the work will happen.
+        TEXT,
+
+        'Duration' => <<<'TEXT'
+        Learning objective
+        Understand duration in contract requirements and how to explain it honestly to candidates.
+
+        What you need to know
+        Duration is the expected length of a contract, such as three months, six months, twelve months, or long term. It is usually an estimate based on the project, not a promise.
+        Duration may be followed by phrases such as with possible extension, likely to extend, or contract-to-hire.
 
         From the company training material
-        The Job Description Analysis training separates primary skills from secondary or preferred skills. In its Java and AWS example, Spring, Spring Boot and Spring Security are preferred and Terraform is a plus. These are secondary keywords: use them to rank candidates who already have Core Java and AWS, not to remove candidates who lack them.
+        The Job Description Analysis training defines duration as the contract length and possible extension. The US MNC Staffing document also tells recruiters to note the duration of the project and its type, such as full-time, contract or long term, when first studying a requirement.
 
-        Key takeaway
-        Secondary keywords help you rank and stand out. Use them to refine, not to exclude.
-        TEXT,
+        Reading duration phrases
+        Six months plus, or six months with extension, means the client expects at least six months and may extend.
+        Long term usually means more than a year, but this is not guaranteed.
+        Short term, under three months, may suit few OPT candidates, because short roles can create gaps in employment.
+        Contract-to-hire after six months means possible conversion to permanent after that time.
 
-        'Boolean Search Basics' => <<<'TEXT'
-        Learning objective
-        Learn the basic Boolean operators and how to build simple, effective search strings for LinkedIn, job boards and internal databases.
+        Why duration matters for OPT candidates
+        OPT and STEM OPT candidates have authorization end dates and unemployment limits. A short contract may end with a gap before the next role. Candidates will want to understand the expected duration. Answer honestly, and refer status questions to their DSO and your HR.
+        Compare the duration with the candidate's EAD end date. If a twelve-month contract extends beyond the EAD end date, note this for HR. HR decides how to proceed, for example if STEM OPT applies.
 
-        What you need to know
-        Boolean search uses special words, called operators, to combine keywords. Most recruiting platforms support it, although each platform has small differences. Check the help pages of your tools.
+        Explaining duration
+        Use the client's words and add honest context: This is a twelve-month contract. The vendor says extensions are common on this project, but they depend on the client's needs and budget.
 
-        The main operators
-        AND. Every result must contain both terms. Java AND Spring finds profiles with both words.
-        OR. Results may contain either term. Developer OR Engineer finds profiles with either word. Use OR for synonyms and variations.
-        NOT. Excludes a term. Java NOT JavaScript removes profiles that mention JavaScript. Use NOT carefully, because it can remove good candidates.
-        Quotation marks. Search for an exact phrase. Quote Spring Boot, end quote, finds that exact phrase rather than the two words anywhere.
-        Brackets. Group terms. Java AND, open bracket, Spring OR Hibernate, close bracket, means Java plus at least one of the two.
-
-        Building a search string step by step
-        Start with the title group, using OR. For example, open bracket, Java Developer in quotation marks, OR Java Engineer in quotation marks, OR Backend Developer in quotation marks, close bracket.
-        Add the primary skill groups, using AND between groups and OR inside groups. For example, AND, open bracket, Spring Boot in quotation marks, OR Springboot, close bracket, AND, open bracket, REST OR RESTful, close bracket, AND SQL.
-        Add secondary skills only if needed.
-        Add NOT terms only to remove clearly irrelevant results, such as NOT intern if you need experienced candidates and the platform allows it.
-
-        Tips
-        Write operators in capital letters. Many platforms require it.
-        Test your string and read a sample of results.
-        Save strings that work, for reuse.
-        Keep strings readable. Very long strings are hard to fix.
+        Early endings
+        Contracts may end early. Projects get cancelled, budgets change and clients reorganise. Do not hide this possibility.
 
         Practical example
-        For the running Java requirement, your LinkedIn string is: open bracket, Java Developer in quotation marks, OR Java Engineer in quotation marks, OR Backend Engineer in quotation marks, close bracket, AND, open bracket, Spring Boot in quotation marks, OR Springboot, close bracket, AND, open bracket, REST OR RESTful, close bracket. You add the Charlotte location filter separately.
+        The running example is twelve months with possible extension. A candidate's OPT EAD ends in seven months, and she has a STEM degree. You note that the contract extends beyond her current EAD end date, and you flag this for HR in your handoff. You do not tell her what to file or promise anything about STEM OPT.
 
         Recruiter checklist
-        Group synonyms with OR inside brackets.
-        Connect groups with AND.
-        Use quotation marks for exact phrases.
-        Use NOT sparingly.
-        Test and save strings.
+        Record the duration and any extension wording.
+        Compare duration with work authorization end dates.
+        Explain duration honestly.
 
         Common mistakes
-        Forgetting brackets, which changes the meaning.
-        Overusing NOT.
-        Using lower-case operators on platforms that need capitals.
-
-        Source note
-        The company training documents do not cover Boolean search. This lesson is based on general recruiting practice and needs review and approval by the training manager. Ask a senior recruiter which search strings your team uses on each portal.
+        Presenting an estimated duration as a guarantee.
+        Ignoring a gap between the contract length and the EAD end date.
+        Promising extensions.
 
         Key takeaway
-        A few Boolean operators make searches precise. Build strings in groups, test them, and refine.
+        Duration is an estimate. Explain it honestly and compare it with the candidate's authorization dates.
         TEXT,
 
-        'Resume Screening' => <<<'TEXT'
+        'Rate' => <<<'TEXT'
         Learning objective
-        Learn a structured method for screening resumes quickly and fairly against a requirement.
+        Interpret the rate in a requirement and use it to judge whether the requirement is workable for your candidates.
 
         What you need to know
-        Resume screening means reviewing a resume to decide whether a candidate is worth a call for a specific requirement. Good screening is fast but careful. A typical first screen takes two to three minutes, followed by a deeper review for promising resumes.
-
-        A structured screening method
-        Step one. Check the must-haves first: primary skills, minimum experience, location fit and work mode.
-        Step two. Check relevant experience: projects using the required technologies, recent use, and responsibility level.
-        Step three. Check education: degree, major and graduation date, which matter for OPT candidates.
-        Step four. Check consistency: dates, titles and locations should make sense together.
-        Step five. Note preferred skills and domain experience.
-        Step six. Note questions to ask on the call.
-        Step seven. Decide: call now, keep for later, or not suitable for this requirement.
-
-        Reading OPT candidate resumes
-        OPT candidates' resumes often include academic projects, internships, CPT roles, graduate assistant jobs and work experience from their home country. Read each entry carefully, note what type of experience it is, and consider how the client may view it.
-        Look for specific details: what they built, which technologies they used, and what results they achieved.
-
-        Fair screening
-        Screen every resume against the same requirement criteria.
-        Do not judge candidates by name, nationality, photo, age, gender or other personal characteristics. These are not job criteria, and discrimination is illegal.
-        Do not make assumptions about work authorization from a resume. Ask the approved questions on the call.
-
-        Red flags to note, not to judge
-        Large unexplained gaps.
-        Overlapping full-time jobs.
-        Very long skill lists without supporting project details.
-        Inconsistent dates between the resume and LinkedIn.
-        These are questions to ask politely on a call, not reasons to accuse a candidate.
-
-        Practical example
-        You screen a resume for the running Java requirement. It shows a master's in computer science, two years of Java with Spring Boot and REST at a company in India, a U.S. internship using Java and Kafka, and an expected graduation date. Must-haves are mostly met, with experience slightly under three years. You note questions about Spring Boot depth and SQL, and you decide to call.
-
-        Recruiter checklist
-        Check must-haves first.
-        Review experience, education and consistency.
-        Note questions for the call.
-        Screen everyone by the same criteria.
-
-        Common mistakes
-        Spending ten minutes on a resume that fails a must-have.
-        Judging candidates on personal characteristics.
-        Treating red flags as proof of dishonesty.
-
-        From the company training material: what to check
-        The Job Description Analysis training lists what to check on every resume.
-        Required skills. Check primary and secondary skills against the JD.
-        Experience. Verify relevant years, projects and responsibilities.
-        Contact details. Confirm that the candidate's contact information is complete and usable.
-        Domain experience. Look for relevant industry or domain exposure.
-        LinkedIn. Review it for consistency and additional professional context.
-        Customised resume. Identify job-specific tailoring and relevant keywords.
-        References and checks. Follow company process for reference and background checks.
-        Public professional information. Use approved, lawful sources and avoid unsupported conclusions.
-
-        The company resume screening checklist
-        The training also gives a systematic checklist for every candidate: key qualifications and skills; relevant work experience; education and certifications; achievements and accomplishments; culture-fit indicators relevant to the role; job history and tenure pattern; formatting and readability; grammar and spelling; LinkedIn profile; and referrals and recommendations.
-        Its key takeaway is: screen the complete resume, not just keyword matches.
-
-        Key takeaway
-        Screen in a consistent order, starting with must-haves. Be fast, fair and curious, and save your questions for the call.
-        TEXT,
-
-        'Required Skills' => <<<'TEXT'
-        Learning objective
-        Verify required skills on a resume and on a call, so that you submit only candidates who truly have them.
-
-        What you need to know
-        Required skills are the must-have technical skills in a requirement. Most client rejections happen because a candidate does not have the depth expected in one or more required skills. Your job is to confirm both presence and depth.
-
-        On the resume
-        Look for each required skill in the skills section and, more importantly, in the project descriptions.
-        A skill listed only in the skills section, with no project using it, is weak evidence.
-        Note when and where each skill was used. Recent use matters more than use years ago.
-        Note the context: professional work, internship or academic project.
-
-        On the call
-        Ask open questions about each required skill.
-        Which projects did you use Spring Boot in, and what did you build?
-        How did you design your REST APIs?
-        Which databases did you use, and what kind of SQL did you write?
-        What problems did you face, and how did you solve them?
-        Listen for specific answers, real examples and confidence. Vague answers suggest limited experience.
-
-        Rating skill depth
-        Strong. Used professionally for a significant period, with clear examples.
-        Moderate. Used in some projects or internships, with reasonable examples.
-        Basic. Studied or used briefly, with general answers.
-        Record your rating for each required skill.
-
-        Be honest about gaps
-        If a candidate has a basic level in a required skill, the submission is likely to fail. Either do not submit, or ask the vendor whether the client would consider them, describing the gap honestly.
-
-        You are not the technical interviewer
-        Recruiters do not need to test skills deeply. Your goal is to confirm that the candidate has real, relevant experience, and to avoid obvious mismatches. The client's technical interview does the deep evaluation.
-
-        Practical example
-        A candidate lists SQL on her resume. On the call, she explains that she wrote complex joins and stored procedures for a reporting module in her last job, and describes how she optimised a slow query. You rate her SQL as strong and mention the reporting work in your submission summary.
-
-        Recruiter checklist
-        Find each required skill in real projects.
-        Ask open questions about each one.
-        Rate depth and record it.
-        Be honest about gaps.
-
-        Common mistakes
-        Accepting skills listed without project evidence.
-        Asking yes-or-no questions such as Do you know Java?
-        Hiding gaps from the vendor.
+        Most contract requirements include a rate, usually hourly. Read it carefully to understand what it represents.
+        It may be the bill rate offered to your company by the vendor.
+        It may be marked W2, C2C or 1099, which changes how it is used.
+        It may be all-inclusive, meaning no extra payments for expenses.
+        It may be a maximum, often written as up to a certain amount.
 
         From the company training material
-        The Job Description Analysis training says to check primary and secondary skills against the JD, and to prioritise must-have skills and verify actual project experience. For the Data Architect example, its screening focus is to look for architecture governance together with AWS cloud architecture, security and integration experience, and to check enterprise-scale infrastructure or application design and stakeholder management. A candidate with only one of these areas is not a match, however many AWS keywords the resume contains.
+        The Job Description Analysis training lists rate as a mandatory detail: the pay or rate details and the conditions attached to them. Its Java and AWS example uses a client scoring framework in which rate counts for twenty percent of the candidate's score. So rate is not only a business detail. It directly affects whether a candidate is selected.
 
-        Key takeaway
-        Required skills must be real and deep enough. Verify each one with specific questions and honest ratings.
-        TEXT,
+        Using the rate in your analysis
+        Compare the rate with the skills and experience required. A senior role with a very low rate may be hard to fill.
+        Ask your lead what pay rate your company can offer consultants for this requirement.
+        Compare the approved pay rate with typical candidate expectations for the skill set and location.
+        Note any requirement where the rate makes a match unlikely, and discuss it with your lead before spending a lot of time.
 
-        'Relevant Experience' => <<<'TEXT'
-        Learning objective
-        Judge how relevant a candidate's experience is to a requirement, beyond simple years of experience.
+        Location and rate
+        Rates and salaries vary across the U.S. Roles in high-cost areas, such as the San Francisco Bay Area or New York City, often pay more than similar roles elsewhere. Candidates may expect more when relocating to expensive cities.
 
-        What you need to know
-        Relevant experience is experience that closely matches the role's work, technologies and environment. Two candidates with the same years of experience can be very different in relevance. A candidate with two years of directly relevant backend Java work may be stronger than one with four years of unrelated support work.
-
-        Measures of relevance
-        Similar work. Did they do the same kind of tasks, such as building APIs or writing ETL pipelines?
-        Same technologies. Did they use the required technologies, and how recently?
-        Similar environment. Did they work in Agile teams, in large organisations, or in the same domain?
-        Similar responsibility. Did they build features independently, or mainly assist others?
-        Recency. Have they used these skills in the last one or two years?
-
-        Experience types for OPT candidates
-        Full-time professional experience, in the U.S. or abroad.
-        Internships and CPT roles.
-        Graduate assistant or research roles.
-        Academic projects and capstone projects.
-        Freelance or volunteer projects.
-        Describe each one accurately. Never present an academic project as a job.
-
-        How clients view different experience
-        Some clients count only professional experience toward a years requirement. Others value strong internships and projects, especially for entry-level roles. When unclear, ask the vendor.
-
-        Questions to ask
-        Which of your roles is most similar to this one?
-        What were your main responsibilities in that role?
-        How large was your team, and what was your part?
-        When did you last use this technology?
+        Discussing rate with candidates
+        Ask for expectations first.
+        Share only the approved pay rate.
+        Make clear whether the rate is hourly W2 or another arrangement.
+        If a candidate's expectation is above the approved range, say so honestly. Do not promise that you can negotiate more unless your lead agrees.
+        Never share the bill rate unless your company allows it.
 
         Practical example
-        Two candidates apply for the running Java requirement. Candidate A has four years of Java, but mainly in production support with little development. Candidate B has two years and six months of Java development building Spring Boot microservices. You judge Candidate B as more relevant, and you ask the vendor whether two and a half years of directly relevant development would be considered.
+        The running example's vendor header gives a bill rate. Your lead confirms the W2 pay rate range for consultants. A candidate expects a rate above the range. You say: The approved range for this role is below your expectation. Would you like to be considered at the top of this range, or should I look for roles closer to your expectation? You record his decision.
 
         Recruiter checklist
-        Look beyond years to the type of work.
-        Check recency and responsibility.
-        Describe every type of experience honestly.
-        Ask the vendor how they count internships and projects.
+        Identify what kind of rate the requirement shows.
+        Get the approved pay rate from your lead.
+        Compare rate with skills, experience and location.
+        Be honest when expectations do not match.
 
         Common mistakes
-        Choosing candidates by years only.
-        Overlooking strong internships.
-        Presenting projects as professional experience.
-
-        From the company training material
-        The Job Description Analysis training says to verify relevant years, projects and responsibilities. Its Java and AWS example shows how clients weigh this. The client's scoring framework gives ten percent to years of direct web development, thirty percent to development tools and skill levels, twenty-five percent to roles and project experience, fifteen percent to SDLC knowledge and experience, meaning the software development life cycle, and twenty percent to rate. Years alone count for only a tenth of the score. The training's tip is to use a client's stated scoring criteria as an additional screening guide, not as a substitute for reading the full requirement.
+        Quoting the vendor's rate as the candidate's pay.
+        Agreeing to a candidate's rate without approval.
+        Ignoring an unworkable rate until after submission.
 
         Key takeaway
-        Relevance matters more than raw years. Look at what the candidate actually did, and describe it honestly.
+        The rate shows whether a requirement is workable. Use approved pay rates only, and address gaps in expectations early.
         TEXT,
 
-        'Project Experience' => <<<'TEXT'
+        'Start Date' => <<<'TEXT'
         Learning objective
-        Learn how to read and discuss project experience, especially for OPT and early-career candidates.
+        Understand start dates in requirements and how to check that a candidate can realistically start on time.
 
         What you need to know
-        Project descriptions on a resume show what a candidate actually built. For OPT candidates, projects from internships, CPT roles, academic programs and earlier jobs are often the best evidence of skill.
-
-        What a strong project description includes
-        The project name or purpose, such as a payment processing service or a sales dashboard.
-        The candidate's role and responsibilities.
-        The technologies used.
-        The scale or complexity, such as number of users, data volume or team size.
-        Results or impact, such as reduced processing time or improved accuracy.
-
-        Questions to ask about projects
-        What was the goal of the project?
-        What exactly did you build or do yourself?
-        Which technologies did you use, and why?
-        What was the hardest problem, and how did you solve it?
-        How did you test and deploy it?
-        Who did you work with?
-        Was this a professional, internship or academic project?
-
-        Listening for real experience
-        Real experience sounds specific. Candidates mention particular challenges, decisions and details.
-        Limited experience sounds general and repeats textbook definitions.
-        If a candidate cannot explain a project on their resume, note it. The client's interviewer will ask the same questions.
-
-        Academic projects
-        Academic projects can be valuable, especially for entry-level roles. They show learning and practical application. Present them honestly as academic projects in your summary. Many clients appreciate strong capstone or thesis projects using relevant technologies.
-
-        Using projects in submissions
-        Choose one or two projects that best match the requirement's responsibilities.
-        Summarise them clearly in your submission notes.
-        Never add details that the candidate did not tell you.
-
-        Practical example
-        A candidate's resume mentions a capstone project: an order management system using Spring Boot, REST APIs and PostgreSQL. On the call, he explains the API design, how he handled concurrent orders, and the tests he wrote. You describe this as a strong academic project in your summary, alongside his eight-month internship using Java.
-
-        Recruiter checklist
-        Ask about goal, role, technologies, challenges and results.
-        Listen for specific details.
-        Label project types accurately.
-        Highlight the best-matching projects.
-
-        Common mistakes
-        Skipping project questions.
-        Presenting academic projects as jobs.
-        Ignoring candidates who cannot explain their own projects.
+        The start date is when the client wants the consultant to begin. It may be exact, such as June 3, or general, such as immediate, within two weeks, or ASAP.
+        Clients often move start dates, and onboarding steps such as background checks can take time. Treat the start date as a target, and plan for the steps needed to reach it.
 
         From the company training material
-        In the Java and AWS example's scoring framework, roles and project experience carry twenty-five percent of the score, more than years of experience. The Job Description Analysis training repeats the point in its key takeaways: prioritise must-have skills and verify actual project experience. Ask what the candidate built, which part was theirs, and which tools they used, and compare the answers with the client's primary duties.
+        The Job Description Analysis training calls this detail dates: the expected start date and end date. Capture both. The end date, together with the duration, tells you whether the assignment will run past the candidate's EAD end date.
+
+        What can affect a candidate's start date
+        Work authorization. The candidate's EAD must be valid on the start date. A candidate whose EAD starts after the client's date cannot begin earlier.
+        Notice period. A candidate who is currently working may need to give notice to their current employer, often two weeks in the U.S.
+        Relocation. Moving to a new city takes time.
+        Onboarding. Background checks, drug tests if required, documentation and equipment setup take time.
+        Personal plans. Travel, graduation ceremonies or family commitments.
+
+        Questions to ask candidates
+        When is the earliest date you could start?
+        Do you need to give notice to a current employer?
+        If relocation is needed, when could you move?
+        Is your work authorization valid from that date? Use your company's approved wording.
+
+        Using start dates in prioritisation
+        Urgent start dates mean the client may move quickly. Candidates available immediately are valuable for these requirements.
+        A candidate who cannot meet the start date may still be worth discussing with the vendor if they are a strong match. Be honest about their availability.
+
+        Practical example
+        The running example needs someone within two weeks. A strong candidate's EAD starts in three weeks. You tell the vendor honestly: Strong match, available to start in three weeks, on the EAD start date. The vendor checks with the client, who agrees to wait. You record the confirmed start date.
+
+        Recruiter checklist
+        Record the client's start date and how flexible it is.
+        Check the candidate's earliest realistic start date.
+        Compare it with the EAD start date.
+        Be honest with the vendor about availability.
+
+        Common mistakes
+        Promising a start date before the EAD is valid.
+        Forgetting notice periods or relocation time.
+        Not telling the vendor about availability limits.
 
         Key takeaway
-        Projects are the clearest evidence of skill. Explore them on every call, and describe them truthfully.
+        The start date is a target. Check every factor that affects it, and never promise a start before the candidate is authorized.
+        TEXT,
+
+        'Client' => <<<'TEXT'
+        Learning objective
+        Learn to identify the client in a requirement, understand the vendor chain, and use client knowledge in your analysis.
+
+        What you need to know
+        In requirement analysis, client means the end client, the organisation where the consultant will work. The requirement may name the client, describe it, or hide it.
+        Between the client and your company there may be one or more vendors, such as a prime vendor or an implementation partner.
+
+        From the company training material
+        The Job Description Analysis training says to capture the client name or client information, where permitted. The US MNC Staffing document explains that requirements arrive from the client or from a preferred vendor, also called the Tier 1 layer, through the BDM, and that client names and project details are protected by the NDA.
+
+        What to identify about the client
+        The client name, if shared, and the industry.
+        The vendor chain: who sent the requirement, and who that vendor works for.
+        The client's interview style, if known from previous requirements.
+        Any client rules, such as no duplicate submissions, maximum submissions per vendor, required forms, or background checks.
+        The client's sponsorship policy or work authorization restrictions, if stated.
+
+        Why the client matters
+        Different clients have different expectations. Some are known for detailed technical interviews. Some require long background checks. Some prefer local candidates strongly.
+        Knowing the client helps you prepare candidates and set realistic expectations.
+        If a candidate has worked at the same client before, or has already applied there, the submission may be affected. Always ask.
+
+        Information sharing
+        Share the client name with candidates only when your process allows.
+        Never contact the end client directly about a requirement that came through a vendor, unless your company has authorised this. Going around a vendor can damage relationships and breach agreements.
+
+        Practical example
+        The running example came from an implementation partner working for a large bank. You note: end client, the bank; vendor, the implementation partner. Your team's notes show this bank usually conducts two technical rounds on video with cameras on. You prepare candidates for this, and you ask each one whether they have applied to this bank in the last six months.
+
+        Recruiter checklist
+        Identify the end client and the vendor chain.
+        Note client rules and interview patterns.
+        Ask candidates about previous applications to the client.
+        Respect the vendor relationship.
+
+        Common mistakes
+        Confusing the vendor with the end client.
+        Contacting the end client directly.
+        Missing a duplicate submission.
+
+        Key takeaway
+        Knowing the client and the vendor chain helps you prepare candidates and avoid costly mistakes.
+        TEXT,
+
+        'Must-Have vs Preferred' => <<<'TEXT'
+        Learning objective
+        Separate must-have requirements from preferred ones, and use this separation to shortlist candidates fairly and efficiently.
+
+        What you need to know
+        Most job descriptions mix essential requirements with optional ones. Clients reject candidates who miss must-have requirements, but often accept candidates who miss some preferred ones. Recruiters who confuse the two either reject good candidates or submit unsuitable ones.
+
+        From the company training material
+        In the Day 5 workflow, this is the Prioritize step: separate must-have from preferred criteria. The key takeaways add: prioritise must-have skills and verify actual project experience. In the training's Java and AWS example, Core Java and JEE are must-haves, while Spring, Spring Boot and Spring Security are marked preferred, and Terraform is a plus.
+
+        Signals of must-have requirements
+        Words such as required, must have, minimum, mandatory and essential.
+        Skills in the job title, summary and responsibilities, as well as the skills list.
+        Location rules such as local only.
+        Work authorization restrictions.
+        Required certifications or clearances.
+
+        Signals of preferred requirements
+        Words such as preferred, nice to have, plus, bonus, desired and familiarity.
+        Skills mentioned only once, at the end of a list.
+        Domain experience listed as an advantage.
+
+        Building a requirement scorecard
+        Write the must-haves as a short list, usually three to six items.
+        Write the preferred items as a second list.
+        For each candidate, check every must-have first. If any is missing, stop and consider whether to ask the vendor.
+        Then count the preferred items the candidate has, to rank strong candidates.
+
+        When the JD is unclear
+        Some JDs list everything as required. Ask the vendor: Which three skills are the most important for this client? Vendors appreciate recruiters who ask focused questions.
+
+        Practical example
+        For the running example, your must-haves are three or more years of Java, Spring Boot, REST APIs, SQL, and the ability to work hybrid in Charlotte. Your preferred items are Kafka, AWS and banking domain experience. Candidate one meets every must-have and has Kafka. Candidate two meets every must-have and has AWS and banking experience. Candidate three has strong AWS and Kafka, but only basic Spring Boot. You submit candidates one and two, and you do not submit candidate three, because a must-have is missing.
+
+        Recruiter checklist
+        Separate must-haves from preferred items for every requirement.
+        Check must-haves first for every candidate.
+        Use preferred items to rank candidates.
+        Ask the vendor when everything appears required.
+
+        Common mistakes
+        Rejecting a strong candidate for missing a preferred skill.
+        Submitting a candidate who misses a must-have because they have many bonus skills.
+
+        Key takeaway
+        Must-haves decide who qualifies. Preferred items decide who stands out. Keep the two lists separate.
+        TEXT,
+
+        'Work Authorization Check' => <<<'TEXT'
+        Learning objective
+        Learn how to read work authorization rules in a requirement and check candidates against them using approved, consistent questions.
+
+        What you need to know
+        Many requirements include work authorization rules. You will see phrases such as these.
+        No sponsorship, or must be authorized to work without sponsorship.
+        Citizens and green card holders only, sometimes written as USC and GC only.
+        No OPT or STEM OPT, or no H-1B.
+        OPT and STEM OPT accepted.
+        Some government or defence roles require U.S. citizenship and security clearance.
+
+        From the company training material: the recruiter checkpoint
+        The Job Description Analysis training has a dedicated slide called Work Authorization, Recruiter Checkpoint. Its rule is: always read the actual requirement and confirm client-specific eligibility.
+        Do not assume. Visa eligibility can vary by client, role, contract type and conversion terms.
+        Capture the requirement. Record any stated restrictions, such as No H-1B, No CPT or OPT, or citizen-only language.
+        Confirm before submission. When wording is unclear, verify with the Account Manager or BDM before presenting the candidate.
+        Document accurately. Do not alter or misrepresent a candidate's work authorization.
+        The training's Java and AWS example includes the note that stated visa restrictions must be verified. The US MNC Staffing document also tells recruiters to note which visa statuses the client is looking for, such as Green Card, OPT, EAD, H-1B or U.S. citizen.
+
+        Why requirements include these rules
+        Some clients do not sponsor visas or prefer not to employ candidates who may need sponsorship later. Some government contracts legally require citizenship. Whatever the reason, the rule is set by the client. Recruiters must follow it.
+
+        How to check
+        Read the work authorization rule before sourcing.
+        Ask every candidate the same approved questions, such as: Are you currently authorized to work in the U.S.? and Will you now or in the future require sponsorship for employment visa status?
+        Record the candidate's answer and their current authorization type and dates, through the approved process.
+        Compare the answer with the requirement's rule.
+        If the rule is unclear, ask the vendor, for example: Does the client accept candidates on STEM OPT?
+
+        What not to do
+        Do not submit a candidate whose authorization does not meet the requirement, even if they are otherwise excellent.
+        Do not describe a candidate's authorization inaccurately to fit a requirement.
+        Do not ask about national origin, citizenship country, religion or other protected characteristics.
+        Do not treat candidates differently because of their name, accent or background.
+        Do not interpret documents yourself. HR handles verification.
+
+        Practical example
+        A requirement says: No OPT, must not require sponsorship. Your best Java candidate is on STEM OPT. You do not submit her for this requirement. You note the restriction, keep her for other requirements, and look for candidates who meet this one.
+
+        Recruiter checklist
+        Read work authorization rules before sourcing.
+        Use the same approved questions with every candidate.
+        Record authorization type and dates accurately.
+        Ask the vendor when rules are unclear.
+
+        Common mistakes
+        Submitting candidates who do not meet the stated rule.
+        Asking non-approved or discriminatory questions.
+        Changing a candidate's stated status in a submission.
+
+        Key takeaway
+        Work authorization rules are set by the client. Check every candidate consistently, record accurately, and never misrepresent.
+        TEXT,
+
+        'Requirement → Search Keywords' => <<<'TEXT'
+        Learning objective
+        Turn an analysed requirement into search keywords and a practical sourcing strategy.
+
+        What you need to know
+        After analysing a requirement, your next step is to find matching candidates. Good searching starts with good keywords. Keywords come directly from your analysis: titles, primary skills, secondary skills, domain, location and other filters.
+
+        From the company training material
+        The Job Description Analysis training states the goal directly: convert the JD into searchable keywords and objective screening criteria. For its Data Architect example, it lists the high-value keywords as AWS, Solution Architect, Enterprise Architect, API Gateway, Lambda, VPC, CloudFront, security architecture, Python and Java. Notice that the list mixes titles, platforms, services and languages. That is exactly the pattern to follow in the steps below.
+
+        Step one, list title keywords
+        Write the main title and similar titles. For example, Java Developer, Java Engineer, Software Engineer Java, Backend Developer and Spring Boot Developer.
+
+        Step two, list primary skill keywords
+        These are the must-have skills. For example, Java, Spring Boot, REST API and SQL. Include common variations, such as Spring and Springboot, REST and RESTful, and Microservices and Micro services.
+
+        Step three, list secondary and bonus keywords
+        For example, Kafka, AWS and banking. Use these to narrow or rank results, not to exclude everyone.
+
+        Step four, add filters
+        Location, such as Charlotte or North Carolina, or a radius from the city.
+        Experience level, such as years of experience filters on job boards.
+        Work authorization, where the platform allows it and your company process approves it.
+        Recent activity, such as profiles updated in the last thirty days.
+
+        Step five, plan your sources
+        Decide where to search first: your internal database, LinkedIn, job boards such as Dice, university networks for recent graduates, and referrals. Level 5 covers each source.
+
+        Step six, build search strings
+        Combine keywords with AND, OR and NOT, called Boolean search, which Level 5 covers in detail. For example: Java AND Spring Boot AND, in brackets, REST OR RESTful, AND SQL.
+
+        Review and adjust
+        If you get too many results, add a secondary skill or narrow the location.
+        If you get too few results, use more title variations or widen the location.
+        Read a few profiles from the results to check that your keywords are finding the right people.
+
+        Practical example
+        For the running example, your plan is: search the internal database first for Java, Spring Boot and SQL profiles in North Carolina; then search LinkedIn for Java Developer or Backend Engineer with Spring Boot in the Charlotte area; then search Dice for recently updated profiles; and finally ask colleagues for referrals.
+
+        Recruiter checklist
+        Build title, primary and secondary keyword lists from your analysis.
+        Include common spelling variations.
+        Plan the order of sources.
+        Adjust searches based on results.
+
+        Common mistakes
+        Searching with too many keywords, which removes good candidates.
+        Forgetting spelling variations.
+        Using bonus skills as must-have filters.
+
+        Key takeaway
+        Your analysis becomes your search. Clear keyword lists and a source plan lead to faster, better shortlists.
+        TEXT,
+
+        'Requirement Prioritization' => <<<'TEXT'
+        Learning objective
+        Learn how to decide which requirements deserve your time first, so that your effort produces the most placements.
+
+        What you need to know
+        Recruiters often receive more requirements than they can work on at once. Spending equal time on every requirement is not effective. Prioritise requirements that you have the best chance of filling, with clear information and responsive partners.
+
+        From the company training material
+        The US MNC Staffing document explains that the BDM assigns each requirement to a recruiter based on technology or skill set, so your priorities usually start with what the BDM has assigned to you. The Job Description Analysis training adds a final piece of advice: ask senior recruiters for role-specific screening practices, and observe how they analyse requirements.
+
+        Factors that increase priority
+        Clear and complete requirement details.
+        Skills that match candidates you have or can find quickly.
+        A workable rate.
+        Work authorization rules that fit your candidate pool, such as OPT accepted.
+        An urgent but realistic start date.
+        A responsive vendor with a good history of feedback.
+        Multiple openings for the same role.
+        Instructions from your team lead about key clients.
+
+        Factors that decrease priority
+        Vague requirements with long, unrelated skill lists.
+        A rate that does not match the experience required.
+        Restrictions that exclude most of your candidates.
+        Vendors who rarely respond or give feedback.
+        Requirements that many other companies are already submitting to, with strict submission limits.
+
+        A simple priority method
+        High priority. Clear requirement, good fit with your pool, workable rate, responsive vendor. Work on it immediately.
+        Medium priority. Some gaps or uncertainty. Clarify with the vendor, then work on it.
+        Low priority. Poor fit or unclear. Do a quick search, and spend more time only if you find a strong match.
+        Always follow your team lead's instructions where they set priorities.
+
+        Time management
+        Set aside focused time for your high-priority requirements during the U.S. morning, when vendors and candidates are most responsive.
+        Track your submissions and follow-ups for each requirement.
+        Review priorities at least once a day, because new information changes them.
+
+        Practical example
+        You have three requirements: the running Java example, which is clear, OPT-friendly and urgent; a senior architect role with a low rate; and a vague data role from a vendor who has not responded to your last three submissions. You work on the Java requirement first, ask your lead about the architect rate, and do a quick search for the data role before clarifying it with the vendor.
+
+        Recruiter checklist
+        Score each requirement on clarity, fit, rate, restrictions, urgency and vendor quality.
+        Work on high-priority requirements first.
+        Review priorities daily with your lead.
+
+        Common mistakes
+        Working on requirements in the order they arrive.
+        Spending hours on requirements with no realistic chance.
+
+        Key takeaway
+        Prioritise by your real chance of success. Focus your best time on clear, workable requirements.
         TEXT,
     ],
 ];

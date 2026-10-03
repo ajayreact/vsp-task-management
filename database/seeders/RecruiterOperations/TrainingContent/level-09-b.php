@@ -119,9 +119,6 @@ return [
         TEXT,
 
         'Payroll Handoff' => <<<'TEXT'
-        Important note
-        This lesson covers process awareness only, not tax or payroll advice. Follow company policy and confirm with payroll or HR.
-
         Learning objective
         Complete a payroll handoff that is accurate, complete and timely, using your company's approved process.
 
@@ -178,9 +175,6 @@ return [
         TEXT,
 
         'Work-State Information' => <<<'TEXT'
-        Important note
-        State tax and employment rules vary and change. Recruiters do not give tax or legal advice. Verify current requirements and confirm with payroll, HR or compliance.
-
         Learning objective
         Understand why the work state matters and how to record and report work-state information accurately.
 
@@ -290,9 +284,6 @@ return [
         TEXT,
 
         'Pay Information' => <<<'TEXT'
-        Important note
-        This lesson covers recruiter awareness only, not tax or payroll advice. Follow company policy and confirm with payroll or HR.
-
         Learning objective
         Communicate approved pay information clearly and accurately, and refer detailed pay questions to payroll.
 

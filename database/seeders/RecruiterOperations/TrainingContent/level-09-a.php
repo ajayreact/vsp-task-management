@@ -58,9 +58,6 @@ return [
         TEXT,
 
         'EAD' => <<<'TEXT'
-        Important note
-        This lesson covers recruiter awareness only, not legal advice. HR verifies employment authorization documents according to law and company policy. Follow company policy and confirm with HR or compliance.
-
         Learning objective
         Understand the recruiter's role in handling EAD information and copies, and in passing accurate EAD details to HR.
 
@@ -113,9 +110,6 @@ return [
         TEXT,
 
         'I-20' => <<<'TEXT'
-        Important note
-        This lesson covers recruiter awareness only, not legal advice. The I-20 is issued and managed by the school. Recruiters do not interpret it. Follow company policy and confirm with HR or compliance.
-
         Learning objective
         Understand when I-20 information may be relevant to documentation and how recruiters should handle related requests.
 
@@ -167,9 +161,6 @@ return [
         TEXT,
 
         'I-983' => <<<'TEXT'
-        Important note
-        This lesson covers recruiter awareness only, not legal advice. The I-983 training plan is completed by the student and the employer, following official rules. HR and authorized personnel handle it. Follow company policy.
-
         Learning objective
         Understand the role of Form I-983 in STEM OPT documentation and how recruiters support the process without completing it.
 
@@ -219,9 +210,6 @@ return [
         TEXT,
 
         'I-94' => <<<'TEXT'
-        Important note
-        This lesson covers recruiter awareness only, not legal advice. Recruiters do not interpret I-94 records. Follow company policy and confirm with HR or compliance.
-
         Learning objective
         Understand how I-94 information may appear in documentation and how recruiters should respond to related questions.
 
@@ -267,9 +255,6 @@ return [
         TEXT,
 
         'I-9' => <<<'TEXT'
-        Important note
-        This lesson covers recruiter awareness only, not legal advice. Form I-9 is completed by the employee and the employer under strict rules. HR manages it. Follow company policy and confirm with HR or compliance.
-
         Learning objective
         Understand the I-9 process at an awareness level, including the recruiter's limited role and why timing and fairness matter.
 
@@ -317,9 +302,6 @@ return [
         TEXT,
 
         'W-4' => <<<'TEXT'
-        Important note
-        This lesson covers recruiter awareness only, not tax advice. W-4 choices are the employee's own decisions. Refer questions to payroll or a qualified tax professional. Follow company policy.
-
         Learning objective
         Understand the W-4 at an awareness level and respond to candidate questions without giving tax advice.
 

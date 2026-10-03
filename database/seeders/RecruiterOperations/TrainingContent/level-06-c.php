@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'level' => 5,
+    'level' => 6,
     'course' => 'Sourcing & Resume Screening',
     'lessons' => [
         'Education' => <<<'TEXT'

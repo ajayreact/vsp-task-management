@@ -64,11 +64,21 @@ return [
     ],
 
     // Which draft lessons recruiter:training-review-flags marks as needing a
-    // compliance review: every lesson of these levels, plus any lesson whose
-    // English mentions one of the phrases. A manager can change the flag on
-    // any lesson afterwards; nothing is ever approved automatically.
+    // compliance review: every lesson of these levels, every lesson with one
+    // of these titles, plus any lesson whose English mentions one of the
+    // phrases. A manager can change the flag on any lesson afterwards;
+    // nothing is ever approved automatically.
     'compliance_review' => [
-        'levels' => [2, 3, 9],
+        'levels' => [2, 4, 9],
+        'lessons' => [
+            'Work Authorization Check',
+            'Visa Status',
+            'EAD Dates',
+            'Objection: "Why do you need my EAD/I-20?"',
+            'Objection: "Can you guarantee H-1B?"',
+            'Mock Calling',
+            'Scenario: Immigration Boundary Scenarios',
+        ],
         'phrases' => ['legal advice'],
     ],
 

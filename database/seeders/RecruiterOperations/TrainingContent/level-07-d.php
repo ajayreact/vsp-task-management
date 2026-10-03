@@ -187,9 +187,6 @@ return [
         TEXT,
 
         'Objection: "Why do you need my EAD/I-20?"' => <<<'TEXT'
-        Important note
-        This lesson covers recruiter awareness only, not legal advice. Document collection and verification follow HR and compliance processes. Follow company policy.
-
         Learning objective
         Explain respectfully why work authorization documents may be needed, and follow your company's process for collecting them securely.
 
@@ -248,9 +245,6 @@ return [
         TEXT,
 
         'Objection: "Can you guarantee H-1B?"' => <<<'TEXT'
-        Important note
-        This lesson covers recruiter awareness only, not legal advice. H-1B outcomes are decided by the U.S. government, not by recruiters or employers. Never make promises. Confirm the company position with HR or authorized personnel.
-
         Learning objective
         Answer H-1B questions honestly, without guarantees, using only your company's approved position.
 

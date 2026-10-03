@@ -55,9 +55,6 @@ return [
         TEXT,
 
         'STEM Programs' => <<<'TEXT'
-        Important note
-        STEM OPT eligibility depends on official program classification and current rules. Recruiters do not decide eligibility. Verify current requirements and refer questions to the DSO and HR.
-
         Learning objective
         Use awareness of STEM programs to focus university outreach, without making eligibility claims.
 
@@ -165,9 +162,6 @@ return [
         TEXT,
 
         'International Student Offices' => <<<'TEXT'
-        Important note
-        International student offices advise students on immigration matters. Recruiters do not give immigration advice and should not ask these offices to act on a candidate's behalf. Follow company policy.
-
         Learning objective
         Understand the role of international student offices and how recruiters should, and should not, interact with them.
 
