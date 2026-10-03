@@ -14,7 +14,7 @@ return [
     1 => [
         'Introduction to the United States' => ['bf2f66d4f322609d549f31fb2fbc4277c647e1949572c435563d5b04379f6031'],
         '50 U.S. States' => ['d3ef2d92f66439be4acee51f3a9d1e177e21e1df060b3ec1076eab8d19cb766d'],
-        'State Abbreviations & Codes' => ['b187f5bd2848144e4942a157e22634235c18176975b07584098190971ce9d08d'],
+        'State Abbreviations & Codes' => ['b187f5bd2848144e4942a157e22634235c18176975b07584098190971ce9d08d', '831021d1392eac7146d30b4ec1a9ab66c23376cd1d260527445acbee7a634a05'],
         'U.S. Regions' => ['605b2eaaaadb1fb299c038d8c26b04eed4a35de7c87e3545ae4af5f59dded3a3'],
         'Major U.S. Cities' => ['aca1405c55606398323a3f376bfdd455ae30ec38604cab43ed4a8dd5b92c2e39'],
         'U.S. Seasons' => ['c6ca3aabfc45bf9aa7d40e6dbfd2b2c301a296f443879a77bbba5068079ceb02'],

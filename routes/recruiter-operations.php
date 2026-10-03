@@ -13,8 +13,10 @@ use App\Modules\RecruiterOperations\Http\Controllers\RecruiterTaskController;
 use App\Modules\RecruiterOperations\Http\Controllers\RecruiterTaskWorkflowController;
 use App\Modules\RecruiterOperations\Http\Controllers\TrainingAssignmentController;
 use App\Modules\RecruiterOperations\Http\Controllers\TrainingCategoryController;
+use App\Modules\RecruiterOperations\Http\Controllers\TrainingContentReviewController;
 use App\Modules\RecruiterOperations\Http\Controllers\TrainingCourseController;
 use App\Modules\RecruiterOperations\Http\Controllers\TrainingLearnerController;
+use App\Modules\RecruiterOperations\Http\Controllers\TrainingLessonContentController;
 use App\Modules\RecruiterOperations\Http\Controllers\TrainingLessonController;
 use App\Modules\RecruiterOperations\Http\Controllers\TrainingLessonMediaController;
 use App\Modules\RecruiterOperations\Http\Controllers\TrainingTeamController;
@@ -145,6 +147,14 @@ Route::prefix('training')->name('training.')->where([
         Route::put('/lessons/{trainingLesson}', [TrainingLessonController::class, 'update'])->name('lessons.update')->can('update', 'trainingLesson');
         Route::delete('/lessons/{trainingLesson}', [TrainingLessonController::class, 'destroy'])->name('lessons.destroy')->can('delete', 'trainingLesson');
         Route::post('/lessons/{trainingLesson}/move', [TrainingLessonController::class, 'move'])->name('lessons.move')->can('move', 'trainingLesson');
+        Route::get('/lessons/{trainingLesson}/content', [TrainingLessonContentController::class, 'edit'])->name('lessons.content.edit')->can('view', 'trainingLesson');
+        Route::put('/lessons/{trainingLesson}/content/{language}', [TrainingLessonContentController::class, 'update'])->name('lessons.content.update')->where('language', '[a-z]{2}')->can('update', 'trainingLesson');
+        Route::delete('/lessons/{trainingLesson}/content/{language}', [TrainingLessonContentController::class, 'destroy'])->name('lessons.content.destroy')->where('language', '[a-z]{2}')->can('update', 'trainingLesson');
+
+        Route::get('/review', [TrainingContentReviewController::class, 'index'])->name('review.index')->can('manage', TrainingCourse::class);
+        Route::get('/review/lessons/{trainingLesson}/{language}', [TrainingContentReviewController::class, 'show'])->name('review.show')->where('language', '[a-z]{2}')->can('view', 'trainingLesson');
+        Route::post('/review/lessons/{trainingLesson}/{language}', [TrainingContentReviewController::class, 'updateStatus'])->name('review.status')->where('language', '[a-z]{2}')->can('update', 'trainingLesson');
+        Route::post('/review/lessons/{trainingLesson}/compliance', [TrainingContentReviewController::class, 'updateCompliance'])->name('review.compliance')->can('update', 'trainingLesson');
 
         Route::post('/versions/{trainingVersion}/quizzes', [TrainingVersionAssessmentController::class, 'store'])->name('versions.quizzes.store')->can('update', 'trainingVersion');
         Route::delete('/versions/{trainingVersion}/quizzes/{assessmentVersion}', [TrainingVersionAssessmentController::class, 'destroy'])->name('versions.quizzes.destroy')->where('assessmentVersion', '[0-9]+')->can('update', 'trainingVersion');

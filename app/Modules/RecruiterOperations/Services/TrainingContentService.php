@@ -5,6 +5,7 @@ namespace App\Modules\RecruiterOperations\Services;
 use App\Modules\Core\Enums\Ability;
 use App\Modules\Core\Models\User;
 use App\Modules\RecruiterOperations\Enums\TrainingContentStatus;
+use App\Modules\RecruiterOperations\Enums\TrainingLanguage;
 use App\Modules\RecruiterOperations\Enums\TrainingLessonContentType;
 use App\Modules\RecruiterOperations\Models\AssessmentVersion;
 use App\Modules\RecruiterOperations\Models\TrainingCategory;
@@ -25,12 +26,15 @@ use Illuminate\Validation\ValidationException;
  *
  * - a course has at most one draft version, and only a draft can change;
  * - publishing freezes the draft, makes it the version new assignments get,
- *   and archives the version it replaces;
+ *   and archives the version it replaces; it waits until the version's
+ *   content reviews are finished (TrainingContentReviewService);
  * - assignments stay pinned to the version they were given, so nothing here
  *   ever edits or deletes a version that learners hold.
  */
 class TrainingContentService
 {
+    public function __construct(protected TrainingContentReviewService $reviews) {}
+
     // Categories
 
     /**
@@ -250,6 +254,8 @@ class TrainingContentService
                 throw ValidationException::withMessages(['version' => 'Add at least one lesson before publishing.']);
             }
 
+            $this->reviews->ensureReadyToPublish($version);
+
             $course->versions()
                 ->whereKeyNot($version->id)
                 ->where('status', TrainingContentStatus::Published->value)
@@ -420,7 +426,15 @@ class TrainingContentService
         }
 
         return DB::transaction(function () use ($lesson, $data, $file, $actor, $type) {
-            $lesson->fill($this->lessonAttributes($data, $type));
+            $attributes = $this->lessonAttributes($data, $type);
+
+            // With structured English content the body mirrors it and is
+            // edited on the content page, not here.
+            if ($lesson->contents()->where('locale', TrainingLanguage::English->value)->exists()) {
+                unset($attributes['body']);
+            }
+
+            $lesson->fill($attributes);
             $lesson->updated_by_user_id = $actor->id;
             $lesson->save();
 
@@ -561,6 +575,10 @@ class TrainingContentService
 
         if ($file !== null) {
             $file->copy($copy, TrainingLesson::FILE_COLLECTION, (string) config('recruiter-training.media.disk', 'local'));
+        }
+
+        foreach ($source->contents()->get() as $content) {
+            $content->replicate(['lesson_id'])->forceFill(['lesson_id' => $copy->id])->save();
         }
 
         return $copy;

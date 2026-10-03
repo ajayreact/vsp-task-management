@@ -2,6 +2,7 @@
 
 namespace App\Modules\RecruiterOperations\Services;
 
+use App\Modules\RecruiterOperations\Enums\TrainingLanguage;
 use App\Modules\RecruiterOperations\Exceptions\TrainingSpeechException;
 use App\Modules\RecruiterOperations\Models\TrainingLesson;
 use App\Modules\RecruiterOperations\Speech\TrainingAudio;
@@ -26,7 +27,12 @@ class TrainingSpeechService
      */
     public const SEGMENT_CHARACTERS = 220;
 
-    public function __construct(protected TrainingSpeechProvider $provider) {}
+    protected TrainingLessonContentService $contents;
+
+    public function __construct(protected TrainingSpeechProvider $provider, ?TrainingLessonContentService $contents = null)
+    {
+        $this->contents = $contents ?? new TrainingLessonContentService;
+    }
 
     public function provider(): TrainingSpeechProvider
     {
@@ -39,16 +45,19 @@ class TrainingSpeechService
     }
 
     /**
-     * Configured voice profiles the provider really supports, default first.
+     * Configured voice profiles the provider really supports for one lesson
+     * language (English by default), default first. A voice belongs to the
+     * language of its locale: en-IN is English, te-IN is Telugu.
      *
      * @return list<VoiceProfile>
      */
-    public function voices(): array
+    public function voices(?TrainingLanguage $language = null): array
     {
         if ($this->provider->delivery() === TrainingSpeechDelivery::Unavailable) {
             return [];
         }
 
+        $language ??= TrainingLanguage::default();
         $supported = $this->provider->supportedVoices();
         $default = (string) config('recruiter-training.speech.default_voice', 'indian_english');
         $voices = [];
@@ -58,10 +67,16 @@ class TrainingSpeechService
                 continue;
             }
 
+            $locale = (string) ($profile['locale'] ?? 'en');
+
+            if (self::languageOfLocale($locale) !== $language) {
+                continue;
+            }
+
             $voices[] = new VoiceProfile(
                 $key,
                 (string) ($profile['label'] ?? $key),
-                (string) ($profile['locale'] ?? 'en'),
+                $locale,
                 (string) ($profile['flag'] ?? ''),
             );
         }
@@ -71,26 +86,34 @@ class TrainingSpeechService
         return $voices;
     }
 
-    /**
-     * @return list<array{key: string, label: string, locale: string, flag: string}>
-     */
-    public function voiceOptions(): array
+    public static function languageOfLocale(string $locale): ?TrainingLanguage
     {
-        return array_map(fn (VoiceProfile $voice) => $voice->toArray(), $this->voices());
+        return TrainingLanguage::tryFrom(strtolower((string) preg_split('/[-_]/', $locale)[0]));
     }
 
     /**
-     * The requested voice, or the default when none is asked for. A voice the
-     * provider does not offer is refused, never silently swapped.
+     * @return list<array{key: string, label: string, locale: string, flag: string}>
+     */
+    public function voiceOptions(?TrainingLanguage $language = null): array
+    {
+        return array_map(fn (VoiceProfile $voice) => $voice->toArray(), $this->voices($language));
+    }
+
+    /**
+     * The requested voice, or the language's default when none is asked for.
+     * A voice the provider does not offer, or one for another language, is
+     * refused, never silently swapped.
      *
      * @throws ValidationException
      */
-    public function resolveVoice(?string $key): VoiceProfile
+    public function resolveVoice(?string $key, ?TrainingLanguage $language = null): VoiceProfile
     {
-        $voices = $this->voices();
+        $voices = $this->voices($language);
 
         if ($voices === []) {
-            throw ValidationException::withMessages(['voice' => 'Listening to lessons is not available.']);
+            throw ValidationException::withMessages(['voice' => ($language ?? TrainingLanguage::default())->isCanonical()
+                ? 'Listening to lessons is not available.'
+                : 'Listening in '.$language?->label().' is not available.']);
         }
 
         if ($key === null || $key === '') {
@@ -107,20 +130,35 @@ class TrainingSpeechService
     }
 
     /**
-     * What gets read aloud: the title, the summary and the written content.
+     * What gets read aloud: the title, the summary and the written content in
+     * the chosen language (English by default). English reads the structured
+     * sections when the lesson has them and the older body otherwise; another
+     * language is read only from its own translation, and has no text without
+     * one (or, in a published version, without an approved one).
      */
-    public function lessonText(TrainingLesson $lesson): string
+    public function lessonText(TrainingLesson $lesson, ?TrainingLanguage $language = null): string
     {
+        $language ??= TrainingLanguage::default();
+        $content = $language->isCanonical() ? $lesson->contentIn($language) : $this->contents->visibleTranslation($lesson, $language);
+
+        if (! $language->isCanonical() && $content === null) {
+            return '';
+        }
+
         $title = trim($lesson->title);
 
         if ($title !== '' && preg_match('/[.!?:]$/u', $title) !== 1) {
             $title .= '.';
         }
 
+        $body = $content !== null
+            ? TrainingLessonStructure::speakable(TrainingLessonStructure::normalize($content->sections))
+            : $this->speakableBody((string) $lesson->body);
+
         $parts = array_filter([
             $title,
-            trim((string) $lesson->description),
-            trim((string) $lesson->body),
+            $language->isCanonical() ? trim((string) $lesson->description) : '',
+            trim($body),
         ], fn (string $part) => $part !== '');
 
         $text = implode("\n\n", $parts);
@@ -128,6 +166,51 @@ class TrainingSpeechService
         $max = max(1, (int) config('recruiter-training.speech.max_characters', 20000));
 
         return mb_strlen($text) > $max ? mb_substr($text, 0, $max) : $text;
+    }
+
+    /**
+     * Tables in the body ("| Alabama | AL |" lines) are read row by row as
+     * "Alabama, AL." instead of reading out the pipes. A header row followed
+     * by a "| --- |" line is skipped, and a table's rows form one paragraph.
+     */
+    protected function speakableBody(string $body): string
+    {
+        $lines = explode("\n", (string) preg_replace("/\r\n?/", "\n", $body));
+        $cells = fn (string $line) => array_map('trim', explode('|', trim(trim($line), '|')));
+        $isTable = fn (?string $line) => $line !== null && str_starts_with(trim($line), '|');
+        $isSeparator = fn (?string $line) => $isTable($line) && array_filter($cells((string) $line), fn (string $cell) => preg_match('/^:?-{3,}:?$/', $cell) !== 1) === [];
+
+        $out = [];
+        $rows = [];
+
+        foreach ($lines as $index => $line) {
+            if (! $isTable($line)) {
+                if ($rows !== []) {
+                    $out[] = implode(' ', $rows);
+                    $rows = [];
+                }
+
+                $out[] = $line;
+
+                continue;
+            }
+
+            if ($isSeparator($line) || $isSeparator($lines[$index + 1] ?? null)) {
+                continue;
+            }
+
+            $spoken = implode(', ', array_filter($cells($line), fn (string $cell) => $cell !== ''));
+
+            if ($spoken !== '') {
+                $rows[] = preg_match('/[.!?]$/u', $spoken) === 1 ? $spoken : $spoken.'.';
+            }
+        }
+
+        if ($rows !== []) {
+            $out[] = implode(' ', $rows);
+        }
+
+        return implode("\n", $out);
     }
 
     /**
@@ -190,9 +273,9 @@ class TrainingSpeechService
      *
      * @return array{delivery: string, provider: string, voice: array{key: string, label: string, locale: string, flag: string}, has_text: bool, segments: list<string>, estimated_seconds: int}
      */
-    public function speechFor(TrainingLesson $lesson, VoiceProfile $voice): array
+    public function speechFor(TrainingLesson $lesson, VoiceProfile $voice, ?TrainingLanguage $language = null): array
     {
-        $text = $this->lessonText($lesson);
+        $text = $this->lessonText($lesson, $language);
         $delivery = $this->provider->delivery();
 
         return [
@@ -212,13 +295,13 @@ class TrainingSpeechService
      *
      * @throws TrainingSpeechException
      */
-    public function generateLessonAudio(TrainingLesson $lesson, VoiceProfile $voice): TrainingAudio
+    public function generateLessonAudio(TrainingLesson $lesson, VoiceProfile $voice, ?TrainingLanguage $language = null): TrainingAudio
     {
         if ($this->provider->delivery() !== TrainingSpeechDelivery::Audio) {
             throw new TrainingSpeechException('This lesson is not delivered as an audio file.');
         }
 
-        $text = $this->lessonText($lesson);
+        $text = $this->lessonText($lesson, $language);
 
         if ($text === '') {
             throw new TrainingSpeechException('This lesson has no text to read aloud.');

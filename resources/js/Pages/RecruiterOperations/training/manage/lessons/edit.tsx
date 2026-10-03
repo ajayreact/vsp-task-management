@@ -43,6 +43,11 @@ export default function EditTrainingLesson({ contentTypes, maxUploadKilobytes, v
                         file: null,
                     }}
                     existingFile={lesson.file}
+                    structuredContentUrl={
+                        lesson.languages.some((language) => language.canonical && language.structured)
+                            ? `/recruiter/training/manage/lessons/${lesson.id}/content`
+                            : undefined
+                    }
                     action={`/recruiter/training/manage/lessons/${lesson.id}`}
                     method="put"
                     submitLabel="Save lesson"

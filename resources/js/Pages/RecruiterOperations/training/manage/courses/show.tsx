@@ -20,8 +20,8 @@ import { Textarea } from '@/components/ui/textarea';
 import RecruiterLayout from '@/layouts/recruiter-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, Eye, LoaderCircle, Pencil, Plus, Trash2, UserPlus } from 'lucide-react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { ArrowDown, ArrowUp, ClipboardCheck, Eye, LoaderCircle, Pencil, Plus, Trash2, UserPlus } from 'lucide-react';
 import { type FormEvent } from 'react';
 
 interface VersionRow {
@@ -45,6 +45,7 @@ interface LessonRow {
     is_required: boolean;
     has_file: boolean;
     has_body: boolean;
+    translations: string[];
 }
 
 interface SelectedVersion {
@@ -59,7 +60,54 @@ interface SelectedVersion {
     is_current: boolean;
     lessons: LessonRow[];
     quizzes: LinkedQuiz[];
+    review: ReviewReadiness | null;
     can: { update: boolean; publish: boolean; archive: boolean; delete: boolean };
+}
+
+interface ReviewReadiness {
+    english_required: boolean;
+    english_total: number;
+    english_approved: number;
+    compliance_required: number;
+    compliance_approved: number;
+    compliance_blocking: number;
+    ready: boolean;
+}
+
+function ReviewReadinessPanel({ review, error }: { review: ReviewReadiness; error?: string }) {
+    return (
+        <div
+            className={cn(
+                'space-y-2 rounded-xl border p-3 text-sm',
+                review.ready ? 'border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20' : 'border-amber-500/30 bg-amber-50/60 dark:bg-amber-950/20',
+            )}
+        >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="flex items-center gap-2 font-medium">
+                    <ClipboardCheck className="size-4" />
+                    {review.ready ? 'Content reviews are finished. This version can be published.' : 'Publishing waits for content review.'}
+                </p>
+                <Button asChild size="sm" variant="outline">
+                    <Link href="/recruiter/training/manage/review">Open content review</Link>
+                </Button>
+            </div>
+            <ul className="text-muted-foreground space-y-0.5">
+                {review.english_required && (
+                    <li>
+                        English approved: {review.english_approved} of {review.english_total} lessons
+                    </li>
+                )}
+                {review.compliance_required > 0 && (
+                    <li>
+                        Compliance approved: {review.compliance_approved} of {review.compliance_required} flagged lessons
+                        {review.compliance_blocking > 0 ? ` (${review.compliance_blocking} still open)` : ''}
+                    </li>
+                )}
+                <li>Telugu is optional: recruiters see English where a translation is not available.</li>
+            </ul>
+            <InputError message={error} />
+        </div>
+    );
 }
 
 interface LinkedQuiz {
@@ -290,6 +338,8 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
     const version = selectedVersion;
     const editable = version?.can.update ?? false;
     const lessons = version?.lessons ?? [];
+    const { errors } = usePage<{ errors: Record<string, string | undefined> }>().props;
+    const reviewReady = version?.review?.ready ?? true;
 
     const move = (lessonId: number, direction: 'up' | 'down') => {
         router.post(`/recruiter/training/manage/lessons/${lessonId}/move`, { direction }, { preserveScroll: true, preserveState: true });
@@ -415,7 +465,12 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
                                         </CardDescription>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
-                                        {version.can.publish && (
+                                        {version.can.publish && !reviewReady && (
+                                            <Button size="sm" disabled title="Finish the content reviews first">
+                                                Publish {version.label}
+                                            </Button>
+                                        )}
+                                        {version.can.publish && reviewReady && (
                                             <ConfirmPost
                                                 trigger={<Button size="sm">Publish {version.label}</Button>}
                                                 title={`Publish ${version.label}?`}
@@ -453,7 +508,10 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
                                         )}
                                     </div>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="space-y-4">
+                                    {version.review && (version.review.english_required || version.review.compliance_required > 0) && (
+                                        <ReviewReadinessPanel review={version.review} error={errors.version} />
+                                    )}
                                     {editable ? (
                                         <VersionDetailsForm key={version.id} version={version} />
                                     ) : (
@@ -519,6 +577,11 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
                                                                 {!lesson.has_body && (
                                                                     <p className="text-muted-foreground text-xs">No written content yet</p>
                                                                 )}
+                                                                {lesson.translations.length > 0 && (
+                                                                    <p className="text-muted-foreground text-xs">
+                                                                        Also in {lesson.translations.join(', ')}
+                                                                    </p>
+                                                                )}
                                                             </TableCell>
                                                             <TableCell className="text-sm">
                                                                 {lesson.content_type_label}
@@ -563,6 +626,11 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
                                                             </div>
                                                             {!lesson.has_body && (
                                                                 <p className="text-muted-foreground text-xs">No written content yet</p>
+                                                            )}
+                                                            {lesson.translations.length > 0 && (
+                                                                <p className="text-muted-foreground text-xs">
+                                                                    Also in {lesson.translations.join(', ')}
+                                                                </p>
                                                             )}
                                                             <LessonActions
                                                                 lesson={lesson}

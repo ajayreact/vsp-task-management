@@ -1,5 +1,11 @@
 import { TrainingAudioPlayer, type TrainingAudioConfig } from '@/components/recruiter-operations/training/training-audio-player';
 import { postJson } from '@/components/recruiter-operations/training/training-http';
+import {
+    DEFAULT_LANGUAGE,
+    resolveLessonLanguage,
+    TrainingLanguageSelect,
+    useTrainingLanguage,
+} from '@/components/recruiter-operations/training/training-language';
 import { TrainingLessonContent, type TrainingLessonData } from '@/components/recruiter-operations/training/training-lesson-content';
 import { RequiredBadge, TrainingProgressBar } from '@/components/recruiter-operations/training/training-ui';
 import { Badge } from '@/components/ui/badge';
@@ -9,7 +15,7 @@ import RecruiterLayout from '@/layouts/recruiter-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { CheckCircle2, ChevronLeft, ChevronRight, Circle, LoaderCircle } from 'lucide-react';
+import { CheckCircle2, ChevronLeft, ChevronRight, Circle, Info, LoaderCircle } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface Props {
@@ -45,6 +51,10 @@ export default function TrainingLesson({
 }: Props) {
     const [completing, setCompleting] = useState(false);
     const lastBeatRef = useRef(Date.now());
+    const [chosenLanguage, chooseLanguage] = useTrainingLanguage();
+    const { shown, fellBack } = resolveLessonLanguage(lesson.languages, chosenLanguage);
+    const chosen = lesson.languages.find((item) => item.code === chosenLanguage);
+    const language = shown?.code ?? DEFAULT_LANGUAGE;
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Recruiter Operations', href: '/recruiter' },
@@ -130,16 +140,32 @@ export default function TrainingLesson({
                                     )}
                                 </div>
                             </div>
+                            {lesson.languages.length > 1 && (
+                                <TrainingLanguageSelect languages={lesson.languages} value={chosenLanguage} onChange={chooseLanguage} />
+                            )}
+                            {fellBack && chosen && (
+                                <p className="text-muted-foreground flex items-start gap-2 text-sm" role="status">
+                                    <Info className="mt-0.5 size-4 shrink-0" />
+                                    This lesson is not available in {chosen.native_label} ({chosen.label}) yet, so it is shown in English.
+                                </p>
+                            )}
+                            {!fellBack && shown && !shown.canonical && shown.outdated && (
+                                <p className="flex items-start gap-2 text-sm text-amber-700 dark:text-amber-300" role="status">
+                                    <Info className="mt-0.5 size-4 shrink-0" />
+                                    The English lesson was updated after this translation. Check the English version for the latest content.
+                                </p>
+                            )}
                         </header>
 
                         <TrainingAudioPlayer
-                            key={lesson.id}
+                            key={`${lesson.id}-${language}`}
                             audio={audio}
+                            language={language}
                             initialSeconds={completion.audio_progress_seconds}
                             onPositionReport={reportAudio}
                         />
 
-                        <TrainingLessonContent lesson={lesson} />
+                        <TrainingLessonContent lesson={lesson} language={shown} />
 
                         <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-5">
                             {previousLesson ? (
@@ -174,7 +200,11 @@ export default function TrainingLesson({
                                                 </Link>
                                             </Button>
                                         )}
-                                        <Button onClick={markComplete} disabled={completing} className="bg-emerald-600 text-white hover:bg-emerald-700">
+                                        <Button
+                                            onClick={markComplete}
+                                            disabled={completing}
+                                            className="bg-emerald-600 text-white hover:bg-emerald-700"
+                                        >
                                             {completing ? <LoaderCircle className="animate-spin" /> : <CheckCircle2 />}
                                             Mark lesson complete
                                         </Button>

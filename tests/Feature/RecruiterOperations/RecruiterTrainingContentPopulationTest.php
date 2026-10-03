@@ -11,6 +11,7 @@ use App\Modules\RecruiterOperations\Models\TrainingLesson;
 use App\Modules\RecruiterOperations\Models\TrainingLessonCompletion;
 use App\Modules\RecruiterOperations\Services\TrainingContentPopulator;
 use App\Modules\RecruiterOperations\Services\TrainingContentService;
+use App\Modules\RecruiterOperations\Services\TrainingSpeechService;
 use Database\Seeders\Core\RolesAndPermissionsSeeder;
 use Database\Seeders\RecruiterOperations\RecruiterTrainingCurriculumSeeder;
 use Database\Seeders\RecruiterOperations\TrainingContent\RecruiterTrainingContent;
@@ -67,11 +68,16 @@ test('the written content is plain, speakable text without answer keys', functio
     foreach (RecruiterTrainingContent::all() as $entry) {
         foreach ($entry['lessons'] as $title => $body) {
             $words = TrainingContentPopulator::wordCount($body);
+            $spoken = app(TrainingSpeechService::class)->lessonText((new TrainingLesson)->forceFill(['title' => 'Lesson', 'body' => $body]));
+            $strayPipes = array_filter(explode("\n", $body), fn (string $line) => str_contains($line, '|')
+                && ! (str_starts_with(trim($line), '|') && str_ends_with(trim($line), '|')));
 
             expect($words)->toBeGreaterThanOrEqual(300, "{$title} is too short")
                 ->and($words)->toBeLessThanOrEqual(1200, "{$title} is too long")
                 ->and(mb_strlen($title.$body))->toBeLessThan($maxCharacters)
-                ->and(preg_match('/[•→↔*#|]/u', $body))->toBe(0, "{$title} has symbols that would be read aloud")
+                ->and(preg_match('/[•→↔*#]/u', $body))->toBe(0, "{$title} has symbols that would be read aloud")
+                ->and($strayPipes)->toBe([], "{$title} has a | outside a table row")
+                ->and(preg_match('/[•→↔*#|]/u', $spoken))->toBe(0, "{$title} reads symbols aloud")
                 ->and(stripos($body, 'answer key'))->toBeFalse()
                 ->and($body)->toContain('Learning objective')
                 ->and($body)->toContain('Key takeaway')

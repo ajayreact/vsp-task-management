@@ -34,6 +34,7 @@ export function TrainingLessonForm({
     maxUploadKilobytes,
     initial,
     existingFile,
+    structuredContentUrl,
     action,
     method,
     submitLabel,
@@ -43,6 +44,8 @@ export function TrainingLessonForm({
     maxUploadKilobytes: number;
     initial: TrainingLessonFormValues;
     existingFile?: TrainingLessonFile | null;
+    /** Set when the lesson's written content is kept as structured sections, edited on its own page. */
+    structuredContentUrl?: string;
     action: string;
     method: 'post' | 'put';
     submitLabel: string;
@@ -98,8 +101,8 @@ export function TrainingLessonForm({
                 <CardHeader>
                     <CardTitle>Lesson</CardTitle>
                     <CardDescription>
-                        Written content is plain text: line breaks are kept, formatting code is shown as typed. It is also what Listen to Lesson reads
-                        aloud.
+                        Written content is plain text and is also what Listen to Lesson reads aloud. After saving, use Edit content on the lesson
+                        preview to organise it into sections and add translations.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
@@ -186,20 +189,33 @@ export function TrainingLessonForm({
                         <InputError message={errors.external_url} />
                     </div>
 
-                    <div className="grid gap-2 sm:col-span-2">
-                        <Label htmlFor="body">Written content</Label>
-                        <Textarea
-                            id="body"
-                            value={data.body}
-                            onChange={(e) => setData('body', e.target.value)}
-                            rows={14}
-                            placeholder="The lesson text recruiters read and listen to."
-                        />
-                        <InputError message={errors.body} />
-                    </div>
+                    {structuredContentUrl ? (
+                        <div className="text-muted-foreground flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed p-3 text-sm sm:col-span-2">
+                            <span>The written content is organised into sections, with its translations, on its own page.</span>
+                            <Button type="button" variant="outline" size="sm" asChild>
+                                <Link href={structuredContentUrl}>Edit content</Link>
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="grid gap-2 sm:col-span-2">
+                            <Label htmlFor="body">Written content</Label>
+                            <Textarea
+                                id="body"
+                                value={data.body}
+                                onChange={(e) => setData('body', e.target.value)}
+                                rows={14}
+                                placeholder="Start with a learning objective, then the key points, an example and a key takeaway."
+                            />
+                            <InputError message={errors.body} />
+                        </div>
+                    )}
 
                     <div className="flex items-center gap-2 sm:col-span-2">
-                        <Checkbox id="is_required" checked={data.is_required} onCheckedChange={(checked) => setData('is_required', checked === true)} />
+                        <Checkbox
+                            id="is_required"
+                            checked={data.is_required}
+                            onCheckedChange={(checked) => setData('is_required', checked === true)}
+                        />
                         <Label htmlFor="is_required" className="font-normal">
                             Required lesson (counts towards course completion)
                         </Label>

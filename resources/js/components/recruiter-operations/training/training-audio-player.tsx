@@ -15,6 +15,8 @@ export interface TrainingVoiceOption {
 export interface TrainingAudioConfig {
     delivery: string;
     voices: TrainingVoiceOption[];
+    voices_by_language?: Record<string, TrainingVoiceOption[]>;
+    has_text_by_language?: Record<string, boolean>;
     speech_url: string;
     has_text: boolean;
 }
@@ -31,6 +33,8 @@ interface SpeechPayload {
 
 interface Props {
     audio: TrainingAudioConfig;
+    /** Lesson language to read; each language has its own text and voices. */
+    language?: string;
     /** Where the recruiter stopped last time, in seconds at 1x. */
     initialSeconds?: number;
     /** Called with the current position (seconds at 1x) while listening. */
@@ -76,6 +80,8 @@ function normaliseLocale(locale: string): string {
     return locale.replace('_', '-').toLowerCase();
 }
 
+const LANGUAGE_NAMES: Record<string, string> = { te: 'Telugu' };
+
 function speechSupported(): boolean {
     return typeof window !== 'undefined' && 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
 }
@@ -90,14 +96,18 @@ function speechSupported(): boolean {
  *
  * Listening never completes a lesson; that stays an explicit button.
  */
-export function TrainingAudioPlayer({ audio, initialSeconds = 0, onPositionReport }: Props) {
-    const voices = audio.voices;
+export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0, onPositionReport }: Props) {
+    const english = language === 'en';
+    const voices = audio.voices_by_language?.[language] ?? (english ? audio.voices : []);
+    const hasText = audio.has_text_by_language?.[language] ?? (english ? audio.has_text : false);
+    const voiceStorageKey = english ? STORAGE.voice : `${STORAGE.voice}.${language}`;
+    const languageName = LANGUAGE_NAMES[language] ?? language;
     const deviceDelivery = audio.delivery === 'device';
     const available = audio.delivery !== 'unavailable' && voices.length > 0;
     const unsupported = deviceDelivery && !speechSupported();
 
     const [voiceKey, setVoiceKey] = useState<string>(() => {
-        const saved = readStored(STORAGE.voice);
+        const saved = readStored(voiceStorageKey);
 
         return voices.some((voice) => voice.key === saved) ? (saved as string) : (voices[0]?.key ?? '');
     });
@@ -204,8 +214,16 @@ export function TrainingAudioPlayer({ audio, initialSeconds = 0, onPositionRepor
 
         const wanted = normaliseLocale(locale);
         const installed = window.speechSynthesis.getVoices();
+        const exact = installed.find((voice) => normaliseLocale(voice.lang) === wanted);
 
-        return installed.find((voice) => normaliseLocale(voice.lang) === wanted) ?? null;
+        if (exact || wanted.startsWith('en')) {
+            return exact ?? null;
+        }
+
+        // Outside English any regional voice of the language will do (te-IN or plain te).
+        const base = wanted.split('-')[0];
+
+        return installed.find((voice) => normaliseLocale(voice.lang).split('-')[0] === base) ?? null;
     }, []);
 
     useEffect(() => {
@@ -420,6 +438,7 @@ export function TrainingAudioPlayer({ audio, initialSeconds = 0, onPositionRepor
 
         const url = new URL(audio.speech_url, window.location.origin);
         url.searchParams.set('voice', voiceKey);
+        url.searchParams.set('language', language);
 
         try {
             const payload = await getJson<SpeechPayload>(url.toString(), controller.signal);
@@ -461,7 +480,7 @@ export function TrainingAudioPlayer({ audio, initialSeconds = 0, onPositionRepor
 
             return null;
         }
-    }, [audio.speech_url, ensureAudioElement, fail, prepareSegments, voiceKey]);
+    }, [audio.speech_url, ensureAudioElement, fail, language, prepareSegments, voiceKey]);
 
     const play = useCallback(async () => {
         if (status === 'loading' || !available || unsupported) {
@@ -663,7 +682,7 @@ export function TrainingAudioPlayer({ audio, initialSeconds = 0, onPositionRepor
         pendingSeekRef.current = positionRef.current;
         payloadRef.current = null;
         setVoiceKey(key);
-        store(STORAGE.voice, key);
+        store(voiceStorageKey, key);
         setError(null);
         setStatus('idle');
     };
@@ -679,7 +698,9 @@ export function TrainingAudioPlayer({ audio, initialSeconds = 0, onPositionRepor
     const hasTimeline = duration > 0;
     const shownPosition = estimated ? position / speed : position;
     const shownDuration = estimated ? duration / speed : duration;
-    const controlsDisabled = !available || unsupported || !audio.has_text;
+    // A non-English lesson cannot be read by the browser's English fallback voice.
+    const missingLanguageVoice = deviceDelivery && !english && deviceVoiceMissing;
+    const controlsDisabled = !available || unsupported || !hasText || missingLanguageVoice;
 
     const resumeHint = useMemo(() => {
         if (status !== 'idle' || initialSeconds <= 0) {
@@ -693,7 +714,10 @@ export function TrainingAudioPlayer({ audio, initialSeconds = 0, onPositionRepor
         return (
             <section className="rounded-xl border border-dashed p-4" aria-label="Listen to lesson">
                 <div className="text-muted-foreground flex items-center gap-2 text-sm">
-                    <Headphones className="size-4" /> Listening to lessons is not available right now.
+                    <Headphones className="size-4" />
+                    {english || audio.delivery === 'unavailable'
+                        ? 'Listening to lessons is not available right now.'
+                        : `Listening in ${languageName} is not available right now.`}
                 </div>
             </section>
         );
@@ -733,7 +757,14 @@ export function TrainingAudioPlayer({ audio, initialSeconds = 0, onPositionRepor
             </div>
 
             <div className="mt-4 flex items-center gap-2">
-                <Button type="button" variant="outline" size="icon" onClick={previous} disabled={controlsDisabled || !payloadRef.current} aria-label="Previous">
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={previous}
+                    disabled={controlsDisabled || !payloadRef.current}
+                    aria-label="Previous"
+                >
                     <SkipBack />
                 </Button>
                 <Button
@@ -746,7 +777,14 @@ export function TrainingAudioPlayer({ audio, initialSeconds = 0, onPositionRepor
                 >
                     {isLoading ? <LoaderCircle className="animate-spin" /> : isPlaying ? <Pause /> : <Play />}
                 </Button>
-                <Button type="button" variant="outline" size="icon" onClick={next} disabled={controlsDisabled || !payloadRef.current} aria-label="Next">
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={next}
+                    disabled={controlsDisabled || !payloadRef.current}
+                    aria-label="Next"
+                >
                     <SkipForward />
                 </Button>
 
@@ -817,9 +855,18 @@ export function TrainingAudioPlayer({ audio, initialSeconds = 0, onPositionRepor
                 </p>
             )}
 
-            {!audio.has_text && (
+            {!hasText && (
                 <p className="text-muted-foreground mt-3 flex items-start gap-2 text-sm">
-                    <Info className="mt-0.5 size-4 shrink-0" /> This lesson has no written text to read aloud yet.
+                    <Info className="mt-0.5 size-4 shrink-0" />
+                    {english ? 'This lesson has no written text to read aloud yet.' : `This lesson has no ${languageName} text to read aloud yet.`}
+                </p>
+            )}
+
+            {missingLanguageVoice && (
+                <p className="mt-3 flex items-start gap-2 text-sm text-amber-700 dark:text-amber-300" role="status">
+                    <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                    {languageName} voice is not available on this device. Please install or enable a {languageName} speech voice in your
+                    system/browser.
                 </p>
             )}
 
@@ -833,7 +880,7 @@ export function TrainingAudioPlayer({ audio, initialSeconds = 0, onPositionRepor
                 </div>
             )}
 
-            {deviceDelivery && deviceVoiceMissing && selectedVoice && !unsupported && (
+            {deviceDelivery && english && deviceVoiceMissing && selectedVoice && !unsupported && (
                 <p className={cn('text-muted-foreground mt-3 flex items-start gap-2 text-xs')}>
                     <Info className="mt-0.5 size-3.5 shrink-0" />
                     This device has no {selectedVoice.label} voice installed, so your browser reads with its default English voice. Add an English (

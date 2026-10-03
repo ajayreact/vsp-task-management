@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { ExternalLink, FileText } from 'lucide-react';
+import { LessonSections, type LessonLanguage } from './training-lesson-sections';
 
 export interface TrainingLessonFile {
     name: string;
@@ -13,6 +14,7 @@ export interface TrainingLessonData {
     title: string;
     description: string | null;
     body: string | null;
+    languages: LessonLanguage[];
     content_type: string;
     content_type_label: string;
     duration_minutes: number | null;
@@ -45,12 +47,15 @@ function formatBytes(bytes: number): string {
 }
 
 /**
- * The lesson's material. The body is plain text shown as text (never HTML);
+ * The lesson's material. Written content is shown as structured sections in
+ * the chosen language (English when none is given), as text, never HTML;
  * files come from the authorized lesson file route.
  */
-export function TrainingLessonContent({ lesson }: { lesson: TrainingLessonData }) {
+export function TrainingLessonContent({ lesson, language }: { lesson: TrainingLessonData; language?: LessonLanguage | null }) {
     const externalUrl = safeHttpUrl(lesson.external_url);
     const file = lesson.file;
+    const shown = language ?? lesson.languages.find((item) => item.canonical) ?? null;
+    const sections = shown?.sections ?? [];
 
     return (
         <div className="space-y-5">
@@ -98,8 +103,8 @@ export function TrainingLessonContent({ lesson }: { lesson: TrainingLessonData }
                 </div>
             )}
 
-            {lesson.body ? (
-                <div className="text-foreground text-[15px] leading-7 break-words whitespace-pre-line">{lesson.body}</div>
+            {sections.length > 0 ? (
+                <LessonSections sections={sections} lang={shown?.code} />
             ) : (
                 !file &&
                 !externalUrl && <p className="text-muted-foreground text-sm italic">The written content for this lesson has not been added yet.</p>

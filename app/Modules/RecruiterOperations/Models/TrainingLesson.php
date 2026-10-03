@@ -3,6 +3,8 @@
 namespace App\Modules\RecruiterOperations\Models;
 
 use App\Modules\Core\Models\User;
+use App\Modules\RecruiterOperations\Enums\TrainingComplianceStatus;
+use App\Modules\RecruiterOperations\Enums\TrainingLanguage;
 use App\Modules\RecruiterOperations\Enums\TrainingLessonContentType;
 use Database\Factories\RecruiterOperations\TrainingLessonFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,7 +21,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 /**
  * One lesson inside a course version. Editable only while its version is a
  * draft. The body is plain text: it is shown as text and read aloud, never
- * rendered as HTML.
+ * rendered as HTML. Once the lesson has structured content (contents, one
+ * row per language) the body mirrors the English sections.
  *
  * The optional file (video, PDF or image) is kept on the private disk and only
  * served through an authorized route.
@@ -35,12 +38,17 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property int|null $duration_minutes
  * @property bool $is_required
  * @property string|null $external_url
+ * @property TrainingComplianceStatus|null $compliance_status
+ * @property int|null $compliance_reviewed_by_user_id
+ * @property Carbon|null $compliance_reviewed_at
+ * @property string|null $compliance_note
  * @property int|null $created_by_user_id
  * @property int|null $updated_by_user_id
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read TrainingCourseVersion $version
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TrainingLessonCompletion> $completions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, TrainingLessonContent> $contents
  */
 class TrainingLesson extends Model implements HasMedia
 {
@@ -74,7 +82,17 @@ class TrainingLesson extends Model implements HasMedia
             'content_type' => TrainingLessonContentType::class,
             'duration_minutes' => 'integer',
             'is_required' => 'boolean',
+            'compliance_status' => TrainingComplianceStatus::class,
+            'compliance_reviewed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Compliance state as managers see it; a lesson never flagged needs none.
+     */
+    public function compliance(): TrainingComplianceStatus
+    {
+        return $this->compliance_status ?? TrainingComplianceStatus::NotRequired;
     }
 
     public function registerMediaCollections(): void
@@ -101,11 +119,32 @@ class TrainingLesson extends Model implements HasMedia
     }
 
     /**
+     * @return HasMany<TrainingLessonContent, $this>
+     */
+    public function contents(): HasMany
+    {
+        return $this->hasMany(TrainingLessonContent::class, 'lesson_id');
+    }
+
+    public function contentIn(TrainingLanguage $language): ?TrainingLessonContent
+    {
+        return $this->contents->first(fn (TrainingLessonContent $content) => $content->locale === $language);
+    }
+
+    /**
      * @return BelongsTo<User, $this>
      */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_user_id');
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function complianceReviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'compliance_reviewed_by_user_id');
     }
 
     public function file(): ?Media
@@ -122,7 +161,7 @@ class TrainingLesson extends Model implements HasMedia
     {
         return LogOptions::defaults()
             ->useLogName('recruiter-training')
-            ->logOnly(['course_version_id', 'title', 'sort_order', 'content_type', 'is_required', 'external_url'])
+            ->logOnly(['course_version_id', 'title', 'sort_order', 'content_type', 'is_required', 'external_url', 'compliance_status', 'compliance_reviewed_by_user_id', 'compliance_note'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import RecruiterLayout from '@/layouts/recruiter-layout';
 import { type BreadcrumbItem, type Option, type Paginated } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { FolderTree, Plus } from 'lucide-react';
+import { ClipboardCheck, FolderTree, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface CourseRow {
@@ -75,6 +75,11 @@ export default function ManageTraining({ courses, filters, categories, statuses,
                     description="Each course has numbered versions. Only a draft can be edited; publishing freezes it."
                     action={
                         <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+                            <Button asChild variant="outline">
+                                <Link href="/recruiter/training/manage/review">
+                                    <ClipboardCheck /> Content review
+                                </Link>
+                            </Button>
                             <Button asChild variant="outline">
                                 <Link href="/recruiter/training/manage/categories">
                                     <FolderTree /> Categories

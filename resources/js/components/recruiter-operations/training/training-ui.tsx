@@ -134,18 +134,21 @@ export function TrainingSubNav() {
     const { url, props } = usePage<{ trainingLearner?: boolean }>();
     const path = url.split('?')[0];
 
-    const tabs = [
+    const tabs: { label: string; href: string; show: boolean; exact?: boolean; except?: string }[] = [
         { label: 'Overview', href: '/recruiter/training', exact: true, show: true },
         { label: 'My Training', href: '/recruiter/training/my-training', show: props.trainingLearner === true },
         { label: 'Team Progress', href: '/recruiter/training/team', show: can('recruiter.team.view') },
         { label: 'Assignments', href: '/recruiter/training/assignments', show: can('recruiter.training.assign') },
-        { label: 'Manage', href: '/recruiter/training/manage', show: can('recruiter.training.manage') },
+        { label: 'Manage', href: '/recruiter/training/manage', show: can('recruiter.training.manage'), except: '/recruiter/training/manage/review' },
+        { label: 'Content Review', href: '/recruiter/training/manage/review', show: can('recruiter.training.manage') },
     ].filter((tab) => tab.show);
 
     return (
         <nav className="flex flex-wrap gap-1 border-b border-[rgba(120,115,110,0.14)]" aria-label="Training sections">
             {tabs.map((tab) => {
-                const active = tab.exact ? path === tab.href : path === tab.href || path.startsWith(`${tab.href}/`);
+                const inside = path === tab.href || path.startsWith(`${tab.href}/`);
+                const excluded = tab.except !== undefined && (path === tab.except || path.startsWith(`${tab.except}/`));
+                const active = tab.exact ? path === tab.href : inside && !excluded;
 
                 return (
                     <Link

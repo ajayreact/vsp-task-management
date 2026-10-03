@@ -13,6 +13,8 @@ use App\Modules\RecruiterOperations\Models\TrainingCategory;
 use App\Modules\RecruiterOperations\Models\TrainingCourse;
 use App\Modules\RecruiterOperations\Models\TrainingCourseVersion;
 use App\Modules\RecruiterOperations\Models\TrainingLesson;
+use App\Modules\RecruiterOperations\Models\TrainingLessonContent;
+use App\Modules\RecruiterOperations\Services\TrainingContentReviewService;
 use App\Modules\RecruiterOperations\Services\TrainingContentService;
 use App\Support\Pagination;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,7 +31,10 @@ use Inertia\Response;
  */
 class TrainingCourseController extends Controller
 {
-    public function __construct(protected TrainingContentService $content) {}
+    public function __construct(
+        protected TrainingContentService $content,
+        protected TrainingContentReviewService $reviews,
+    ) {}
 
     public function index(Request $request): Response
     {
@@ -128,7 +133,7 @@ class TrainingCourseController extends Controller
             ?? $versions->firstWhere('id', $trainingCourse->current_version_id)
             ?? $versions->first();
 
-        $selected?->load(['lessons.media', 'creator:id,name', 'assessmentVersions.assessment']);
+        $selected?->load(['lessons.media', 'lessons.contents:id,lesson_id,locale', 'creator:id,name', 'assessmentVersions.assessment']);
 
         return Inertia::render('RecruiterOperations/training/manage/courses/show', [
             'course' => [
@@ -170,6 +175,11 @@ class TrainingCourseController extends Controller
                     'is_required' => $lesson->is_required,
                     'has_file' => $lesson->file() !== null,
                     'has_body' => filled($lesson->body),
+                    'translations' => $lesson->contents
+                        ->filter(fn (TrainingLessonContent $content) => ! $content->locale->isCanonical())
+                        ->map(fn (TrainingLessonContent $content) => $content->locale->nativeLabel())
+                        ->values()
+                        ->all(),
                 ])->values()->all(),
                 'quizzes' => $selected->assessmentVersions->map(fn (AssessmentVersion $quiz) => [
                     'id' => $quiz->id,
@@ -178,6 +188,7 @@ class TrainingCourseController extends Controller
                     'label' => $quiz->label(),
                     'status_label' => $quiz->status->label(),
                 ])->values()->all(),
+                'review' => $selected->isDraft() ? $this->reviews->readiness($selected) : null,
                 'can' => [
                     'update' => $user->can('update', $selected),
                     'publish' => $user->can('publish', $selected),
