@@ -58,6 +58,27 @@ class RecruiterTrainingContent
     }
 
     /**
+     * The four-course OPT Recruiter track, in course order. Each
+     * opt-track/course-*.php file returns the existing course it reorganises
+     * ('course'), the title it is meant to carry ('title'), and its modules:
+     * module name => planned lessons, each with a 'title' and optionally the
+     * lesson it replaces ('from'), a lesson to copy from another course
+     * ('copy' => [course, lesson]), new English sections ('en'), whether it
+     * needs compliance review ('compliance') and the items reviewers must
+     * confirm ('review').
+     *
+     * @return list<array{course: string, title: string, modules: array<string, list<array<string, mixed>>>}>
+     */
+    public static function optTrack(): array
+    {
+        $files = glob(__DIR__.'/opt-track/course-*.php') ?: [];
+        sort($files);
+
+        /** @var list<array{course: string, title: string, modules: array<string, list<array<string, mixed>>>}> */
+        return array_map(fn (string $file) => require $file, $files);
+    }
+
+    /**
      * Fingerprints of the bodies earlier releases shipped, which
      * recruiter:training-content --refresh is allowed to replace.
      *
