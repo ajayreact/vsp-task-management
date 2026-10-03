@@ -10,8 +10,17 @@ export interface CourseModule {
     lesson_ids: number[];
 }
 
-/** Space taken by the sticky app header and module tab bar; anchors scroll to just below it. */
-export const STICKY_OFFSET = 136;
+/** Space taken by the sticky app header and a one-row module tab bar. */
+export const STICKY_OFFSET = 120;
+
+const APP_HEADER_HEIGHT = 64;
+
+/** Space taken by the sticky app header and the tab bar, which wraps onto more rows on wide screens. */
+export function stickyOffset(): number {
+    const bar = document.querySelector<HTMLElement>('nav[aria-label="Course modules"]');
+
+    return bar ? APP_HEADER_HEIGHT + bar.offsetHeight + 16 : STICKY_OFFSET;
+}
 
 export function scrollToAnchor(anchor: string, behavior: ScrollBehavior = 'smooth') {
     const element = document.getElementById(anchor);
@@ -20,7 +29,7 @@ export function scrollToAnchor(anchor: string, behavior: ScrollBehavior = 'smoot
         return false;
     }
 
-    const top = element.getBoundingClientRect().top + window.scrollY - STICKY_OFFSET + 8;
+    const top = element.getBoundingClientRect().top + window.scrollY - stickyOffset() + 8;
     window.scrollTo({ top: Math.max(0, top), behavior });
 
     return true;
@@ -30,7 +39,7 @@ export function scrollToAnchor(anchor: string, behavior: ScrollBehavior = 'smoot
  * Which of the given anchors is being read: the last one whose top has passed
  * the sticky header. Recomputed on scroll at most once per frame.
  */
-export function useScrollSpy(anchors: string[], offset = STICKY_OFFSET): string | null {
+export function useScrollSpy(anchors: string[], offset?: number): string | null {
     const [active, setActive] = useState<string | null>(anchors[0] ?? null);
     const key = anchors.join('|');
 
@@ -41,12 +50,13 @@ export function useScrollSpy(anchors: string[], offset = STICKY_OFFSET): string 
         const measure = () => {
             frame = 0;
             let current = ids[0] ?? null;
+            const line = offset ?? stickyOffset();
             const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
 
             for (const id of ids) {
                 const element = document.getElementById(id);
 
-                if (element && element.getBoundingClientRect().top - offset <= 16) {
+                if (element && element.getBoundingClientRect().top - line <= 16) {
                     current = id;
                 }
             }
@@ -115,7 +125,7 @@ export function ModuleTabs({
     return (
         <nav aria-label="Course modules" className="bg-background/95 sticky top-16 z-10 border-b backdrop-blur-sm">
             <div ref={barRef} className="overflow-x-auto overscroll-x-contain [scrollbar-width:thin]" data-testid="module-tab-bar">
-                <ol className="flex w-max min-w-full gap-1 px-4 md:px-6">
+                <ol className="flex w-max min-w-full gap-x-1 px-4 md:px-6 lg:w-full lg:min-w-0 lg:flex-wrap">
                     {modules.map((module) => {
                         const isActive = module.anchor === active;
                         const counts = progress[module.anchor];
@@ -132,7 +142,7 @@ export function ModuleTabs({
                                         onSelect(module.anchor);
                                     }}
                                     className={cn(
-                                        'flex h-12 items-center gap-2 border-b-2 px-3 text-sm whitespace-nowrap transition-colors',
+                                        'flex h-10 items-center gap-1.5 border-b-2 px-2.5 text-sm whitespace-nowrap transition-colors',
                                         isActive
                                             ? 'border-emerald-600 font-semibold text-emerald-700 dark:text-emerald-300'
                                             : 'text-muted-foreground hover:text-foreground border-transparent',

@@ -14,6 +14,7 @@ use App\Modules\RecruiterOperations\Services\TrainingContentReviewService;
 use App\Modules\RecruiterOperations\Services\TrainingContentService;
 use App\Modules\RecruiterOperations\Services\TrainingLessonContentService;
 use App\Modules\RecruiterOperations\Services\TrainingPresenter;
+use App\Modules\RecruiterOperations\Services\TrainingProgressService;
 use Database\Seeders\Core\RolesAndPermissionsSeeder;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\PermissionRegistrar;
@@ -228,6 +229,39 @@ test('the page shows the assigned published version only, never a newer draft or
 
     $assertVersion1();
     $this->actingAs($recruiter->user)->postJson(route('recruiter.training.lessons.complete', [$course, $v2->lessons()->first()]))->assertNotFound();
+});
+
+test('the course header gets the title, description, assigned version and lesson counts, and resume points at the first incomplete lesson', function () {
+    $lead = coursePageStaff(SystemRole::RecruiterLead);
+    $recruiter = coursePageStaff();
+    [$course, $v1, $lessons] = coursePageCourse();
+    $course->forceFill(['description' => 'From F-1 graduation to the end of STEM OPT.'])->save();
+    $assignment = TrainingAssignment::factory()->forVersion($v1)->forEmployee($recruiter)->create();
+    $content = app(TrainingContentService::class);
+    $v2 = $content->createVersion($course, $lead->user);
+    $content->createLesson($v2, ['module' => 'STEM OPT', 'title' => 'Draft only lesson', 'content_type' => 'text', 'body' => "Learning objective\nDraft."], null, $lead->user);
+
+    $this->actingAs($recruiter->user)->get(coursePageUrl($course))->assertOk()
+        ->assertInertia(fn ($page) => $page->where('course.title', 'OPT to STEM OPT: Complete Recruiter Process')
+            ->where('course.description', 'From F-1 graduation to the end of STEM OPT.')
+            ->where('version.label', $v1->label())
+            ->has('lessons', 5)
+            ->where('progress.completed', 0)
+            ->where('progress.counted', 4)
+            ->where('assignment.started_at', null));
+
+    foreach ([0, 1] as $index) {
+        app(TrainingProgressService::class)->completeLesson($assignment, $lessons[$index], $recruiter->user);
+    }
+
+    $this->actingAs($recruiter->user)->get(coursePageUrl($course))
+        ->assertInertia(fn ($page) => $page->where('progress.completed', 2)
+            ->where('progress.remaining', 2)
+            ->where('resumeLessonId', $lessons[2]->id)
+            ->where('lessons.2.completed', false)
+            ->whereNot('assignment.started_at', null));
+
+    expect($v2->fresh()->lessons()->count())->toBe(6);
 });
 
 // 13-17. Languages

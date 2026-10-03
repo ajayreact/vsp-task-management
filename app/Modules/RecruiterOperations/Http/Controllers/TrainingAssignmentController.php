@@ -109,7 +109,7 @@ class TrainingAssignmentController extends Controller
     {
         $this->assignments->unassign($trainingAssignment, $request->user());
 
-        return back()->with('success', 'Assignment withdrawn.');
+        return back()->with('success', 'Training assignment withdrawn.');
     }
 
     /**

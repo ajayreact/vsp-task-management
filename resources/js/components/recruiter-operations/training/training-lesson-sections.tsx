@@ -259,12 +259,34 @@ const STYLES: Record<string, { icon: LucideIcon; box: string; iconBox: string }>
     },
 };
 
-function SectionCard({ section, headingLevel: Heading = 'h2', children }: { section: LessonSection; headingLevel?: 'h2' | 'h3' | 'h4'; children: ReactNode }) {
+/** Explanatory text in the flow style; every other kind is a tinted callout. */
+const PLAIN_KINDS = ['content', 'reference'];
+
+export type LessonSectionsVariant = 'cards' | 'flow';
+
+function SectionCard({
+    section,
+    headingLevel: Heading = 'h2',
+    variant = 'cards',
+    children,
+}: {
+    section: LessonSection;
+    headingLevel?: 'h2' | 'h3' | 'h4';
+    variant?: LessonSectionsVariant;
+    children: ReactNode;
+}) {
     const style = STYLES[section.kind] ?? STYLES.content;
     const Icon = style.icon;
+    const plain = PLAIN_KINDS.includes(section.kind) || !STYLES[section.kind];
+    const className =
+        variant === 'flow'
+            ? plain
+                ? 'py-1'
+                : cn('rounded-r-lg border-0 border-l-4 px-4 py-3', style.box)
+            : cn('rounded-xl border p-4 md:p-5', style.box);
 
     return (
-        <section className={cn('rounded-xl border p-4 md:p-5', style.box)} aria-label={section.heading}>
+        <section className={className} aria-label={section.heading} data-section-kind={section.kind}>
             <Heading className="mb-3 flex items-center gap-2.5 text-base font-semibold tracking-tight">
                 <span className={cn('flex size-7 shrink-0 items-center justify-center rounded-lg', style.iconBox)}>
                     <Icon className="size-4" />
@@ -280,11 +302,21 @@ function SectionCard({ section, headingLevel: Heading = 'h2', children }: { sect
  * A structured lesson: one card per section, styled by its kind. Text is
  * rendered as text, never as HTML.
  */
-export function LessonSections({ sections, lang, headingLevel }: { sections: LessonSection[]; lang?: string; headingLevel?: 'h2' | 'h3' | 'h4' }) {
+export function LessonSections({
+    sections,
+    lang,
+    headingLevel,
+    variant = 'cards',
+}: {
+    sections: LessonSection[];
+    lang?: string;
+    headingLevel?: 'h2' | 'h3' | 'h4';
+    variant?: LessonSectionsVariant;
+}) {
     return (
         <div lang={lang} className="text-foreground space-y-4 text-[15px] leading-7 break-words">
             {sections.map((section, index) => (
-                <SectionCard key={`${index}-${section.heading}`} section={section} headingLevel={headingLevel}>
+                <SectionCard key={`${index}-${section.heading}`} section={section} headingLevel={headingLevel} variant={variant}>
                     <LessonBlocks body={section.body} kind={section.kind} />
                 </SectionCard>
             ))}

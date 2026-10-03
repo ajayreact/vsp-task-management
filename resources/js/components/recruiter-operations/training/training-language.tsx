@@ -53,18 +53,21 @@ export function TrainingLanguageSelect({
     languages,
     value,
     onChange,
+    compact = false,
 }: {
     languages: LessonLanguage[];
     value: string;
     onChange: (code: string) => void;
+    /** Narrower, with the label only for screen readers below the md breakpoint. */
+    compact?: boolean;
 }) {
     return (
         <div className="flex items-center gap-2">
             <label htmlFor="training-language" className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
-                <Languages className="size-3.5" /> Language
+                <Languages className="size-3.5" /> <span className={compact ? 'max-md:sr-only' : undefined}>Language</span>
             </label>
             <Select value={languages.some((language) => language.code === value) ? value : DEFAULT_LANGUAGE} onValueChange={onChange}>
-                <SelectTrigger id="training-language" className="h-8 w-44" aria-label="Lesson language">
+                <SelectTrigger id="training-language" className={compact ? 'h-10 w-32 md:h-8 md:w-44' : 'h-8 w-44'} aria-label="Lesson language">
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

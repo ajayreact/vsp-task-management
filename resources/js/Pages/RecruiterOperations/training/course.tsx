@@ -11,18 +11,19 @@ import { postJson } from '@/components/recruiter-operations/training/training-ht
 import { resolveLessonLanguage, TrainingLanguageSelect, useTrainingLanguage } from '@/components/recruiter-operations/training/training-language';
 import { TrainingLessonContent, type TrainingLessonData } from '@/components/recruiter-operations/training/training-lesson-content';
 import {
+    formatMinutes,
+    formatTrainingDate,
     RequiredBadge,
     TrainingProgressBar,
     TrainingStatusBadge,
-    formatMinutes,
-    formatTrainingDate,
 } from '@/components/recruiter-operations/training/training-ui';
 import { Button } from '@/components/ui/button';
 import RecruiterLayout from '@/layouts/recruiter-layout';
+import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { CheckCircle2, Info, LoaderCircle, PartyPopper, Play } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, Check, CheckCircle2, Info, LoaderCircle, PartyPopper, Play, RotateCcw } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 
 interface CourseLesson extends TrainingLessonData {
@@ -80,12 +81,16 @@ const START_AFTER_MS = 4000;
 const READING_LINE = 280;
 
 const lessonAnchor = (id: number) => `lesson-${id}`;
+const twoDigits = (value: number) => String(value).padStart(2, '0');
 
 /**
  * Completions saved on this page, by course. Back and Forward remount the page
  * from the props stored in that history entry, which predate them.
  */
-const savedCompletions = new Map<number, { lessons: Record<number, string | null>; progress: Progress; assignment: CompleteResponse['assignment'] }>();
+const savedCompletions = new Map<
+    number,
+    { lessons: Record<number, string | null>; progress: Progress; assignment: CompleteResponse['assignment'] }
+>();
 
 /**
  * The whole course on one page: every lesson of the assigned version, in
@@ -112,7 +117,9 @@ export default function TrainingCourse({
                 : lesson,
         ),
     );
-    const [progress, setProgress] = useState(() => (saved && saved.progress.completed > initialProgress.completed ? saved.progress : initialProgress));
+    const [progress, setProgress] = useState(() =>
+        saved && saved.progress.completed > initialProgress.completed ? saved.progress : initialProgress,
+    );
     const [assignment, setAssignment] = useState(() =>
         saved && saved.progress.completed > initialProgress.completed ? { ...initialAssignment, ...saved.assignment } : initialAssignment,
     );
@@ -147,7 +154,15 @@ export default function TrainingCourse({
     }, [modules, lessonsById]);
 
     const firstIncomplete = lessons.find((lesson) => lesson.counted && !lesson.completed) ?? lessons.find((lesson) => !lesson.completed);
-    const resumeId = progress.completed > 0 || assignment.started_at ? (firstIncomplete?.id ?? null) : null;
+    const notStarted = progress.completed === 0 && !assignment.started_at;
+    const nextStep: { label: string; lesson: CourseLesson; icon: ReactNode } | null =
+        lessons.length === 0
+            ? null
+            : courseCompleted || !firstIncomplete
+              ? { label: 'Review Course', lesson: lessons[0], icon: <RotateCcw /> }
+              : notStarted
+                ? { label: 'Start Course', lesson: lessons[0], icon: <Play /> }
+                : { label: 'Continue Learning', lesson: firstIncomplete, icon: <Play /> };
 
     // Module navigation. Inertia treats hash-only changes as replacements, so the
     // history entry is pushed natively (carrying Inertia's state) and Inertia's
@@ -254,7 +269,9 @@ export default function TrainingCourse({
                 });
                 startedRef.current.add(lesson.id);
                 setLessons((current) =>
-                    current.map((item) => (item.id === lesson.id ? { ...item, started: true, completed: true, completed_at: result.completed_at } : item)),
+                    current.map((item) =>
+                        item.id === lesson.id ? { ...item, started: true, completed: true, completed_at: result.completed_at } : item,
+                    ),
                 );
                 setProgress(result.progress);
                 setAssignment((current) => ({ ...current, ...result.assignment, started_at: current.started_at ?? new Date().toISOString() }));
@@ -272,12 +289,19 @@ export default function TrainingCourse({
             <Head title={course.title} />
 
             <div className="flex flex-1 flex-col">
-                <header className="mx-auto w-full max-w-4xl space-y-5 px-4 pt-6 pb-5 md:px-6">
-                    <div className="space-y-2">
+                <header className="mx-auto w-full max-w-4xl px-4 pt-3 pb-4 md:px-6" data-testid="course-header">
+                    <Link
+                        href="/recruiter/training/my-training"
+                        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm font-medium"
+                    >
+                        <ArrowLeft className="size-4" /> Back to My Training
+                    </Link>
+
+                    <div className="mt-2 space-y-1">
                         <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
                             {course.category && <span>{course.category}</span>}
                             {course.category && <span aria-hidden>·</span>}
-                            <span>{version.label}</span>
+                            <span data-testid="course-version">{version.label}</span>
                             {version.estimated_minutes ? (
                                 <>
                                     <span aria-hidden>·</span>
@@ -293,53 +317,60 @@ export default function TrainingCourse({
                                 </>
                             )}
                         </div>
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                            <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{course.title}</h1>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                            <h1 className="text-2xl font-semibold tracking-tight md:text-[1.75rem]">{course.title}</h1>
                             <TrainingStatusBadge status={assignment.status} label={assignment.status_label} />
                         </div>
-                        {course.description && <p className="text-muted-foreground max-w-3xl leading-relaxed">{course.description}</p>}
+                        {course.description && (
+                            <p className="text-muted-foreground line-clamp-2 max-w-3xl text-sm leading-relaxed">{course.description}</p>
+                        )}
                     </div>
 
-                    <div className="bg-muted/40 space-y-3 rounded-xl p-4" data-testid="course-progress">
-                        <div className="flex flex-wrap items-baseline justify-between gap-2">
-                            <span className="text-sm font-medium">Progress</span>
-                            <span className="text-muted-foreground text-sm">
-                                {progress.completed} of {progress.counted} lessons completed
-                            </span>
-                        </div>
-                        <TrainingProgressBar percent={progress.percent} label="Course progress" />
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                            <dl className="flex gap-6 text-sm">
-                                <div>
-                                    <dt className="text-muted-foreground text-xs">Completed</dt>
-                                    <dd className="font-semibold tabular-nums">{progress.completed}</dd>
-                                </div>
-                                <div>
-                                    <dt className="text-muted-foreground text-xs">Remaining</dt>
-                                    <dd className="font-semibold tabular-nums">{progress.remaining}</dd>
-                                </div>
-                            </dl>
-                            <div className="flex flex-wrap items-center gap-3">
-                                {pageLanguages.length > 1 && (
-                                    <TrainingLanguageSelect languages={pageLanguages} value={chosenLanguage} onChange={chooseLanguage} />
-                                )}
-                                {resumeId && !courseCompleted && (
-                                    <Button size="sm" onClick={() => scrollToAnchor(lessonAnchor(resumeId))}>
-                                        <Play /> Continue where you stopped
-                                    </Button>
-                                )}
+                    <div
+                        className="bg-card mt-3 flex flex-col gap-3 rounded-xl border p-3 md:flex-row md:items-center md:gap-6"
+                        data-testid="course-progress"
+                    >
+                        <div className="min-w-0 flex-1 space-y-1.5">
+                            <div className="flex items-baseline justify-between gap-2 text-sm">
+                                <span className="font-medium">Progress</span>
+                                <span className="text-muted-foreground tabular-nums" data-testid="course-progress-count">
+                                    {progress.completed} / {progress.counted} lessons completed
+                                </span>
+                            </div>
+                            <TrainingProgressBar percent={progress.percent} label="Course progress" />
+                            <div className="text-muted-foreground flex gap-4 text-xs">
+                                <span>
+                                    Completed: <strong className="text-foreground tabular-nums">{progress.completed}</strong>
+                                </span>
+                                <span>
+                                    Remaining: <strong className="text-foreground tabular-nums">{progress.remaining}</strong>
+                                </span>
                             </div>
                         </div>
+                        <div className="flex items-center gap-2 md:shrink-0">
+                            {pageLanguages.length > 1 && (
+                                <TrainingLanguageSelect languages={pageLanguages} value={chosenLanguage} onChange={chooseLanguage} compact />
+                            )}
+                            {nextStep && (
+                                <Button
+                                    onClick={() => scrollToAnchor(lessonAnchor(nextStep.lesson.id))}
+                                    className="h-auto min-h-10 max-w-full min-w-0 justify-start bg-emerald-600 py-1.5 text-left text-white hover:bg-emerald-700 max-md:flex-1"
+                                    data-testid="course-action"
+                                >
+                                    {nextStep.icon}
+                                    <span className="flex min-w-0 flex-col leading-tight">
+                                        <span className="font-semibold">{nextStep.label}</span>
+                                        <span className="truncate text-xs font-normal opacity-90 md:max-w-56">{nextStep.lesson.title}</span>
+                                    </span>
+                                </Button>
+                            )}
+                        </div>
                     </div>
-                    <p className="text-muted-foreground text-xs">
-                        Scroll through the lessons in order. Listening to the audio does not complete a lesson: press “Mark Lesson Complete” when
-                        you have read or listened to it.
-                    </p>
                 </header>
 
                 {modules.length > 0 && <ModuleTabs modules={modules} active={activeModule} progress={moduleProgress} onSelect={selectModule} />}
 
-                <div className="mx-auto w-full max-w-4xl space-y-14 px-4 pt-8 pb-24 md:px-6">
+                <div className="mx-auto w-full max-w-4xl space-y-10 px-4 pt-6 pb-24 md:px-6">
                     {lessons.length === 0 && <p className="text-muted-foreground text-sm">This course has no lessons.</p>}
 
                     {modules.map((module) => {
@@ -348,24 +379,23 @@ export default function TrainingCourse({
 
                         return (
                             <section key={module.anchor} id={module.anchor} aria-labelledby={`${module.anchor}-title`} data-testid="course-module">
-                                <div className="mb-8 space-y-2 border-b pb-4">
+                                <div className="mb-2 space-y-1 border-b-2 border-emerald-600/20 pb-3">
                                     <p className="text-xs font-semibold tracking-wider text-emerald-700 uppercase dark:text-emerald-300">
                                         Module {module.number}
                                     </p>
                                     <h2 id={`${module.anchor}-title`} className="text-xl font-semibold tracking-tight md:text-2xl">
                                         {module.title}
                                     </h2>
-                                    {counts && (
-                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                                            <span className="text-muted-foreground text-sm">
-                                                {counts.completed} of {counts.counted} lessons completed
-                                            </span>
-                                            <TrainingProgressBar percent={percent} label={`${module.title} progress`} className="max-w-xs flex-1" />
-                                        </div>
-                                    )}
+                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                                        <span className="text-muted-foreground text-sm tabular-nums" data-testid="module-lesson-count">
+                                            {module.lesson_ids.length} {module.lesson_ids.length === 1 ? 'lesson' : 'lessons'}
+                                            {counts && counts.completed > 0 && ` · ${counts.completed} completed`}
+                                        </span>
+                                        <TrainingProgressBar percent={percent} label={`${module.title} progress`} className="max-w-xs flex-1" />
+                                    </div>
                                 </div>
 
-                                <div className="space-y-12">
+                                <div className="divide-y">
                                     {module.lesson_ids.map((id) => {
                                         const lesson = lessonsById.get(id);
 
@@ -389,7 +419,11 @@ export default function TrainingCourse({
                     })}
 
                     {lessons.length > 0 && (
-                        <section aria-labelledby="course-completion-title" className="bg-muted/40 space-y-4 rounded-xl p-5" data-testid="course-summary">
+                        <section
+                            aria-labelledby="course-completion-title"
+                            className="bg-muted/40 space-y-4 rounded-xl p-5"
+                            data-testid="course-summary"
+                        >
                             <div className="flex items-start gap-3">
                                 {courseCompleted ? (
                                     <PartyPopper className="mt-0.5 size-6 shrink-0 text-emerald-600" />
@@ -479,44 +513,61 @@ function CourseLessonArticle({
     const audioConfig: TrainingAudioConfig = { ...audio, ...lesson.audio };
 
     return (
-        <article id={lessonAnchor(lesson.id)} aria-labelledby={`${lessonAnchor(lesson.id)}-title`} className="space-y-5" data-testid="course-lesson">
-            <header className="space-y-2">
-                <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-                    <span>
-                        Lesson {position} of {total}
-                    </span>
-                    {lesson.duration_minutes && (
-                        <>
-                            <span aria-hidden>·</span>
-                            <span>{lesson.duration_minutes} min</span>
-                        </>
+        <article
+            id={lessonAnchor(lesson.id)}
+            aria-labelledby={`${lessonAnchor(lesson.id)}-title`}
+            className="space-y-4 py-8"
+            data-testid="course-lesson"
+            data-completed={lesson.completed ? 'true' : 'false'}
+        >
+            <header className="flex gap-4">
+                <span
+                    aria-hidden
+                    className={cn(
+                        'hidden size-12 shrink-0 items-center justify-center rounded-xl text-lg font-semibold tabular-nums sm:flex',
+                        lesson.completed ? 'bg-emerald-600 text-white' : 'bg-emerald-600/10 text-emerald-700 dark:text-emerald-300',
                     )}
-                </div>
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                    <h3 id={`${lessonAnchor(lesson.id)}-title`} className="text-xl font-semibold tracking-tight">
-                        {lesson.title}
-                    </h3>
-                    <div className="flex items-center gap-2">
+                >
+                    {lesson.completed ? <Check className="size-6" /> : twoDigits(position)}
+                </span>
+                <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                        <span className="font-semibold tracking-wider text-emerald-700 uppercase dark:text-emerald-300" data-testid="lesson-number">
+                            Lesson {twoDigits(position)}
+                        </span>
+                        <span className="text-muted-foreground">of {twoDigits(total)}</span>
+                        {lesson.duration_minutes && (
+                            <>
+                                <span aria-hidden className="text-muted-foreground">
+                                    ·
+                                </span>
+                                <span className="text-muted-foreground">{lesson.duration_minutes} min</span>
+                            </>
+                        )}
                         {!lesson.is_required && <RequiredBadge required={false} />}
                         {lesson.completed && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600/10 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600/10 px-2 py-0.5 font-medium text-emerald-700 dark:text-emerald-300">
                                 <CheckCircle2 className="size-3.5" /> Completed
                             </span>
                         )}
                     </div>
+                    <h3 id={`${lessonAnchor(lesson.id)}-title`} className="text-xl font-semibold tracking-tight md:text-2xl">
+                        {lesson.title}
+                    </h3>
+                    {lesson.description && <p className="text-muted-foreground leading-relaxed">{lesson.description}</p>}
+                    {fellBack && chosen && (
+                        <p className="text-muted-foreground flex items-start gap-2 pt-1 text-sm" role="status">
+                            <Info className="mt-0.5 size-4 shrink-0" />
+                            {chosen.label} not available — showing English
+                        </p>
+                    )}
+                    {!fellBack && shown && !shown.canonical && shown.outdated && (
+                        <p className="flex items-start gap-2 pt-1 text-sm text-amber-700 dark:text-amber-300" role="status">
+                            <Info className="mt-0.5 size-4 shrink-0" />
+                            The English lesson was updated after this translation. Check the English version for the latest content.
+                        </p>
+                    )}
                 </div>
-                {fellBack && chosen && (
-                    <p className="text-muted-foreground flex items-start gap-2 text-sm" role="status">
-                        <Info className="mt-0.5 size-4 shrink-0" />
-                        {chosen.label} not available — showing English
-                    </p>
-                )}
-                {!fellBack && shown && !shown.canonical && shown.outdated && (
-                    <p className="flex items-start gap-2 text-sm text-amber-700 dark:text-amber-300" role="status">
-                        <Info className="mt-0.5 size-4 shrink-0" />
-                        The English lesson was updated after this translation. Check the English version for the latest content.
-                    </p>
-                )}
             </header>
 
             <TrainingAudioPlayer
@@ -527,9 +578,9 @@ function CourseLessonArticle({
                 onPositionReport={onAudioPosition}
             />
 
-            <TrainingLessonContent lesson={lesson} language={shown} headingLevel="h4" />
+            <TrainingLessonContent lesson={lesson} language={shown} headingLevel="h4" showDescription={false} variant="flow" />
 
-            <footer className="flex flex-wrap items-center justify-end gap-3 border-t pt-4">
+            <footer className="flex flex-wrap items-center justify-between gap-3 pt-2">
                 {lesson.completed ? (
                     <p className="flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-300" role="status">
                         <CheckCircle2 className="size-5" /> Lesson Completed
@@ -538,10 +589,13 @@ function CourseLessonArticle({
                         )}
                     </p>
                 ) : (
-                    <Button onClick={onComplete} disabled={completing} className="bg-emerald-600 text-white hover:bg-emerald-700">
-                        {completing ? <LoaderCircle className="animate-spin" /> : <CheckCircle2 />}
-                        Mark Lesson Complete
-                    </Button>
+                    <>
+                        <p className="text-muted-foreground text-xs">Listening to the audio does not complete the lesson.</p>
+                        <Button onClick={onComplete} disabled={completing} className="bg-emerald-600 text-white hover:bg-emerald-700 max-sm:w-full">
+                            {completing ? <LoaderCircle className="animate-spin" /> : <CheckCircle2 />}
+                            Mark Lesson Complete
+                        </Button>
+                    </>
                 )}
             </footer>
         </article>

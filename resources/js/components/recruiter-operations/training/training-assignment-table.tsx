@@ -24,7 +24,15 @@ export interface TrainingAssignmentRow {
 /**
  * Learning progress per assignment. No scores, no rankings.
  */
-export function TrainingAssignmentTable({ rows, withActions = false, emptyMessage }: { rows: TrainingAssignmentRow[]; withActions?: boolean; emptyMessage: string }) {
+export function TrainingAssignmentTable({
+    rows,
+    withActions = false,
+    emptyMessage,
+}: {
+    rows: TrainingAssignmentRow[];
+    withActions?: boolean;
+    emptyMessage: string;
+}) {
     const columns = withActions ? 10 : 9;
 
     return (
@@ -77,7 +85,11 @@ export function TrainingAssignmentTable({ rows, withActions = false, emptyMessag
                             </div>
                         </TableCell>
                         <TableCell className="text-sm whitespace-nowrap">{formatTrainingDate(row.assigned_at)}</TableCell>
-                        <TableCell className={row.status === 'overdue' ? 'text-destructive text-sm font-medium whitespace-nowrap' : 'text-sm whitespace-nowrap'}>
+                        <TableCell
+                            className={
+                                row.status === 'overdue' ? 'text-destructive text-sm font-medium whitespace-nowrap' : 'text-sm whitespace-nowrap'
+                            }
+                        >
                             {formatTrainingDate(row.due_at)}
                         </TableCell>
                         <TableCell className="text-sm whitespace-nowrap">{formatTrainingDate(row.completed_at)}</TableCell>
@@ -91,11 +103,12 @@ export function TrainingAssignmentTable({ rows, withActions = false, emptyMessag
                                             ? [
                                                   {
                                                       key: 'withdraw',
-                                                      label: 'Withdraw',
+                                                      label: 'Withdraw Assignment',
                                                       confirm: {
                                                           url: `/recruiter/training/assignments/${row.id}`,
-                                                          title: 'Withdraw this assignment?',
-                                                          description: `${row.recruiter_name ?? 'The recruiter'} has not started "${row.course.title}". The assignment will be removed.`,
+                                                          title: 'Withdraw training assignment?',
+                                                          description: `This will remove the training assignment from ${row.recruiter_name ?? 'this recruiter'}.\n\nThe training course, lessons, versions, and other recruiters' assignments will not be deleted.`,
+                                                          confirmLabel: 'Withdraw Assignment',
                                                       },
                                                   },
                                               ]

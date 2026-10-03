@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { ExternalLink, FileText } from 'lucide-react';
-import { LessonSections, type LessonLanguage } from './training-lesson-sections';
+import { LessonSections, type LessonLanguage, type LessonSectionsVariant } from './training-lesson-sections';
 
 export interface TrainingLessonFile {
     name: string;
@@ -56,10 +56,15 @@ export function TrainingLessonContent({
     lesson,
     language,
     headingLevel,
+    showDescription = true,
+    variant,
 }: {
     lesson: TrainingLessonData;
     language?: LessonLanguage | null;
     headingLevel?: 'h2' | 'h3' | 'h4';
+    /** Off when the page already shows the description with the lesson title. */
+    showDescription?: boolean;
+    variant?: LessonSectionsVariant;
 }) {
     const externalUrl = safeHttpUrl(lesson.external_url);
     const file = lesson.file;
@@ -68,7 +73,7 @@ export function TrainingLessonContent({
 
     return (
         <div className="space-y-5">
-            {lesson.description && <p className="text-muted-foreground text-base leading-relaxed">{lesson.description}</p>}
+            {showDescription && lesson.description && <p className="text-muted-foreground text-base leading-relaxed">{lesson.description}</p>}
 
             {file && lesson.content_type === 'video' && (
                 <video controls preload="none" className="w-full rounded-xl border bg-black" src={file.url}>
@@ -113,7 +118,7 @@ export function TrainingLessonContent({
             )}
 
             {sections.length > 0 ? (
-                <LessonSections sections={sections} lang={shown?.code} headingLevel={headingLevel} />
+                <LessonSections sections={sections} lang={shown?.code} headingLevel={headingLevel} variant={variant} />
             ) : (
                 !file &&
                 !externalUrl && <p className="text-muted-foreground text-sm italic">The written content for this lesson has not been added yet.</p>

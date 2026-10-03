@@ -26,6 +26,8 @@ export interface RowActionItem {
         url: string;
         title: string;
         description: string;
+        /** Label of the confirming button. Defaults to "Delete". */
+        confirmLabel?: string;
     };
 }
 
@@ -122,11 +124,7 @@ export function RowActions({ label, items, className }: RowActionsProps) {
                         return (
                             <DropdownMenuItem
                                 key={item.key}
-                                className={
-                                    item.destructive
-                                        ? 'text-destructive focus:text-destructive cursor-pointer'
-                                        : 'cursor-pointer'
-                                }
+                                className={item.destructive ? 'text-destructive focus:text-destructive cursor-pointer' : 'cursor-pointer'}
                                 onSelect={() => {
                                     afterMenuClose(item.onSelect);
                                 }}
@@ -155,7 +153,7 @@ export function RowActions({ label, items, className }: RowActionsProps) {
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle>{confirm.title}</AlertDialogTitle>
-                            <AlertDialogDescription>{confirm.description}</AlertDialogDescription>
+                            <AlertDialogDescription className="whitespace-pre-line">{confirm.description}</AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -166,7 +164,7 @@ export function RowActions({ label, items, className }: RowActionsProps) {
                                     setConfirmItem(null);
                                 }}
                             >
-                                Delete
+                                {confirm.confirmLabel ?? 'Delete'}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
