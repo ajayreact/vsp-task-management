@@ -8,6 +8,7 @@ use App\Modules\Core\Models\User;
 use App\Modules\RecruiterOperations\Enums\TrainingAssignmentStatus;
 use App\Modules\RecruiterOperations\Models\TrainingAssignment;
 use App\Modules\RecruiterOperations\Models\TrainingCourse;
+use App\Modules\RecruiterOperations\Models\TrainingLesson;
 use App\Modules\RecruiterOperations\Services\Assessments\AssessmentAssignmentService;
 use Carbon\CarbonInterface;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -81,6 +82,10 @@ class TrainingAssignmentService
             }
 
             $versionId = (int) $locked->current_version_id;
+
+            if (! TrainingLesson::query()->where('course_version_id', $versionId)->exists()) {
+                throw ValidationException::withMessages(['course_id' => 'Add at least one lesson before assigning this course.']);
+            }
             $existing = TrainingAssignment::query()
                 ->forCourse($locked)
                 ->whereIn('employee_id', $employeeIds)

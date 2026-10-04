@@ -22,6 +22,7 @@ class TrainingCourseRequest extends FormRequest
     {
         return [
             'category_id' => ['required', 'integer', 'exists:ro_training_categories,id'],
+            'training_track_id' => ['nullable', 'integer', 'exists:ro_training_tracks,id'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
             'estimated_minutes' => ['nullable', 'integer', 'min:1', 'max:6000'],
@@ -33,6 +34,6 @@ class TrainingCourseRequest extends FormRequest
      */
     public function attributes(): array
     {
-        return ['category_id' => 'category'];
+        return ['category_id' => 'category', 'training_track_id' => 'training track'];
     }
 }

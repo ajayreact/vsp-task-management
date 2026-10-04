@@ -11,13 +11,18 @@ import { type FormEvent } from 'react';
 
 export type TrainingCourseFormValues = {
     category_id: string;
+    training_track_id: string;
     title: string;
     description: string;
     estimated_minutes: string;
 };
 
+const NO_TRACK = 'none';
+
 export function TrainingCourseForm({
     categories,
+    tracks,
+    trackLocked = false,
     initial,
     action,
     method,
@@ -26,6 +31,8 @@ export function TrainingCourseForm({
     showEstimate,
 }: {
     categories: { id: number; label: string }[];
+    tracks: { id: number; label: string }[];
+    trackLocked?: boolean;
     initial: TrainingCourseFormValues;
     action: string;
     method: 'post' | 'put';
@@ -52,6 +59,28 @@ export function TrainingCourseForm({
                         <Label htmlFor="title">Title</Label>
                         <Input id="title" value={data.title} onChange={(e) => setData('title', e.target.value)} required maxLength={255} />
                         <InputError message={errors.title} />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="training_track_id">Training track</Label>
+                        <Select
+                            value={data.training_track_id || NO_TRACK}
+                            onValueChange={(value) => setData('training_track_id', value === NO_TRACK ? '' : value)}
+                            disabled={trackLocked}
+                        >
+                            <SelectTrigger id="training_track_id">
+                                <SelectValue placeholder="Choose a training track" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {initial.training_track_id === '' && <SelectItem value={NO_TRACK}>Not in a track yet</SelectItem>}
+                                {tracks.map((track) => (
+                                    <SelectItem key={track.id} value={String(track.id)}>
+                                        {track.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        {trackLocked && <p className="text-muted-foreground text-xs">Assigned to recruiters, so the track cannot change.</p>}
+                        <InputError message={errors.training_track_id} />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="category_id">Category</Label>
@@ -86,7 +115,13 @@ export function TrainingCourseForm({
                     )}
                     <div className="grid gap-2 sm:col-span-2">
                         <Label htmlFor="description">Description</Label>
-                        <Textarea id="description" value={data.description} onChange={(e) => setData('description', e.target.value)} rows={4} maxLength={5000} />
+                        <Textarea
+                            id="description"
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
+                            rows={4}
+                            maxLength={5000}
+                        />
                         <InputError message={errors.description} />
                     </div>
                 </CardContent>

@@ -5,6 +5,7 @@ namespace App\Modules\RecruiterOperations\Models;
 use App\Modules\Core\Models\User;
 use App\Modules\RecruiterOperations\Enums\TrainingContentStatus;
 use Database\Factories\RecruiterOperations\TrainingCourseVersionFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,9 +30,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read TrainingCourse $course
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TrainingLesson> $lessons
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TrainingAssignment> $assignments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, AssessmentVersion> $assessmentVersions
+ * @property-read Collection<int, TrainingLesson> $lessons
+ * @property-read Collection<int, TrainingAssignment> $assignments
+ * @property-read Collection<int, AssessmentVersion> $assessmentVersions
  * @property-read User|null $creator
  */
 class TrainingCourseVersion extends Model
@@ -119,13 +120,24 @@ class TrainingCourseVersion extends Model
         return $this->status === TrainingContentStatus::Published;
     }
 
+    /**
+     * A draft, or the course's live version. Edits to the live version reach
+     * everyone assigned the course straight away; older versions are history
+     * and stay read-only.
+     */
+    public function isEditable(): bool
+    {
+        return $this->isDraft() || ($this->isPublished() && $this->course->current_version_id === $this->id);
+    }
+
     public function label(): string
     {
         return 'v'.$this->version_number;
     }
 
     /**
-     * Stated estimate, else the sum of the lessons' durations.
+     * Stated estimate, else the sum of the lessons' durations, each the
+     * manager's figure or the reading time of its text.
      */
     public function estimatedMinutes(): ?int
     {
@@ -133,7 +145,7 @@ class TrainingCourseVersion extends Model
             return $this->estimated_minutes;
         }
 
-        $sum = (int) $this->lessons->sum('duration_minutes');
+        $sum = (int) $this->lessons->sum(fn (TrainingLesson $lesson) => $lesson->estimatedMinutes() ?? 0);
 
         return $sum > 0 ? $sum : null;
     }

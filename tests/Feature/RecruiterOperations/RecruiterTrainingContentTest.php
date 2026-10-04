@@ -33,7 +33,7 @@ function trainingContentStaff(SystemRole $role): Employee
 }
 
 /**
- * A draft course (Version 1) with text lessons, built through the service.
+ * A course with a live Version 1 of text lessons, built through the service.
  */
 function draftTrainingCourse(User $author, int $lessons = 2): TrainingCourse
 {
@@ -124,7 +124,7 @@ test('recruiters without the manage permission cannot reach category management,
 
 // B. Courses
 
-test('creating a course creates an empty draft Version 1', function () {
+test('creating a course creates an empty live Version 1', function () {
     $lead = trainingContentStaff(SystemRole::RecruiterLead);
     $category = TrainingCategory::factory()->create();
 
@@ -142,12 +142,19 @@ test('creating a course creates an empty draft Version 1', function () {
 
     $version = $course->versions()->sole();
 
-    expect($course->status)->toBe(TrainingContentStatus::Draft)
-        ->and($course->current_version_id)->toBeNull()
-        ->and($course->isAssignable())->toBeFalse()
+    expect($course->status)->toBe(TrainingContentStatus::Published)
+        ->and($course->current_version_id)->toBe($version->id)
+        ->and($version->lessons()->count())->toBe(0)
         ->and($version->version_number)->toBe(1)
-        ->and($version->status)->toBe(TrainingContentStatus::Draft)
+        ->and($version->status)->toBe(TrainingContentStatus::Published)
+        ->and($version->isEditable())->toBeTrue()
         ->and($version->estimated_minutes)->toBe(45);
+
+    $recruiter = trainingContentStaff(SystemRole::Recruiter);
+    $this->actingAs($lead->user)
+        ->post('/recruiter/training/assignments', ['track' => 'unassigned', 'course_id' => $course->id, 'mode' => 'individual', 'employee_ids' => [$recruiter->id]])
+        ->assertSessionHasErrors('course_id');
+    expect(TrainingAssignment::query()->count())->toBe(0);
 });
 
 test('the course list filters by category and status', function () {
@@ -160,7 +167,7 @@ test('the course list filters by category and status', function () {
         ->create()->course;
 
     $ids = fn (string $query) => $this->actingAs($lead->user)
-        ->get("/recruiter/training/manage?{$query}")
+        ->get("/recruiter/training/manage?track=unassigned&{$query}")
         ->assertOk()
         ->viewData('page')['props']['courses']['data'];
 
@@ -195,10 +202,11 @@ test('recruiters cannot open course management', function () {
 
 // C. Versioning
 
-test('publishing a draft makes it the live, assignable version', function () {
+test('publishing a draft makes it the live, assignable version without waiting for review', function () {
     $lead = trainingContentStaff(SystemRole::RecruiterLead);
     $course = draftTrainingCourse($lead->user);
-    $version = $course->versions()->sole();
+    $v1 = $course->versions()->sole();
+    $version = app(TrainingContentService::class)->createVersion($course, $lead->user);
 
     $this->actingAs($lead->user)
         ->post("/recruiter/training/manage/versions/{$version->id}/publish")
@@ -210,6 +218,7 @@ test('publishing a draft makes it the live, assignable version', function () {
 
     expect($version->status)->toBe(TrainingContentStatus::Published)
         ->and($version->published_at)->not->toBeNull()
+        ->and($v1->fresh()->status)->toBe(TrainingContentStatus::Archived)
         ->and($course->status)->toBe(TrainingContentStatus::Published)
         ->and($course->current_version_id)->toBe($version->id)
         ->and($course->isAssignable())->toBeTrue();
@@ -217,8 +226,7 @@ test('publishing a draft makes it the live, assignable version', function () {
 
 test('a version without lessons cannot be published', function () {
     $lead = trainingContentStaff(SystemRole::RecruiterLead);
-    $course = draftTrainingCourse($lead->user, 0);
-    $version = $course->versions()->sole();
+    $version = TrainingCourseVersion::factory()->create();
 
     $this->actingAs($lead->user)
         ->post("/recruiter/training/manage/versions/{$version->id}/publish")
@@ -227,9 +235,50 @@ test('a version without lessons cannot be published', function () {
     expect($version->fresh()->status)->toBe(TrainingContentStatus::Draft);
 });
 
-test('a published version and its lessons cannot be changed', function () {
+test('the live version is edited in place and recruiters already assigned see the change', function () {
     $lead = trainingContentStaff(SystemRole::RecruiterLead);
-    $version = TrainingCourseVersion::factory()->published()->create(['description' => 'Original']);
+    $recruiter = trainingContentStaff(SystemRole::Recruiter);
+    $course = draftTrainingCourse($lead->user, 1);
+    $version = $course->versions()->sole();
+    $lesson = $version->lessons()->sole();
+    $assignment = TrainingAssignment::factory()->forVersion($version)->forEmployee($recruiter)->create();
+
+    $this->actingAs($lead->user)
+        ->put("/recruiter/training/manage/lessons/{$lesson->id}", trainingLessonPayload(['title' => 'Revised lesson', 'body' => 'Updated text.']))
+        ->assertSessionHasNoErrors();
+    $this->actingAs($lead->user)
+        ->post("/recruiter/training/manage/versions/{$version->id}/lessons", trainingLessonPayload(['title' => 'Added later']))
+        ->assertSessionHasNoErrors();
+
+    expect($course->versions()->count())->toBe(1)
+        ->and($assignment->fresh()->course_version_id)->toBe($version->id);
+
+    $this->actingAs($recruiter->user)
+        ->get("/recruiter/training/courses/{$course->id}/lessons/{$lesson->id}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('lesson.title', 'Revised lesson')->where('lesson.body', 'Updated text.'));
+});
+
+test('deleting a live lesson removes recruiters\' progress on it and finishes courses that are now complete', function () {
+    $lead = trainingContentStaff(SystemRole::RecruiterLead);
+    $recruiter = trainingContentStaff(SystemRole::Recruiter);
+    $course = draftTrainingCourse($lead->user, 2);
+    $version = $course->versions()->sole();
+    [$done, $open] = $version->lessons()->get()->all();
+    $assignment = TrainingAssignment::factory()->forVersion($version)->forEmployee($recruiter)->create(['status' => 'in_progress']);
+    $assignment->completions()->forceCreate(['lesson_id' => $done->id, 'started_at' => now(), 'completed_at' => now()]);
+    $assignment->completions()->forceCreate(['lesson_id' => $open->id, 'started_at' => now()]);
+
+    $this->actingAs($lead->user)->delete("/recruiter/training/manage/lessons/{$open->id}")->assertSessionHasNoErrors();
+
+    expect(TrainingLesson::query()->find($open->id))->toBeNull()
+        ->and($assignment->completions()->count())->toBe(1)
+        ->and($assignment->fresh()->status->value)->toBe('completed');
+});
+
+test('an older version kept as history and its lessons cannot be changed', function () {
+    $lead = trainingContentStaff(SystemRole::RecruiterLead);
+    $version = TrainingCourseVersion::factory()->archived()->create(['description' => 'Original']);
     $lesson = TrainingLesson::factory()->forVersion($version)->create(['title' => 'Original lesson']);
 
     $this->actingAs($lead->user)->put("/recruiter/training/manage/versions/{$version->id}", ['description' => 'Changed'])->assertForbidden();
@@ -244,9 +293,9 @@ test('a published version and its lessons cannot be changed', function () {
         ->and($version->lessons()->count())->toBe(1);
 });
 
-test('the service also refuses to change a published version', function () {
+test('the service also refuses to change an older version', function () {
     $lead = trainingContentStaff(SystemRole::RecruiterLead);
-    $version = TrainingCourseVersion::factory()->published()->create();
+    $version = TrainingCourseVersion::factory()->archived()->create();
     $lesson = TrainingLesson::factory()->forVersion($version)->create();
 
     expect(fn () => app(TrainingContentService::class)->updateLesson($lesson, trainingLessonPayload(), null, $lead->user))
@@ -292,20 +341,21 @@ test('a new version copies the lessons and files into a draft, and publishing it
 test('a course has at most one draft version', function () {
     $lead = trainingContentStaff(SystemRole::RecruiterLead);
     $course = draftTrainingCourse($lead->user);
+    app(TrainingContentService::class)->createVersion($course, $lead->user);
 
     $this->actingAs($lead->user)
         ->post("/recruiter/training/manage/courses/{$course->id}/versions")
         ->assertSessionHasErrors('version');
 
-    expect($course->versions()->count())->toBe(1);
+    expect($course->versions()->count())->toBe(2);
 });
 
-test('a draft can be discarded, but not when it is the course\'s only version', function () {
+test('a draft can be discarded, but the live version cannot', function () {
     $lead = trainingContentStaff(SystemRole::RecruiterLead);
     $course = draftTrainingCourse($lead->user, 1);
     $v1 = $course->versions()->sole();
 
-    $this->actingAs($lead->user)->delete("/recruiter/training/manage/versions/{$v1->id}")->assertSessionHasErrors('version');
+    $this->actingAs($lead->user)->delete("/recruiter/training/manage/versions/{$v1->id}")->assertForbidden();
     expect($v1->fresh())->not->toBeNull();
 
     app(TrainingContentService::class)->publishVersion($v1, $lead->user);
@@ -331,7 +381,7 @@ test('archiving the live version takes the course out of assignment until a new 
         ->and($course->fresh()->isAssignable())->toBeFalse();
 });
 
-test('the course page shows versions and the selected version\'s lessons', function () {
+test('the course page always shows the live copy, with no version controls', function () {
     $lead = trainingContentStaff(SystemRole::RecruiterLead);
     $course = draftTrainingCourse($lead->user, 2);
     $version = $course->versions()->sole();
@@ -341,14 +391,31 @@ test('the course page shows versions and the selected version\'s lessons', funct
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('RecruiterOperations/training/manage/courses/show')
-            ->has('versions', 1)
+            ->missing('versions')
+            ->missing('can.createVersion')
+            ->missing('selectedVersion.can.publish')
             ->where('selectedVersion.id', $version->id)
             ->has('selectedVersion.lessons', 2)
+            ->where('selectedVersion.duration_minutes', 2)
             ->where('selectedVersion.can.update', true)
-            ->where('selectedVersion.can.publish', true)
-            ->where('selectedVersion.can.delete', false)
-            ->where('can.createVersion', false)
-            ->where('can.assign', false));
+            ->where('can.assign', true));
+});
+
+test('the course list shows a duration instead of version columns', function () {
+    $lead = trainingContentStaff(SystemRole::RecruiterLead);
+    $course = draftTrainingCourse($lead->user, 0);
+    $version = $course->versions()->sole();
+    $content = app(TrainingContentService::class);
+    $content->createLesson($version, trainingLessonPayload(['duration_minutes' => 60]), null, $lead->user);
+    $content->createLesson($version, trainingLessonPayload(['title' => 'Reading', 'duration_minutes' => null, 'body' => str_repeat('word ', 4500)]), null, $lead->user);
+
+    $row = $this->actingAs($lead->user)
+        ->get('/recruiter/training/manage?track=unassigned')
+        ->assertOk()
+        ->viewData('page')['props']['courses']['data'][0];
+
+    expect($row)->not->toHaveKeys(['current_version', 'draft_version', 'versions_count'])
+        ->and($row['duration_minutes'])->toBe(90);
 });
 
 // D. Lessons

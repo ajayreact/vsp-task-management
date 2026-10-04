@@ -6,6 +6,7 @@ use App\Modules\Core\Models\User;
 use App\Modules\RecruiterOperations\Enums\TrainingContentStatus;
 use Database\Factories\RecruiterOperations\TrainingCourseFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +24,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
  *
  * @property int $id
  * @property int $category_id
+ * @property int|null $training_track_id
  * @property string $title
  * @property string $slug
  * @property string|null $description
@@ -33,9 +35,10 @@ use Spatie\Activitylog\Traits\LogsActivity;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read TrainingCategory $category
+ * @property-read TrainingTrack|null $track
  * @property-read TrainingCourseVersion|null $currentVersion
  * @property-read TrainingCourseVersion|null $draftVersion
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TrainingCourseVersion> $versions
+ * @property-read Collection<int, TrainingCourseVersion> $versions
  */
 class TrainingCourse extends Model
 {
@@ -61,7 +64,16 @@ class TrainingCourse extends Model
         return [
             'status' => TrainingContentStatus::class,
             'current_version_id' => 'integer',
+            'training_track_id' => 'integer',
         ];
+    }
+
+    /**
+     * @return BelongsTo<TrainingTrack, $this>
+     */
+    public function track(): BelongsTo
+    {
+        return $this->belongsTo(TrainingTrack::class, 'training_track_id');
     }
 
     /**
@@ -128,11 +140,21 @@ class TrainingCourse extends Model
         $query->where('status', TrainingContentStatus::Published->value)->whereNotNull('current_version_id');
     }
 
+    /**
+     * Courses of one track; null means courses not in any track yet.
+     *
+     * @param  Builder<$this>  $query
+     */
+    public function scopeInTrack(Builder $query, ?TrainingTrack $track): void
+    {
+        $track === null ? $query->whereNull('training_track_id') : $query->where('training_track_id', $track->id);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->useLogName('recruiter-training')
-            ->logOnly(['category_id', 'title', 'status', 'current_version_id'])
+            ->logOnly(['category_id', 'training_track_id', 'title', 'status', 'current_version_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

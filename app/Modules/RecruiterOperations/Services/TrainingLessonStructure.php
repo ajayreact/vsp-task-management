@@ -20,7 +20,7 @@ use App\Modules\RecruiterOperations\Enums\TrainingSectionKind;
  */
 final class TrainingLessonStructure
 {
-    public const MAX_SECTIONS = 30;
+    public const MAX_SECTIONS = 160;
 
     public const MAX_HEADING = 150;
 
@@ -284,6 +284,7 @@ final class TrainingLessonStructure
     /**
      * @param  list<list<string>>  $table
      * @param  list<array<string, mixed>>  $blocks
+     *
      * @param-out list<list<string>>  $table
      */
     private static function flushTable(array &$table, array &$blocks): void
@@ -301,6 +302,7 @@ final class TrainingLessonStructure
     /**
      * @param  array{type: 'bullets'|'numbered', items: list<string>}|null  $list
      * @param  list<array<string, mixed>>  $blocks
+     *
      * @param-out null  $list
      */
     private static function flushList(?array &$list, array &$blocks): void
@@ -313,7 +315,7 @@ final class TrainingLessonStructure
 
     public static function stripInline(string $text): string
     {
-        return trim((string) preg_replace('/\*\*(.+?)\*\*/u', '$1', $text));
+        return trim((string) preg_replace(['/\*\*(.+?)\*\*/u', '/\s*\[\[[^\]]*\]\]/u'], ['$1', ''], $text));
     }
 
     /**

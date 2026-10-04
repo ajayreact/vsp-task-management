@@ -2,7 +2,8 @@ import { DataTableCard } from '@/components/admin/data-table-card';
 import { EntriesSelect } from '@/components/admin/entries-select';
 import { Pagination } from '@/components/admin/pagination';
 import { SearchInput } from '@/components/admin/search-input';
-import { ContentStatusBadge, TrainingSubNav } from '@/components/recruiter-operations/training/training-ui';
+import { BENCH_SALES_EMPTY, TrackSwitcher, type TrackOption } from '@/components/recruiter-operations/training/training-tracks';
+import { ContentStatusBadge, formatMinutes, TrainingSubNav } from '@/components/recruiter-operations/training/training-ui';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -18,15 +19,15 @@ interface CourseRow {
     category: string | null;
     status: string;
     status_label: string;
-    current_version: string | null;
-    draft_version: string | null;
-    versions_count: number;
+    duration_minutes: number | null;
     assignments_count: number;
 }
 
 interface Props {
     courses: Paginated<CourseRow>;
-    filters: { category: number | null; status: string; search: string };
+    filters: { track: string; category: number | null; status: string; search: string };
+    tracks: TrackOption[];
+    trackName: string;
     categories: { id: number; label: string }[];
     statuses: Option[];
     can: { create: boolean; assign: boolean };
@@ -40,8 +41,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Manage', href: '/recruiter/training/manage' },
 ];
 
-export default function ManageTraining({ courses, filters, categories, statuses, can }: Props) {
+export default function ManageTraining({ courses, filters, tracks, trackName, categories, statuses, can }: Props) {
     const current = {
+        track: filters.track,
         category: filters.category ?? undefined,
         status: filters.status || undefined,
         search: filters.search || undefined,
@@ -68,11 +70,12 @@ export default function ManageTraining({ courses, filters, categories, statuses,
         <RecruiterLayout breadcrumbs={breadcrumbs}>
             <Head title="Manage Training" />
 
-            <div className="flex min-w-0 max-w-full flex-1 flex-col gap-6 p-4 md:p-6">
+            <div className="flex max-w-full min-w-0 flex-1 flex-col gap-6 p-4 md:p-6">
                 <TrainingSubNav />
+                <TrackSwitcher tracks={tracks} value={filters.track} onChange={(track) => apply({ track, category: null, page: null })} />
                 <DataTableCard
-                    title="Training Courses"
-                    description="Each course has numbered versions. Only a draft can be edited; publishing freezes it."
+                    title={`${trackName} Courses`}
+                    description="Only this track's courses. Saved changes go live straight away, including for recruiters already assigned."
                     action={
                         <div className="flex w-full flex-wrap gap-2 sm:w-auto">
                             <Button asChild variant="outline">
@@ -87,7 +90,7 @@ export default function ManageTraining({ courses, filters, categories, statuses,
                             </Button>
                             {can.create && (
                                 <Button asChild>
-                                    <Link href="/recruiter/training/manage/courses/create">
+                                    <Link href={`/recruiter/training/manage/courses/create?track=${filters.track}`}>
                                         <Plus /> New course
                                     </Link>
                                 </Button>
@@ -103,7 +106,10 @@ export default function ManageTraining({ courses, filters, categories, statuses,
                                 aria-label="Search courses"
                                 containerClassName="w-full min-w-0 lg:max-w-xs"
                             />
-                            <Select value={filters.category ? String(filters.category) : ALL} onValueChange={(value) => apply({ category: value === ALL ? null : value })}>
+                            <Select
+                                value={filters.category ? String(filters.category) : ALL}
+                                onValueChange={(value) => apply({ category: value === ALL ? null : value })}
+                            >
                                 <SelectTrigger className="w-full lg:w-64" aria-label="Filter by category">
                                     <SelectValue />
                                 </SelectTrigger>
@@ -131,42 +137,45 @@ export default function ManageTraining({ courses, filters, categories, statuses,
                             </Select>
                         </div>
                     }
-                    footer={<Pagination page={courses} leading={<EntriesSelect value={courses.per_page} onChange={(perPage) => apply({ per_page: perPage })} />} />}
+                    footer={
+                        <Pagination
+                            page={courses}
+                            leading={<EntriesSelect value={courses.per_page} onChange={(perPage) => apply({ per_page: perPage })} />}
+                        />
+                    }
                 >
-                    <Table className="min-w-max">
+                    <Table className="min-w-[640px]">
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Course</TableHead>
                                 <TableHead>Category</TableHead>
                                 <TableHead>Status</TableHead>
-                                <TableHead>Live version</TableHead>
-                                <TableHead>Draft</TableHead>
-                                <TableHead className="text-right">Versions</TableHead>
+                                <TableHead>Duration</TableHead>
                                 <TableHead className="text-right">Assignments</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {courses.data.length === 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="text-muted-foreground py-10 text-center">
-                                        No courses match these filters.
+                                    <TableCell colSpan={5} className="text-muted-foreground py-10 text-center">
+                                        {filters.track === 'bench-sales-recruiter' && !filters.search && !filters.status && !filters.category
+                                            ? BENCH_SALES_EMPTY
+                                            : 'No courses match these filters.'}
                                     </TableCell>
                                 </TableRow>
                             )}
                             {courses.data.map((course) => (
                                 <TableRow key={course.id}>
-                                    <TableCell>
+                                    <TableCell className="whitespace-normal">
                                         <Link href={`/recruiter/training/manage/courses/${course.id}`} className="font-medium hover:underline">
                                             {course.title}
                                         </Link>
                                     </TableCell>
-                                    <TableCell className="text-sm">{course.category ?? '—'}</TableCell>
+                                    <TableCell className="text-sm whitespace-normal">{course.category ?? '—'}</TableCell>
                                     <TableCell>
                                         <ContentStatusBadge status={course.status} label={course.status_label} />
                                     </TableCell>
-                                    <TableCell className="text-sm">{course.current_version ?? '—'}</TableCell>
-                                    <TableCell className="text-sm">{course.draft_version ?? '—'}</TableCell>
-                                    <TableCell className="text-right text-sm">{course.versions_count}</TableCell>
+                                    <TableCell className="text-sm whitespace-nowrap">{formatMinutes(course.duration_minutes)}</TableCell>
                                     <TableCell className="text-right text-sm">{course.assignments_count}</TableCell>
                                 </TableRow>
                             ))}

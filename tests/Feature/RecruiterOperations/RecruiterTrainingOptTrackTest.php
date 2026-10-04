@@ -233,12 +233,13 @@ test('the opt track plan has four courses with the agreed modules', function () 
     expect(array_column($plans, 'title'))->toBe([
         'U.S. Fundamentals',
         'Immigration & Work Authorization',
-        'OPT to STEM OPT: Complete Recruiter Process',
+        'OPT & STEM OPT Recruiter Process',
         'OPT Recruiter Calling & Communication',
     ])
-        ->and($modules)->toBe([3, 4, 8, 6])
-        ->and($lessons)->toBe([11, 30, 32, 51])
+        ->and($modules)->toBe([3, 4, 4, 6])
+        ->and($lessons)->toBe([3, 6, 5, 7])
         ->and(array_keys($plans[1]['modules']))->toBe(['Visa / Status', 'Documents & Systems', 'Employment & Work Authorization', 'Recruiter Compliance'])
+        ->and(array_keys($plans[2]['modules']))->toBe(['Role & Sourcing', 'OPT Process & Employment', 'STEM OPT', 'Delivery, Compliance & Assessment'])
         ->and(array_keys($plans[3]['modules']))->toBe(['Calling Fundamentals', 'Initial Candidate Screening', 'Explaining the Opportunity', 'Candidate Questions & Objections', 'Follow-Up & Next Steps', 'Practical Calling']);
 
     foreach ($plans as $plan) {

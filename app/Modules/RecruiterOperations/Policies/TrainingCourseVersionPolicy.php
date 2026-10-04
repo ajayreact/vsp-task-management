@@ -7,8 +7,9 @@ use App\Modules\Core\Models\User;
 use App\Modules\RecruiterOperations\Models\TrainingCourseVersion;
 
 /**
- * Only a draft version can change. Published and archived versions are
- * frozen, for managers too; TrainingContentService enforces the same rule.
+ * The live version (and any unpublished draft) can change. Older versions
+ * are history and stay frozen, for managers too; TrainingContentService
+ * enforces the same rule.
  */
 class TrainingCourseVersionPolicy
 {
@@ -19,7 +20,7 @@ class TrainingCourseVersionPolicy
 
     public function update(User $user, TrainingCourseVersion $version): bool
     {
-        return $this->manages($user) && $version->isDraft();
+        return $this->manages($user) && $version->isEditable();
     }
 
     public function publish(User $user, TrainingCourseVersion $version): bool

@@ -16,8 +16,8 @@ use Inertia\Response;
 
 /**
  * The structured lesson editor: English sections, their translations and
- * review states. Read-only outside a draft version; saving goes through
- * TrainingLessonContentService, which enforces the draft-only rule again.
+ * review states. Read-only for older versions kept as history; saving goes
+ * through TrainingLessonContentService, which enforces the same rule again.
  */
 class TrainingLessonContentController extends Controller
 {
@@ -62,7 +62,7 @@ class TrainingLessonContentController extends Controller
         $this->contents->save($trainingLesson, $locale, $sections, $request->user());
 
         return to_route('recruiter.training.manage.lessons.content.edit', [$trainingLesson, 'language' => $locale->value])
-            ->with('success', $locale->label().' content saved. Changes go back to review.');
+            ->with('success', $locale->label().' content saved. Recruiters see the change now.');
     }
 
     public function destroy(Request $request, TrainingLesson $trainingLesson, string $language): RedirectResponse

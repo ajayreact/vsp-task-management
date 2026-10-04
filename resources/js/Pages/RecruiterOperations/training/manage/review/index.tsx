@@ -145,8 +145,8 @@ export default function TrainingContentReviewIndex({ language, languages, summar
                 </div>
 
                 <DataTableCard
-                    title="Draft lessons to review"
-                    description="Version 2 drafts only. Published versions are never changed here, and nothing is published or approved automatically."
+                    title="Lessons to review"
+                    description="Review status is an internal marker only. Saved content is already live for recruiters; nothing is approved automatically."
                     action={
                         <div role="tablist" aria-label="Review language" className="flex gap-1 rounded-lg border p-0.5 text-sm">
                             {languages.map((item) => (

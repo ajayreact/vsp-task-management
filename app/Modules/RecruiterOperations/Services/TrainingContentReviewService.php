@@ -7,6 +7,7 @@ use App\Modules\RecruiterOperations\Enums\TrainingComplianceStatus;
 use App\Modules\RecruiterOperations\Enums\TrainingContentReview;
 use App\Modules\RecruiterOperations\Enums\TrainingContentStatus;
 use App\Modules\RecruiterOperations\Enums\TrainingLanguage;
+use App\Modules\RecruiterOperations\Models\TrainingCourse;
 use App\Modules\RecruiterOperations\Models\TrainingCourseVersion;
 use App\Modules\RecruiterOperations\Models\TrainingLesson;
 use App\Modules\RecruiterOperations\Models\TrainingLessonContent;
@@ -15,13 +16,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Review of draft lesson content before a version is published:
+ * Review of lesson content. Review states are an internal marker only:
+ * saved content is live without them.
  *
  * - each language of a lesson has its own review state; English comes first,
  *   and a translation can only be approved once its English is approved;
  * - lessons flagged for compliance need a separate compliance approval;
- * - only a manager sets a state, and only inside a draft version. Nothing
- *   here publishes, assigns or approves on its own.
+ * - only a manager sets a state, and only on lessons that can still be
+ *   edited. Nothing here publishes, assigns or approves on its own.
  */
 class TrainingContentReviewService
 {
@@ -32,23 +34,31 @@ class TrainingContentReviewService
     public function __construct(protected TrainingLessonContentService $contents) {}
 
     /**
-     * Every lesson of every draft version, in course level order, then the
-     * order recruiters read them.
+     * Every lesson managers are working on: each course's unpublished draft
+     * while it has one, else its live version. In course level order, then
+     * the order recruiters read them.
      *
      * @return Collection<int, TrainingLesson>
      */
-    public function draftLessons(): Collection
+    public function editableLessons(): Collection
     {
         $versions = TrainingCourseVersion::query()
-            ->where('status', TrainingContentStatus::Draft->value)
+            ->where(fn ($query) => $query
+                ->where('status', TrainingContentStatus::Draft->value)
+                ->orWhereIn('id', TrainingCourse::query()->whereNotNull('current_version_id')->select('current_version_id')))
             ->with(['course.category', 'lessons' => fn ($query) => $query->orderBy('sort_order')->orderBy('id'), 'lessons.contents.reviewer:id,name', 'lessons.complianceReviewer:id,name'])
             ->get()
-            ->sortBy(fn (TrainingCourseVersion $version) => [$version->course->category->level_number ?? PHP_INT_MAX, $version->course_id])
-            ->values();
+            ->sortBy(fn (TrainingCourseVersion $version) => [$version->course->category->level_number ?? PHP_INT_MAX, $version->course_id, $version->isDraft() ? 0 : 1]);
 
         $lessons = new Collection;
+        $seenCourses = [];
 
         foreach ($versions as $version) {
+            if (isset($seenCourses[$version->course_id])) {
+                continue;
+            }
+            $seenCourses[$version->course_id] = true;
+
             foreach ($version->lessons as $lesson) {
                 $lesson->setRelation('version', $version);
                 $lessons->push($lesson);
@@ -143,7 +153,7 @@ class TrainingContentReviewService
     public function setStatus(TrainingLesson $lesson, TrainingLanguage $language, TrainingContentReview $status, User $actor, ?string $note = null): TrainingLessonContent
     {
         $this->contents->ensureManager($actor);
-        $this->contents->ensureDraft($lesson);
+        $this->contents->ensureEditable($lesson);
 
         $note = $this->cleanNote($note);
 
@@ -195,7 +205,7 @@ class TrainingContentReviewService
     public function setCompliance(TrainingLesson $lesson, TrainingComplianceStatus $status, User $actor, ?string $note = null): TrainingLesson
     {
         $this->contents->ensureManager($actor);
-        $this->contents->ensureDraft($lesson);
+        $this->contents->ensureEditable($lesson);
 
         $note = $this->cleanNote($note);
 
@@ -231,7 +241,7 @@ class TrainingContentReviewService
         /** @var list<string> $titles */
         $titles = array_map(fn ($title) => mb_strtolower((string) $title), (array) config('recruiter-training.compliance_review.lessons', []));
 
-        $flagged = $this->draftLessons()->filter(function (TrainingLesson $lesson) use ($levels, $phrases, $titles) {
+        $flagged = $this->editableLessons()->filter(function (TrainingLesson $lesson) use ($levels, $phrases, $titles) {
             if ($lesson->compliance_status !== null) {
                 return false;
             }

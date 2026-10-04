@@ -116,14 +116,15 @@ export function formatMinutes(minutes: number | null): string {
         return '—';
     }
 
-    if (minutes < 60) {
+    if (minutes <= 60) {
         return `${minutes} min`;
     }
 
     const hours = Math.floor(minutes / 60);
     const rest = minutes % 60;
+    const hourLabel = `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
 
-    return rest === 0 ? `${hours} h` : `${hours} h ${rest} min`;
+    return rest === 0 ? hourLabel : `${hourLabel} ${rest} min`;
 }
 
 /**
@@ -134,8 +135,8 @@ export function TrainingSubNav() {
     const { url, props } = usePage<{ trainingLearner?: boolean }>();
     const path = url.split('?')[0];
 
-    const tabs: { label: string; href: string; show: boolean; exact?: boolean; except?: string }[] = [
-        { label: 'Overview', href: '/recruiter/training', exact: true, show: true },
+    const tabs: { label: string; href: string; show: boolean; exact?: boolean; except?: string; also?: string }[] = [
+        { label: 'Tracks', href: '/recruiter/training', exact: true, also: '/recruiter/training/tracks', show: true },
         { label: 'My Training', href: '/recruiter/training/my-training', show: props.trainingLearner === true },
         { label: 'Team Progress', href: '/recruiter/training/team', show: can('recruiter.team.view') },
         { label: 'Assignments', href: '/recruiter/training/assignments', show: can('recruiter.training.assign') },
@@ -148,7 +149,8 @@ export function TrainingSubNav() {
             {tabs.map((tab) => {
                 const inside = path === tab.href || path.startsWith(`${tab.href}/`);
                 const excluded = tab.except !== undefined && (path === tab.except || path.startsWith(`${tab.except}/`));
-                const active = tab.exact ? path === tab.href : inside && !excluded;
+                const alsoActive = tab.also !== undefined && (path === tab.also || path.startsWith(`${tab.also}/`));
+                const active = (tab.exact ? path === tab.href : inside && !excluded) || alsoActive;
 
                 return (
                     <Link

@@ -10,6 +10,7 @@ import {
 import { postJson } from '@/components/recruiter-operations/training/training-http';
 import { resolveLessonLanguage, TrainingLanguageSelect, useTrainingLanguage } from '@/components/recruiter-operations/training/training-language';
 import { TrainingLessonContent, type TrainingLessonData } from '@/components/recruiter-operations/training/training-lesson-content';
+import { ListenModeToggle, ListenOnlyNotice, useListenMode, type ListenMode } from '@/components/recruiter-operations/training/training-listen-mode';
 import {
     formatMinutes,
     formatTrainingDate,
@@ -125,6 +126,7 @@ export default function TrainingCourse({
     );
     const [completing, setCompleting] = useState<number | null>(null);
     const [chosenLanguage, chooseLanguage] = useTrainingLanguage();
+    const [listenMode, chooseListenMode] = useListenMode();
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Recruiter Operations', href: '/recruiter' },
@@ -347,7 +349,8 @@ export default function TrainingCourse({
                                 </span>
                             </div>
                         </div>
-                        <div className="flex items-center gap-2 md:shrink-0">
+                        <div className="flex flex-wrap items-center gap-2 md:shrink-0">
+                            <ListenModeToggle value={listenMode} onChange={chooseListenMode} />
                             {pageLanguages.length > 1 && (
                                 <TrainingLanguageSelect languages={pageLanguages} value={chosenLanguage} onChange={chooseLanguage} compact />
                             )}
@@ -406,6 +409,7 @@ export default function TrainingCourse({
                                                 position={positions.get(lesson.id) ?? 0}
                                                 total={lessons.length}
                                                 chosenLanguage={chosenLanguage}
+                                                listenMode={listenMode}
                                                 audio={audio}
                                                 completing={completing === lesson.id}
                                                 onComplete={() => markComplete(lesson)}
@@ -493,6 +497,7 @@ function CourseLessonArticle({
     position,
     total,
     chosenLanguage,
+    listenMode,
     audio,
     completing,
     onComplete,
@@ -502,6 +507,7 @@ function CourseLessonArticle({
     position: number;
     total: number;
     chosenLanguage: string;
+    listenMode: ListenMode;
     audio: Props['audio'];
     completing: boolean;
     onComplete: () => void;
@@ -578,7 +584,11 @@ function CourseLessonArticle({
                 onPositionReport={onAudioPosition}
             />
 
-            <TrainingLessonContent lesson={lesson} language={shown} headingLevel="h4" showDescription={false} variant="flow" />
+            {listenMode === 'listen' ? (
+                <ListenOnlyNotice />
+            ) : (
+                <TrainingLessonContent lesson={lesson} language={shown} headingLevel="h4" showDescription={false} variant="flow" />
+            )}
 
             <footer className="flex flex-wrap items-center justify-between gap-3 pt-2">
                 {lesson.completed ? (

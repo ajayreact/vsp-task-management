@@ -1,15 +1,7 @@
 import { ConfirmDelete } from '@/components/admin/confirm-delete';
 import { PageHeader } from '@/components/admin/page-header';
 import InputError from '@/components/input-error';
-import {
-    ConfirmPost,
-    ContentStatusBadge,
-    RequiredBadge,
-    TrainingSubNav,
-    formatMinutes,
-    formatTrainingDate,
-} from '@/components/recruiter-operations/training/training-ui';
-import { Badge } from '@/components/ui/badge';
+import { ConfirmPost, ContentStatusBadge, RequiredBadge, TrainingSubNav, formatMinutes } from '@/components/recruiter-operations/training/training-ui';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -20,21 +12,9 @@ import { Textarea } from '@/components/ui/textarea';
 import RecruiterLayout from '@/layouts/recruiter-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, ClipboardCheck, Eye, LoaderCircle, Pencil, Plus, Trash2, UserPlus } from 'lucide-react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { ArrowDown, ArrowUp, Eye, LoaderCircle, Pencil, Plus, Trash2, UserPlus } from 'lucide-react';
 import { type FormEvent } from 'react';
-
-interface VersionRow {
-    id: number;
-    label: string;
-    status: string;
-    status_label: string;
-    published_at: string | null;
-    lessons_count: number;
-    open_assignments_count: number;
-    completed_assignments_count: number;
-    is_current: boolean;
-}
 
 interface LessonRow {
     id: number;
@@ -51,64 +31,13 @@ interface LessonRow {
 
 interface SelectedVersion {
     id: number;
-    label: string;
-    status: string;
-    status_label: string;
     description: string | null;
     estimated_minutes: number | null;
-    published_at: string | null;
-    created_by: string | null;
-    is_current: boolean;
+    duration_minutes: number | null;
+    open_assignments_count: number;
     lessons: LessonRow[];
     quizzes: LinkedQuiz[];
-    review: ReviewReadiness | null;
-    can: { update: boolean; publish: boolean; archive: boolean; delete: boolean };
-}
-
-interface ReviewReadiness {
-    english_required: boolean;
-    english_total: number;
-    english_approved: number;
-    compliance_required: number;
-    compliance_approved: number;
-    compliance_blocking: number;
-    ready: boolean;
-}
-
-function ReviewReadinessPanel({ review, error }: { review: ReviewReadiness; error?: string }) {
-    return (
-        <div
-            className={cn(
-                'space-y-2 rounded-xl border p-3 text-sm',
-                review.ready ? 'border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20' : 'border-amber-500/30 bg-amber-50/60 dark:bg-amber-950/20',
-            )}
-        >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="flex items-center gap-2 font-medium">
-                    <ClipboardCheck className="size-4" />
-                    {review.ready ? 'Content reviews are finished. This version can be published.' : 'Publishing waits for content review.'}
-                </p>
-                <Button asChild size="sm" variant="outline">
-                    <Link href="/recruiter/training/manage/review">Open content review</Link>
-                </Button>
-            </div>
-            <ul className="text-muted-foreground space-y-0.5">
-                {review.english_required && (
-                    <li>
-                        English approved: {review.english_approved} of {review.english_total} lessons
-                    </li>
-                )}
-                {review.compliance_required > 0 && (
-                    <li>
-                        Compliance approved: {review.compliance_approved} of {review.compliance_required} flagged lessons
-                        {review.compliance_blocking > 0 ? ` (${review.compliance_blocking} still open)` : ''}
-                    </li>
-                )}
-                <li>Telugu is optional: recruiters see English where a translation is not available.</li>
-            </ul>
-            <InputError message={error} />
-        </div>
-    );
+    can: { update: boolean };
 }
 
 interface LinkedQuiz {
@@ -125,13 +54,12 @@ interface Props {
         title: string;
         description: string | null;
         category: string | null;
+        track: { name: string; slug: string } | null;
         status: string;
         status_label: string;
-        current_version_id: number | null;
     };
-    versions: VersionRow[];
     selectedVersion: SelectedVersion | null;
-    can: { update: boolean; archive: boolean; restore: boolean; createVersion: boolean; assign: boolean };
+    can: { update: boolean; archive: boolean; restore: boolean; assign: boolean };
     quizOptions: { value: string; label: string }[];
 }
 
@@ -149,10 +77,7 @@ function LinkedQuizzes({ version, options }: { version: SelectedVersion; options
         <Card>
             <CardHeader>
                 <CardTitle className="text-base">Quizzes</CardTitle>
-                <CardDescription>
-                    Recruiters assigned this version also receive these quizzes. The quiz version is fixed when linked; change it by creating a new
-                    course version.
-                </CardDescription>
+                <CardDescription>Recruiters assigned this course receive these quizzes, including recruiters assigned before the quiz was linked.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
                 {version.quizzes.length === 0 && <p className="text-muted-foreground text-sm">No quizzes linked.</p>}
@@ -177,7 +102,7 @@ function LinkedQuizzes({ version, options }: { version: SelectedVersion; options
                                     </Button>
                                 }
                                 title="Unlink this quiz?"
-                                description="Recruiters assigned this course version later will not receive it. Existing quiz assignments are not changed."
+                                description="Recruiters who have not started this quiz no longer receive it. Attempts already made are kept."
                                 url={`/recruiter/training/manage/versions/${version.id}/quizzes/${quiz.id}`}
                                 confirmLabel="Unlink"
                             />
@@ -227,19 +152,19 @@ function VersionDetailsForm({ version }: { version: SelectedVersion }) {
     return (
         <form onSubmit={submit} className="grid gap-4 sm:grid-cols-[1fr_12rem]">
             <div className="grid gap-2">
-                <Label htmlFor="version-description">Version notes</Label>
+                <Label htmlFor="version-description">Course notes</Label>
                 <Textarea
                     id="version-description"
                     value={data.description}
                     onChange={(e) => setData('description', e.target.value)}
                     rows={3}
                     maxLength={5000}
-                    placeholder="What changed in this version, or what reviewers should check."
+                    placeholder="Internal notes for training managers."
                 />
                 <InputError message={errors.description} />
             </div>
             <div className="grid content-start gap-2">
-                <Label htmlFor="version-minutes">Estimated minutes</Label>
+                <Label htmlFor="version-minutes">Duration (minutes)</Label>
                 <Input
                     id="version-minutes"
                     type="number"
@@ -247,7 +172,7 @@ function VersionDetailsForm({ version }: { version: SelectedVersion }) {
                     max="6000"
                     value={data.estimated_minutes}
                     onChange={(e) => setData('estimated_minutes', e.target.value)}
-                    placeholder="From lessons"
+                    placeholder={version.duration_minutes ? `Auto: ${version.duration_minutes}` : 'From lessons'}
                 />
                 <InputError message={errors.estimated_minutes} />
                 <Button type="submit" variant="outline" disabled={processing || !isDirty}>
@@ -319,7 +244,7 @@ function LessonActions({
                             </Button>
                         }
                         title="Delete this lesson?"
-                        description="The lesson and its file are removed from this draft."
+                        description="The lesson and its file are removed for everyone assigned this course, along with their progress on it."
                         url={`/recruiter/training/manage/lessons/${lesson.id}`}
                     />
                 </>
@@ -328,7 +253,7 @@ function LessonActions({
     );
 }
 
-export default function ManageTrainingCourse({ course, versions, selectedVersion, can, quizOptions }: Props) {
+export default function ManageTrainingCourse({ course, selectedVersion, can, quizOptions }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Recruiter Operations', href: '/recruiter' },
         { title: 'Training', href: '/recruiter/training' },
@@ -339,8 +264,6 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
     const version = selectedVersion;
     const editable = version?.can.update ?? false;
     const lessons = version?.lessons ?? [];
-    const { errors } = usePage<{ errors: Record<string, string | undefined> }>().props;
-    const reviewReady = version?.review?.ready ?? true;
 
     const move = (lessonId: number, direction: 'up' | 'down') => {
         router.post(`/recruiter/training/manage/lessons/${lessonId}/move`, { direction }, { preserveScroll: true, preserveState: true });
@@ -354,7 +277,9 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
                 <TrainingSubNav />
                 <PageHeader
                     title={course.title}
-                    description={[course.category, course.description].filter(Boolean).join(' · ') || undefined}
+                    description={
+                        [course.track?.name ?? 'Not in a track', course.category, course.description].filter(Boolean).join(' · ') || undefined
+                    }
                     action={
                         <div className="flex flex-wrap gap-2">
                             <ContentStatusBadge status={course.status} label={course.status_label} />
@@ -394,7 +319,7 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
                                         </Button>
                                     }
                                     title="Restore this course?"
-                                    description="It becomes assignable again if it has a published version."
+                                    description="It becomes assignable again."
                                     url={`/recruiter/training/manage/courses/${course.id}/restore`}
                                     confirmLabel="Restore"
                                 />
@@ -403,123 +328,25 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
                     }
                 />
 
-                <div className="grid gap-6 2xl:grid-cols-[18rem_minmax(0,1fr)]">
-                    <Card className="h-fit">
-                        <CardHeader>
-                            <CardTitle className="text-base">Versions</CardTitle>
-                            <CardDescription>Published versions are frozen. Assignments stay on the version they were given.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            {versions.map((row) => (
-                                <Link
-                                    key={row.id}
-                                    href={`/recruiter/training/manage/courses/${course.id}?version=${row.id}`}
-                                    preserveScroll
-                                    className={cn(
-                                        'block rounded-lg border px-3 py-2 text-sm transition-colors',
-                                        row.id === version?.id ? 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/20' : 'hover:bg-muted/50',
-                                    )}
-                                >
-                                    <div className="flex items-center justify-between gap-2">
-                                        <span className="font-medium">{row.label}</span>
-                                        <div className="flex gap-1">
-                                            {row.is_current && <Badge variant="info">Live</Badge>}
-                                            <ContentStatusBadge status={row.status} label={row.status_label} />
-                                        </div>
-                                    </div>
-                                    <p className="text-muted-foreground mt-1 text-xs">
-                                        {row.lessons_count} lessons · {row.open_assignments_count} open · {row.completed_assignments_count} completed
-                                        {row.published_at ? ` · published ${formatTrainingDate(row.published_at)}` : ''}
-                                    </p>
-                                </Link>
-                            ))}
-
-                            {can.createVersion && (
-                                <ConfirmPost
-                                    trigger={
-                                        <Button variant="outline" size="sm" className="w-full">
-                                            <Plus /> New version
-                                        </Button>
-                                    }
-                                    title="Create a new draft version?"
-                                    description="The latest version's lessons and files are copied into a new draft. Published versions and current assignments are not changed."
-                                    url={`/recruiter/training/manage/courses/${course.id}/versions`}
-                                    confirmLabel="Create draft"
-                                />
-                            )}
-                        </CardContent>
-                    </Card>
-
+                <div className="min-w-0">
                     {version ? (
                         <div className="min-w-0 space-y-6">
                             <Card>
-                                <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                    <div className="space-y-1">
-                                        <CardTitle className="flex items-center gap-2 text-base">
-                                            {version.label}
-                                            <ContentStatusBadge status={version.status} label={version.status_label} />
-                                        </CardTitle>
-                                        <CardDescription>
-                                            {version.created_by ? `Created by ${version.created_by}. ` : ''}
-                                            {version.published_at ? `Published ${formatTrainingDate(version.published_at)}. ` : ''}
-                                            {version.estimated_minutes ? `Estimated ${formatMinutes(version.estimated_minutes)}.` : ''}
-                                        </CardDescription>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {version.can.publish && !reviewReady && (
-                                            <Button size="sm" disabled title="Finish the content reviews first">
-                                                Publish {version.label}
-                                            </Button>
-                                        )}
-                                        {version.can.publish && reviewReady && (
-                                            <ConfirmPost
-                                                trigger={<Button size="sm">Publish {version.label}</Button>}
-                                                title={`Publish ${version.label}?`}
-                                                description="Once published this version cannot be edited. It becomes the version given to new assignments, and any older published version is archived. Existing assignments keep their version."
-                                                url={`/recruiter/training/manage/versions/${version.id}/publish`}
-                                                confirmLabel="Publish"
-                                            />
-                                        )}
-                                        {version.can.archive && (
-                                            <ConfirmPost
-                                                trigger={
-                                                    <Button size="sm" variant="outline">
-                                                        Archive version
-                                                    </Button>
-                                                }
-                                                title={`Archive ${version.label}?`}
-                                                description="New assignments will not use it. Recruiters already assigned this version can still finish it."
-                                                url={`/recruiter/training/manage/versions/${version.id}/archive`}
-                                                confirmLabel="Archive"
-                                                destructive
-                                            />
-                                        )}
-                                        {version.can.delete && (
-                                            <ConfirmDelete
-                                                trigger={
-                                                    <Button size="sm" variant="ghost" className="text-destructive">
-                                                        <Trash2 /> Discard draft
-                                                    </Button>
-                                                }
-                                                title={`Discard ${version.label}?`}
-                                                description="The draft and its lessons and files are deleted. Published versions are not affected."
-                                                url={`/recruiter/training/manage/versions/${version.id}`}
-                                                confirmLabel="Discard"
-                                            />
-                                        )}
-                                    </div>
+                                <CardHeader className="space-y-1">
+                                    <CardTitle className="text-base">Course details</CardTitle>
+                                    <CardDescription data-testid="course-duration">
+                                        Duration {formatMinutes(version.duration_minutes)}
+                                        {version.estimated_minutes ? '' : ' (estimated from the lesson text)'}. Changes you save are live straight away
+                                        {version.open_assignments_count > 0
+                                            ? ` for the ${version.open_assignments_count} recruiter${version.open_assignments_count === 1 ? '' : 's'} working on this course.`
+                                            : '.'}
+                                    </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    {version.review && (version.review.english_required || version.review.compliance_required > 0) && (
-                                        <ReviewReadinessPanel review={version.review} error={errors.version} />
-                                    )}
                                     {editable ? (
                                         <VersionDetailsForm key={version.id} version={version} />
                                     ) : (
-                                        <p className="text-muted-foreground text-sm whitespace-pre-line">
-                                            {version.description || 'No version notes.'}
-                                            {'\n'}This version is read-only. Create a new version to change its content.
-                                        </p>
+                                        <p className="text-muted-foreground text-sm">{version.description || 'No course notes.'}</p>
                                     )}
                                 </CardContent>
                             </Card>
@@ -541,7 +368,7 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
                                 <CardContent>
                                     {lessons.length === 0 ? (
                                         <p className="text-muted-foreground py-10 text-center text-sm">
-                                            No lessons yet.{editable ? ' Add at least one lesson before publishing.' : ''}
+                                            No lessons yet.{editable ? ' Add at least one lesson before assigning this course.' : ''}
                                         </p>
                                     ) : (
                                         <>
@@ -656,7 +483,7 @@ export default function ManageTrainingCourse({ course, versions, selectedVersion
                         </div>
                     ) : (
                         <Card>
-                            <CardContent className="text-muted-foreground py-10 text-center text-sm">This course has no versions.</CardContent>
+                            <CardContent className="text-muted-foreground py-10 text-center text-sm">This course has no content yet.</CardContent>
                         </Card>
                     )}
                 </div>

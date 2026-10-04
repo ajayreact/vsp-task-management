@@ -136,6 +136,7 @@ test('assignments stay on their version: Version 2 reaches a recruiter only thro
 
     $this->actingAs($lead->user)->delete("/recruiter/training/assignments/{$old->id}")->assertSessionHas('success', 'Training assignment withdrawn.');
     $this->actingAs($lead->user)->post('/recruiter/training/assignments', [
+        'track' => 'unassigned',
         'course_id' => $course->id,
         'mode' => 'individual',
         'employee_ids' => [$reassigned->id],

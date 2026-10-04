@@ -300,8 +300,11 @@ test('Telugu cannot be added while the English is empty, and becomes outdated wh
     expect($contents->isOutdated($lesson->refresh(), $telugu->refresh()))->toBeTrue();
 });
 
-test('published lesson content cannot be changed, through the page or the service', function () {
-    [$lead, , , $lesson] = multilingualCourse(teluguSections());
+test('lesson content of an older version kept as history cannot be changed, through the page or the service', function () {
+    [$lead, , $version, $lesson] = multilingualCourse(teluguSections());
+    $content = app(TrainingContentService::class);
+    $content->publishVersion($content->createVersion($version->course, $lead->user), $lead->user);
+    $lesson->refresh();
     $url = "/recruiter/training/manage/lessons/{$lesson->id}/content";
     $before = $lesson->contents()->orderBy('id')->get(['locale', 'sections', 'updated_at'])->toArray();
 

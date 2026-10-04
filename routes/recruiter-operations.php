@@ -93,6 +93,7 @@ Route::prefix('training')->name('training.')->where([
 ])->middleware(ShareTrainingLearner::class)->group(function () {
     // The overview serves learners and managers; it shows each only their side.
     Route::get('/', [TrainingLearnerController::class, 'dashboard'])->name('dashboard')->can('viewAny', TrainingCourse::class);
+    Route::get('/tracks/{track}', [TrainingLearnerController::class, 'track'])->name('tracks.show')->where('track', '[a-z0-9-]+')->can('viewAny', TrainingCourse::class);
 
     // A recruiter's own learning. The assignment is always resolved from the
     // signed-in person, never from the URL. Management-only users (Admin,

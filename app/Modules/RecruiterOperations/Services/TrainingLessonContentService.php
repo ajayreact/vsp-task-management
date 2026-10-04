@@ -56,11 +56,11 @@ class TrainingLessonContentService
     }
 
     /**
-     * The translation to show for a lesson. In a draft every stored
-     * translation shows, so managers can review it. Once the version is
-     * published only an approved, up-to-date translation reaches learners;
-     * otherwise they get the English lesson. Translations are never published
-     * just because the English was.
+     * The translation to show for a lesson. A saved translation shows
+     * straight away; review status is an internal marker only. Once the
+     * English has changed since a translation was written, learners get the
+     * English lesson until the translation is updated. In a draft every
+     * stored translation shows.
      */
     public function visibleTranslation(TrainingLesson $lesson, TrainingLanguage $language): ?TrainingLessonContent
     {
@@ -70,7 +70,7 @@ class TrainingLessonContentService
             return $content;
         }
 
-        return $content->review_status === TrainingContentReview::Approved && ! $this->isOutdated($lesson, $content) ? $content : null;
+        return $this->isOutdated($lesson, $content) ? null : $content;
     }
 
     /**
@@ -100,7 +100,7 @@ class TrainingLessonContentService
     public function save(TrainingLesson $lesson, TrainingLanguage $language, array $sections, User $actor): TrainingLessonContent
     {
         $this->ensureManager($actor);
-        $this->ensureDraft($lesson);
+        $this->ensureEditable($lesson);
 
         $clean = TrainingLessonStructure::normalize($sections);
 
@@ -192,7 +192,7 @@ class TrainingLessonContentService
     public function remove(TrainingLesson $lesson, TrainingLanguage $language, User $actor): void
     {
         $this->ensureManager($actor);
-        $this->ensureDraft($lesson);
+        $this->ensureEditable($lesson);
 
         if ($language->isCanonical()) {
             throw ValidationException::withMessages(['language' => 'English is the source content and cannot be removed.']);
@@ -209,11 +209,13 @@ class TrainingLessonContentService
         }
     }
 
-    public function ensureDraft(TrainingLesson $lesson): void
+    public function ensureEditable(TrainingLesson $lesson): void
     {
-        if (! $lesson->version->isDraft()) {
+        $lesson->version->loadMissing('course');
+
+        if (! $lesson->isEditable()) {
             throw ValidationException::withMessages([
-                'version' => 'Published and archived versions cannot be changed. Create a new version instead.',
+                'version' => 'Older versions are kept as history and cannot be changed. Edit the live course instead.',
             ]);
         }
     }

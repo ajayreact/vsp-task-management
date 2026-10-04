@@ -6,7 +6,8 @@ import { Head } from '@inertiajs/react';
 
 interface Props {
     categories: { id: number; label: string }[];
-    defaults: { category_id: string };
+    tracks: { id: number; label: string }[];
+    defaults: { category_id: string; training_track_id: string };
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -16,16 +17,23 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'New course', href: '/recruiter/training/manage/courses/create' },
 ];
 
-export default function CreateTrainingCourse({ categories, defaults }: Props) {
+export default function CreateTrainingCourse({ categories, tracks, defaults }: Props) {
     return (
         <RecruiterLayout breadcrumbs={breadcrumbs}>
             <Head title="New training course" />
 
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
-                <PageHeader title="New training course" description="Create the course, then add lessons to its draft and publish it." />
+                <PageHeader title="New training course" description="Create the course, then add lessons. Every change is live as soon as you save it." />
                 <TrainingCourseForm
                     categories={categories}
-                    initial={{ category_id: defaults.category_id, title: '', description: '', estimated_minutes: '' }}
+                    tracks={tracks}
+                    initial={{
+                        category_id: defaults.category_id,
+                        training_track_id: defaults.training_track_id,
+                        title: '',
+                        description: '',
+                        estimated_minutes: '',
+                    }}
                     action="/recruiter/training/manage/courses"
                     method="post"
                     submitLabel="Create course"

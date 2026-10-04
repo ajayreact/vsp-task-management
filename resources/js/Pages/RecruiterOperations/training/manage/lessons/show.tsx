@@ -8,7 +8,7 @@ import {
     useTrainingLanguage,
 } from '@/components/recruiter-operations/training/training-language';
 import { TrainingLessonContent, type TrainingLessonData } from '@/components/recruiter-operations/training/training-lesson-content';
-import { ContentStatusBadge, formatMinutes, RequiredBadge } from '@/components/recruiter-operations/training/training-ui';
+import { formatMinutes, RequiredBadge } from '@/components/recruiter-operations/training/training-ui';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import RecruiterLayout from '@/layouts/recruiter-layout';
@@ -22,8 +22,6 @@ interface Props {
     audio: TrainingAudioConfig;
     can: { update: boolean; delete: boolean };
 }
-
-const STATUS_LABEL: Record<string, string> = { draft: 'Draft', published: 'Published', archived: 'Archived' };
 
 export default function PreviewTrainingLesson({ lesson, version, audio, can }: Props) {
     const courseUrl = `/recruiter/training/manage/courses/${version.course.id}?version=${version.id}`;
@@ -41,16 +39,15 @@ export default function PreviewTrainingLesson({ lesson, version, audio, can }: P
     const language = shown?.code ?? DEFAULT_LANGUAGE;
 
     return (
-        <RecruiterLayout breadcrumbs={breadcrumbs}>
+        <RecruiterLayout breadcrumbs={breadcrumbs} contentClassName="overflow-x-clip">
             <Head title={`Preview: ${lesson.title}`} />
 
             <div className="flex max-w-4xl min-w-0 flex-1 flex-col gap-6 p-4 md:p-6">
                 <PageHeader
                     title={lesson.title}
-                    description={`Preview · ${version.course.title} ${version.label} · ${lesson.content_type_label}${lesson.duration_minutes ? ` · ${formatMinutes(lesson.duration_minutes)}` : ''}`}
+                    description={`Preview · ${version.course.title} · ${lesson.content_type_label}${lesson.duration_minutes ? ` · ${formatMinutes(lesson.duration_minutes)}` : ''}`}
                     action={
                         <div className="flex flex-wrap items-center gap-2">
-                            <ContentStatusBadge status={version.status} label={STATUS_LABEL[version.status] ?? version.status} />
                             <RequiredBadge required={lesson.is_required} />
                             <Button asChild size="sm" variant="outline">
                                 <Link href={courseUrl}>
@@ -77,7 +74,7 @@ export default function PreviewTrainingLesson({ lesson, version, audio, can }: P
                                         </Button>
                                     }
                                     title="Delete this lesson?"
-                                    description="The lesson and its file are removed from this draft."
+                                    description="The lesson and its file are removed for everyone assigned this course, along with their progress on it."
                                     url={`/recruiter/training/manage/lessons/${lesson.id}`}
                                 />
                             )}

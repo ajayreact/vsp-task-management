@@ -57,7 +57,7 @@ class RemoveRecruiterTrainingNotes extends Command
 
         $rows = [];
 
-        foreach ($reviews->draftLessons() as $lesson) {
+        foreach ($reviews->editableLessons() as $lesson) {
             $changed = $this->strip($lesson, $contents, $actor, $dryRun);
 
             if ($changed !== []) {
@@ -93,7 +93,7 @@ class RemoveRecruiterTrainingNotes extends Command
 
                 if (! $dryRun && $actor !== null) {
                     $contents->ensureManager($actor);
-                    $contents->ensureDraft($lesson);
+                    $contents->ensureEditable($lesson);
                     $lesson->forceFill(['body' => $stripped, 'updated_by_user_id' => $actor->id])->save();
                 }
             }

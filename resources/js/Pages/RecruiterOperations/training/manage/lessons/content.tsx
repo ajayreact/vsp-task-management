@@ -2,7 +2,6 @@ import { ConfirmDelete } from '@/components/admin/confirm-delete';
 import { PageHeader } from '@/components/admin/page-header';
 import InputError from '@/components/input-error';
 import { LessonSections, type LessonLanguage, type LessonSection } from '@/components/recruiter-operations/training/training-lesson-sections';
-import { ContentStatusBadge } from '@/components/recruiter-operations/training/training-ui';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,8 +28,6 @@ interface Props {
     sectionKinds: (Option & { heading: string })[];
     can: { update: boolean };
 }
-
-const STATUS_LABEL: Record<string, string> = { draft: 'Draft', published: 'Published', archived: 'Archived' };
 
 function languageBadge(language: LessonLanguage): { text: string; variant: 'success' | 'secondary' | 'outline' } {
     if (!language.structured) {
@@ -60,17 +57,16 @@ export default function TrainingLessonContentEditor({ lesson, version, language,
     ];
 
     return (
-        <RecruiterLayout breadcrumbs={breadcrumbs}>
+        <RecruiterLayout breadcrumbs={breadcrumbs} contentClassName="overflow-x-clip">
             <Head title={`Content: ${lesson.title}`} />
 
             <div className="flex min-w-0 flex-1 flex-col gap-6 p-4 md:p-6">
                 <PageHeader
                     title={lesson.title}
-                    description={`Lesson content · ${version.course.title} ${version.label}. English is the source; translations are made from the approved English lesson.`}
+                    description={`Lesson content · ${version.course.title}. English is the source; translations are made from the English lesson.`}
                     action={
                         <div className="flex flex-wrap items-center gap-2">
-                            <ContentStatusBadge status={version.status} label={STATUS_LABEL[version.status] ?? version.status} />
-                            {version.status === 'draft' && current?.structured && (
+                            {can.update && current?.structured && (
                                 <Button asChild size="sm" variant="outline">
                                     <Link href={`/recruiter/training/manage/review/lessons/${lesson.id}/${current.code}`}>
                                         <ClipboardCheck /> Review
@@ -89,8 +85,7 @@ export default function TrainingLessonContentEditor({ lesson, version, language,
                 {!can.update && (
                     <div className="text-muted-foreground flex items-start gap-2 rounded-xl border border-dashed p-4 text-sm">
                         <Lock className="mt-0.5 size-4 shrink-0" />
-                        This version is {STATUS_LABEL[version.status]?.toLowerCase() ?? version.status} and cannot be changed. Create a new draft
-                        version of the course to edit its lessons.
+                        This is an older copy of the course, kept as history, and cannot be changed. Edit the lesson from the course page instead.
                     </div>
                 )}
 
@@ -359,7 +354,7 @@ function LanguageEditor({
                     <div className="flex flex-wrap items-end gap-3">
                         <Button type="submit" disabled={processing || data.sections.length === 0}>
                             {processing ? <LoaderCircle className="animate-spin" /> : <Save />}
-                            Save draft
+                            Save changes
                         </Button>
                         {isDirty && <span className="text-muted-foreground text-xs">Unsaved changes</span>}
                         {!language.canonical && language.structured && (
@@ -379,8 +374,8 @@ function LanguageEditor({
                 )}
                 {editable && (
                     <p className="text-muted-foreground text-xs">
-                        Saving changes this draft only and sends changed content back to review. Approval happens on the review page; recruiters
-                        see the content after the version is published from the course page.
+                        Saved changes are live straight away for every recruiter assigned this course, including those assigned earlier. Changed
+                        content is marked for review internally; that does not hold it back.
                     </p>
                 )}
             </form>

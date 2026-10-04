@@ -681,7 +681,7 @@ test('a quiz linked to a training version is assigned with the training and with
     app(TrainingContentService::class)->publishVersion($training, $lead->user);
 
     $this->actingAs($lead->user)
-        ->post('/recruiter/training/assignments', ['course_id' => $training->course_id, 'mode' => 'individual', 'employee_ids' => [$recruiter->id]])
+        ->post('/recruiter/training/assignments', ['track' => 'unassigned', 'course_id' => $training->course_id, 'mode' => 'individual', 'employee_ids' => [$recruiter->id]])
         ->assertSessionHasNoErrors();
 
     $trainingAssignment = TrainingAssignment::query()->sole();
@@ -701,7 +701,30 @@ test('a quiz linked to a training version is assigned with the training and with
     expect(AssessmentAssignment::query()->count())->toBe(0);
 });
 
-test('draft quizzes cannot be linked, and published training versions cannot change their quizzes', function () {
+test('a quiz linked to the live course reaches recruiters assigned earlier, and unlinking withdraws it if unstarted', function () {
+    $lead = quizTaker(SystemRole::RecruiterLead);
+    $recruiter = quizTaker();
+    $quiz = publishedQuiz();
+    $training = TrainingCourseVersion::factory()->published()->create();
+    TrainingLesson::factory()->forVersion($training, 1)->create(['body' => 'Lesson text.']);
+    $trainingAssignment = TrainingAssignment::factory()->forVersion($training)->forEmployee($recruiter)->create();
+
+    $this->actingAs($lead->user)
+        ->post("/recruiter/training/manage/versions/{$training->id}/quizzes", ['assessment_version_id' => $quiz->id])
+        ->assertSessionHasNoErrors();
+
+    $quizAssignment = AssessmentAssignment::query()->sole();
+    expect($quizAssignment->employee_id)->toBe($recruiter->id)
+        ->and($quizAssignment->training_assignment_id)->toBe($trainingAssignment->id);
+
+    $this->actingAs($lead->user)
+        ->delete("/recruiter/training/manage/versions/{$training->id}/quizzes/{$quiz->id}")
+        ->assertSessionHasNoErrors();
+
+    expect(AssessmentAssignment::query()->count())->toBe(0);
+});
+
+test('draft quizzes cannot be linked, and older training versions kept as history cannot change their quizzes', function () {
     $lead = quizTaker(SystemRole::RecruiterLead);
     $draftQuiz = AssessmentVersion::factory()->create();
     $training = TrainingCourseVersion::factory()->create();
@@ -710,7 +733,7 @@ test('draft quizzes cannot be linked, and published training versions cannot cha
         ->post("/recruiter/training/manage/versions/{$training->id}/quizzes", ['assessment_version_id' => $draftQuiz->id])
         ->assertSessionHasErrors('assessment_version_id');
 
-    $published = TrainingCourseVersion::factory()->published()->create();
+    $published = TrainingCourseVersion::factory()->archived()->create();
 
     $this->actingAs($lead->user)
         ->post("/recruiter/training/manage/versions/{$published->id}/quizzes", ['assessment_version_id' => publishedQuiz()->id])
@@ -729,7 +752,7 @@ test('quiz attempts survive a new training version', function () {
     $content = app(TrainingContentService::class);
     $content->attachAssessment($training, $quiz, $lead->user);
     $content->publishVersion($training, $lead->user);
-    $this->actingAs($lead->user)->post('/recruiter/training/assignments', ['course_id' => $training->course_id, 'mode' => 'individual', 'employee_ids' => [$recruiter->id]]);
+    $this->actingAs($lead->user)->post('/recruiter/training/assignments', ['track' => 'unassigned', 'course_id' => $training->course_id, 'mode' => 'individual', 'employee_ids' => [$recruiter->id]]);
     $attempt = submitQuiz($recruiter, startQuiz($recruiter, AssessmentAssignment::query()->sole()), perfectAnswers($quiz));
 
     $next = $content->createVersion($training->course, $lead->user);

@@ -14,8 +14,9 @@ use App\Modules\RecruiterOperations\Models\TrainingCourse;
 use App\Modules\RecruiterOperations\Models\TrainingCourseVersion;
 use App\Modules\RecruiterOperations\Models\TrainingLesson;
 use App\Modules\RecruiterOperations\Models\TrainingLessonContent;
-use App\Modules\RecruiterOperations\Services\TrainingContentReviewService;
+use App\Modules\RecruiterOperations\Models\TrainingTrack;
 use App\Modules\RecruiterOperations\Services\TrainingContentService;
+use App\Modules\RecruiterOperations\Services\TrainingTrackCatalog;
 use App\Support\Pagination;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -25,15 +26,15 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Course authoring for recruiter.training.manage: the course list, course
- * details, and the version workflow (create version, edit draft, publish,
- * archive).
+ * Course authoring for recruiter.training.manage: the course list and the
+ * course page, which always shows the course's live copy. Saved changes reach
+ * every assigned recruiter straight away; older versions are history only.
  */
 class TrainingCourseController extends Controller
 {
     public function __construct(
         protected TrainingContentService $content,
-        protected TrainingContentReviewService $reviews,
+        protected TrainingTrackCatalog $tracks,
     ) {}
 
     public function index(Request $request): Response
@@ -42,7 +43,11 @@ class TrainingCourseController extends Controller
 
         $user = $request->user();
         $status = TrainingContentStatus::tryFrom($request->string('status')->value());
+        $tracks = $this->tracks->options();
+        $trackSlug = $request->string('track')->trim()->value() ?: ($tracks[0]['value'] ?? TrainingTrack::UNASSIGNED);
+        $track = $this->tracks->resolve($trackSlug);
         $filters = [
+            'track' => $trackSlug,
             'category' => $request->integer('category') ?: null,
             'status' => $status->value ?? '',
             'search' => $request->string('search')->trim()->limit(100, '')->value(),
@@ -51,12 +56,18 @@ class TrainingCourseController extends Controller
         $courses = TrainingCourse::query()
             ->select('ro_training_courses.*')
             ->leftJoin('ro_training_categories as c', 'c.id', '=', 'ro_training_courses.category_id')
-            ->with(['category:id,name,level_number', 'currentVersion:id,version_number', 'draftVersion:id,course_id,version_number'])
-            ->withCount('versions')
+            ->with([
+                'category:id,name,level_number',
+                'currentVersion:id,estimated_minutes',
+                'currentVersion.lessons:id,course_version_id,body,duration_minutes',
+                'draftVersion:id,course_id,estimated_minutes',
+                'draftVersion.lessons:id,course_version_id,body,duration_minutes',
+            ])
             ->addSelect(['assignments_count' => TrainingAssignment::query()
                 ->selectRaw('count(*)')
                 ->join('ro_training_course_versions as v', 'v.id', '=', 'ro_training_assignments.course_version_id')
                 ->whereColumn('v.course_id', 'ro_training_courses.id')])
+            ->inTrack($track)
             ->when($filters['category'], fn (Builder $query, int $category) => $query->where('ro_training_courses.category_id', $category))
             ->when($status, fn (Builder $query, TrainingContentStatus $value) => $query->where('ro_training_courses.status', $value->value))
             ->when($filters['search'] !== '', fn (Builder $query) => $query->where('ro_training_courses.title', 'like', '%'.$filters['search'].'%'))
@@ -71,15 +82,15 @@ class TrainingCourseController extends Controller
                 'category' => $course->category->name ?? null,
                 'status' => $course->status->value,
                 'status_label' => $course->status->label(),
-                'current_version' => $course->currentVersion?->label(),
-                'draft_version' => $course->draftVersion?->label(),
-                'versions_count' => (int) $course->versions_count,
+                'duration_minutes' => ($course->currentVersion ?? $course->draftVersion)?->estimatedMinutes(),
                 'assignments_count' => (int) $course->getAttribute('assignments_count'),
             ]);
 
         return Inertia::render('RecruiterOperations/training/manage/index', [
             'courses' => $courses,
             'filters' => $filters,
+            'tracks' => $tracks,
+            'trackName' => $track->name ?? TrainingTrackCatalog::UNASSIGNED_NAME,
             'categories' => $this->categoryOptions(false),
             'statuses' => TrainingContentStatus::options(),
             'can' => [
@@ -93,9 +104,16 @@ class TrainingCourseController extends Controller
     {
         $this->authorize('create', TrainingCourse::class);
 
+        $tracks = $this->tracks->formOptions();
+        $requestedTrack = TrainingTrack::query()->active()->where('slug', $request->string('track')->value())->value('id');
+
         return Inertia::render('RecruiterOperations/training/manage/courses/create', [
             'categories' => $this->categoryOptions(true),
-            'defaults' => ['category_id' => (string) ($request->integer('category') ?: '')],
+            'tracks' => $tracks,
+            'defaults' => [
+                'category_id' => (string) ($request->integer('category') ?: ''),
+                'training_track_id' => (string) ($requestedTrack ?? ($tracks[0]['id'] ?? '')),
+            ],
         ]);
     }
 
@@ -104,7 +122,7 @@ class TrainingCourseController extends Controller
         $course = $this->content->createCourse($request->validated(), $request->user());
 
         return to_route('recruiter.training.manage.courses.show', $course)
-            ->with('success', 'Course created with a draft Version 1. Add lessons, then publish.');
+            ->with('success', 'Course created. Add lessons; every change is live as soon as you save it.');
     }
 
     public function show(Request $request, TrainingCourse $trainingCourse): Response
@@ -112,28 +130,20 @@ class TrainingCourseController extends Controller
         $this->authorize('view', $trainingCourse);
 
         $user = $request->user();
-        $trainingCourse->load('category:id,name');
+        $trainingCourse->load(['category:id,name', 'track:id,name,slug']);
 
-        $versions = $trainingCourse->versions()
-            ->withCount('lessons')
+        $selected = $trainingCourse->versions()
             ->addSelect(['open_assignments_count' => TrainingAssignment::query()
                 ->selectRaw('count(*)')
                 ->whereColumn('course_version_id', 'ro_training_course_versions.id')
                 ->where('status', '!=', TrainingAssignmentStatus::Completed->value)])
-            ->addSelect(['completed_assignments_count' => TrainingAssignment::query()
-                ->selectRaw('count(*)')
-                ->whereColumn('course_version_id', 'ro_training_course_versions.id')
-                ->where('status', TrainingAssignmentStatus::Completed->value)])
+            ->orderByRaw('id = ? desc', [(int) $trainingCourse->current_version_id])
+            ->orderByRaw('status = ? desc', [TrainingContentStatus::Draft->value])
             ->orderByDesc('version_number')
-            ->get();
+            ->first();
 
-        $requested = $request->integer('version');
-        $selected = $versions->firstWhere('id', $requested)
-            ?? $versions->first(fn (TrainingCourseVersion $version) => $version->isDraft())
-            ?? $versions->firstWhere('id', $trainingCourse->current_version_id)
-            ?? $versions->first();
-
-        $selected?->load(['lessons.media', 'lessons.contents:id,lesson_id,locale', 'creator:id,name', 'assessmentVersions.assessment']);
+        $selected?->setRelation('course', $trainingCourse);
+        $selected?->load(['lessons.media', 'lessons.contents:id,lesson_id,locale', 'assessmentVersions.assessment']);
 
         return Inertia::render('RecruiterOperations/training/manage/courses/show', [
             'course' => [
@@ -141,38 +151,23 @@ class TrainingCourseController extends Controller
                 'title' => $trainingCourse->title,
                 'description' => $trainingCourse->description,
                 'category' => $trainingCourse->category->name ?? null,
+                'track' => $trainingCourse->track === null ? null : ['name' => $trainingCourse->track->name, 'slug' => $trainingCourse->track->slug],
                 'status' => $trainingCourse->status->value,
                 'status_label' => $trainingCourse->status->label(),
-                'current_version_id' => $trainingCourse->current_version_id,
             ],
-            'versions' => $versions->map(fn (TrainingCourseVersion $version) => [
-                'id' => $version->id,
-                'label' => $version->label(),
-                'status' => $version->status->value,
-                'status_label' => $version->status->label(),
-                'published_at' => $version->published_at?->toIso8601String(),
-                'lessons_count' => (int) $version->lessons_count,
-                'open_assignments_count' => (int) $version->getAttribute('open_assignments_count'),
-                'completed_assignments_count' => (int) $version->getAttribute('completed_assignments_count'),
-                'is_current' => $version->id === $trainingCourse->current_version_id,
-            ])->values()->all(),
             'selectedVersion' => $selected !== null ? [
                 'id' => $selected->id,
-                'label' => $selected->label(),
-                'status' => $selected->status->value,
-                'status_label' => $selected->status->label(),
                 'description' => $selected->description,
                 'estimated_minutes' => $selected->estimated_minutes,
-                'published_at' => $selected->published_at?->toIso8601String(),
-                'created_by' => $selected->creator->name ?? null,
-                'is_current' => $selected->id === $trainingCourse->current_version_id,
+                'duration_minutes' => $selected->estimatedMinutes(),
+                'open_assignments_count' => (int) $selected->getAttribute('open_assignments_count'),
                 'lessons' => $selected->lessons->map(fn (TrainingLesson $lesson) => [
                     'id' => $lesson->id,
                     'module' => $lesson->module,
                     'title' => $lesson->title,
                     'content_type' => $lesson->content_type->value,
                     'content_type_label' => $lesson->content_type->label(),
-                    'duration_minutes' => $lesson->duration_minutes,
+                    'duration_minutes' => $lesson->estimatedMinutes(),
                     'is_required' => $lesson->is_required,
                     'has_file' => $lesson->file() !== null,
                     'has_body' => filled($lesson->body),
@@ -189,23 +184,20 @@ class TrainingCourseController extends Controller
                     'label' => $quiz->label(),
                     'status_label' => $quiz->status->label(),
                 ])->values()->all(),
-                'review' => $selected->isDraft() ? $this->reviews->readiness($selected) : null,
                 'can' => [
                     'update' => $user->can('update', $selected),
-                    'publish' => $user->can('publish', $selected),
-                    'archive' => $user->can('archive', $selected),
-                    'delete' => $user->can('delete', $selected) && $versions->count() > 1,
                 ],
             ] : null,
             'can' => [
                 'update' => $user->can('update', $trainingCourse),
                 'archive' => $user->can('archive', $trainingCourse),
                 'restore' => $user->can('restore', $trainingCourse),
-                'createVersion' => $user->can('createVersion', $trainingCourse)
-                    && ! $versions->contains(fn (TrainingCourseVersion $version) => $version->isDraft()),
-                'assign' => $user->can('assign', TrainingCourse::class) && $trainingCourse->isAssignable(),
+                'assign' => $user->can('assign', TrainingCourse::class)
+                    && $trainingCourse->isAssignable()
+                    && $selected?->id === $trainingCourse->current_version_id
+                    && $selected->lessons->isNotEmpty(),
             ],
-            'quizOptions' => $selected !== null && $selected->isDraft() ? $this->quizOptions() : [],
+            'quizOptions' => $selected !== null && $selected->isEditable() ? $this->quizOptions() : [],
         ]);
     }
 
@@ -237,10 +229,13 @@ class TrainingCourseController extends Controller
             'course' => [
                 'id' => $trainingCourse->id,
                 'category_id' => $trainingCourse->category_id,
+                'training_track_id' => $trainingCourse->training_track_id,
                 'title' => $trainingCourse->title,
                 'description' => $trainingCourse->description,
             ],
             'categories' => $this->categoryOptions(true, $trainingCourse->category_id),
+            'tracks' => $this->tracks->formOptions(),
+            'trackLocked' => $this->tracks->isTrackLocked($trainingCourse),
         ]);
     }
 

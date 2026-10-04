@@ -3,9 +3,12 @@
 namespace App\Modules\RecruiterOperations\Providers;
 
 use App\Modules\Core\Enums\Ability;
+use App\Modules\RecruiterOperations\Console\AssignOptCoursesToTrack;
+use App\Modules\RecruiterOperations\Console\FlagRecruiterTrainingReviews;
+use App\Modules\RecruiterOperations\Console\InstallOptTrainingQuizzes;
+use App\Modules\RecruiterOperations\Console\MakeTrainingDraftsLive;
 use App\Modules\RecruiterOperations\Console\MoveTrainingAssignmentsToLiveVersion;
 use App\Modules\RecruiterOperations\Console\PopulateRecruiterTrainingContent;
-use App\Modules\RecruiterOperations\Console\FlagRecruiterTrainingReviews;
 use App\Modules\RecruiterOperations\Console\RemoveRecruiterTrainingNotes;
 use App\Modules\RecruiterOperations\Console\RenumberRecruiterTrainingLevels;
 use App\Modules\RecruiterOperations\Console\RestructureOptRecruiterTrack;
@@ -65,7 +68,7 @@ class RecruiterOperationsServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(database_path('migrations/recruiter'));
 
         if ($this->app->runningInConsole()) {
-            $this->commands([PopulateRecruiterTrainingContent::class, MoveTrainingAssignmentsToLiveVersion::class, StructureRecruiterTrainingContent::class, FlagRecruiterTrainingReviews::class, RenumberRecruiterTrainingLevels::class, RemoveRecruiterTrainingNotes::class, RestructureOptRecruiterTrack::class]);
+            $this->commands([PopulateRecruiterTrainingContent::class, MoveTrainingAssignmentsToLiveVersion::class, StructureRecruiterTrainingContent::class, FlagRecruiterTrainingReviews::class, RenumberRecruiterTrainingLevels::class, RemoveRecruiterTrainingNotes::class, RestructureOptRecruiterTrack::class, AssignOptCoursesToTrack::class, InstallOptTrainingQuizzes::class, MakeTrainingDraftsLive::class]);
         }
 
         Gate::policy(RecruiterTask::class, RecruiterTaskPolicy::class);

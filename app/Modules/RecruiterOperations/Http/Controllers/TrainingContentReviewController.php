@@ -27,7 +27,7 @@ class TrainingContentReviewController extends Controller
     public function index(Request $request): Response
     {
         $language = TrainingLanguage::tryFrom($request->string('language')->value()) ?? TrainingLanguage::default();
-        $lessons = $this->reviews->draftLessons();
+        $lessons = $this->reviews->editableLessons();
 
         $rows = $this->reviews->queue($lessons, $language)->map(function (TrainingLesson $lesson) use ($language) {
             $state = $this->reviews->languageState($lesson, $language);
@@ -65,7 +65,7 @@ class TrainingContentReviewController extends Controller
         $locale = TrainingLanguage::tryFrom($language);
         abort_if($locale === null, 404);
 
-        $queue = $this->reviews->queue($this->reviews->draftLessons(), $locale);
+        $queue = $this->reviews->queue($this->reviews->editableLessons(), $locale);
         $position = $queue->search(fn (TrainingLesson $lesson) => $lesson->id === $trainingLesson->id);
         abort_if($position === false, 404);
 
@@ -117,7 +117,7 @@ class TrainingContentReviewController extends Controller
         $target = $trainingLesson;
 
         if ($request->boolean('next')) {
-            $queue = $this->reviews->queue($this->reviews->draftLessons(), $locale);
+            $queue = $this->reviews->queue($this->reviews->editableLessons(), $locale);
             $position = $queue->search(fn (TrainingLesson $lesson) => $lesson->id === $trainingLesson->id);
             $target = $position === false ? $trainingLesson : ($queue[$position + 1] ?? $trainingLesson);
         }

@@ -9,16 +9,18 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
 /**
- * Reorganises the OPT Recruiter courses into their modules and lessons, in
- * draft versions only. Nothing is published, approved or assigned.
+ * Reorganises the OPT Recruiter courses, or the combined Levels 4 to 6
+ * courses, into their modules and lessons, in draft versions only. Nothing is
+ * published, approved or assigned.
  */
 class RestructureOptRecruiterTrack extends Command
 {
     protected $signature = 'recruiter:training-opt-track
         {--as= : Email of a training manager, who the changes are recorded against}
-        {--dry-run : Show the course, module and lesson mapping without saving anything}';
+        {--dry-run : Show the course, module and lesson mapping without saving anything}
+        {--set=opt-track : Plans to apply: "opt-track" for the four OPT track courses, or "compact" for the combined Levels 4 to 6 courses}';
 
-    protected $description = 'Reorganise the OPT Recruiter training drafts into the four-course module structure';
+    protected $description = 'Reorganise the OPT Recruiter training drafts, or the Levels 4 to 6 course drafts, into their planned modules and lessons';
 
     public function handle(TrainingCurriculumRestructurer $restructurer): int
     {
@@ -41,7 +43,18 @@ class RestructureOptRecruiterTrack extends Command
             return self::FAILURE;
         }
 
-        $plans = RecruiterTrainingContent::optTrack();
+        $plans = match ((string) $this->option('set')) {
+            'opt-track' => RecruiterTrainingContent::optTrack(),
+            'compact' => RecruiterTrainingContent::compactCourses(),
+            default => null,
+        };
+
+        if ($plans === null) {
+            $this->error('Unknown --set. Use "opt-track" or "compact".');
+
+            return self::FAILURE;
+        }
+
         $report = $restructurer->restructure($plans, $actor, $dryRun);
 
         $this->table(

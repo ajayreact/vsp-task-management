@@ -79,6 +79,35 @@ class RecruiterTrainingContent
     }
 
     /**
+     * Combined-lesson plans for the general recruiter courses outside the OPT
+     * track (Levels 4 to 6), in level order. Each compact-courses/level-*.php
+     * file has the same shape as an opt-track course plan.
+     *
+     * @return list<array{course: string, title: string, modules: array<string, list<array<string, mixed>>>}>
+     */
+    public static function compactCourses(): array
+    {
+        $files = glob(__DIR__.'/compact-courses/level-*.php') ?: [];
+        sort($files);
+
+        /** @var list<array{course: string, title: string, modules: array<string, list<array<string, mixed>>>}> */
+        return array_map(fn (string $file) => require $file, $files);
+    }
+
+    /**
+     * Training quizzes for an OPT track course: the course they link to
+     * ('course') and each quiz's title, description, version settings and
+     * questions, in the shape AssessmentQuestionService accepts.
+     *
+     * @return array{course: string, quizzes: list<array{title: string, description: string, settings: array<string, mixed>, questions: list<array{type: string, category: string, prompt: string, explanation: string, options: list<array{text: string, is_correct: bool}>}>}>}
+     */
+    public static function optQuizzes(): array
+    {
+        /** @var array{course: string, quizzes: list<array{title: string, description: string, settings: array<string, mixed>, questions: list<array{type: string, category: string, prompt: string, explanation: string, options: list<array{text: string, is_correct: bool}>}>}>} */
+        return require __DIR__.'/opt-track/quizzes.php';
+    }
+
+    /**
      * Fingerprints of the bodies earlier releases shipped, which
      * recruiter:training-content --refresh is allowed to replace.
      *

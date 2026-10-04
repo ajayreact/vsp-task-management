@@ -7,6 +7,7 @@ import {
     useTrainingLanguage,
 } from '@/components/recruiter-operations/training/training-language';
 import { TrainingLessonContent, type TrainingLessonData } from '@/components/recruiter-operations/training/training-lesson-content';
+import { ListenModeToggle, ListenOnlyNotice, useListenMode } from '@/components/recruiter-operations/training/training-listen-mode';
 import { RequiredBadge, TrainingProgressBar } from '@/components/recruiter-operations/training/training-ui';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -52,6 +53,7 @@ export default function TrainingLesson({
     const [completing, setCompleting] = useState(false);
     const lastBeatRef = useRef(Date.now());
     const [chosenLanguage, chooseLanguage] = useTrainingLanguage();
+    const [listenMode, chooseListenMode] = useListenMode();
     const { shown, fellBack } = resolveLessonLanguage(lesson.languages, chosenLanguage);
     const chosen = lesson.languages.find((item) => item.code === chosenLanguage);
     const language = shown?.code ?? DEFAULT_LANGUAGE;
@@ -105,7 +107,7 @@ export default function TrainingLesson({
     };
 
     return (
-        <RecruiterLayout breadcrumbs={breadcrumbs}>
+        <RecruiterLayout breadcrumbs={breadcrumbs} contentClassName="overflow-x-clip">
             <Head title={lesson.title} />
 
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
@@ -157,6 +159,8 @@ export default function TrainingLesson({
                             )}
                         </header>
 
+                        <ListenModeToggle value={listenMode} onChange={chooseListenMode} />
+
                         <TrainingAudioPlayer
                             key={`${lesson.id}-${language}`}
                             audio={audio}
@@ -165,7 +169,7 @@ export default function TrainingLesson({
                             onPositionReport={reportAudio}
                         />
 
-                        <TrainingLessonContent lesson={lesson} language={shown} />
+                        {listenMode === 'listen' ? <ListenOnlyNotice /> : <TrainingLessonContent lesson={lesson} language={shown} />}
 
                         <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-5">
                             {previousLesson ? (

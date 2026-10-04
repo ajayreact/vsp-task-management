@@ -5,11 +5,13 @@ import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 
 interface Props {
-    course: { id: number; category_id: number; title: string; description: string | null };
+    course: { id: number; category_id: number; training_track_id: number | null; title: string; description: string | null };
     categories: { id: number; label: string }[];
+    tracks: { id: number; label: string }[];
+    trackLocked: boolean;
 }
 
-export default function EditTrainingCourse({ course, categories }: Props) {
+export default function EditTrainingCourse({ course, categories, tracks, trackLocked }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Recruiter Operations', href: '/recruiter' },
         { title: 'Training', href: '/recruiter/training' },
@@ -23,10 +25,21 @@ export default function EditTrainingCourse({ course, categories }: Props) {
             <Head title={`Edit ${course.title}`} />
 
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
-                <PageHeader title="Edit course" description="Title, category and description. Lesson content is changed through a draft version." />
+                <PageHeader
+                    title="Edit course"
+                    description="Title, training track, category and description. Lesson content is edited on the course page."
+                />
                 <TrainingCourseForm
                     categories={categories}
-                    initial={{ category_id: String(course.category_id), title: course.title, description: course.description ?? '', estimated_minutes: '' }}
+                    tracks={tracks}
+                    trackLocked={trackLocked}
+                    initial={{
+                        category_id: String(course.category_id),
+                        training_track_id: course.training_track_id ? String(course.training_track_id) : '',
+                        title: course.title,
+                        description: course.description ?? '',
+                        estimated_minutes: '',
+                    }}
                     action={`/recruiter/training/manage/courses/${course.id}`}
                     method="put"
                     submitLabel="Save course"

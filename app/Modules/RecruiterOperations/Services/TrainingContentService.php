@@ -4,16 +4,22 @@ namespace App\Modules\RecruiterOperations\Services;
 
 use App\Modules\Core\Enums\Ability;
 use App\Modules\Core\Models\User;
+use App\Modules\RecruiterOperations\Enums\TrainingAssignmentStatus;
 use App\Modules\RecruiterOperations\Enums\TrainingContentStatus;
 use App\Modules\RecruiterOperations\Enums\TrainingLanguage;
 use App\Modules\RecruiterOperations\Enums\TrainingLessonContentType;
+use App\Modules\RecruiterOperations\Models\AssessmentAssignment;
 use App\Modules\RecruiterOperations\Models\AssessmentVersion;
+use App\Modules\RecruiterOperations\Models\TrainingAssignment;
 use App\Modules\RecruiterOperations\Models\TrainingCategory;
 use App\Modules\RecruiterOperations\Models\TrainingCourse;
 use App\Modules\RecruiterOperations\Models\TrainingCourseVersion;
 use App\Modules\RecruiterOperations\Models\TrainingLesson;
+use App\Modules\RecruiterOperations\Models\TrainingLessonCompletion;
+use App\Modules\RecruiterOperations\Models\TrainingTrack;
 use App\Modules\RecruiterOperations\Services\Assessments\AssessmentAssignmentService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -22,18 +28,23 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * Authoring for recruiter training: categories, courses, versions and
- * lessons. Enforces the versioning rules:
+ * lessons. Each course has one live copy that managers edit directly:
  *
- * - a course has at most one draft version, and only a draft can change;
- * - publishing freezes the draft, makes it the version new assignments get,
- *   and archives the version it replaces; it waits until the version's
- *   content reviews are finished (TrainingContentReviewService);
- * - assignments stay pinned to the version they were given, so nothing here
- *   ever edits or deletes a version that learners hold.
+ * - a new course starts with a live Version 1;
+ * - the live (current published) version can be changed, and every change
+ *   reaches everyone assigned it straight away, including quizzes linked
+ *   later; older versions are kept as history and stay read-only;
+ * - publishing a draft makes it the live version without waiting for
+ *   content reviews, which remain an internal marker only;
+ * - deleting a live lesson also removes recruiters' progress on it.
  */
 class TrainingContentService
 {
-    public function __construct(protected TrainingContentReviewService $reviews) {}
+    public function __construct(
+        protected TrainingContentReviewService $reviews,
+        protected TrainingTrackCatalog $tracks,
+        protected AssessmentAssignmentService $assessments,
+    ) {}
 
     // Categories
 
@@ -82,16 +93,21 @@ class TrainingContentService
     // Courses
 
     /**
-     * Creates the course with an empty draft Version 1.
+     * Creates the course with an empty live Version 1.
      *
-     * @param  array{category_id: int, title: string, description?: string|null, estimated_minutes?: int|null}  $data
+     * @param  array{category_id: int, training_track_id?: int|null, title: string, description?: string|null, estimated_minutes?: int|null}  $data
      */
     public function createCourse(array $data, User $actor): TrainingCourse
     {
         $this->ensureManager($actor);
         $this->ensureActiveCategory((int) $data['category_id']);
+        $trackId = isset($data['training_track_id']) ? (int) $data['training_track_id'] : null;
 
-        return DB::transaction(function () use ($data, $actor) {
+        if ($trackId !== null) {
+            $this->ensureActiveTrack($trackId);
+        }
+
+        return DB::transaction(function () use ($data, $actor, $trackId) {
             $course = new TrainingCourse;
             $course->fill([
                 'category_id' => (int) $data['category_id'],
@@ -99,8 +115,9 @@ class TrainingContentService
                 'description' => $data['description'] ?? null,
             ]);
             $course->forceFill([
+                'training_track_id' => $trackId,
                 'slug' => $this->uniqueSlug(TrainingCourse::class, $data['title']),
-                'status' => TrainingContentStatus::Draft,
+                'status' => TrainingContentStatus::Published,
                 'created_by_user_id' => $actor->id,
                 'updated_by_user_id' => $actor->id,
             ])->save();
@@ -110,9 +127,12 @@ class TrainingContentService
             $version->forceFill([
                 'course_id' => $course->id,
                 'version_number' => 1,
-                'status' => TrainingContentStatus::Draft,
+                'status' => TrainingContentStatus::Published,
+                'published_at' => now(),
                 'created_by_user_id' => $actor->id,
             ])->save();
+
+            $course->forceFill(['current_version_id' => $version->id])->save();
 
             return $course;
         });
@@ -122,7 +142,7 @@ class TrainingContentService
      * Course title, description and category. Lesson content is versioned and
      * never changed here.
      *
-     * @param  array{category_id: int, title: string, description?: string|null}  $data
+     * @param  array{category_id: int, training_track_id?: int|null, title: string, description?: string|null}  $data
      */
     public function updateCourse(TrainingCourse $course, array $data, User $actor): TrainingCourse
     {
@@ -130,6 +150,24 @@ class TrainingContentService
 
         if ((int) $data['category_id'] !== $course->category_id) {
             $this->ensureActiveCategory((int) $data['category_id']);
+        }
+
+        if (array_key_exists('training_track_id', $data)) {
+            $trackId = $data['training_track_id'] !== null ? (int) $data['training_track_id'] : null;
+
+            if ($trackId !== $course->training_track_id) {
+                if ($this->tracks->isTrackLocked($course)) {
+                    throw ValidationException::withMessages([
+                        'training_track_id' => 'This course has been assigned to recruiters, so its training track cannot change.',
+                    ]);
+                }
+
+                if ($trackId !== null) {
+                    $this->ensureActiveTrack($trackId);
+                }
+
+                $course->training_track_id = $trackId;
+            }
         }
 
         $course->fill([
@@ -225,7 +263,7 @@ class TrainingContentService
     public function updateVersion(TrainingCourseVersion $version, array $data, User $actor): TrainingCourseVersion
     {
         $this->ensureManager($actor);
-        $this->ensureDraft($version);
+        $this->ensureEditable($version);
 
         $version->fill([
             'description' => $data['description'] ?? null,
@@ -244,6 +282,10 @@ class TrainingContentService
             $course = TrainingCourse::query()->whereKey($version->course_id)->lockForUpdate()->firstOrFail();
             $version->refresh();
 
+            if ($version->isPublished() && $course->current_version_id === $version->id) {
+                return $version;
+            }
+
             $this->ensureDraft($version);
 
             if ($course->isArchived()) {
@@ -253,8 +295,6 @@ class TrainingContentService
             if (! $version->lessons()->exists()) {
                 throw ValidationException::withMessages(['version' => 'Add at least one lesson before publishing.']);
             }
-
-            $this->reviews->ensureReadyToPublish($version);
 
             $course->versions()
                 ->whereKeyNot($version->id)
@@ -342,14 +382,14 @@ class TrainingContentService
     // Linked quizzes
 
     /**
-     * Links a quiz to a draft course version. Only the current published
-     * version of a training quiz can be linked; recruiters given this course
-     * version later also get that quiz version.
+     * Links a quiz to a course version. Only the current published version of
+     * a training quiz can be linked. Recruiters already assigned the version
+     * get the quiz too, as do recruiters assigned it later.
      */
     public function attachAssessment(TrainingCourseVersion $version, AssessmentVersion $assessmentVersion, User $actor): void
     {
         $this->ensureManager($actor);
-        $this->ensureDraft($version);
+        $this->ensureEditable($version);
 
         if (! AssessmentAssignmentService::linkable($assessmentVersion)) {
             throw ValidationException::withMessages(['assessment_version_id' => 'Choose the current published version of a training quiz.']);
@@ -359,17 +399,34 @@ class TrainingContentService
             throw ValidationException::withMessages(['assessment_version_id' => 'This quiz is already linked to this course version.']);
         }
 
-        $version->assessmentVersions()->attach($assessmentVersion->id, [
-            'sort_order' => ((int) $version->assessmentVersions()->max('ro_training_version_assessments.sort_order')) + 1,
-        ]);
+        DB::transaction(function () use ($version, $assessmentVersion, $actor) {
+            $version->assessmentVersions()->attach($assessmentVersion->id, [
+                'sort_order' => ((int) $version->assessmentVersions()->max('ro_training_version_assessments.sort_order')) + 1,
+            ]);
+
+            $this->openAssignments($version)->each(fn (TrainingAssignment $assignment) => $this->assessments->assignForTraining($assignment, $actor));
+        });
     }
 
+    /**
+     * Unlinks a quiz. Quiz assignments that came with the course and have no
+     * attempts are withdrawn; anything attempted is kept as history.
+     */
     public function detachAssessment(TrainingCourseVersion $version, AssessmentVersion $assessmentVersion, User $actor): void
     {
         $this->ensureManager($actor);
-        $this->ensureDraft($version);
+        $this->ensureEditable($version);
 
-        $version->assessmentVersions()->detach($assessmentVersion->id);
+        DB::transaction(function () use ($version, $assessmentVersion) {
+            $version->assessmentVersions()->detach($assessmentVersion->id);
+
+            AssessmentAssignment::query()
+                ->where('assessment_version_id', $assessmentVersion->id)
+                ->whereIn('training_assignment_id', TrainingAssignment::query()->where('course_version_id', $version->id)->select('id'))
+                ->whereDoesntHave('attempts')
+                ->get()
+                ->each(fn (AssessmentAssignment $assignment) => $assignment->delete());
+        });
     }
 
     // Lessons
@@ -380,7 +437,7 @@ class TrainingContentService
     public function createLesson(TrainingCourseVersion $version, array $data, ?UploadedFile $file, User $actor): TrainingLesson
     {
         $this->ensureManager($actor);
-        $this->ensureDraft($version);
+        $this->ensureEditable($version);
 
         $type = TrainingLessonContentType::from($data['content_type']);
 
@@ -413,7 +470,7 @@ class TrainingContentService
     public function updateLesson(TrainingLesson $lesson, array $data, ?UploadedFile $file, User $actor): TrainingLesson
     {
         $this->ensureManager($actor);
-        $this->ensureDraft($lesson->version);
+        $this->ensureEditable($lesson->version);
 
         $type = TrainingLessonContentType::from($data['content_type']);
 
@@ -451,23 +508,25 @@ class TrainingContentService
     public function deleteLesson(TrainingLesson $lesson, User $actor): void
     {
         $this->ensureManager($actor);
-        $this->ensureDraft($lesson->version);
+        $this->ensureEditable($lesson->version);
 
         DB::transaction(function () use ($lesson) {
             $version = $lesson->version;
+            TrainingLessonCompletion::query()->where('lesson_id', $lesson->id)->delete();
             $this->removeLessonFiles($lesson);
             $lesson->delete();
             $this->resequence($version);
+            $this->completeFinishedAssignments($version);
         });
     }
 
     /**
-     * Moves a draft lesson one place up or down.
+     * Moves a lesson one place up or down.
      */
     public function moveLesson(TrainingLesson $lesson, string $direction, User $actor): void
     {
         $this->ensureManager($actor);
-        $this->ensureDraft($lesson->version);
+        $this->ensureEditable($lesson->version);
 
         DB::transaction(function () use ($lesson, $direction) {
             $version = $lesson->version;
@@ -508,8 +567,55 @@ class TrainingContentService
     {
         if (! $version->isDraft()) {
             throw ValidationException::withMessages([
-                'version' => 'Published and archived versions cannot be changed. Create a new version instead.',
+                'version' => 'Only an unpublished draft can be published or discarded.',
             ]);
+        }
+    }
+
+    public function ensureEditable(TrainingCourseVersion $version): void
+    {
+        $version->loadMissing('course');
+
+        if (! $version->isEditable()) {
+            throw ValidationException::withMessages([
+                'version' => 'Older versions are kept as history and cannot be changed. Edit the live course instead.',
+            ]);
+        }
+    }
+
+    /**
+     * @return Collection<int, TrainingAssignment>
+     */
+    protected function openAssignments(TrainingCourseVersion $version): Collection
+    {
+        return TrainingAssignment::query()
+            ->where('course_version_id', $version->id)
+            ->where('status', '!=', TrainingAssignmentStatus::Completed->value)
+            ->get();
+    }
+
+    /**
+     * After a lesson is removed, recruiters who had finished everything else
+     * have now finished the course.
+     */
+    protected function completeFinishedAssignments(TrainingCourseVersion $version): void
+    {
+        $counted = TrainingProgressCalculator::countedLessonIds($version->lessons()->get());
+
+        if ($counted === []) {
+            return;
+        }
+
+        foreach ($this->openAssignments($version)->load('completions') as $assignment) {
+            $completed = $assignment->completions
+                ->filter(fn (TrainingLessonCompletion $completion) => $completion->completed_at !== null)
+                ->map(fn (TrainingLessonCompletion $completion) => (int) $completion->lesson_id)
+                ->values()
+                ->all();
+
+            if (TrainingProgressCalculator::isComplete($counted, $completed)) {
+                $assignment->forceFill(['status' => TrainingAssignmentStatus::Completed, 'completed_at' => now()])->save();
+            }
         }
     }
 
@@ -517,6 +623,13 @@ class TrainingContentService
     {
         if (! TrainingCategory::query()->whereKey($categoryId)->where('is_active', true)->exists()) {
             throw ValidationException::withMessages(['category_id' => 'Choose an active category.']);
+        }
+    }
+
+    protected function ensureActiveTrack(int $trackId): void
+    {
+        if (! TrainingTrack::query()->whereKey($trackId)->active()->exists()) {
+            throw ValidationException::withMessages(['training_track_id' => 'Choose an active training track.']);
         }
     }
 

@@ -60,7 +60,7 @@ test('learners see My Training on the overview and can open it', function (Syste
             ->where('isLearner', true)
             ->where('trainingLearner', true)
             ->where('counts.assigned', 1)
-            ->has('continueLearning', 1));
+            ->where('tracks', fn ($tracks) => collect($tracks)->contains('slug', 'unassigned')));
 
     $this->actingAs($learner->user)
         ->get('/recruiter/training/my-training')
@@ -86,7 +86,8 @@ test('management-only users get a management overview without My Training', func
             ->where('isLearner', false)
             ->where('trainingLearner', false)
             ->where('counts', null)
-            ->where('continueLearning', [])
+            ->where('tracks.0.slug', 'opt-recruiter')
+            ->where('tracks.1.slug', 'bench-sales-recruiter')
             ->where('can.manage', true)
             ->where('can.assign', true)
             ->where('can.viewTeam', true));

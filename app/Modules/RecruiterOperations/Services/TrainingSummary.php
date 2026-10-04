@@ -22,7 +22,7 @@ class TrainingSummary
     {
         return TrainingAssignment::query()
             ->forEmployee($employee)
-            ->with(['version.course.category', 'version.lessons', 'completions'])
+            ->with(['version.course.category', 'version.course.track', 'version.lessons', 'completions'])
             ->orderByRaw('case when status = ? then 1 else 0 end', [TrainingAssignmentStatus::Completed->value])
             ->orderByRaw('due_at is null')
             ->orderBy('due_at')

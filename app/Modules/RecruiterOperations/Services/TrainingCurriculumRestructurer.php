@@ -27,7 +27,8 @@ use Illuminate\Support\Str;
  * - draft lessons the plan does not mention are removed from the draft. The
  *   published version, its lessons and its assignments are never touched;
  * - lessons the plan marks are flagged for compliance review, with the plan's
- *   review items as the note, unless a manager already decided on them.
+ *   review items as the note, unless a manager already decided on them; a
+ *   lesson still pending review gets the plan's current review items.
  */
 class TrainingCurriculumRestructurer
 {
@@ -205,10 +206,13 @@ class TrainingCurriculumRestructurer
             $lesson->load('contents');
         }
 
-        if (($entry['compliance'] ?? false) === true && $lesson->compliance_status === null) {
+        $undecided = $lesson->compliance_status === null || $lesson->compliance_status === TrainingComplianceStatus::Pending;
+        $note = isset($entry['review']) ? (string) $entry['review'] : null;
+
+        if (($entry['compliance'] ?? false) === true && $undecided && ($lesson->compliance_status === null || $lesson->compliance_note !== $note)) {
             $lesson->forceFill([
                 'compliance_status' => TrainingComplianceStatus::Pending,
-                'compliance_note' => isset($entry['review']) ? (string) $entry['review'] : null,
+                'compliance_note' => $note,
             ])->save();
         }
 

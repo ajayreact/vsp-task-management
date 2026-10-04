@@ -25,7 +25,7 @@ export default function CreateTrainingLesson({ contentTypes, maxUploadKilobytes,
             <Head title="New lesson" />
 
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
-                <PageHeader title="New lesson" description={`${version.course.title} · draft ${version.label}`} />
+                <PageHeader title="New lesson" description={version.course.title} />
                 <TrainingLessonForm
                     contentTypes={contentTypes}
                     maxUploadKilobytes={maxUploadKilobytes}

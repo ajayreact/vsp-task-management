@@ -28,7 +28,7 @@ export default function EditTrainingLesson({ contentTypes, maxUploadKilobytes, v
             <Head title={`Edit ${lesson.title}`} />
 
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
-                <PageHeader title="Edit lesson" description={`${version.course.title} · draft ${version.label}`} />
+                <PageHeader title="Edit lesson" description={version.course.title} />
                 <TrainingLessonForm
                     contentTypes={contentTypes}
                     maxUploadKilobytes={maxUploadKilobytes}

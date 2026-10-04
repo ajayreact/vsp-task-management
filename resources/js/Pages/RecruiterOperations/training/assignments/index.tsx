@@ -2,6 +2,7 @@ import { DataTableCard } from '@/components/admin/data-table-card';
 import { EntriesSelect } from '@/components/admin/entries-select';
 import { Pagination } from '@/components/admin/pagination';
 import { TrainingAssignmentTable, type TrainingAssignmentRow } from '@/components/recruiter-operations/training/training-assignment-table';
+import { TrackSwitcher, type TrackOption } from '@/components/recruiter-operations/training/training-tracks';
 import { TrainingSubNav } from '@/components/recruiter-operations/training/training-ui';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,9 +15,10 @@ import { UserPlus } from 'lucide-react';
 
 interface Props {
     assignments: Paginated<TrainingAssignmentRow>;
-    filters: { recruiter: number | null; course: number | null; status: string; due_from: string; due_to: string };
+    filters: { track: string; recruiter: number | null; course: number | null; status: string; due_from: string; due_to: string };
     recruiters: { id: number; label: string }[];
     courses: { id: number; label: string }[];
+    tracks: TrackOption[];
     statuses: Option[];
 }
 
@@ -28,8 +30,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Assignments', href: '/recruiter/training/assignments' },
 ];
 
-export default function TrainingAssignments({ assignments, filters, recruiters, courses, statuses }: Props) {
+export default function TrainingAssignments({ assignments, filters, recruiters, courses, tracks, statuses }: Props) {
     const current = {
+        track: filters.track || undefined,
         recruiter: filters.recruiter ?? undefined,
         course: filters.course ?? undefined,
         status: filters.status || undefined,
@@ -38,28 +41,47 @@ export default function TrainingAssignments({ assignments, filters, recruiters, 
     };
 
     const apply = (changes: Record<string, string | number | null>) => {
-        router.get('/recruiter/training/assignments', { ...current, per_page: assignments.per_page, ...changes }, { preserveState: true, replace: true });
+        router.get(
+            '/recruiter/training/assignments',
+            { ...current, per_page: assignments.per_page, ...changes },
+            { preserveState: true, replace: true },
+        );
     };
 
     return (
         <RecruiterLayout breadcrumbs={breadcrumbs}>
             <Head title="Training Assignments" />
 
-            <div className="flex min-w-0 max-w-full flex-1 flex-col gap-6 p-4 md:p-6">
+            <div className="flex max-w-full min-w-0 flex-1 flex-col gap-6 p-4 md:p-6">
                 <TrainingSubNav />
+                <TrackSwitcher
+                    tracks={tracks}
+                    value={filters.track}
+                    allLabel="All tracks"
+                    onChange={(track) => apply({ track: track || null, course: null, page: null })}
+                />
                 <DataTableCard
                     title="Training Assignments"
                     description="Who has been given which course version. Assignments stay on their version when a course is updated."
                     action={
                         <Button asChild className="w-full shrink-0 sm:w-auto">
-                            <Link href="/recruiter/training/assignments/create">
+                            <Link
+                                href={
+                                    filters.track
+                                        ? `/recruiter/training/assignments/create?track=${filters.track}`
+                                        : '/recruiter/training/assignments/create'
+                                }
+                            >
                                 <UserPlus /> Assign training
                             </Link>
                         </Button>
                     }
                     toolbar={
                         <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-end">
-                            <Select value={filters.recruiter ? String(filters.recruiter) : ALL} onValueChange={(value) => apply({ recruiter: value === ALL ? null : value })}>
+                            <Select
+                                value={filters.recruiter ? String(filters.recruiter) : ALL}
+                                onValueChange={(value) => apply({ recruiter: value === ALL ? null : value })}
+                            >
                                 <SelectTrigger className="w-full lg:w-56" aria-label="Filter by recruiter">
                                     <SelectValue />
                                 </SelectTrigger>
@@ -72,7 +94,10 @@ export default function TrainingAssignments({ assignments, filters, recruiters, 
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <Select value={filters.course ? String(filters.course) : ALL} onValueChange={(value) => apply({ course: value === ALL ? null : value })}>
+                            <Select
+                                value={filters.course ? String(filters.course) : ALL}
+                                onValueChange={(value) => apply({ course: value === ALL ? null : value })}
+                            >
                                 <SelectTrigger className="w-full lg:w-64" aria-label="Filter by course">
                                     <SelectValue />
                                 </SelectTrigger>
@@ -125,7 +150,10 @@ export default function TrainingAssignments({ assignments, filters, recruiters, 
                         </div>
                     }
                     footer={
-                        <Pagination page={assignments} leading={<EntriesSelect value={assignments.per_page} onChange={(perPage) => apply({ per_page: perPage })} />} />
+                        <Pagination
+                            page={assignments}
+                            leading={<EntriesSelect value={assignments.per_page} onChange={(perPage) => apply({ per_page: perPage })} />}
+                        />
                     }
                 >
                     <TrainingAssignmentTable rows={assignments.data} withActions emptyMessage="No training assignments match these filters." />

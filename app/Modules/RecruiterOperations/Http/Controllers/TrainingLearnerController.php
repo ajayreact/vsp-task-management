@@ -13,11 +13,14 @@ use App\Modules\RecruiterOperations\Models\TrainingAssignment;
 use App\Modules\RecruiterOperations\Models\TrainingCourse;
 use App\Modules\RecruiterOperations\Models\TrainingLesson;
 use App\Modules\RecruiterOperations\Models\TrainingLessonCompletion;
+use App\Modules\RecruiterOperations\Models\TrainingTrack;
 use App\Modules\RecruiterOperations\Services\RecruiterDirectory;
 use App\Modules\RecruiterOperations\Services\TrainingPresenter;
 use App\Modules\RecruiterOperations\Services\TrainingProgressCalculator;
 use App\Modules\RecruiterOperations\Services\TrainingProgressService;
 use App\Modules\RecruiterOperations\Services\TrainingSummary;
+use App\Modules\RecruiterOperations\Services\TrainingTrackCatalog;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,6 +40,7 @@ class TrainingLearnerController extends Controller
         protected TrainingSummary $summary,
         protected TrainingPresenter $presenter,
         protected RecruiterDirectory $directory,
+        protected TrainingTrackCatalog $tracks,
     ) {}
 
     public function dashboard(Request $request): Response
@@ -46,19 +50,56 @@ class TrainingLearnerController extends Controller
         $user = $request->user();
         $isLearner = $this->directory->isTrainingLearner($user);
         $employee = $isLearner ? $this->employee($user) : null;
-        $assignments = $employee !== null ? $this->summary->assignmentsFor($employee) : collect();
+        $assignments = $employee !== null ? $this->summary->assignmentsFor($employee) : new EloquentCollection;
+        $can = $this->abilities($user);
+        $catalog = $this->managesTraining($can);
 
         return Inertia::render('RecruiterOperations/training/dashboard', [
             'isLearner' => $isLearner,
             'hasEmployeeProfile' => $employee !== null,
             'counts' => $employee !== null ? $this->summary->counts($assignments) : null,
-            'continueLearning' => $assignments
-                ->filter(fn (TrainingAssignment $assignment) => ! $assignment->isCompleted())
-                ->take(5)
+            'trackView' => $catalog ? 'catalog' : 'learner',
+            'tracks' => $catalog ? $this->tracks->managerCards() : $this->tracks->learnerCards($assignments),
+            'can' => $can,
+        ]);
+    }
+
+    /**
+     * One training track. A recruiter sees only their own assignments in it;
+     * people who run training also see the track's courses (never their
+     * lessons).
+     */
+    public function track(Request $request, string $track): Response
+    {
+        $this->authorize('viewAny', TrainingCourse::class);
+
+        $user = $request->user();
+        $trainingTrack = $this->tracks->resolve($track);
+        $isLearner = $this->directory->isTrainingLearner($user);
+        $employee = $isLearner ? $this->employee($user) : null;
+        $can = $this->abilities($user);
+        $showCourses = $this->managesTraining($can);
+
+        $assignments = $employee !== null
+            ? $this->summary->assignmentsFor($employee)
+                ->filter(fn (TrainingAssignment $assignment) => $assignment->version->course->training_track_id === $trainingTrack?->id)
                 ->map(fn (TrainingAssignment $assignment) => $this->presenter->learnerCard($assignment))
                 ->values()
-                ->all(),
-            'can' => $this->abilities($user),
+                ->all()
+            : [];
+
+        return Inertia::render('RecruiterOperations/training/track', [
+            'track' => [
+                'slug' => $trainingTrack->slug ?? TrainingTrack::UNASSIGNED,
+                'name' => $trainingTrack->name ?? TrainingTrackCatalog::UNASSIGNED_NAME,
+                'description' => $trainingTrack?->description,
+            ],
+            'isLearner' => $isLearner,
+            'hasEmployeeProfile' => $employee !== null,
+            'assignments' => $assignments,
+            'courses' => $showCourses ? $this->tracks->trackCourses($trainingTrack) : [],
+            'tracks' => $showCourses ? $this->tracks->options() : [],
+            'can' => $can,
         ]);
     }
 
@@ -69,19 +110,25 @@ class TrainingLearnerController extends Controller
         $user = $request->user();
         $employee = $this->employee($user);
         $status = TrainingAssignmentStatus::tryFrom($request->string('status')->value());
+        $assignments = $employee !== null ? $this->summary->assignmentsFor($employee) : new EloquentCollection;
+        $tracks = collect($this->tracks->learnerCards($assignments))
+            ->map(fn (array $card) => ['value' => $card['slug'], 'label' => $card['name']])
+            ->values();
+        $requested = $request->string('track')->value();
+        $track = $tracks->contains('value', $requested) ? $requested : ($tracks->first()['value'] ?? '');
 
-        $cards = $employee !== null
-            ? $this->summary->assignmentsFor($employee)
-                ->filter(fn (TrainingAssignment $assignment) => $status === null || $assignment->effectiveStatus() === $status)
-                ->map(fn (TrainingAssignment $assignment) => $this->presenter->learnerCard($assignment))
-                ->values()
-                ->all()
-            : [];
+        $cards = $assignments
+            ->filter(fn (TrainingAssignment $assignment) => $status === null || $assignment->effectiveStatus() === $status)
+            ->map(fn (TrainingAssignment $assignment) => $this->presenter->learnerCard($assignment))
+            ->filter(fn (array $card) => $card['track'] === $track)
+            ->values()
+            ->all();
 
         return Inertia::render('RecruiterOperations/training/my-training', [
             'hasEmployeeProfile' => $employee !== null,
             'assignments' => $cards,
-            'filters' => ['status' => $status->value ?? ''],
+            'filters' => ['status' => $status->value ?? '', 'track' => $track],
+            'tracks' => $tracks->all(),
             'statuses' => TrainingAssignmentStatus::options(),
             'can' => $this->abilities($user),
         ]);
@@ -360,6 +407,14 @@ class TrainingLearnerController extends Controller
             })
             ->values()
             ->all();
+    }
+
+    /**
+     * @param  array{manage: bool, assign: bool, viewTeam: bool}  $can
+     */
+    protected function managesTraining(array $can): bool
+    {
+        return $can['manage'] || $can['assign'] || $can['viewTeam'];
     }
 
     /**

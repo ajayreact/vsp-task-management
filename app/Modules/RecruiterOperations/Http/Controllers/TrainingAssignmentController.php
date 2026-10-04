@@ -7,9 +7,11 @@ use App\Modules\RecruiterOperations\Enums\TrainingAssignmentStatus;
 use App\Modules\RecruiterOperations\Http\Requests\TrainingAssignmentRequest;
 use App\Modules\RecruiterOperations\Models\TrainingAssignment;
 use App\Modules\RecruiterOperations\Models\TrainingCourse;
+use App\Modules\RecruiterOperations\Models\TrainingTrack;
 use App\Modules\RecruiterOperations\Services\RecruiterDirectory;
 use App\Modules\RecruiterOperations\Services\TrainingAssignmentService;
 use App\Modules\RecruiterOperations\Services\TrainingPresenter;
+use App\Modules\RecruiterOperations\Services\TrainingTrackCatalog;
 use App\Support\Pagination;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -28,6 +30,7 @@ class TrainingAssignmentController extends Controller
         protected TrainingAssignmentService $assignments,
         protected TrainingPresenter $presenter,
         protected RecruiterDirectory $directory,
+        protected TrainingTrackCatalog $tracks,
     ) {}
 
     public function index(Request $request): Response
@@ -36,7 +39,10 @@ class TrainingAssignmentController extends Controller
 
         $user = $request->user();
         $status = TrainingAssignmentStatus::tryFrom($request->string('status')->value());
+        $trackSlug = $request->string('track')->trim()->value();
+        $track = $trackSlug !== '' ? $this->tracks->resolve($trackSlug) : null;
         $filters = [
+            'track' => $trackSlug,
             'recruiter' => $request->integer('recruiter') ?: null,
             'course' => $request->integer('course') ?: null,
             'status' => $status->value ?? '',
@@ -46,6 +52,7 @@ class TrainingAssignmentController extends Controller
 
         $rows = TrainingAssignment::query()
             ->with(['employee:id,user_id,employee_code', 'employee.user:id,name', 'version.course.category', 'version.lessons', 'completions', 'assignedBy:id,name'])
+            ->when($trackSlug !== '', fn (Builder $query) => $query->whereHas('version', fn (Builder $version) => $version->whereIn('course_id', TrainingCourse::query()->inTrack($track)->select('id'))))
             ->when($filters['recruiter'], fn (Builder $query, int $employee) => $query->forEmployee($employee))
             ->when($filters['course'], fn (Builder $query, int $course) => $query->forCourse($course))
             ->when($status, fn (Builder $query, TrainingAssignmentStatus $value) => $query->withEffectiveStatus($value))
@@ -61,7 +68,8 @@ class TrainingAssignmentController extends Controller
             'assignments' => $rows,
             'filters' => $filters,
             'recruiters' => $this->directory->options(),
-            'courses' => $this->courseOptions(false),
+            'courses' => $this->courseOptions(false, $trackSlug !== '' ? $track : false),
+            'tracks' => $this->tracks->options(),
             'statuses' => TrainingAssignmentStatus::options(),
         ]);
     }
@@ -71,13 +79,18 @@ class TrainingAssignmentController extends Controller
         $this->authorize('create', TrainingAssignment::class);
 
         $courses = $this->courseOptions(true);
-        $requested = $request->integer('course');
+        $tracks = $this->tracks->options();
+        $requested = collect($courses)->firstWhere('id', $request->integer('course'));
+        $requestedTrack = $request->string('track')->value();
+        $track = $requested['track'] ?? (collect($tracks)->contains('value', $requestedTrack) ? $requestedTrack : ($tracks[0]['value'] ?? ''));
 
         return Inertia::render('RecruiterOperations/training/assignments/create', [
+            'tracks' => $tracks,
             'courses' => $courses,
             'recruiters' => $this->directory->options(),
             'defaults' => [
-                'course_id' => collect($courses)->contains('id', $requested) ? (string) $requested : '',
+                'track' => $track,
+                'course_id' => $requested !== null ? (string) $requested['id'] : '',
             ],
             'minDate' => today()->toDateString(),
         ]);
@@ -87,6 +100,7 @@ class TrainingAssignmentController extends Controller
     {
         $validated = $request->validated();
         $course = TrainingCourse::query()->findOrFail((int) $validated['course_id']);
+        $this->tracks->ensureCourseInTrack($course, $request->track());
         $employeeIds = $validated['mode'] === 'team'
             ? $this->assignments->teamEmployeeIds()
             : array_map('intval', $validated['employee_ids']);
@@ -113,18 +127,25 @@ class TrainingAssignmentController extends Controller
     }
 
     /**
-     * @return list<array{id: int, label: string}>
+     * Courses with the track they belong to, so the form can list only the
+     * chosen track's courses. Pass a track (or null for "not in a track") to
+     * limit the list on the server; false means every track.
+     *
+     * @return list<array{id: int, label: string, track: string, version: string|null}>
      */
-    protected function courseOptions(bool $assignableOnly): array
+    protected function courseOptions(bool $assignableOnly, TrainingTrack|null|false $track = false): array
     {
         return TrainingCourse::query()
-            ->with('currentVersion:id,version_number')
-            ->when($assignableOnly, fn (Builder $query) => $query->assignable())
+            ->with(['currentVersion:id,version_number', 'track:id,slug'])
+            ->when($assignableOnly, fn (Builder $query) => $query->assignable()->whereHas('currentVersion.lessons'))
+            ->when($track !== false, fn (Builder $query) => $query->inTrack($track ?: null))
             ->orderBy('title')
-            ->get(['id', 'title', 'current_version_id', 'status'])
+            ->get(['id', 'title', 'training_track_id', 'current_version_id', 'status'])
             ->map(fn (TrainingCourse $course) => [
                 'id' => $course->id,
-                'label' => $course->title.($course->currentVersion !== null ? ' · '.$course->currentVersion->label() : ''),
+                'label' => $course->title,
+                'track' => $course->track->slug ?? TrainingTrack::UNASSIGNED,
+                'version' => $course->currentVersion?->label(),
             ])
             ->values()
             ->all();

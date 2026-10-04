@@ -7,6 +7,7 @@ use App\Modules\RecruiterOperations\Enums\TrainingComplianceStatus;
 use App\Modules\RecruiterOperations\Enums\TrainingLanguage;
 use App\Modules\RecruiterOperations\Enums\TrainingLessonContentType;
 use Database\Factories\RecruiterOperations\TrainingLessonFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,8 +49,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read TrainingCourseVersion $version
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TrainingLessonCompletion> $completions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TrainingLessonContent> $contents
+ * @property-read Collection<int, TrainingLessonCompletion> $completions
+ * @property-read Collection<int, TrainingLessonContent> $contents
  */
 class TrainingLesson extends Model implements HasMedia
 {
@@ -57,6 +58,8 @@ class TrainingLesson extends Model implements HasMedia
     use HasFactory, InteractsWithMedia, LogsActivity;
 
     public const FILE_COLLECTION = 'lesson_file';
+
+    public const READING_WORDS_PER_MINUTE = 150;
 
     protected $table = 'ro_training_lessons';
 
@@ -156,7 +159,23 @@ class TrainingLesson extends Model implements HasMedia
 
     public function isEditable(): bool
     {
-        return $this->version->isDraft();
+        return $this->version->isEditable();
+    }
+
+    /**
+     * The manager's duration, else the time to read the lesson text at
+     * READING_WORDS_PER_MINUTE, rounded up. Null when there is no text.
+     */
+    public function estimatedMinutes(): ?int
+    {
+        if ($this->duration_minutes !== null) {
+            return $this->duration_minutes;
+        }
+
+        $text = trim((string) preg_replace('/[|*#>\[\]_`-]+/', ' ', (string) $this->body));
+        $words = $text === '' ? 0 : count(preg_split('/\s+/u', $text) ?: []);
+
+        return $words === 0 ? null : (int) ceil($words / self::READING_WORDS_PER_MINUTE);
     }
 
     public function getActivitylogOptions(): LogOptions

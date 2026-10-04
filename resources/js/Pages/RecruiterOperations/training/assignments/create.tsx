@@ -1,5 +1,6 @@
-import InputError from '@/components/input-error';
 import { PageHeader } from '@/components/admin/page-header';
+import InputError from '@/components/input-error';
+import { type TrackOption } from '@/components/recruiter-operations/training/training-tracks';
 import { TrainingSubNav } from '@/components/recruiter-operations/training/training-ui';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,9 +18,10 @@ import { useMemo, useState, type FormEvent } from 'react';
 type Mode = 'individual' | 'multiple' | 'team';
 
 interface Props {
-    courses: { id: number; label: string }[];
+    tracks: TrackOption[];
+    courses: { id: number; label: string; track: string; version: string | null }[];
     recruiters: { id: number; label: string }[];
-    defaults: { course_id: string };
+    defaults: { track: string; course_id: string };
     minDate: string;
 }
 
@@ -36,19 +38,25 @@ const MODES: { value: Mode; label: string; hint: string }[] = [
     { value: 'team', label: 'Whole recruiter team', hint: 'Everyone with recruiter access and an active profile.' },
 ];
 
-export default function AssignTraining({ courses, recruiters, defaults, minDate }: Props) {
+export default function AssignTraining({ tracks, courses, recruiters, defaults, minDate }: Props) {
     const [search, setSearch] = useState('');
     const { data, setData, post, processing, errors } = useForm<{
+        track: string;
         course_id: string;
         mode: Mode;
         employee_ids: number[];
         due_at: string;
     }>({
+        track: defaults.track,
         course_id: defaults.course_id,
         mode: 'individual',
         employee_ids: [],
         due_at: '',
     });
+
+    const trackCourses = useMemo(() => courses.filter((course) => course.track === data.track), [courses, data.track]);
+    const selectedCourse = trackCourses.find((course) => String(course.id) === data.course_id);
+    const trackName = tracks.find((track) => track.value === data.track)?.label ?? 'this track';
 
     const visibleRecruiters = useMemo(() => {
         const term = search.trim().toLowerCase();
@@ -76,25 +84,47 @@ export default function AssignTraining({ courses, recruiters, defaults, minDate 
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
                 <PageHeader
                     title="Assign Training"
-                    description="Recruiters receive the course's current published version. Anyone who already has the course open, or finished this version, is skipped."
+                    description="Recruiters receive the live course, and later edits reach them automatically. Anyone who already has the course open, or has finished it, is skipped."
                 />
                 <TrainingSubNav />
 
                 <form onSubmit={submit} className="max-w-3xl space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Course</CardTitle>
-                            <CardDescription>Only published courses can be assigned.</CardDescription>
+                            <CardTitle>Training</CardTitle>
+                            <CardDescription>Choose the track first. Only its published courses can be assigned.</CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-4 sm:grid-cols-2">
                             <div className="grid gap-2 sm:col-span-2">
-                                <Label htmlFor="course_id">Course</Label>
-                                <Select value={data.course_id} onValueChange={(value) => setData('course_id', value)}>
-                                    <SelectTrigger id="course_id">
-                                        <SelectValue placeholder={courses.length ? 'Choose a course' : 'No published courses yet'} />
+                                <Label htmlFor="track">Training track</Label>
+                                <Select
+                                    value={data.track}
+                                    onValueChange={(value) => setData((current) => ({ ...current, track: value, course_id: '' }))}
+                                >
+                                    <SelectTrigger id="track" data-testid="assign-track">
+                                        <SelectValue placeholder="Choose a training track" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {courses.map((course) => (
+                                        {tracks.map((track) => (
+                                            <SelectItem key={track.value} value={track.value}>
+                                                {track.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={errors.track} />
+                            </div>
+
+                            <div className="grid gap-2 sm:col-span-2">
+                                <Label htmlFor="course_id">Course</Label>
+                                <Select value={data.course_id} onValueChange={(value) => setData('course_id', value)} disabled={!data.track}>
+                                    <SelectTrigger id="course_id" data-testid="assign-course">
+                                        <SelectValue
+                                            placeholder={trackCourses.length ? 'Choose a course' : `No published courses in ${trackName} yet`}
+                                        />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {trackCourses.map((course) => (
                                             <SelectItem key={course.id} value={String(course.id)}>
                                                 {course.label}
                                             </SelectItem>
@@ -106,7 +136,13 @@ export default function AssignTraining({ courses, recruiters, defaults, minDate 
 
                             <div className="grid gap-2">
                                 <Label htmlFor="due_at">Due date</Label>
-                                <Input id="due_at" type="date" min={minDate} value={data.due_at} onChange={(e) => setData('due_at', e.target.value)} />
+                                <Input
+                                    id="due_at"
+                                    type="date"
+                                    min={minDate}
+                                    value={data.due_at}
+                                    onChange={(e) => setData('due_at', e.target.value)}
+                                />
                                 <p className="text-muted-foreground text-xs">Optional. Due at the end of that day.</p>
                                 <InputError message={errors.due_at} />
                             </div>
@@ -176,7 +212,10 @@ export default function AssignTraining({ courses, recruiters, defaults, minDate 
                                     <div className="max-h-72 space-y-1 overflow-y-auto rounded-lg border p-2">
                                         {visibleRecruiters.length === 0 && <p className="text-muted-foreground p-2 text-sm">No recruiters found.</p>}
                                         {visibleRecruiters.map((recruiter) => (
-                                            <label key={recruiter.id} className="hover:bg-muted/50 flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm">
+                                            <label
+                                                key={recruiter.id}
+                                                className="hover:bg-muted/50 flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm"
+                                            >
                                                 <Checkbox
                                                     checked={data.employee_ids.includes(recruiter.id)}
                                                     onCheckedChange={(checked) => toggle(recruiter.id, checked === true)}
@@ -199,7 +238,7 @@ export default function AssignTraining({ courses, recruiters, defaults, minDate 
                     </Card>
 
                     <div className="flex gap-2">
-                        <Button type="submit" disabled={processing || courses.length === 0}>
+                        <Button type="submit" disabled={processing || !selectedCourse}>
                             {processing && <LoaderCircle className="animate-spin" />}
                             Assign training
                         </Button>

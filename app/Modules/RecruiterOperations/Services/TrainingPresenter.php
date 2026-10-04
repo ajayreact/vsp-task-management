@@ -6,6 +6,7 @@ use App\Modules\Core\Models\User;
 use App\Modules\RecruiterOperations\Enums\TrainingLanguage;
 use App\Modules\RecruiterOperations\Models\TrainingAssignment;
 use App\Modules\RecruiterOperations\Models\TrainingLesson;
+use App\Modules\RecruiterOperations\Models\TrainingTrack;
 use Illuminate\Support\Str;
 
 /**
@@ -226,6 +227,7 @@ class TrainingPresenter
                 'description' => $course->description,
             ],
             'category' => $course->category->name ?? null,
+            'track' => $course->track->slug ?? TrainingTrack::UNASSIGNED,
             'version' => $assignment->version->label(),
             'status' => $status->value,
             'status_label' => $status->label(),

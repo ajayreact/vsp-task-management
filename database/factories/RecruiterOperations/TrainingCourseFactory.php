@@ -5,6 +5,7 @@ namespace Database\Factories\RecruiterOperations;
 use App\Modules\RecruiterOperations\Enums\TrainingContentStatus;
 use App\Modules\RecruiterOperations\Models\TrainingCategory;
 use App\Modules\RecruiterOperations\Models\TrainingCourse;
+use App\Modules\RecruiterOperations\Models\TrainingTrack;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -36,6 +37,11 @@ class TrainingCourseFactory extends Factory
             'created_by_user_id' => null,
             'updated_by_user_id' => null,
         ];
+    }
+
+    public function inTrack(TrainingTrack $track): static
+    {
+        return $this->state(fn () => ['training_track_id' => $track->id]);
     }
 
     public function archived(): static

@@ -114,6 +114,7 @@ test('a lead assigns a course to one recruiter, pinned to the live version, and 
 
     $this->actingAs($lead->user)
         ->post('/recruiter/training/assignments', [
+            'track' => 'unassigned',
             'course_id' => $course->id,
             'mode' => 'individual',
             'employee_ids' => [$recruiter->id],
@@ -148,7 +149,7 @@ test('assigning again skips recruiters who already have the course open', functi
     assignTraining($version, $first);
 
     $this->actingAs($lead->user)
-        ->post('/recruiter/training/assignments', ['course_id' => $course->id, 'mode' => 'multiple', 'employee_ids' => [$first->id, $second->id]])
+        ->post('/recruiter/training/assignments', ['track' => 'unassigned', 'course_id' => $course->id, 'mode' => 'multiple', 'employee_ids' => [$first->id, $second->id]])
         ->assertSessionHasNoErrors()
         ->assertSessionHas('success', fn (string $message) => str_contains($message, 'Training assigned to 1 recruiter.')
             && str_contains($message, 'Already has this course open.'));
@@ -163,7 +164,7 @@ test('a recruiter who completed the live version is not given it again, but gets
     $recruiter = trainingLearner();
     [$course, $v1] = liveTrainingCourse(1);
     TrainingAssignment::factory()->completed()->forVersion($v1)->forEmployee($recruiter)->create();
-    $payload = ['course_id' => $course->id, 'mode' => 'individual', 'employee_ids' => [$recruiter->id]];
+    $payload = ['track' => 'unassigned', 'course_id' => $course->id, 'mode' => 'individual', 'employee_ids' => [$recruiter->id]];
 
     $this->actingAs($lead->user)->post('/recruiter/training/assignments', $payload)
         ->assertSessionHas('success', fn (string $message) => str_contains($message, 'Already completed this version.'));
@@ -187,7 +188,7 @@ test('team mode assigns every active recruiter from the recruiter directory', fu
     [$course] = liveTrainingCourse();
 
     $this->actingAs($lead->user)
-        ->post('/recruiter/training/assignments', ['course_id' => $course->id, 'mode' => 'team'])
+        ->post('/recruiter/training/assignments', ['track' => 'unassigned', 'course_id' => $course->id, 'mode' => 'team'])
         ->assertSessionHasNoErrors();
 
     $assigned = TrainingAssignment::query()->pluck('employee_id');
@@ -209,12 +210,12 @@ test('only published courses can be assigned, and only to recruiters', function 
 
     foreach ([$draft, $archived] as $course) {
         $this->actingAs($lead->user)
-            ->post('/recruiter/training/assignments', ['course_id' => $course->id, 'mode' => 'individual', 'employee_ids' => [$recruiter->id]])
+            ->post('/recruiter/training/assignments', ['track' => 'unassigned', 'course_id' => $course->id, 'mode' => 'individual', 'employee_ids' => [$recruiter->id]])
             ->assertSessionHasErrors('course_id');
     }
 
     $this->actingAs($lead->user)
-        ->post('/recruiter/training/assignments', ['course_id' => $live->id, 'mode' => 'individual', 'employee_ids' => [$notRecruiter->id]])
+        ->post('/recruiter/training/assignments', ['track' => 'unassigned', 'course_id' => $live->id, 'mode' => 'individual', 'employee_ids' => [$notRecruiter->id]])
         ->assertSessionHasErrors('employee_ids.0');
 
     expect(TrainingAssignment::query()->count())->toBe(0);
@@ -227,6 +228,7 @@ test('the due date cannot be in the past', function () {
 
     $this->actingAs($lead->user)
         ->post('/recruiter/training/assignments', [
+            'track' => 'unassigned',
             'course_id' => $course->id,
             'mode' => 'individual',
             'employee_ids' => [$recruiter->id],
@@ -297,7 +299,8 @@ test('a recruiter sees only their own training on the dashboard and in My Traini
             ->where('counts.completed', 0)
             ->where('counts.overdue', 0)
             ->where('counts.overall_percent', 0)
-            ->has('continueLearning', 1)
+            ->has('tracks', 1)
+            ->where('tracks.0.courses', 1)
             ->where('can.manage', false));
 
     $this->actingAs($recruiter->user)

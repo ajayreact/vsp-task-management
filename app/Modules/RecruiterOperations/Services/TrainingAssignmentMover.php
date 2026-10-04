@@ -4,6 +4,7 @@ namespace App\Modules\RecruiterOperations\Services;
 
 use App\Modules\Core\Models\User;
 use App\Modules\RecruiterOperations\Enums\TrainingAssignmentStatus;
+use App\Modules\RecruiterOperations\Enums\TrainingLanguage;
 use App\Modules\RecruiterOperations\Models\TrainingAssignment;
 use App\Modules\RecruiterOperations\Models\TrainingCourse;
 use App\Modules\RecruiterOperations\Models\TrainingCourseVersion;
@@ -21,8 +22,11 @@ use Illuminate\Support\Str;
  * publishing still leaves existing assignments on the version they were given.
  *
  * Lesson progress is carried across by matching each lesson to the one with
- * the same slug (else title) in the live version. Completed assignments are
- * never moved, so finished learning history stays on its own version.
+ * the same slug (else title) in the live version, else to the live lesson
+ * that has the old title as a section heading. Where several old lessons
+ * were combined into one, progress carries over but the combined lesson has
+ * to be finished again. Completed assignments are never moved, so finished
+ * learning history stays on its own version.
  */
 class TrainingAssignmentMover
 {
@@ -36,7 +40,7 @@ class TrainingAssignmentMover
 
     /**
      * @param  Collection<int, TrainingCourse>  $courses
-     * @return list<array{course: string, recruiter: string, from: string, to: string, kept: int, dropped: int, status: string}>
+     * @return list<array{course: string, recruiter: string, from: string, to: string, kept: int, dropped: int, reset: int, status: string}>
      */
     public function move(Collection $courses, ?User $actor, bool $dryRun): array
     {
@@ -54,11 +58,11 @@ class TrainingAssignmentMover
     }
 
     /**
-     * @return list<array{course: string, recruiter: string, from: string, to: string, kept: int, dropped: int, status: string}>
+     * @return list<array{course: string, recruiter: string, from: string, to: string, kept: int, dropped: int, reset: int, status: string}>
      */
     protected function moveCourse(TrainingCourse $course, ?User $actor, bool $dryRun): array
     {
-        $live = $course->current_version_id !== null ? TrainingCourseVersion::query()->with('lessons')->find($course->current_version_id) : null;
+        $live = $course->current_version_id !== null ? TrainingCourseVersion::query()->with('lessons.contents')->find($course->current_version_id) : null;
 
         $stale = TrainingAssignment::query()
             ->forCourse($course)
@@ -78,6 +82,7 @@ class TrainingAssignmentMover
                 'to' => $live?->label() ?? '-',
                 'kept' => 0,
                 'dropped' => 0,
+                'reset' => 0,
                 'status' => self::MOVED,
             ];
 
@@ -96,6 +101,7 @@ class TrainingAssignmentMover
             $plan = $this->plan($assignment, $live);
             $row['kept'] = count($plan['keep']);
             $row['dropped'] = count($plan['drop']);
+            $row['reset'] = count($plan['reset']);
 
             if (! $dryRun && $actor !== null) {
                 $this->apply($assignment, $live, $plan, $actor);
@@ -110,15 +116,27 @@ class TrainingAssignmentMover
     /**
      * Which completion rows follow the recruiter to the live version, and the
      * lesson each one lands on. Where two old rows would land on the same
-     * lesson, the one furthest along is kept.
+     * lesson, the one furthest along is kept. Rows landing on a lesson that
+     * combines several old lessons keep their time but are no longer
+     * complete.
      *
-     * @return array{keep: array<int, int>, drop: list<int>}
+     * @return array{keep: array<int, int>, drop: list<int>, reset: list<int>}
      */
     protected function plan(TrainingAssignment $assignment, TrainingCourseVersion $live): array
     {
         $oldLessons = $assignment->version->lessons->keyBy('id');
         $keep = [];
         $drop = [];
+        $reset = [];
+
+        $combined = $oldLessons
+            ->map(fn (TrainingLesson $old) => $this->match($old, $live->lessons)?->id)
+            ->filter()
+            ->countBy()
+            ->filter(fn (int $count) => $count > 1)
+            ->keys()
+            ->map(fn ($id) => (int) $id)
+            ->all();
 
         $ordered = $assignment->completions->sortByDesc(fn (TrainingLessonCompletion $completion) => [
             $completion->completed_at !== null ? 1 : 0,
@@ -136,9 +154,13 @@ class TrainingAssignmentMover
             }
 
             $keep[$completion->id] = $target->id;
+
+            if (in_array($target->id, $combined, true) && $completion->completed_at !== null) {
+                $reset[] = $completion->id;
+            }
         }
 
-        return ['keep' => $keep, 'drop' => $drop];
+        return ['keep' => $keep, 'drop' => $drop, 'reset' => $reset];
     }
 
     /**
@@ -146,14 +168,17 @@ class TrainingAssignmentMover
      */
     protected function match(TrainingLesson $old, Collection $lessons): ?TrainingLesson
     {
-        $title = fn (string $value) => Str::lower(trim((string) preg_replace('/\s+/', ' ', $value)));
+        $title = fn (?string $value) => Str::lower(trim((string) preg_replace('/\s+/', ' ', (string) $value)));
+        $wanted = $title($old->title);
 
         return $lessons->first(fn (TrainingLesson $lesson) => $lesson->slug === $old->slug)
-            ?? $lessons->first(fn (TrainingLesson $lesson) => $title($lesson->title) === $title($old->title));
+            ?? $lessons->first(fn (TrainingLesson $lesson) => $title($lesson->title) === $wanted)
+            ?? $lessons->first(fn (TrainingLesson $lesson) => collect($lesson->contentIn(TrainingLanguage::English)->sections ?? [])
+                ->contains(fn (array $section) => $title($section['heading']) === $wanted));
     }
 
     /**
-     * @param  array{keep: array<int, int>, drop: list<int>}  $plan
+     * @param  array{keep: array<int, int>, drop: list<int>, reset: list<int>}  $plan
      */
     protected function apply(TrainingAssignment $assignment, TrainingCourseVersion $live, array $plan, User $actor): void
     {
@@ -170,6 +195,8 @@ class TrainingAssignmentMover
             foreach ($plan['keep'] as $completionId => $lessonId) {
                 TrainingLessonCompletion::query()->whereKey($completionId)->update(['lesson_id' => $lessonId]);
             }
+
+            TrainingLessonCompletion::query()->whereKey($plan['reset'])->update(['completed_at' => null]);
 
             $this->assessments->removeForTraining($locked);
             $locked->forceFill(['course_version_id' => $live->id])->save();

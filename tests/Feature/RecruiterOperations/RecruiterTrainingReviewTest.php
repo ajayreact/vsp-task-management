@@ -304,10 +304,11 @@ test('changing approved English sends English, Telugu and compliance back to rev
     expect(app(TrainingLessonContentService::class)->isOutdated($lesson, $lesson->contentIn(TrainingLanguage::Telugu)))->toBeFalse();
 });
 
-// 10. Version 1 immutable
+// 10. Older versions are history
 
-test('published Version 1 cannot be reviewed or changed', function () {
-    ['lead' => $lead, 'v1' => $v1] = reviewFixture();
+test('once Version 2 is live, Version 1 is history and cannot be reviewed or changed', function () {
+    ['lead' => $lead, 'v1' => $v1, 'v2' => $v2] = reviewFixture();
+    app(TrainingContentService::class)->publishVersion($v2, $lead->user);
     $published = $v1->lessons()->orderBy('sort_order')->first();
     $before = $published->only(['title', 'body', 'compliance_status', 'updated_at']);
 
@@ -319,8 +320,32 @@ test('published Version 1 cannot be reviewed or changed', function () {
         ->and(fn () => app(TrainingContentReviewService::class)->setStatus($published, TrainingLanguage::English, TrainingContentReview::Approved, $lead->user))->toThrow(ValidationException::class);
 
     expect($published->fresh()->only(['title', 'body', 'compliance_status', 'updated_at']))->toEqual($before)
-        ->and($v1->fresh()->status)->toBe(TrainingContentStatus::Published)
+        ->and($v1->fresh()->status)->toBe(TrainingContentStatus::Archived)
         ->and($v1->lessons()->withCount('contents')->get()->sum('contents_count'))->toBe(0);
+});
+
+test('a long lesson can be saved in parts, with more than 120 sections', function () {
+    ['lead' => $lead, 'first' => $first] = reviewFixture();
+    $sections = [['kind' => 'objective', 'heading' => 'Learning Objective', 'body' => 'Know STEM OPT from start to finish.']];
+
+    foreach ([1, 2, 3] as $part) {
+        $sections[] = ['kind' => 'part', 'heading' => "Part {$part}", 'body' => "Introduction to part {$part}."];
+
+        foreach (range(1, 45) as $topic) {
+            $sections[] = ['kind' => 'topic', 'heading' => "Topic {$part}.{$topic}", 'body' => 'Key point.'];
+        }
+    }
+
+    $sections[] = ['kind' => 'takeaway', 'heading' => 'Key Takeaway', 'body' => 'Follow the plan.'];
+
+    $this->actingAs($lead->user)->put("/recruiter/training/manage/lessons/{$first->id}/content/en", ['sections' => $sections])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    $stored = $first->fresh()->contentIn(TrainingLanguage::English)->sections;
+    expect($stored)->toHaveCount(140)
+        ->and(collect($stored)->where('kind', 'part')->pluck('heading')->values()->all())->toBe(['Part 1', 'Part 2', 'Part 3'])
+        ->and(end($stored)['kind'])->toBe('takeaway');
 });
 
 // 11. Draft Version 2 editable
@@ -346,44 +371,25 @@ test('the Version 2 draft stays editable, and an edit to approved content needs 
         ->and($content->sections[2]['body'])->toBe('Confirm the STEM OPT extension dates on every call.');
 });
 
-// 12. Version 2 cannot publish while reviews are incomplete
+// 12. Publishing does not wait for review
 
-test('Version 2 cannot be published until all English and flagged compliance reviews are approved', function () {
-    ['lead' => $lead, 'course' => $course, 'v1' => $v1, 'v2' => $v2, 'first' => $first, 'second' => $second] = reviewFixture();
+test('Version 2 is published straight away, with reviews still open as an internal marker', function () {
+    ['lead' => $lead, 'course' => $course, 'v1' => $v1, 'v2' => $v2, 'first' => $first] = reviewFixture();
     $this->artisan('recruiter:training-review-flags')->assertSuccessful();
-    $publish = "/recruiter/training/manage/versions/{$v2->id}/publish";
 
-    $this->actingAs($lead->user)->get("/recruiter/training/manage/courses/{$course->id}?version={$v2->id}")
-        ->assertInertia(fn ($page) => $page->where('selectedVersion.review.ready', false)
-            ->where('selectedVersion.review.english_approved', 0)
-            ->where('selectedVersion.review.compliance_blocking', 2));
+    $this->actingAs($lead->user)->post("/recruiter/training/manage/versions/{$v2->id}/publish")->assertSessionHasNoErrors();
 
-    $this->actingAs($lead->user)->post($publish)->assertSessionHasErrors('version');
-    approveEnglish($first);
-    $this->actingAs($lead->user)->post($publish)->assertSessionHasErrors('version');
-    approveEnglish($second);
-
-    expect(fn () => app(TrainingContentService::class)->publishVersion($v2->fresh(), $lead->user))
-        ->toThrow(ValidationException::class, '2 lessons still need compliance approval');
-
-    app(TrainingContentReviewService::class)->setCompliance($first->fresh(), TrainingComplianceStatus::Approved, $lead->user);
-    $this->actingAs($lead->user)->post($publish)->assertSessionHasErrors('version');
-
-    expect($v2->fresh()->status)->toBe(TrainingContentStatus::Draft)
-        ->and($v1->fresh()->status)->toBe(TrainingContentStatus::Published)
-        ->and($course->fresh()->current_version_id)->toBe($v1->id);
-
-    app(TrainingContentReviewService::class)->setCompliance($second->fresh(), TrainingComplianceStatus::Approved, $lead->user);
-    $this->actingAs($lead->user)->post($publish)->assertSessionHasNoErrors();
-
-    expect($v2->fresh()->status)->toBe(TrainingContentStatus::Published);
+    expect($v2->fresh()->status)->toBe(TrainingContentStatus::Published)
+        ->and($v1->fresh()->status)->toBe(TrainingContentStatus::Archived)
+        ->and($course->fresh()->current_version_id)->toBe($v2->id)
+        ->and($first->fresh()->contentIn(TrainingLanguage::English)->review_status)->toBe(TrainingContentReview::NeedsReview)
+        ->and($first->fresh()->compliance_status)->toBe(TrainingComplianceStatus::Pending);
 });
 
-// 13. Telugu can stay unavailable while English is published
+// 13. Saved translations reach learners without review
 
-test('English can be published without Telugu, and unapproved Telugu never reaches learners', function () {
-    ['lead' => $lead, 'v2' => $v2, 'first' => $first, 'second' => $second] = reviewFixture();
-    approveEnglish($first, $second);
+test('a saved Telugu translation reaches learners without review, and falls back to English once the English changes', function () {
+    ['lead' => $lead, 'v2' => $v2, 'first' => $first] = reviewFixture();
     app(TrainingContentService::class)->publishVersion($v2->fresh(), $lead->user);
 
     $learner = reviewStaff(SystemRole::Recruiter);
@@ -393,12 +399,17 @@ test('English can be published without Telugu, and unapproved Telugu never reach
     $this->actingAs($learner->user)->get($url)->assertOk()
         ->assertInertia(fn ($page) => $page->where('lesson.languages.0.available', true)
             ->where('lesson.languages.1.code', 'te')
-            ->where('lesson.languages.1.available', false)
+            ->where('lesson.languages.1.available', true)
+            ->where('audio.has_text_by_language.te', true));
+
+    $changed = reviewEnglish('OPT');
+    $changed[1]['body'] = 'Updated facts about OPT and the 90-day unemployment limit.';
+    $this->actingAs($lead->user)->put("/recruiter/training/manage/lessons/{$first->id}/content/en", ['sections' => $changed])->assertRedirect();
+
+    $this->actingAs($learner->user)->get($url)->assertOk()
+        ->assertInertia(fn ($page) => $page->where('lesson.languages.1.available', false)
             ->where('lesson.languages.1.sections', null)
             ->where('audio.has_text_by_language.te', false));
-
-    $this->actingAs($learner->user)->getJson("/recruiter/training/lessons/{$first->id}/speech?language=te")
-        ->assertOk()->assertJson(['has_text' => false, 'segments' => []]);
 
     expect($first->fresh()->contentIn(TrainingLanguage::Telugu)->review_status)->toBe(TrainingContentReview::NeedsReview);
 });

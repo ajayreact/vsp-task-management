@@ -9,7 +9,8 @@ use App\Modules\RecruiterOperations\Models\TrainingAssignment;
 use App\Modules\RecruiterOperations\Models\TrainingLesson;
 
 /**
- * Lessons are edited only inside a draft version. Their audio and files are
+ * Lessons are edited in the live version (or an unpublished draft), never
+ * in older versions kept as history. Their audio and files are
  * open to training managers and to recruiters assigned that exact version;
  * nobody else, whatever the URL.
  */
@@ -22,17 +23,17 @@ class TrainingLessonPolicy
 
     public function update(User $user, TrainingLesson $lesson): bool
     {
-        return $this->manages($user) && $lesson->version->isDraft();
+        return $this->manages($user) && $lesson->isEditable();
     }
 
     public function delete(User $user, TrainingLesson $lesson): bool
     {
-        return $this->manages($user) && $lesson->version->isDraft();
+        return $this->manages($user) && $lesson->isEditable();
     }
 
     public function move(User $user, TrainingLesson $lesson): bool
     {
-        return $this->manages($user) && $lesson->version->isDraft();
+        return $this->manages($user) && $lesson->isEditable();
     }
 
     public function listen(User $user, TrainingLesson $lesson): bool

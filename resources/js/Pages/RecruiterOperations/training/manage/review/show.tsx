@@ -158,7 +158,7 @@ export default function TrainingContentReviewShow({ language, lesson, navigation
                 <TrainingSubNav />
                 <PageHeader
                     title={lesson.title}
-                    description={[lesson.level ? `Level ${lesson.level}` : null, lesson.course.title, `${lesson.version.label} draft`, `${languageLabel} review`]
+                    description={[lesson.level ? `Level ${lesson.level}` : null, lesson.course.title, `${languageLabel} review`]
                         .filter(Boolean)
                         .join(' · ')}
                     action={
@@ -224,7 +224,7 @@ export default function TrainingContentReviewShow({ language, lesson, navigation
                         <Card className="gap-4">
                             <CardHeader>
                                 <CardTitle className="text-base">{languageLabel} review</CardTitle>
-                                <CardDescription>Approving never publishes. The version is published from the course page once reviews are done.</CardDescription>
+                                <CardDescription>Review status is an internal marker. The content is already live for recruiters.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 {reviewed ? (

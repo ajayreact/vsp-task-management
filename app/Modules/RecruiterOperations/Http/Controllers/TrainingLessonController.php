@@ -16,7 +16,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Lesson authoring inside a draft version, plus a read-only preview (with
+ * Lesson authoring in a course's live version, plus a read-only preview (with
  * Listen to Lesson) for any version.
  */
 class TrainingLessonController extends Controller

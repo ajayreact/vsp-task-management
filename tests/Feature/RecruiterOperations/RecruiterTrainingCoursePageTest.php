@@ -301,16 +301,15 @@ function coursePageTranslatedCourse(bool $approveTelugu): array
     return [$recruiter, $version->course->fresh(), $lesson->fresh()];
 }
 
-test('Telugu still awaiting review is not shown to recruiters; they get English', function () {
+test('saved Telugu is shown to recruiters without waiting for review', function () {
     [$recruiter, $course] = coursePageTranslatedCourse(approveTelugu: false);
 
     $this->actingAs($recruiter->user)->get(coursePageUrl($course))->assertOk()
         ->assertInertia(fn ($page) => $page->where('lessons.0.languages.0.code', 'en')
             ->where('lessons.0.languages.0.sections.0.body', 'Understand OPT.')
             ->where('lessons.0.languages.1.code', 'te')
-            ->where('lessons.0.languages.1.available', false)
-            ->where('lessons.0.languages.1.sections', null)
-            ->where('lessons.0.audio.has_text_by_language.te', false));
+            ->where('lessons.0.languages.1.available', true)
+            ->where('lessons.0.audio.has_text_by_language.te', true));
 });
 
 test('approved Telugu is shown with its own sections and audio, alongside English', function () {
@@ -356,6 +355,7 @@ test('managers set a lesson module on drafts, see it in Manage, and new versions
     $content = app(TrainingContentService::class);
     $content->publishVersion($version->fresh(), $lead->user);
     $v2 = $content->createVersion($version->course->fresh(), $lead->user);
+    $content->publishVersion($v2, $lead->user);
 
     expect($v2->lessons()->sole()->module)->toBe('Internal Company Recruiter Process')
         ->and($lesson->fresh()->module)->toBe('Internal Company Recruiter Process');
