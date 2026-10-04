@@ -157,6 +157,34 @@ class TrainingTrackCatalog
     }
 
     /**
+     * Each course's "Course N" number within its track, keyed by course id.
+     * The same order the track page lists them in.
+     *
+     * @return array<int, int>
+     */
+    public function courseNumbers(?TrainingTrack $track): array
+    {
+        $courses = TrainingCourse::query()
+            ->inTrack($track)
+            ->with('category:id,level_number,sort_order')
+            ->get(['id', 'category_id', 'title']);
+
+        return $this->inTrackOrder($courses)
+            ->values()
+            ->mapWithKeys(fn (TrainingCourse $course, int $index) => [$course->id => $index + 1])
+            ->all();
+    }
+
+    /**
+     * @param  Collection<int, TrainingCourse>  $courses
+     * @return Collection<int, TrainingCourse>
+     */
+    private function inTrackOrder(Collection $courses): Collection
+    {
+        return $courses->sortBy(fn (TrainingCourse $course) => [$course->category->sort_order ?? 0, $course->category->level_number ?? PHP_INT_MAX, $course->title]);
+    }
+
+    /**
      * Courses of a track for the track page: the live version's module and
      * lesson counts and duration. Never the lessons themselves.
      *
@@ -175,8 +203,7 @@ class TrainingTrackCatalog
             ])
             ->get();
 
-        return $courses
-            ->sortBy(fn (TrainingCourse $course) => [$course->category->sort_order ?? 0, $course->category->level_number ?? PHP_INT_MAX, $course->title])
+        return $this->inTrackOrder($courses)
             ->map(function (TrainingCourse $course) {
                 /** @var TrainingCourseVersion|null $live */
                 $live = $course->currentVersion ?? $course->draftVersion;

@@ -80,10 +80,12 @@ class TrainingLearnerController extends Controller
         $can = $this->abilities($user);
         $showCourses = $this->managesTraining($can);
 
+        $numbers = $this->tracks->courseNumbers($trainingTrack);
         $assignments = $employee !== null
             ? $this->summary->assignmentsFor($employee)
                 ->filter(fn (TrainingAssignment $assignment) => $assignment->version->course->training_track_id === $trainingTrack?->id)
-                ->map(fn (TrainingAssignment $assignment) => $this->presenter->learnerCard($assignment))
+                ->sortBy(fn (TrainingAssignment $assignment) => $numbers[$assignment->version->course_id] ?? PHP_INT_MAX)
+                ->map(fn (TrainingAssignment $assignment) => $this->presenter->learnerCard($assignment, $numbers[$assignment->version->course_id] ?? null))
                 ->values()
                 ->all()
             : [];
@@ -117,10 +119,13 @@ class TrainingLearnerController extends Controller
         $requested = $request->string('track')->value();
         $track = $tracks->contains('value', $requested) ? $requested : ($tracks->first()['value'] ?? '');
 
-        $cards = $assignments
+        $inTrack = $assignments
+            ->filter(fn (TrainingAssignment $assignment) => ($assignment->version->course->track->slug ?? TrainingTrack::UNASSIGNED) === $track);
+        $numbers = $inTrack->isEmpty() ? [] : $this->tracks->courseNumbers($inTrack->first()->version->course->track);
+        $cards = $inTrack
             ->filter(fn (TrainingAssignment $assignment) => $status === null || $assignment->effectiveStatus() === $status)
-            ->map(fn (TrainingAssignment $assignment) => $this->presenter->learnerCard($assignment))
-            ->filter(fn (array $card) => $card['track'] === $track)
+            ->sortBy(fn (TrainingAssignment $assignment) => $numbers[$assignment->version->course_id] ?? PHP_INT_MAX)
+            ->map(fn (TrainingAssignment $assignment) => $this->presenter->learnerCard($assignment, $numbers[$assignment->version->course_id] ?? null))
             ->values()
             ->all();
 
@@ -159,6 +164,8 @@ class TrainingLearnerController extends Controller
                 'title' => $trainingCourse->title,
                 'description' => $trainingCourse->description,
                 'category' => $trainingCourse->category->name ?? null,
+                'course_number' => $this->tracks->courseNumbers($trainingCourse->track)[$trainingCourse->id] ?? null,
+                'track' => $trainingCourse->track?->name,
             ],
             'version' => [
                 'label' => $assignment->version->label(),

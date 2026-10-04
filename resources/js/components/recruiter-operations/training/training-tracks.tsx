@@ -10,6 +10,7 @@ export interface TrainingCard {
     id: number;
     course: { id: number; title: string; description: string | null };
     category: string | null;
+    course_number: number | null;
     track: string;
     version: string;
     status: string;
@@ -149,8 +150,8 @@ export function TrainingAssignmentCard({ card }: { card: TrainingCard }) {
         <Card className="flex min-w-0 flex-col" data-testid="assignment-card">
             <CardHeader className="space-y-2">
                 <div className="flex items-start justify-between gap-3">
-                    <span className="text-muted-foreground text-xs">
-                        {card.category ?? 'Training'} · {card.version}
+                    <span className="text-muted-foreground text-xs font-medium" data-testid="assignment-course-number">
+                        {card.course_number !== null ? `Course ${card.course_number}` : (card.category ?? 'Training')} · {card.version}
                     </span>
                     <TrainingStatusBadge status={card.status} label={card.status_label} />
                 </div>

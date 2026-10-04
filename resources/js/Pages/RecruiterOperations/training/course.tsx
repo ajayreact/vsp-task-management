@@ -78,7 +78,14 @@ interface CompleteResponse {
 }
 
 interface Props {
-    course: { id: number; title: string; description: string | null; category: string | null };
+    course: {
+        id: number;
+        title: string;
+        description: string | null;
+        category: string | null;
+        course_number: number | null;
+        track: string | null;
+    };
     version: { label: string; description: string | null; estimated_minutes: number | null };
     assignment: Assignment;
     progress: Progress;
@@ -349,9 +356,12 @@ export default function TrainingCourse({
                             <div className="relative flex items-center gap-6">
                                 <div className="min-w-0 flex-1 space-y-3">
                                     <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
-                                        {course.category && (
-                                            <span className={HERO_CHIP}>
-                                                <GraduationCap className="size-3.5" aria-hidden /> {course.category}
+                                        {(course.course_number !== null || course.category) && (
+                                            <span className={HERO_CHIP} data-testid="course-number">
+                                                <GraduationCap className="size-3.5" aria-hidden />
+                                                {course.course_number !== null
+                                                    ? `${course.track ? `${course.track} · ` : ''}Course ${course.course_number}`
+                                                    : course.category}
                                             </span>
                                         )}
                                         <span className={HERO_CHIP} data-testid="course-version">

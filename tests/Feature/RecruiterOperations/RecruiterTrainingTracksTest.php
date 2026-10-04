@@ -200,6 +200,45 @@ test('the empty Bench Sales track has no courses and is never filled with OPT co
         ->assertInertia(fn ($page) => $page->where('track.name', 'Bench Sales Recruiter')->where('courses', [])->where('assignments', []));
 });
 
+test('a recruiter sees their courses with the same Course numbers and order as the track page', function () {
+    $recruiter = trackPerson(SystemRole::Recruiter);
+    $levels = [7, 1, 2];
+    $courses = [];
+    foreach ($levels as $level) {
+        [$course, $v1] = trackCourse(optRecruiterTrack());
+        $category = TrainingCategory::factory()->create(['name' => "Level {$level} - Topic", 'level_number' => $level, 'sort_order' => $level]);
+        $course->update(['category_id' => $category->id]);
+        TrainingAssignment::factory()->forVersion($v1)->forEmployee($recruiter)->create();
+        $courses[$level] = $course;
+    }
+
+    $expected = [$courses[1]->id, $courses[2]->id, $courses[7]->id];
+
+    $this->actingAs($recruiter->user)
+        ->get('/recruiter/training/tracks/opt-recruiter')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('assignments', fn ($cards) => collect($cards)->pluck('course.id')->all() === $expected
+                && collect($cards)->pluck('course_number')->all() === [1, 2, 3]));
+
+    $this->actingAs($recruiter->user)
+        ->get('/recruiter/training/my-training?track=opt-recruiter')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('assignments', fn ($cards) => collect($cards)->pluck('course.id')->all() === $expected
+                && collect($cards)->pluck('course_number')->all() === [1, 2, 3]));
+
+    $this->actingAs($recruiter->user)
+        ->get("/recruiter/training/courses/{$courses[7]->id}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('course.course_number', 3)->where('course.track', 'OPT Recruiter'));
+
+    $lead = trackPerson(SystemRole::RecruiterLead);
+    $this->actingAs($lead->user)
+        ->get('/recruiter/training/tracks/opt-recruiter')
+        ->assertInertia(fn ($page) => $page->where('courses', fn ($list) => collect($list)->pluck('id')->all() === $expected));
+});
+
 test('an unknown track is a 404', function () {
     $lead = trackPerson(SystemRole::RecruiterLead);
 

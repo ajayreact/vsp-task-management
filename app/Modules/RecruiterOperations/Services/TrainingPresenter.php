@@ -213,7 +213,7 @@ class TrainingPresenter
      *
      * @return array<string, mixed>
      */
-    public function learnerCard(TrainingAssignment $assignment): array
+    public function learnerCard(TrainingAssignment $assignment, ?int $courseNumber = null): array
     {
         $status = $assignment->effectiveStatus();
         $progress = $this->progress->progressFor($assignment);
@@ -227,6 +227,7 @@ class TrainingPresenter
                 'description' => $course->description,
             ],
             'category' => $course->category->name ?? null,
+            'course_number' => $courseNumber,
             'track' => $course->track->slug ?? TrainingTrack::UNASSIGNED,
             'version' => $assignment->version->label(),
             'status' => $status->value,
