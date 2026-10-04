@@ -596,42 +596,59 @@ function CourseLessonArticle({
             data-testid="course-lesson"
             data-completed={lesson.completed ? 'true' : 'false'}
         >
-            <header className="flex items-start gap-4">
+            <header className="bg-card relative flex items-start gap-4 overflow-hidden rounded-2xl border p-5 shadow-sm">
+                <div aria-hidden className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-emerald-500 to-teal-500" />
+                <div
+                    aria-hidden
+                    className="pointer-events-none absolute -top-12 -right-12 size-36 rounded-full bg-gradient-to-br from-emerald-100 to-teal-50 opacity-70 dark:from-emerald-900/30 dark:to-transparent"
+                />
                 <span
                     aria-hidden
                     className={cn(
-                        'hidden size-11 shrink-0 items-center justify-center rounded-full text-base font-semibold tabular-nums ring-4 sm:flex',
+                        'relative hidden size-14 shrink-0 flex-col items-center justify-center rounded-2xl text-white shadow-md sm:flex',
                         lesson.completed
-                            ? 'bg-emerald-600 text-white ring-emerald-600/15'
-                            : 'bg-background text-emerald-700 ring-emerald-600/15 dark:text-emerald-300',
+                            ? 'bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-emerald-600/30'
+                            : 'bg-gradient-to-br from-emerald-500 to-teal-600 shadow-teal-600/25',
                     )}
                 >
-                    {lesson.completed ? <Check className="size-5" /> : position}
+                    {lesson.completed ? (
+                        <Check className="size-7" />
+                    ) : (
+                        <>
+                            <span className="text-[10px] font-semibold tracking-wider uppercase opacity-80">Lesson</span>
+                            <span className="text-xl leading-none font-bold tabular-nums">{position}</span>
+                        </>
+                    )}
                 </span>
-                <div className="min-w-0 flex-1 space-y-1.5">
-                    <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-                        <span className="font-medium" data-testid="lesson-number">
+                <div className="relative min-w-0 flex-1 space-y-2">
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                        <span
+                            className="rounded-full bg-emerald-600/10 px-2.5 py-0.5 font-semibold text-emerald-700 dark:text-emerald-300"
+                            data-testid="lesson-number"
+                        >
                             Lesson {position} of {total}
                         </span>
                         {lesson.duration_minutes && (
-                            <>
-                                <span aria-hidden>·</span>
-                                <span>{lesson.duration_minutes} min</span>
-                            </>
+                            <span className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-medium">
+                                <Clock className="size-3.5" aria-hidden /> {lesson.duration_minutes} min
+                            </span>
                         )}
                         {!lesson.is_required && <RequiredBadge required={false} />}
                         {lesson.completed && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600/10 px-2 py-0.5 font-medium text-emerald-700 dark:text-emerald-300">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-0.5 font-medium text-white">
                                 <CheckCircle2 className="size-3.5" /> Completed
                             </span>
                         )}
                     </div>
-                    <h3 id={`${lessonAnchor(lesson.id)}-title`} className="text-xl font-semibold tracking-tight md:text-2xl">
+                    <h3 id={`${lessonAnchor(lesson.id)}-title`} className="text-xl font-bold tracking-tight text-balance md:text-2xl">
                         {lesson.title}
                     </h3>
                     {lesson.description && <p className="text-muted-foreground leading-relaxed">{lesson.description}</p>}
                     {fellBack && chosen && (
-                        <p className="bg-muted text-muted-foreground inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs" role="status">
+                        <p
+                            className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs text-amber-800 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-300"
+                            role="status"
+                        >
                             <Info className="size-3.5 shrink-0" />
                             {chosen.label} not available — showing English
                         </p>

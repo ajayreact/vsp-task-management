@@ -82,6 +82,23 @@ function normaliseLocale(locale: string): string {
 
 const LANGUAGE_NAMES: Record<string, string> = { te: 'Telugu' };
 
+const DARK_SELECT = 'h-8 border-white/15 bg-white/10 text-white shadow-none hover:bg-white/15 [&_svg]:text-white/70';
+const DARK_ICON_BUTTON = 'size-9 rounded-full text-white/80 hover:bg-white/10 hover:text-white disabled:text-white/30';
+
+function SoundBars() {
+    return (
+        <span className="flex h-4 items-end gap-0.5" aria-hidden>
+            {[45, 100, 65, 85].map((height, index) => (
+                <span
+                    key={index}
+                    className="w-0.5 animate-pulse rounded-full bg-emerald-300"
+                    style={{ height: `${height}%`, animationDelay: `${index * 150}ms` }}
+                />
+            ))}
+        </span>
+    );
+}
+
 /** Fired when a player starts, so any other player on the page pauses. */
 const PLAY_EVENT = 'recruiter-training:audio-play';
 
@@ -747,24 +764,30 @@ export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0
     }
 
     return (
-        <section className="rounded-xl border border-emerald-600/20 bg-emerald-50/40 p-4 dark:bg-emerald-950/10" aria-label="Listen to lesson">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                    <span className="flex size-8 items-center justify-center rounded-lg bg-emerald-600/10 text-emerald-700">
-                        <Headphones className="size-4" />
+        <section
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-900 p-5 text-white shadow-lg shadow-emerald-900/10"
+            aria-label="Listen to lesson"
+        >
+            <div aria-hidden className="pointer-events-none absolute -top-16 -right-10 size-48 rounded-full bg-emerald-500/20 blur-3xl" />
+            <div aria-hidden className="pointer-events-none absolute -bottom-20 left-1/3 size-40 rounded-full bg-teal-400/10 blur-3xl" />
+
+            <div className="relative flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                    <span className="flex size-10 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-300 ring-1 ring-emerald-300/30">
+                        {isPlaying ? <SoundBars /> : <Headphones className="size-5" />}
                     </span>
                     <div>
-                        <h2 className="text-sm font-semibold">Listen to Lesson</h2>
-                        <p className="text-muted-foreground text-xs">Press play to hear this lesson read aloud.</p>
+                        <h2 className="text-sm font-semibold tracking-wide">Listen to Lesson</h2>
+                        <p className="text-xs text-white/60">{isPlaying ? 'Now playing…' : 'Press play to hear this lesson read aloud.'}</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <label htmlFor={`${playerId}-voice`} className="text-muted-foreground text-xs">
+                    <label htmlFor={`${playerId}-voice`} className="text-xs text-white/60">
                         Voice
                     </label>
                     <Select value={voiceKey} onValueChange={changeVoice} disabled={isLoading}>
-                        <SelectTrigger id={`${playerId}-voice`} className="h-8 w-48 max-w-[60vw] bg-white/80" aria-label="Voice">
+                        <SelectTrigger id={`${playerId}-voice`} className={cn('w-48 max-w-[60vw]', DARK_SELECT)} aria-label="Voice">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -779,11 +802,12 @@ export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0
                 </div>
             </div>
 
-            <div className="mt-4 flex items-center gap-2">
+            <div className="relative mt-5 flex items-center gap-2">
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
+                    className={DARK_ICON_BUTTON}
                     onClick={previous}
                     disabled={controlsDisabled || !payloadRef.current}
                     aria-label="Previous"
@@ -793,17 +817,24 @@ export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0
                 <Button
                     type="button"
                     size="icon"
-                    className="size-11 rounded-full bg-emerald-600 text-white hover:bg-emerald-700"
+                    className="size-12 rounded-full bg-white text-emerald-700 shadow-lg shadow-emerald-400/30 transition-transform hover:scale-105 hover:bg-emerald-50 disabled:opacity-60"
                     onClick={isPlaying ? pause : play}
                     disabled={controlsDisabled || isLoading}
                     aria-label={isPlaying ? 'Pause' : 'Play'}
                 >
-                    {isLoading ? <LoaderCircle className="animate-spin" /> : isPlaying ? <Pause /> : <Play />}
+                    {isLoading ? (
+                        <LoaderCircle className="animate-spin" />
+                    ) : isPlaying ? (
+                        <Pause className="fill-current" />
+                    ) : (
+                        <Play className="translate-x-px fill-current" />
+                    )}
                 </Button>
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
+                    className={DARK_ICON_BUTTON}
                     onClick={next}
                     disabled={controlsDisabled || !payloadRef.current}
                     aria-label="Next"
@@ -812,7 +843,7 @@ export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0
                 </Button>
 
                 <div className="ml-2 flex min-w-0 flex-1 items-center gap-3">
-                    <span className="text-muted-foreground w-10 text-right text-xs tabular-nums">{clock(shownPosition)}</span>
+                    <span className="w-10 text-right text-xs text-white/60 tabular-nums">{clock(shownPosition)}</span>
                     <input
                         type="range"
                         min={0}
@@ -821,19 +852,26 @@ export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0
                         value={hasTimeline ? Math.min(position, duration) : 0}
                         onChange={(event) => seekTo(Number(event.target.value))}
                         disabled={controlsDisabled || !hasTimeline}
-                        className="h-1.5 min-w-0 flex-1 cursor-pointer accent-emerald-600 disabled:cursor-default"
+                        className="h-1.5 min-w-0 flex-1 cursor-pointer accent-emerald-400 disabled:cursor-default"
                         aria-label="Seek"
                         aria-valuetext={`${clock(shownPosition)} of ${clock(shownDuration)}`}
                     />
-                    <span className="text-muted-foreground w-14 text-xs tabular-nums">
+                    <span className="w-14 text-xs text-white/60 tabular-nums">
                         {hasTimeline ? `${estimated ? '≈' : ''}${clock(shownDuration)}` : '--:--'}
                     </span>
                 </div>
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+            <div className="relative mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/10 pt-3">
                 <div className="flex items-center gap-2">
-                    <Button type="button" variant="ghost" size="icon" className="size-8" onClick={toggleMute} aria-label={muted ? 'Unmute' : 'Mute'}>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className={cn(DARK_ICON_BUTTON, 'size-8')}
+                        onClick={toggleMute}
+                        aria-label={muted ? 'Unmute' : 'Mute'}
+                    >
                         {muted || volume === 0 ? <VolumeX /> : <Volume2 />}
                     </Button>
                     <input
@@ -843,17 +881,17 @@ export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0
                         step={0.05}
                         value={muted ? 0 : volume}
                         onChange={(event) => changeVolume(Number(event.target.value))}
-                        className="h-1.5 w-28 cursor-pointer accent-emerald-600"
+                        className="h-1.5 w-28 cursor-pointer accent-emerald-400"
                         aria-label="Volume"
                     />
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <label htmlFor={`${playerId}-speed`} className="text-muted-foreground text-xs">
+                    <label htmlFor={`${playerId}-speed`} className="text-xs text-white/60">
                         Speed
                     </label>
                     <Select value={String(speed)} onValueChange={(value) => changeSpeed(Number(value))}>
-                        <SelectTrigger id={`${playerId}-speed`} className="h-8 w-24 bg-white/80" aria-label="Playback speed">
+                        <SelectTrigger id={`${playerId}-speed`} className={cn('w-24', DARK_SELECT)} aria-label="Playback speed">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -866,27 +904,27 @@ export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0
                     </Select>
                 </div>
 
-                {isLoading && <span className="text-muted-foreground text-xs">Preparing audio…</span>}
-                {resumeHint && <span className="text-muted-foreground text-xs">{resumeHint}</span>}
-                {status === 'ended' && <span className="text-muted-foreground text-xs">Finished. Mark the lesson complete when you are ready.</span>}
+                {isLoading && <span className="text-xs text-white/60">Preparing audio…</span>}
+                {resumeHint && <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs text-white/80">{resumeHint}</span>}
+                {status === 'ended' && <span className="text-xs text-emerald-300">Finished. Mark the lesson complete when you are ready.</span>}
             </div>
 
             {unsupported && (
-                <p className="text-destructive mt-3 flex items-start gap-2 text-sm">
+                <p className="relative mt-3 flex items-start gap-2 text-sm text-red-300">
                     <AlertCircle className="mt-0.5 size-4 shrink-0" />
                     This browser cannot read lessons aloud. Please use a current version of Chrome, Edge or Safari.
                 </p>
             )}
 
             {!hasText && (
-                <p className="text-muted-foreground mt-3 flex items-start gap-2 text-sm">
+                <p className="relative mt-3 flex items-start gap-2 text-sm text-white/70">
                     <Info className="mt-0.5 size-4 shrink-0" />
                     {english ? 'This lesson has no written text to read aloud yet.' : `This lesson has no ${languageName} text to read aloud yet.`}
                 </p>
             )}
 
             {missingLanguageVoice && (
-                <p className="mt-3 flex items-start gap-2 text-sm text-amber-700 dark:text-amber-300" role="status">
+                <p className="relative mt-3 flex items-start gap-2 text-sm text-amber-300" role="status">
                     <AlertCircle className="mt-0.5 size-4 shrink-0" />
                     {languageName} voice is not available on this device. Please install or enable a {languageName} speech voice in your
                     system/browser.
@@ -894,17 +932,23 @@ export function TrainingAudioPlayer({ audio, language = 'en', initialSeconds = 0
             )}
 
             {status === 'error' && error && (
-                <div className="text-destructive mt-3 flex flex-wrap items-center gap-2 text-sm" role="alert">
+                <div className="relative mt-3 flex flex-wrap items-center gap-2 text-sm text-red-300" role="alert">
                     <AlertCircle className="size-4 shrink-0" />
                     <span>{error}</span>
-                    <Button type="button" variant="outline" size="sm" onClick={retry}>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+                        onClick={retry}
+                    >
                         <RotateCcw /> Try again
                     </Button>
                 </div>
             )}
 
             {deviceDelivery && english && deviceVoiceMissing && selectedVoice && !unsupported && (
-                <p className={cn('text-muted-foreground mt-3 flex items-start gap-2 text-xs')}>
+                <p className="relative mt-3 flex items-start gap-2 text-xs text-white/55">
                     <Info className="mt-0.5 size-3.5 shrink-0" />
                     This device has no {selectedVoice.label} voice installed, so your browser reads with its default English voice. Add an English (
                     {selectedVoice.locale}) voice in your device&apos;s speech settings to hear the {selectedVoice.label} accent.
