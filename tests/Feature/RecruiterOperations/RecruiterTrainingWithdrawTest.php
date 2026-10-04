@@ -148,17 +148,45 @@ test('assignments stay on their version: Version 2 reaches a recruiter only thro
         ->assertInertia(fn ($page) => $page->has('lessons', 3)->where('version.label', $v1->label()));
 });
 
-test('a started assignment is kept as learning history and nothing is removed', function () {
+test('a started assignment can be withdrawn: its progress goes, the course and other recruiters stay', function () {
+    $lead = withdrawStaff(SystemRole::RecruiterLead);
+    $recruiter = withdrawStaff();
+    $other = withdrawStaff();
+    [, $v1] = withdrawCourse($lead);
+    $assignment = TrainingAssignment::factory()->forVersion($v1)->forEmployee($recruiter)->create();
+    $kept = TrainingAssignment::factory()->forVersion($v1)->forEmployee($other)->create();
+    app(TrainingProgressService::class)->completeLesson($assignment, $v1->lessons()->first(), $recruiter->user);
+    app(TrainingProgressService::class)->completeLesson($kept, $v1->lessons()->first(), $other->user);
+    $before = withdrawTrainingSnapshot();
+
+    $this->actingAs($lead->user)->delete("/recruiter/training/assignments/{$assignment->id}")
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('success', 'Training assignment withdrawn.');
+
+    expect($assignment->fresh())->toBeNull()
+        ->and(TrainingLessonCompletion::query()->where('assignment_id', $assignment->id)->exists())->toBeFalse()
+        ->and($kept->fresh())->not->toBeNull()
+        ->and(TrainingLessonCompletion::query()->where('assignment_id', $kept->id)->count())->toBe(1)
+        ->and(withdrawTrainingSnapshot())->toBe($before);
+});
+
+test('a completed assignment is kept as learning history and cannot be withdrawn', function () {
     $lead = withdrawStaff(SystemRole::RecruiterLead);
     $recruiter = withdrawStaff();
     [, $v1] = withdrawCourse($lead);
     $assignment = TrainingAssignment::factory()->forVersion($v1)->forEmployee($recruiter)->create();
-    app(TrainingProgressService::class)->completeLesson($assignment, $v1->lessons()->first(), $recruiter->user);
+
+    foreach ($v1->lessons as $lesson) {
+        app(TrainingProgressService::class)->completeLesson($assignment, $lesson, $recruiter->user);
+    }
+
+    expect($assignment->fresh()->isCompleted())->toBeTrue();
     $before = withdrawTrainingSnapshot();
 
     $this->actingAs($lead->user)->delete("/recruiter/training/assignments/{$assignment->id}")->assertForbidden();
 
     expect($assignment->fresh())->not->toBeNull()
+        ->and(TrainingLessonCompletion::query()->where('assignment_id', $assignment->id)->count())->toBe(3)
         ->and(withdrawTrainingSnapshot())->toBe($before);
 });
 
@@ -170,4 +198,23 @@ test('the assignment list offers withdrawal only where it is allowed', function 
     $this->actingAs($lead->user)->get('/recruiter/training/assignments')->assertOk()
         ->assertInertia(fn ($page) => $page->component('RecruiterOperations/training/assignments/index')
             ->where('assignments.data.0.can.delete', true));
+});
+
+test('the course page offers to publish its draft, and publishing makes it live', function () {
+    $lead = withdrawStaff(SystemRole::RecruiterLead);
+    [$course, $v1, $v2] = withdrawCourse($lead);
+
+    $this->actingAs($lead->user)->get("/recruiter/training/manage/courses/{$course->id}")->assertOk()
+        ->assertInertia(fn ($page) => $page->where('draft.id', $v2->id)
+            ->where('draft.lessons_count', 4)
+            ->where('draft.is_shown', false)
+            ->where('draft.can_publish', true));
+
+    $this->actingAs($lead->user)->post("/recruiter/training/manage/versions/{$v2->id}/publish")->assertSessionHasNoErrors();
+
+    expect($course->fresh()->current_version_id)->toBe($v2->id)
+        ->and($v1->fresh()->status)->toBe(TrainingContentStatus::Archived);
+
+    $this->actingAs($lead->user)->get("/recruiter/training/manage/courses/{$course->id}")
+        ->assertInertia(fn ($page) => $page->where('draft', null));
 });

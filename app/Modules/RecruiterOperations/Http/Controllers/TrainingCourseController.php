@@ -142,6 +142,12 @@ class TrainingCourseController extends Controller
             ->orderByDesc('version_number')
             ->first();
 
+        $draft = $trainingCourse->versions()
+            ->where('status', TrainingContentStatus::Draft->value)
+            ->withCount('lessons')
+            ->first();
+        $draft?->setRelation('course', $trainingCourse);
+
         $selected?->setRelation('course', $trainingCourse);
         $selected?->load(['lessons.media', 'lessons.contents:id,lesson_id,locale', 'assessmentVersions.assessment']);
 
@@ -187,6 +193,13 @@ class TrainingCourseController extends Controller
                 'can' => [
                     'update' => $user->can('update', $selected),
                 ],
+            ] : null,
+            'draft' => $draft !== null ? [
+                'id' => $draft->id,
+                'label' => "Version {$draft->version_number}",
+                'lessons_count' => (int) $draft->lessons_count,
+                'is_shown' => $draft->id === $selected?->id,
+                'can_publish' => $user->can('publish', $draft),
             ] : null,
             'can' => [
                 'update' => $user->can('update', $trainingCourse),

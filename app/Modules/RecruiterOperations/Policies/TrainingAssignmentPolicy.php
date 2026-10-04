@@ -28,7 +28,7 @@ class TrainingAssignmentPolicy
      */
     public function delete(User $user, TrainingAssignment $assignment): bool
     {
-        return $this->assigns($user) && ! $assignment->isStarted();
+        return $this->assigns($user) && ! $assignment->isCompleted();
     }
 
     protected function assigns(User $user): bool

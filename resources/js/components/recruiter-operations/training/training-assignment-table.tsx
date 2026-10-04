@@ -107,7 +107,11 @@ export function TrainingAssignmentTable({
                                                       confirm: {
                                                           url: `/recruiter/training/assignments/${row.id}`,
                                                           title: 'Withdraw training assignment?',
-                                                          description: `This will remove the training assignment from ${row.recruiter_name ?? 'this recruiter'}.\n\nThe training course, lessons, versions, and other recruiters' assignments will not be deleted.`,
+                                                          description: `This will remove the training assignment from ${row.recruiter_name ?? 'this recruiter'}.${
+                                                              row.lessons_completed > 0 || row.status !== 'assigned'
+                                                                  ? `\n\nThey have already started it: their progress on this course (${row.lessons_completed}/${row.lessons_counted} lessons) will be removed. Quiz attempts are kept.`
+                                                                  : ''
+                                                          }\n\nThe training course, lessons, versions, and other recruiters' assignments will not be deleted.`,
                                                           confirmLabel: 'Withdraw Assignment',
                                                       },
                                                   },

@@ -245,17 +245,20 @@ test('recruiters cannot assign training; the permission is checked before valida
     $this->actingAs($recruiter->user)->post('/recruiter/training/assignments', [])->assertForbidden();
 });
 
-test('an unstarted assignment can be withdrawn, a started one is kept', function () {
+test('unstarted and started assignments can be withdrawn, a completed one is kept', function () {
     $lead = trainingLearner(SystemRole::RecruiterLead);
     [, $version] = liveTrainingCourse();
     $unstarted = assignTraining($version, trainingLearner());
     $started = TrainingAssignment::factory()->inProgress()->forVersion($version)->forEmployee(trainingLearner())->create();
+    $completed = TrainingAssignment::factory()->completed()->forVersion($version)->forEmployee(trainingLearner())->create();
 
     $this->actingAs($lead->user)->delete("/recruiter/training/assignments/{$unstarted->id}")->assertSessionHas('success');
-    $this->actingAs($lead->user)->delete("/recruiter/training/assignments/{$started->id}")->assertForbidden();
+    $this->actingAs($lead->user)->delete("/recruiter/training/assignments/{$started->id}")->assertSessionHas('success');
+    $this->actingAs($lead->user)->delete("/recruiter/training/assignments/{$completed->id}")->assertForbidden();
 
     expect(TrainingAssignment::query()->find($unstarted->id))->toBeNull()
-        ->and($started->fresh())->not->toBeNull();
+        ->and(TrainingAssignment::query()->find($started->id))->toBeNull()
+        ->and($completed->fresh())->not->toBeNull();
 });
 
 test('the assignment list filters by recruiter, course and status', function () {

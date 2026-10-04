@@ -1,7 +1,13 @@
 import { ConfirmDelete } from '@/components/admin/confirm-delete';
 import { PageHeader } from '@/components/admin/page-header';
 import InputError from '@/components/input-error';
-import { ConfirmPost, ContentStatusBadge, RequiredBadge, TrainingSubNav, formatMinutes } from '@/components/recruiter-operations/training/training-ui';
+import {
+    ConfirmPost,
+    ContentStatusBadge,
+    RequiredBadge,
+    TrainingSubNav,
+    formatMinutes,
+} from '@/components/recruiter-operations/training/training-ui';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,7 +19,7 @@ import RecruiterLayout from '@/layouts/recruiter-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, Eye, LoaderCircle, Pencil, Plus, Trash2, UserPlus } from 'lucide-react';
+import { ArrowDown, ArrowUp, Eye, LoaderCircle, Pencil, Plus, Rocket, Trash2, UserPlus } from 'lucide-react';
 import { type FormEvent } from 'react';
 
 interface LessonRow {
@@ -59,6 +65,7 @@ interface Props {
         status_label: string;
     };
     selectedVersion: SelectedVersion | null;
+    draft: { id: number; label: string; lessons_count: number; is_shown: boolean; can_publish: boolean } | null;
     can: { update: boolean; archive: boolean; restore: boolean; assign: boolean };
     quizOptions: { value: string; label: string }[];
 }
@@ -77,7 +84,9 @@ function LinkedQuizzes({ version, options }: { version: SelectedVersion; options
         <Card>
             <CardHeader>
                 <CardTitle className="text-base">Quizzes</CardTitle>
-                <CardDescription>Recruiters assigned this course receive these quizzes, including recruiters assigned before the quiz was linked.</CardDescription>
+                <CardDescription>
+                    Recruiters assigned this course receive these quizzes, including recruiters assigned before the quiz was linked.
+                </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
                 {version.quizzes.length === 0 && <p className="text-muted-foreground text-sm">No quizzes linked.</p>}
@@ -253,7 +262,7 @@ function LessonActions({
     );
 }
 
-export default function ManageTrainingCourse({ course, selectedVersion, can, quizOptions }: Props) {
+export default function ManageTrainingCourse({ course, selectedVersion, draft, can, quizOptions }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Recruiter Operations', href: '/recruiter' },
         { title: 'Training', href: '/recruiter/training' },
@@ -328,6 +337,46 @@ export default function ManageTrainingCourse({ course, selectedVersion, can, qui
                     }
                 />
 
+                {draft?.can_publish && (
+                    <div
+                        className="flex flex-col gap-3 rounded-xl border border-amber-300/60 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-amber-500/30 dark:bg-amber-950/20"
+                        data-testid="draft-banner"
+                    >
+                        <div className="min-w-0 space-y-0.5">
+                            <p className="font-medium">
+                                {draft.label} is a draft and not live yet
+                                <span className="text-muted-foreground font-normal">
+                                    {' · '}
+                                    {draft.lessons_count} {draft.lessons_count === 1 ? 'lesson' : 'lessons'}
+                                </span>
+                            </p>
+                            <p className="text-muted-foreground text-sm">
+                                {draft.is_shown
+                                    ? 'This course has never been published, so recruiters cannot be assigned it yet.'
+                                    : 'Recruiters still see the live version below. Review the draft in Content review, then publish it.'}
+                            </p>
+                        </div>
+                        <div className="flex shrink-0 flex-wrap gap-2">
+                            <Button asChild size="sm" variant="outline">
+                                <Link href="/recruiter/training/manage/review">Content review</Link>
+                            </Button>
+                            {draft.lessons_count > 0 && (
+                                <ConfirmPost
+                                    trigger={
+                                        <Button size="sm" className="bg-emerald-600 text-white hover:bg-emerald-700" data-testid="publish-draft">
+                                            <Rocket /> Publish {draft.label}
+                                        </Button>
+                                    }
+                                    title={`Publish ${draft.label}?`}
+                                    description="It becomes the live version straight away, and new assignments receive it. Recruiters already assigned this course stay on the version they started."
+                                    url={`/recruiter/training/manage/versions/${draft.id}/publish`}
+                                    confirmLabel="Publish"
+                                />
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 <div className="min-w-0">
                     {version ? (
                         <div className="min-w-0 space-y-6">
@@ -336,7 +385,8 @@ export default function ManageTrainingCourse({ course, selectedVersion, can, qui
                                     <CardTitle className="text-base">Course details</CardTitle>
                                     <CardDescription data-testid="course-duration">
                                         Duration {formatMinutes(version.duration_minutes)}
-                                        {version.estimated_minutes ? '' : ' (estimated from the lesson text)'}. Changes you save are live straight away
+                                        {version.estimated_minutes ? '' : ' (estimated from the lesson text)'}. Changes you save are live straight
+                                        away
                                         {version.open_assignments_count > 0
                                             ? ` for the ${version.open_assignments_count} recruiter${version.open_assignments_count === 1 ? '' : 's'} working on this course.`
                                             : '.'}

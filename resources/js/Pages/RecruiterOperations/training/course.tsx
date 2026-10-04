@@ -23,7 +23,21 @@ import RecruiterLayout from '@/layouts/recruiter-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Check, CheckCircle2, Info, LoaderCircle, PartyPopper, Play, RotateCcw } from 'lucide-react';
+import {
+    ArrowLeft,
+    BookOpen,
+    CalendarClock,
+    Check,
+    CheckCircle2,
+    Clock,
+    GraduationCap,
+    Info,
+    Layers,
+    LoaderCircle,
+    PartyPopper,
+    Play,
+    RotateCcw,
+} from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 
@@ -82,7 +96,36 @@ const START_AFTER_MS = 4000;
 const READING_LINE = 280;
 
 const lessonAnchor = (id: number) => `lesson-${id}`;
-const twoDigits = (value: number) => String(value).padStart(2, '0');
+const HERO_CHIP = 'inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 ring-1 ring-white/25 backdrop-blur-sm';
+
+function ProgressRing({ percent, className }: { percent: number; className?: string }) {
+    const value = Math.max(0, Math.min(100, Math.round(percent)));
+    const radius = 42;
+    const circumference = 2 * Math.PI * radius;
+
+    return (
+        <div className={cn('relative size-28', className)} aria-hidden>
+            <svg viewBox="0 0 100 100" className="size-full -rotate-90">
+                <circle cx="50" cy="50" r={radius} fill="none" strokeWidth="8" className="stroke-white/20" />
+                <circle
+                    cx="50"
+                    cy="50"
+                    r={radius}
+                    fill="none"
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={circumference * (1 - value / 100)}
+                    className="stroke-white transition-[stroke-dashoffset] duration-700"
+                />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
+                <span className="text-2xl font-bold tabular-nums">{value}%</span>
+                <span className="mt-1 text-[11px] font-medium text-white/80">complete</span>
+            </div>
+        </div>
+    );
+}
 
 /**
  * Completions saved on this page, by course. Back and Forward remount the page
@@ -299,73 +342,84 @@ export default function TrainingCourse({
                         <ArrowLeft className="size-4" /> Back to My Training
                     </Link>
 
-                    <div className="mt-2 space-y-1">
-                        <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-                            {course.category && <span>{course.category}</span>}
-                            {course.category && <span aria-hidden>·</span>}
-                            <span data-testid="course-version">{version.label}</span>
-                            {version.estimated_minutes ? (
-                                <>
-                                    <span aria-hidden>·</span>
-                                    <span>{formatMinutes(version.estimated_minutes)}</span>
-                                </>
-                            ) : null}
-                            {assignment.due_at && (
-                                <>
-                                    <span aria-hidden>·</span>
-                                    <span className={assignment.status === 'overdue' ? 'text-destructive font-medium' : undefined}>
-                                        Due {formatTrainingDate(assignment.due_at)}
-                                    </span>
-                                </>
-                            )}
+                    <div className="mt-3 overflow-hidden rounded-2xl border shadow-sm" data-testid="course-progress">
+                        <div className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-600 to-teal-600 px-5 py-6 text-white sm:px-7">
+                            <div aria-hidden className="pointer-events-none absolute -top-20 -right-12 size-60 rounded-full bg-white/10" />
+                            <div aria-hidden className="pointer-events-none absolute right-28 -bottom-24 size-44 rounded-full bg-white/5" />
+                            <div className="relative flex items-center gap-6">
+                                <div className="min-w-0 flex-1 space-y-3">
+                                    <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
+                                        {course.category && (
+                                            <span className={HERO_CHIP}>
+                                                <GraduationCap className="size-3.5" aria-hidden /> {course.category}
+                                            </span>
+                                        )}
+                                        <span className={HERO_CHIP} data-testid="course-version">
+                                            <Layers className="size-3.5" aria-hidden /> {version.label}
+                                        </span>
+                                        <span className={HERO_CHIP}>
+                                            <BookOpen className="size-3.5" aria-hidden /> {lessons.length}{' '}
+                                            {lessons.length === 1 ? 'lesson' : 'lessons'}
+                                        </span>
+                                        {version.estimated_minutes ? (
+                                            <span className={HERO_CHIP}>
+                                                <Clock className="size-3.5" aria-hidden /> {formatMinutes(version.estimated_minutes)}
+                                            </span>
+                                        ) : null}
+                                        {assignment.due_at && (
+                                            <span className={cn(HERO_CHIP, assignment.status === 'overdue' && 'bg-red-500/90 ring-red-300/50')}>
+                                                <CalendarClock className="size-3.5" aria-hidden /> Due {formatTrainingDate(assignment.due_at)}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                                        <h1 className="text-2xl font-bold tracking-tight text-balance md:text-3xl">{course.title}</h1>
+                                        <span className="rounded-full bg-white shadow-sm">
+                                            <TrainingStatusBadge status={assignment.status} label={assignment.status_label} />
+                                        </span>
+                                    </div>
+                                    {course.description && (
+                                        <p className="line-clamp-2 max-w-2xl text-sm leading-relaxed text-white/85">{course.description}</p>
+                                    )}
+                                </div>
+                                <ProgressRing percent={progress.percent} className="hidden shrink-0 sm:block" />
+                            </div>
                         </div>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                            <h1 className="text-2xl font-semibold tracking-tight md:text-[1.75rem]">{course.title}</h1>
-                            <TrainingStatusBadge status={assignment.status} label={assignment.status_label} />
-                        </div>
-                        {course.description && (
-                            <p className="text-muted-foreground line-clamp-2 max-w-3xl text-sm leading-relaxed">{course.description}</p>
-                        )}
-                    </div>
 
-                    <div
-                        className="bg-card mt-3 flex flex-col gap-3 rounded-xl border p-3 md:flex-row md:items-center md:gap-6"
-                        data-testid="course-progress"
-                    >
-                        <div className="min-w-0 flex-1 space-y-1.5">
-                            <div className="flex items-baseline justify-between gap-2 text-sm">
-                                <span className="font-medium">Progress</span>
-                                <span className="text-muted-foreground tabular-nums" data-testid="course-progress-count">
-                                    {progress.completed} / {progress.counted} lessons completed
-                                </span>
+                        <div className="bg-card flex flex-col gap-4 p-4 sm:px-6 lg:flex-row lg:items-center lg:gap-6">
+                            <div className="min-w-0 flex-1 space-y-2">
+                                <div className="flex items-baseline justify-between gap-3">
+                                    <p className="text-sm font-medium" data-testid="course-progress-count">
+                                        {progress.completed} / {progress.counted} lessons completed
+                                        <span className="text-muted-foreground font-normal">
+                                            {' · '}
+                                            {progress.remaining === 0 ? 'nothing left to finish' : `${progress.remaining} remaining`}
+                                        </span>
+                                    </p>
+                                    <span className="text-sm font-semibold text-emerald-700 tabular-nums lg:hidden dark:text-emerald-300">
+                                        {Math.round(progress.percent)}%
+                                    </span>
+                                </div>
+                                <TrainingProgressBar percent={progress.percent} label="Course progress" showValue={false} />
                             </div>
-                            <TrainingProgressBar percent={progress.percent} label="Course progress" />
-                            <div className="text-muted-foreground flex gap-4 text-xs">
-                                <span>
-                                    Completed: <strong className="text-foreground tabular-nums">{progress.completed}</strong>
-                                </span>
-                                <span>
-                                    Remaining: <strong className="text-foreground tabular-nums">{progress.remaining}</strong>
-                                </span>
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2 md:shrink-0">
-                            <ListenModeToggle value={listenMode} onChange={chooseListenMode} />
-                            {pageLanguages.length > 1 && (
-                                <TrainingLanguageSelect languages={pageLanguages} value={chosenLanguage} onChange={chooseLanguage} compact />
-                            )}
                             {nextStep && (
                                 <Button
                                     onClick={() => scrollToAnchor(lessonAnchor(nextStep.lesson.id))}
-                                    className="h-auto min-h-10 max-w-full min-w-0 justify-start bg-emerald-600 py-1.5 text-left text-white hover:bg-emerald-700 max-md:flex-1"
+                                    className="h-auto min-h-11 w-full min-w-0 justify-start gap-3 rounded-xl bg-emerald-600 px-4 py-2 text-left text-white shadow-md shadow-emerald-600/25 hover:bg-emerald-700 lg:w-auto lg:max-w-80"
                                     data-testid="course-action"
                                 >
                                     {nextStep.icon}
                                     <span className="flex min-w-0 flex-col leading-tight">
                                         <span className="font-semibold">{nextStep.label}</span>
-                                        <span className="truncate text-xs font-normal opacity-90 md:max-w-56">{nextStep.lesson.title}</span>
+                                        <span className="truncate text-xs font-normal opacity-90">{nextStep.lesson.title}</span>
                                     </span>
                                 </Button>
+                            )}
+                        </div>
+                        <div className="bg-card flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t px-4 py-2.5 sm:px-6">
+                            <ListenModeToggle value={listenMode} onChange={chooseListenMode} />
+                            {pageLanguages.length > 1 && (
+                                <TrainingLanguageSelect languages={pageLanguages} value={chosenLanguage} onChange={chooseLanguage} compact />
                             )}
                         </div>
                     </div>
@@ -382,19 +436,35 @@ export default function TrainingCourse({
 
                         return (
                             <section key={module.anchor} id={module.anchor} aria-labelledby={`${module.anchor}-title`} data-testid="course-module">
-                                <div className="mb-2 space-y-1 border-b-2 border-emerald-600/20 pb-3">
-                                    <p className="text-xs font-semibold tracking-wider text-emerald-700 uppercase dark:text-emerald-300">
-                                        Module {module.number}
-                                    </p>
-                                    <h2 id={`${module.anchor}-title`} className="text-xl font-semibold tracking-tight md:text-2xl">
-                                        {module.title}
-                                    </h2>
-                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                                        <span className="text-muted-foreground text-sm tabular-nums" data-testid="module-lesson-count">
-                                            {module.lesson_ids.length} {module.lesson_ids.length === 1 ? 'lesson' : 'lessons'}
-                                            {counts && counts.completed > 0 && ` · ${counts.completed} completed`}
+                                <div className="flex flex-col gap-4 rounded-xl border border-emerald-600/15 bg-emerald-50/70 p-4 lg:flex-row lg:items-center lg:justify-between dark:bg-emerald-950/20">
+                                    <div className="flex min-w-0 items-center gap-3">
+                                        <span
+                                            aria-hidden
+                                            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-base font-semibold text-white tabular-nums"
+                                        >
+                                            {module.number}
                                         </span>
-                                        <TrainingProgressBar percent={percent} label={`${module.title} progress`} className="max-w-xs flex-1" />
+                                        <div className="min-w-0">
+                                            <p className="text-xs font-semibold tracking-wider text-emerald-700 uppercase dark:text-emerald-300">
+                                                Module {module.number} of {modules.length}
+                                            </p>
+                                            <h2 id={`${module.anchor}-title`} className="text-xl font-semibold tracking-tight md:text-2xl">
+                                                {module.title}
+                                            </h2>
+                                        </div>
+                                    </div>
+                                    <div className="w-full space-y-1.5 lg:w-44 lg:shrink-0">
+                                        <p
+                                            className="text-muted-foreground flex justify-between text-xs tabular-nums"
+                                            data-testid="module-lesson-count"
+                                        >
+                                            <span>
+                                                {counts?.completed ?? 0} / {module.lesson_ids.length}{' '}
+                                                {module.lesson_ids.length === 1 ? 'lesson' : 'lessons'}
+                                            </span>
+                                            <span>{Math.round(percent)}%</span>
+                                        </p>
+                                        <TrainingProgressBar percent={percent} label={`${module.title} progress`} showValue={false} />
                                     </div>
                                 </div>
 
@@ -522,32 +592,31 @@ function CourseLessonArticle({
         <article
             id={lessonAnchor(lesson.id)}
             aria-labelledby={`${lessonAnchor(lesson.id)}-title`}
-            className="space-y-4 py-8"
+            className="space-y-5 py-10 first:pt-6"
             data-testid="course-lesson"
             data-completed={lesson.completed ? 'true' : 'false'}
         >
-            <header className="flex gap-4">
+            <header className="flex items-start gap-4">
                 <span
                     aria-hidden
                     className={cn(
-                        'hidden size-12 shrink-0 items-center justify-center rounded-xl text-lg font-semibold tabular-nums sm:flex',
-                        lesson.completed ? 'bg-emerald-600 text-white' : 'bg-emerald-600/10 text-emerald-700 dark:text-emerald-300',
+                        'hidden size-11 shrink-0 items-center justify-center rounded-full text-base font-semibold tabular-nums ring-4 sm:flex',
+                        lesson.completed
+                            ? 'bg-emerald-600 text-white ring-emerald-600/15'
+                            : 'bg-background text-emerald-700 ring-emerald-600/15 dark:text-emerald-300',
                     )}
                 >
-                    {lesson.completed ? <Check className="size-6" /> : twoDigits(position)}
+                    {lesson.completed ? <Check className="size-5" /> : position}
                 </span>
-                <div className="min-w-0 flex-1 space-y-1">
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-                        <span className="font-semibold tracking-wider text-emerald-700 uppercase dark:text-emerald-300" data-testid="lesson-number">
-                            Lesson {twoDigits(position)}
+                <div className="min-w-0 flex-1 space-y-1.5">
+                    <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                        <span className="font-medium" data-testid="lesson-number">
+                            Lesson {position} of {total}
                         </span>
-                        <span className="text-muted-foreground">of {twoDigits(total)}</span>
                         {lesson.duration_minutes && (
                             <>
-                                <span aria-hidden className="text-muted-foreground">
-                                    ·
-                                </span>
-                                <span className="text-muted-foreground">{lesson.duration_minutes} min</span>
+                                <span aria-hidden>·</span>
+                                <span>{lesson.duration_minutes} min</span>
                             </>
                         )}
                         {!lesson.is_required && <RequiredBadge required={false} />}
@@ -562,8 +631,8 @@ function CourseLessonArticle({
                     </h3>
                     {lesson.description && <p className="text-muted-foreground leading-relaxed">{lesson.description}</p>}
                     {fellBack && chosen && (
-                        <p className="text-muted-foreground flex items-start gap-2 pt-1 text-sm" role="status">
-                            <Info className="mt-0.5 size-4 shrink-0" />
+                        <p className="bg-muted text-muted-foreground inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs" role="status">
+                            <Info className="size-3.5 shrink-0" />
                             {chosen.label} not available — showing English
                         </p>
                     )}

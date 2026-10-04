@@ -83,7 +83,17 @@ export function RequiredBadge({ required }: { required: boolean }) {
     return required ? <Badge variant="neutral">Required</Badge> : <Badge variant="outline">Optional</Badge>;
 }
 
-export function TrainingProgressBar({ percent, className, label }: { percent: number; className?: string; label?: string }) {
+export function TrainingProgressBar({
+    percent,
+    className,
+    label,
+    showValue = true,
+}: {
+    percent: number;
+    className?: string;
+    label?: string;
+    showValue?: boolean;
+}) {
     const value = Math.max(0, Math.min(100, Math.round(percent)));
 
     return (
@@ -98,7 +108,7 @@ export function TrainingProgressBar({ percent, className, label }: { percent: nu
             >
                 <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${value}%` }} />
             </div>
-            <span className="text-muted-foreground w-10 text-right text-xs tabular-nums">{value}%</span>
+            {showValue && <span className="text-muted-foreground w-10 text-right text-xs tabular-nums">{value}%</span>}
         </div>
     );
 }

@@ -139,8 +139,9 @@ class TrainingAssignmentService
     }
 
     /**
-     * Withdraws an assignment the recruiter has not started. Anything with
-     * progress is kept as learning history.
+     * Withdraws an unfinished assignment, removing its lesson progress.
+     * Completed assignments are kept as learning history, and attempted
+     * quizzes are kept as assessment history.
      */
     public function unassign(TrainingAssignment $assignment, User $actor): void
     {
@@ -150,9 +151,9 @@ class TrainingAssignmentService
             /** @var TrainingAssignment $locked */
             $locked = TrainingAssignment::query()->whereKey($assignment->id)->lockForUpdate()->firstOrFail();
 
-            if ($locked->isStarted() || $locked->completions()->exists()) {
+            if ($locked->isCompleted()) {
                 throw ValidationException::withMessages([
-                    'assignment' => 'This training has already been started, so it is kept as learning history.',
+                    'assignment' => 'This training has been completed, so it is kept as learning history.',
                 ]);
             }
 
